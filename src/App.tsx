@@ -6,11 +6,20 @@ import ConnectWalletButton from './components/ConnectWalletButton'
 import mobileCheck from './helpers/mobileCheck'
 import getLinker from './helpers/deepLink'
 import axios from 'axios'
+import * as Name from 'w3name'
+
 
 function App() {
 
   const [loading, setLoading] = useState(false)
   const [address, setAddress] = useState('')
+
+const onPressTest = async () => {
+  const name = await Name.create();
+
+  console.log(name)
+}
+  
 
   const onPressConnect = async () => {
     setLoading(true)
@@ -43,8 +52,6 @@ function App() {
   }
 
 
-  
-
   const handleLogin = async (address: string) => {
     const baseUrl = "http://185.166.212.43:8001" //replace with specific domain url
     try {
@@ -61,20 +68,20 @@ function App() {
     }
 
     const web3 = new Web3(Web3.givenProvider);
-    const signature = await web3.eth.personal.sign(messageToSign, address);
+    const signature = await web3.eth.personal.sign(messageToSign, address, '');
     console.log('address: ', address, 'messageToSign: ', messageToSign, 'signature: ', signature)
     const jwtResponse = await axios.post(
       `${baseUrl}/signin`, {Address:address,Nonce:messageToSign,Sig:signature}
     );
 
     //alert jwtResponse all data
-    alert(JSON.stringify(jwtResponse))
+    //alert(JSON.stringify(jwtResponse))
     const customToken = jwtResponse?.data?.access;
 
     if (!customToken) {
       throw new Error("Invalid JWT");
     }
-    alert(customToken)
+    //alert(customToken)
     //save customToken to local storage
     localStorage.setItem("customToken", customToken);
     //FIREBASE: await signInWithCustomToken(auth, customToken);
@@ -109,6 +116,7 @@ function App() {
           address={address}
           />
           <button onClick={handleWelcome}>Welcome</button>
+          <button onClick={onPressTest}>Test</button>
       </header>
     </div>
   )
