@@ -1,12 +1,8 @@
 import './App.css'
-
-import Web3 from 'web3'
-import { SetStateAction, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import ConnectWalletButton from './components/ConnectWalletButton'
-import mobileCheck from './helpers/mobileCheck'
-import getLinker from './helpers/deepLink'
 import axios from 'axios'
-import * as Name from 'w3name'
+import { connectMetamask } from './requests/metaRequests'
 
 
 function App() {
@@ -14,7 +10,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [address, setAddress] = useState('')
   const [ref, setRef] = useState<HTMLInputElement | null>(null)
-
+  const [fileToUplad, setFileToUpload] = useState<File | null>(null)
 
 
   const onPressTest = () => {
@@ -22,82 +18,28 @@ function App() {
   }
 
   useEffect(() => {
-    const file = ref?.files?.[0]
-
-    if (!file) {
+    if (!fileToUplad) {
       return
     }
+    alert(fileToUplad?.name)
 
-    alert(file.name)
-  }, [ref?.files])
+
+  }, [fileToUplad])
 
 
   const onPressConnect = async () => {
     setLoading(true)
 
-    try {
-      const webUrl = "http://localhost:8545" //replace with specific domain url
-      const deepLink = `https://metamask.app.link/dapp/${webUrl}`
-      const downloadMetamaskUrl = "https://metamask.io/download.html"
+    const addressTemp: (string | Error) = await connectMetamask();
 
-      if (window?.ethereum?.isMetaMask) {
-        //Desktop browser
-        const accounts = await window.ethereum.request({
-          method: 'eth_requestAccounts',
-        })
-
-        const account = Web3.utils.toChecksumAddress(accounts[0])
-        await handleLogin(account)
-      } else if (mobileCheck()) {
-        //Mobile browser
-        const linker = getLinker(downloadMetamaskUrl);
-        linker.openURL(deepLink as string & Location);
-      } else {
-        window.open(downloadMetamaskUrl, '_blank')
-      }
-    } catch (error) {
-      console.error(error)
+    if (addressTemp instanceof Error) {
+      alert(addressTemp.message)
+    } else {
+      setAddress(addressTemp)
     }
 
     setLoading(false)
   }
-
-
-  const handleLogin = async (address: string) => {
-    const baseUrl = "http://185.166.212.43:8001" //replace with specific domain url
-    try {
-      await axios.post(`${baseUrl}/register`, { address: address });
-    } catch (error) {
-      console.error(error);
-    }
-
-    const response = await axios.get(`${baseUrl}/users/${address}/nonce`);
-    const messageToSign = response?.data?.nonce;
-
-    if (!messageToSign) {
-      throw new Error("Invalid message to sign");
-    }
-
-    const web3 = new Web3(Web3.givenProvider);
-    const signature = await web3.eth.personal.sign(messageToSign, address, '');
-    console.log('address: ', address, 'messageToSign: ', messageToSign, 'signature: ', signature)
-    const jwtResponse = await axios.post(
-      `${baseUrl}/signin`, { Address: address, Nonce: messageToSign, Sig: signature }
-    );
-
-    //alert jwtResponse all data
-    //alert(JSON.stringify(jwtResponse))
-    const customToken = jwtResponse?.data?.access;
-
-    if (!customToken) {
-      throw new Error("Invalid JWT");
-    }
-    //alert(customToken)
-    //save customToken to local storage
-    localStorage.setItem("customToken", customToken);
-    //FIREBASE: await signInWithCustomToken(auth, customToken);
-    setAddress(address);
-  };
 
   const onPressLogout = () => {
     setAddress("");
@@ -130,7 +72,14 @@ function App() {
         <button onClick={handleWelcome}>Welcome</button>
         {/*hidden input with ref*/}
         <input
-          ref={(ref) => {setRef(ref)}} type="file" hidden
+          ref={(ref) => { setRef(ref) }} type="file" hidden
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (!file) {
+              return
+            }
+            setFileToUpload(file)
+          }}
         />
         <button onClick={onPressTest}>Upload file</button>
       </header>
