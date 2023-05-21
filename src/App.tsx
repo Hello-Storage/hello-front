@@ -1,7 +1,7 @@
 import './App.css'
 
 import Web3 from 'web3'
-import { SetStateAction, useState } from 'react'
+import { SetStateAction, useEffect, useState } from 'react'
 import ConnectWalletButton from './components/ConnectWalletButton'
 import mobileCheck from './helpers/mobileCheck'
 import getLinker from './helpers/deepLink'
@@ -13,13 +13,24 @@ function App() {
 
   const [loading, setLoading] = useState(false)
   const [address, setAddress] = useState('')
+  const [ref, setRef] = useState<HTMLInputElement | null>(null)
 
-const onPressTest = async () => {
-  const name = await Name.create();
 
-  console.log(name)
-}
-  
+
+  const onPressTest = () => {
+    ref?.click()
+  }
+
+  useEffect(() => {
+    const file = ref?.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    alert(file.name)
+  }, [ref?.files])
+
 
   const onPressConnect = async () => {
     setLoading(true)
@@ -61,7 +72,7 @@ const onPressTest = async () => {
     }
 
     const response = await axios.get(`${baseUrl}/users/${address}/nonce`);
-    const messageToSign = response?.data?.Nonce;
+    const messageToSign = response?.data?.nonce;
 
     if (!messageToSign) {
       throw new Error("Invalid message to sign");
@@ -71,7 +82,7 @@ const onPressTest = async () => {
     const signature = await web3.eth.personal.sign(messageToSign, address, '');
     console.log('address: ', address, 'messageToSign: ', messageToSign, 'signature: ', signature)
     const jwtResponse = await axios.post(
-      `${baseUrl}/signin`, {Address:address,Nonce:messageToSign,Sig:signature}
+      `${baseUrl}/signin`, { Address: address, Nonce: messageToSign, Sig: signature }
     );
 
     //alert jwtResponse all data
@@ -95,16 +106,17 @@ const onPressTest = async () => {
   };
 
   const handleWelcome = async () => {
-    //create a get request with auth header "Bearer customToken" to /welcome
+    //create a get request with auth header "Bearer customToken" to /api
     const baseUrl = "http://185.166.212.43:8001" //replace with specific domain url
     const customToken = localStorage.getItem("customToken");
-    const response = await axios.get(`${baseUrl}/welcome`, {
+    const response = await axios.get(`${baseUrl}/api/welcome`, {
       headers: {
         Authorization: `Bearer ${customToken}`,
       },
     });
     alert(JSON.stringify(response))
   }
+
 
   return (
     <div className="App">
@@ -114,9 +126,13 @@ const onPressTest = async () => {
           onPressLogout={onPressLogout}
           loading={loading}
           address={address}
-          />
-          <button onClick={handleWelcome}>Welcome</button>
-          <button onClick={onPressTest}>Test</button>
+        />
+        <button onClick={handleWelcome}>Welcome</button>
+        {/*hidden input with ref*/}
+        <input
+          ref={(ref) => {setRef(ref)}} type="file" hidden
+        />
+        <button onClick={onPressTest}>Upload file</button>
       </header>
     </div>
   )
