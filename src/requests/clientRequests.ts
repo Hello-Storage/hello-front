@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios"
 import { FileDB } from "../types";
 
 
-const baseUrl = "http://185.166.212.43:8001" //replace with specific domain url
+const baseUrl = "https://ounn.space:80" //replace with specific domain url
 const customToken = localStorage.getItem("customToken");
 
 
