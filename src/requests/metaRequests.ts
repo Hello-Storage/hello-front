@@ -6,7 +6,7 @@ import axios from "axios"
 export const connectMetamask = async (): Promise<string | Error> => {
 
     try {
-        const webUrl = "https://alexanderbkl.github.io" //replace with specific domain url
+        const webUrl = "https://alexanderbkl.github.io/metaauth" //replace with specific domain url
         const deepLink = `https://metamask.app.link/dapp/${webUrl}`
         const downloadMetamaskUrl = "https://metamask.io/download.html"
 
