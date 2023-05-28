@@ -3,10 +3,11 @@ import { FileDB } from "../types";
 
 
 const baseUrl = "https://ounn.space" //replace with specific domain url
-const customToken = localStorage.getItem("customToken");
 
 
 export const deleteFile = async (file: FileDB | null): Promise<AxiosResponse | null> => {
+  const customToken = localStorage.getItem("customToken");
+
   const fileId = file?.ID;
   if (!fileId) {
     return Promise.resolve(null);
@@ -29,6 +30,8 @@ export const downloadFile = (file: FileDB) => {
   if (!cid) {
     return;
   }
+  const customToken = localStorage.getItem("customToken");
+
   axios.get(`${baseUrl}/api/file/${cid}`, {
     headers: {
       Authorization: `Bearer ${customToken}`,

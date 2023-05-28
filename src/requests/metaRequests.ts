@@ -3,7 +3,7 @@ import mobileCheck from "../helpers/mobileCheck"
 import getLinker from "../helpers/deepLink"
 import axios from "axios"
 
-export const connectMetamask = async (): Promise<string|Error> => {
+export const connectMetamask = async (): Promise<string | Error> => {
 
     try {
         const webUrl = "http://localhost:8545" //replace with specific domain url
@@ -31,9 +31,9 @@ export const connectMetamask = async (): Promise<string|Error> => {
     } catch (error) {
         console.error(error)
         //create Error
-        const err = new Error("Error connecting to Metamask: "+error)
+        const err = new Error("Error connecting to Metamask: " + error)
         return err
-    
+
     }
 
 }
@@ -45,7 +45,7 @@ const handleLogin = async (address: string): Promise<string> => {
     try {
         await axios.post(`${baseUrl}/register`, { address: address });
     } catch (error) {
-        console.error(error);
+        console.error(error)
     }
 
     const response = await axios.get(`${baseUrl}/users/${address}/nonce`);
