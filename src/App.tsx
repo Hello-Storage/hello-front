@@ -22,7 +22,7 @@ function App() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  const baseUrl = "https://ounn.space:80" //replace with specific domain url
+  const baseUrl = "https://ounn.space" //replace with specific domain url
 
   const onUploadFilePress = () => {
     ref?.click()

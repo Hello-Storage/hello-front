@@ -41,7 +41,7 @@ export const connectMetamask = async (): Promise<string|Error> => {
 
 
 const handleLogin = async (address: string): Promise<string> => {
-    const baseUrl = "https://ounn.space:80" //replace with specific domain url
+    const baseUrl = "https://ounn.space" //replace with specific domain url
     try {
         await axios.post(`${baseUrl}/register`, { address: address });
     } catch (error) {
