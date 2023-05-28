@@ -2,6 +2,7 @@ import { FileDB } from "../types"
 import { deleteFile, downloadFile } from '../requests/clientRequests.ts'
 import { useState } from 'react'
 import { AxiosResponse } from "axios"
+import { parseISO } from 'date-fns'; // for parsing the date
 
 
 
@@ -43,27 +44,34 @@ const FileComponent = (props: {displayedFilesList: FileDB[], deleteFileFromList:
     const deleteFileFromList = props.deleteFileFromList
     return (
         <ul className="list-group">
-        <DeleteModal selectedFile={selectedFile} deleteFileFromList={deleteFileFromList}/>
-        {displayedFilesList.map((file: FileDB) => {
-        return (<li className="list-group-item" key={file.ID}>
-            <div className="d-flex justify-content-between align-items-center">
-                <p className="mb-0">{file.filename}</p>
-                {/*Display file.CreatedAt date with bootstrap */}
-                <div className="dropdown">
-                    <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-                    </button>
-                    <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                        <li><a className="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => setSelectedFile(file)} href="#">Delete</a></li>
-                        <li><a className="dropdown-item" onClick={() => downloadFile(file)}>Download</a></li>
-                        <li><hr className="dropdown-divider" /></li>
-                        <li><a className="dropdown-item" href="#">Share</a></li>
-                    </ul>
-                </div>
-
-            </div>
-        </li>)})}
+            <DeleteModal selectedFile={selectedFile} deleteFileFromList={deleteFileFromList} />
+            {displayedFilesList.map((file: FileDB) => {
+                const date = parseISO(file.CreatedAt); // convert to Date object
+                const formattedDate = date.toLocaleString(); // convert to string using local timezone
+    
+                return (
+                    <li className="list-group-item" key={file.ID}>
+                        <div className="d-flex justify-content-between align-items-center">
+                            <div className="w-100 d-flex align-items-center justify-content-between">
+                                <p className="mb-0 text-truncate text-dark mr-2">{file.filename}</p>
+                                {/* Display the formatted date in a Bootstrap badge */}
+                                <span className="badge bg-white text-dark m-2" >{formattedDate}</span>
+                            </div>
+                            <div className="dropdown">
+                                <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                                </button>
+                                <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                    <li><a className="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => setSelectedFile(file)} href="#">Delete</a></li>
+                                    <li><a className="dropdown-item" role="button" onClick={() => downloadFile(file)}>Download</a></li>
+                                    <li><hr className="dropdown-divider" /></li>
+                                    <li><a className="dropdown-item" role="button" onClick={() => alert("No implementado")}>Share</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                )
+            })}
         </ul>
-
     )
 }
 

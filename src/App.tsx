@@ -49,6 +49,9 @@ function App() {
 
       filesList.files.push(file)
 
+      setFilesList({ ...filesList, files: filesList.files })
+      setDisplayedFilesList({ ...displayedFilesList, files: filesList.files }) // set displayed files list as well
+
       setToastMessage("File uploaded successfully")
       setShowToast(true);
 
@@ -60,7 +63,7 @@ function App() {
 
 
 
-  }, [fileToUplad, filesList.files])
+  }, [displayedFilesList, fileToUplad, filesList, filesList.files])
 
 
   const onPressConnect = async () => {
@@ -103,7 +106,8 @@ function App() {
 
   const deleteFileFromList = (file: FileDB | null) => {
     if (file !== null) {
-      const updatedFilesList = displayedFilesList.files.filter((item: FileDB) => item.cid !== file.cid);
+      const updatedFilesList = displayedFilesList.files.filter((item: FileDB) => item.ID !== file.ID);
+      setFilesList({ ...filesList, files: updatedFilesList });
       setDisplayedFilesList({ ...displayedFilesList, files: updatedFilesList });
     }
   }
@@ -148,47 +152,44 @@ function App() {
 
 
   return (
-    <div className="App">
-
-      <header className="App-header">
+    <div id="App">
+      {/*make h1 on top of everything*/}
         <Toast toastState={[showToast, setShowToast]} message={toastMessage} />
         <ConnectWalletButton
-          onPressConnect={onPressConnect}
-          onPressLogout={onPressLogout}
-          loading={loading}
-          address={address}
-          customToken={customToken}
+            onPressConnect={onPressConnect}
+            onPressLogout={onPressLogout}
+            loading={loading}
+            address={address}
+            customToken={customToken}
         />
-
 
         {/*hidden input with ref*/}
         <input
-          ref={(ref) => { setRef(ref) }} type="file" hidden
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (!file) {
-              return
-            }
-            setFileToUpload(file)
-          }}
+            ref={(ref) => { setRef(ref) }} type="file" hidden
+            onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (!file) {
+                    return
+                }
+                setFileToUpload(file)
+            }}
         />
-      </header>
-      <div>
-        <button onClick={onUploadFilePress}>Upload file</button>
-        <p>Your uploaded files:</p>
-        <form className="m-2 d-flex" onSubmit={(e: FormEvent<HTMLFormElement>) => handleSubmit(e)}>
-          <input className='m-2 form-control' type="text" placeholder="Enter custom title" onChange={(e) => {
-            setSearchTerm(e.target.value)
-          }} />
-          <button className="m-2 btn btn-primary" type="submit">Search</button>
-        </form>
 
-        <FileComponent displayedFilesList={displayedFilesList.files} deleteFileFromList={deleteFileFromList} />
+        <div className="container mt-4">
+            <button onClick={onUploadFilePress} className="btn btn-primary mb-4">Upload file</button>
+            <h3>Your uploaded files:</h3>
+            <form className="d-flex mb-4" onSubmit={(e: FormEvent<HTMLFormElement>) => handleSubmit(e)}>
+                <input className='form-control' type="text" placeholder="Enter custom title" onChange={(e) => {
+                    setSearchTerm(e.target.value)
+                }} />
+                <button className="btn btn-secondary ms-2" type="submit">Search</button>
+            </form>
 
-      </div>
+            <FileComponent displayedFilesList={displayedFilesList.files} deleteFileFromList={deleteFileFromList} />
 
-    </div >
-  )
+        </div>
+    </div>
+)
 }
 
 export default App
