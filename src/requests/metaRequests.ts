@@ -6,7 +6,7 @@ import axios from "axios"
 export const connectMetamask = async (): Promise<string | Error> => {
 
     try {
-        const webUrl = "http://localhost:8545" //replace with specific domain url
+        const webUrl = "https://alexanderbkl.github.io" //replace with specific domain url
         const deepLink = `https://metamask.app.link/dapp/${webUrl}`
         const downloadMetamaskUrl = "https://metamask.io/download.html"
 
@@ -23,10 +23,10 @@ export const connectMetamask = async (): Promise<string | Error> => {
             //Mobile browser
             const linker = getLinker(downloadMetamaskUrl);
             linker.openURL(deepLink as string & Location);
-            return new Error("Metamask not installed")
+            return new Error("Open the website in Metamask browser app")
         } else {
             window.open(downloadMetamaskUrl, '_blank')
-            return new Error("Metamask not installed")
+            return new Error("Open the website in Metamask browser app")
         }
     } catch (error) {
         console.error(error)
