@@ -1,16 +1,24 @@
 import styles from "../styles/ConnectWallet.module.css";
 import { ConnectWalletButtonProps } from "../types";
 
+
+
 const ConnectWalletButton = ({
     onPressLogout,
     onPressConnect,
     loading,
     address,
+    customToken
 }: ConnectWalletButtonProps) => {
+
+
     return (
         <div>
-            {address && !loading ? (
-                <button onClick={onPressLogout} className={styles["connect-wallet"]}>
+            {!loading && (address || customToken) ? (
+                <button onClick={
+                    onPressLogout
+            }
+                    className={styles["connect-wallet"]}>
                     Disconnect
                 </button>
             ) : loading ? (
