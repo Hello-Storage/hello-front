@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { PasswordModalProps } from "../types";
 import { connectMetamask } from '../requests/metaRequests';
 import { savePassword } from '../requests/clientRequests';
+import { caesarCipher } from '../helpers/cipher';
+import Web3 from 'web3';
 
 const PasswordModal = ({
     showPasswordModal,
@@ -57,7 +59,15 @@ const PasswordModal = ({
                     setShowToast(true);
                     return;
                 }
-
+                //Caesar's cipher?
+                const obfuscatedPassword = caesarCipher(password, 5);
+                //Store signature to the session storage
+                const web3 = new Web3(Web3.givenProvider);
+                const signature = await web3.eth.personal.sign(obfuscatedPassword, addressTemp, "");
+                alert(`Your obfuscated password is: ${obfuscatedPassword}`)
+                alert(`Your signature is: ${signature}`)
+                //add the signature to the session storage
+                sessionStorage.setItem("signature", signature);
                 setAddress(addressTemp);
                 setLoading(false);
             }
