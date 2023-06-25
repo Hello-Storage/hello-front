@@ -35,6 +35,51 @@ const PasswordModal = ({
         setShowPassword(!showPassword);
     };
 
+    async function digestMessage(message: string) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(message);
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        return hash;
+    }
+
+    async function deriveKey(hashBuffer: ArrayBuffer) {
+        return await crypto.subtle.importKey(
+            "raw",
+            hashBuffer,
+            {name: "AES-CBC", length: 256},
+            false,
+            ["encrypt", "decrypt"]
+        );
+    }
+
+    async function encryptFile(message: string, keyBuffer: ArrayBuffer) {
+        //generate a key suitable for AES-CBC from raw key
+        const key = await crypto.subtle.importKey(
+            "raw",
+            keyBuffer,
+            {name: "AES-CBC", length: 256},
+            true,
+            ["encrypt", "decrypt"]
+        )
+
+        //generate an initialization vector (IV)
+        const iv = crypto.getRandomValues(new Uint8Array(16));
+
+        //transform the message into an ArrayBuffer
+        const messageBuffer = new TextEncoder().encode(message);
+
+        //encrypt the message
+        const encryptedFile = await crypto.subtle.encrypt(
+            {name: "AES-CBC", iv},
+            key,
+            messageBuffer
+        );
+        //concatenate the IV and encrypted file
+        
+        return {encryptedFile, iv};
+
+    }
+
     const handleSubmit = async () => {
         if (!passwordError) {
             closePasswordModal();
@@ -64,10 +109,36 @@ const PasswordModal = ({
                 //Store signature to the session storage
                 const web3 = new Web3(Web3.givenProvider);
                 const signature = await web3.eth.personal.sign(obfuscatedPassword, addressTemp, "");
-                alert(`Your obfuscated password is: ${obfuscatedPassword}`)
-                alert(`Your signature is: ${signature}`)
+
+                //digest the signature and alert it
+                const hash = await digestMessage(signature);
+                const key = await deriveKey(hash);
+
+                //encrypt with message "Hola a todos!"
+                const {encryptedFile, iv} = await encryptFile("Hola a todos!", hash);
+
+                //log the encrypted file and the iv
+                console.log("Encrypted file: ")
+                console.log(encryptedFile);
+                console.log("IV: ");
+                console.log(iv);
+
+                //decrypt the file
+                const decryptedFile = await crypto.subtle.decrypt(
+                    {name: "AES-CBC", iv},
+                    key,
+                    encryptedFile
+                );
+
+                //decode the file
+                const decryptedFileText = new TextDecoder().decode(decryptedFile);
+
+                //log the decrypted file
+                console.log("Decrypted file: ");
+                console.log(decryptedFileText);
+
                 //add the signature to the session storage
-                sessionStorage.setItem("signature", signature);
+                sessionStorage.setItem("signingKey", signature);
                 setAddress(addressTemp);
                 setLoading(false);
             }

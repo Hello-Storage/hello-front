@@ -82,6 +82,7 @@ function App() {
   const onPressLogout = () => {
     setAddress(null);
     localStorage.removeItem("customToken");
+    sessionStorage.removeItem("signingKey");
     setCustomToken(null);
     setFilesList({ files: [] });
     setDisplayedFilesList({ files: [] }); // set displayed files list as well
