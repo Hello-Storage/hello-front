@@ -1,8 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { FileDB } from "../types";
+import { baseUrl } from "../constants";
 
-
-const baseUrl = "https://ounn.space" //replace with specific domain url
 
 
 export const deleteFile = async (file: FileDB | null): Promise<AxiosResponse | null> => {
@@ -63,7 +62,6 @@ export const downloadFile = (file: FileDB) => {
 
 export const savePassword = async (password: string): Promise<AxiosResponse | null> => {
   const customToken = localStorage.getItem("customToken");
-
   return axios.post(`${baseUrl}/api/password`, { password: password }, {
     headers: {
       Authorization: `Bearer ${customToken}`,
@@ -73,7 +71,7 @@ export const savePassword = async (password: string): Promise<AxiosResponse | nu
     return response
   }).catch((error) => {
     console.log(error);
-    return null
+    return error;
   });
 
 

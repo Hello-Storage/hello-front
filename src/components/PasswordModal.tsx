@@ -7,7 +7,9 @@ const PasswordModal = ({
     showPasswordModal,
     closePasswordModal,
     setAddress,
-    setLoading
+    setLoading,
+    setToastMessage,
+    setShowToast,
 }: PasswordModalProps) => {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -35,12 +37,27 @@ const PasswordModal = ({
         if (!passwordError) {
             closePasswordModal();
             //alert the password
-            alert(password);
             const addressTemp: (string | Error) = await connectMetamask();
             if (addressTemp instanceof Error) {
                 alert(addressTemp.message)
             } else {
-                await savePassword(password);
+                const response = await savePassword(password);
+
+                //check if the response is an error
+                if (response instanceof Error) {
+                    //extend response so it response.response.data exists
+                    const error = response as any;
+                    //remove customToken from localStorage
+                    localStorage.removeItem("customToken");
+                    //setLoading to false
+                    setLoading(false);
+                    //set toast message to error.response.data
+                    setToastMessage(error.response.data);
+                    //show toast
+                    setShowToast(true);
+                    return;
+                }
+
                 setAddress(addressTemp);
                 setLoading(false);
             }

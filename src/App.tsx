@@ -170,6 +170,8 @@ function App() {
         closePasswordModal={closePasswordModal}
         setAddress={setAddress}
         setLoading={setLoading}
+        setToastMessage={setToastMessage}
+        setShowToast={setShowToast}
       />
 
       {/*hidden input with ref*/}

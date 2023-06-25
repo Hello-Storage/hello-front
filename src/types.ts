@@ -11,6 +11,8 @@ export interface PasswordModalProps {
     closePasswordModal: () => void;
     setAddress: (address: string) => void;
     setLoading: (loading: boolean) => void;
+    setToastMessage: (message: string) => void;
+    setShowToast: (showToast: boolean) => void;
 }
 
 export interface FileDB {
