@@ -6,6 +6,13 @@ export interface ConnectWalletButtonProps {
     customToken: string|null;
 }
 
+export interface PasswordModalProps {
+    showPasswordModal: boolean;
+    closePasswordModal: () => void;
+    setAddress: (address: string) => void;
+    setLoading: (loading: boolean) => void;
+}
+
 export interface FileDB {
     CreatedAt: string;
     DeletedAt: string|null;

@@ -2,6 +2,7 @@ import Web3 from "web3"
 import mobileCheck from "../helpers/mobileCheck"
 import getLinker from "../helpers/deepLink"
 import axios from "axios"
+import { baseUrl } from "../constants"
 
 export const connectMetamask = async (): Promise<string | Error> => {
 
@@ -41,7 +42,6 @@ export const connectMetamask = async (): Promise<string | Error> => {
 
 
 const handleLogin = async (address: string): Promise<string> => {
-    const baseUrl = "https://ounn.space" //replace with specific domain url
     try {
         await axios.post(`${baseUrl}/register`, { address: address });
     } catch (error) {

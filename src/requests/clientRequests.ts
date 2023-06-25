@@ -61,4 +61,20 @@ export const downloadFile = (file: FileDB) => {
   });
 }
 
+export const savePassword = async (password: string): Promise<AxiosResponse | null> => {
+  const customToken = localStorage.getItem("customToken");
 
+  return axios.post(`${baseUrl}/api/password`, { password: password }, {
+    headers: {
+      Authorization: `Bearer ${customToken}`,
+    },
+  }).then((response) => {
+    console.log(response);
+    return response
+  }).catch((error) => {
+    console.log(error);
+    return null
+  });
+
+
+}

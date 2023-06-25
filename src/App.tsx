@@ -2,16 +2,17 @@ import './App.css'
 import { FormEvent, useEffect, useState } from 'react'
 import ConnectWalletButton from './components/ConnectWalletButton'
 import axios from 'axios'
-import { connectMetamask } from './requests/metaRequests'
 import FileComponent from './components/FileComponent'
 import { FileDB } from './types'
 import Toast from './components/Toast'
-
+import { baseUrl } from './constants'
+import PasswordModal from './components/PasswordModal'
 
 function App() {
 
 
   const [loading, setLoading] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [address, setAddress] = useState<string | null>(null)
   const [ref, setRef] = useState<HTMLInputElement | null>(null)
   const [fileToUplad, setFileToUpload] = useState<File | null>(null)
@@ -22,8 +23,10 @@ function App() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  const baseUrl = "https://ounn.space" //replace with specific domain url
 
+  const closePasswordModal = () => {
+    setShowPasswordModal(!showPasswordModal)
+  }
   const onUploadFilePress = () => {
     ref?.click()
   }
@@ -32,6 +35,11 @@ function App() {
     if (!fileToUplad) {
       return
     }
+
+
+
+
+
     //send a post request to baseurl/api/upload with auth header "Bearer customToken" and file in body
     const customToken = localStorage.getItem("customToken");
     const formData = new FormData();
@@ -40,7 +48,7 @@ function App() {
       headers: {
         Authorization: `Bearer ${customToken}`,
       },
-    }).then((response: {data: {files: FileDB}}) => {
+    }).then((response: { data: { files: FileDB } }) => {
       console.log(response)
 
       setFileToUpload(null)
@@ -68,17 +76,7 @@ function App() {
 
   const onPressConnect = async () => {
     setLoading(true)
-
-    const addressTemp: (string | Error) = await connectMetamask();
-
-    if (addressTemp instanceof Error) {
-      alert(addressTemp.message)
-    } else {
-      setAddress(addressTemp)
-
-    }
-
-    setLoading(false)
+    setShowPasswordModal(true)
   }
 
   const onPressLogout = () => {
@@ -115,6 +113,9 @@ function App() {
   useEffect(() => {
     //get files list from /api/files with auth header "Bearer customToken"
     const customToken = localStorage.getItem("customToken");
+    if (!customToken) {
+      return
+    }
     axios.get(`${baseUrl}/api/files`, {
       headers: {
         Authorization: `Bearer ${customToken}`,
@@ -132,6 +133,7 @@ function App() {
       setAddress(null);
       localStorage.removeItem("customToken");
     })
+
 
 
   }, [address])
@@ -154,42 +156,49 @@ function App() {
   return (
     <div id="App">
       {/*make h1 on top of everything*/}
-        <Toast toastState={[showToast, setShowToast]} message={toastMessage} />
-        <ConnectWalletButton
-            onPressConnect={onPressConnect}
-            onPressLogout={onPressLogout}
-            loading={loading}
-            address={address}
-            customToken={customToken}
-        />
+      <Toast toastState={[showToast, setShowToast]} message={toastMessage} />
+      <ConnectWalletButton
+        onPressConnect={onPressConnect}
+        onPressLogout={onPressLogout}
+        loading={loading}
+        address={address}
+        customToken={customToken}
+      />
 
-        {/*hidden input with ref*/}
-        <input
-            ref={(ref) => { setRef(ref) }} type="file" hidden
-            onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (!file) {
-                    return
-                }
-                setFileToUpload(file)
-            }}
-        />
+      <PasswordModal
+        showPasswordModal={showPasswordModal}
+        closePasswordModal={closePasswordModal}
+        setAddress={setAddress}
+        setLoading={setLoading}
+      />
 
-        <div className="container mt-4">
-            <button onClick={onUploadFilePress} className="btn btn-primary mb-4">Upload file</button>
-            <h3>Your uploaded files:</h3>
-            <form className="d-flex mb-4" onSubmit={(e: FormEvent<HTMLFormElement>) => handleSubmit(e)}>
-                <input className='form-control' type="text" placeholder="Enter custom title" onChange={(e) => {
-                    setSearchTerm(e.target.value)
-                }} />
-                <button className="btn btn-secondary ms-2" type="submit">Search</button>
-            </form>
+      {/*hidden input with ref*/}
+      <input
+        ref={(ref) => { setRef(ref) }} type="file" hidden
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (!file) {
+            return
+          }
+          setFileToUpload(file)
+        }}
+      />
 
-            <FileComponent displayedFilesList={displayedFilesList.files} deleteFileFromList={deleteFileFromList} />
+      <div className="container mt-4">
+        <button onClick={onUploadFilePress} className="btn btn-primary mb-4">Upload file</button>
+        <h3>Your uploaded files:</h3>
+        <form className="d-flex mb-4" onSubmit={(e: FormEvent<HTMLFormElement>) => handleSubmit(e)}>
+          <input className='form-control' type="text" placeholder="Enter custom title" onChange={(e) => {
+            setSearchTerm(e.target.value)
+          }} />
+          <button className="btn btn-secondary ms-2" type="submit">Search</button>
+        </form>
 
-        </div>
+        <FileComponent displayedFilesList={displayedFilesList.files} deleteFileFromList={deleteFileFromList} />
+
+      </div>
     </div>
-)
+  )
 }
 
 export default App
