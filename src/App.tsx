@@ -1,12 +1,14 @@
 import './App.css'
 import { FormEvent, useEffect, useState } from 'react'
 import ConnectWalletButton from './components/ConnectWalletButton'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import FileComponent from './components/FileComponent'
 import { FileDB } from './types'
 import Toast from './components/Toast'
 import { baseUrl } from './constants'
 import PasswordModal from './components/PasswordModal'
+import { getHashFromSignature } from './helpers/cipher'
+import { uploadFile } from './requests/clientRequests'
 
 function App() {
 
@@ -37,11 +39,30 @@ function App() {
     }
 
 
+    uploadFile(fileToUplad).then((response: any) => {
+      console.log(response)
+      setFileToUpload(null)
+      //update files list
+      const file: FileDB = response.data.files
+
+      filesList.files.push(file)
+
+      setFilesList({ ...filesList, files: filesList.files })
+      setDisplayedFilesList({ ...displayedFilesList, files: filesList.files }) // set displayed files list as well
+
+      setToastMessage("File uploaded successfully")
+      setShowToast(true);
+
+    }).catch((error) => {
+      console.log(error)
+    });
 
 
 
     //send a post request to baseurl/api/upload with auth header "Bearer customToken" and file in body
     const customToken = localStorage.getItem("customToken");
+
+
     const formData = new FormData();
     formData.append("file", fileToUplad);
     axios.post(`${baseUrl}/api/upload`, formData, {
@@ -49,7 +70,6 @@ function App() {
         Authorization: `Bearer ${customToken}`,
       },
     }).then((response: { data: { files: FileDB } }) => {
-      console.log(response)
 
       setFileToUpload(null)
       //update files list
@@ -82,7 +102,7 @@ function App() {
   const onPressLogout = () => {
     setAddress(null);
     localStorage.removeItem("customToken");
-    sessionStorage.removeItem("signingKey");
+    sessionStorage.removeItem("personalSignature");
     setCustomToken(null);
     setFilesList({ files: [] });
     setDisplayedFilesList({ files: [] }); // set displayed files list as well

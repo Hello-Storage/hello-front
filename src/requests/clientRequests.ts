@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { FileDB } from "../types";
 import { baseUrl } from "../constants";
+import { decryptContent, decryptFile, encryptFile, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
 
 
 
@@ -58,6 +59,51 @@ export const downloadFile = (file: FileDB) => {
     console.log(error);
     return null
   });
+}
+
+
+export const uploadFile = async (file: File): Promise<AxiosResponse | null> => {
+  const customToken = localStorage.getItem("customToken");
+  
+  const signature = sessionStorage.getItem("personalSignature");
+
+  const hash = await getHashFromSignature(signature!);
+
+  //encrypt file
+  const {encryptedFileBuffer, encryptedMetadataBuffer, iv} = await encryptFile(file, hash);
+
+  const encryptedFileBlob = new Blob([encryptedFileBuffer]);
+  const encryptedMetadataBlob = new Blob([encryptedMetadataBuffer]);
+
+
+
+
+
+
+  //Transform iv so that formData can append it
+  const ivString = JSON.stringify(iv);
+
+
+
+  const formData = new FormData();
+  formData.append("file", encryptedFileBlob);
+  formData.append("metadata", encryptedMetadataBlob);
+  formData.append("iv", ivString);
+  return axios.post(`${baseUrl}/api/file`, formData, {
+    headers: {
+      Authorization: `Bearer ${customToken}`,
+    },
+  }).then((response) => {
+    console.log(response);
+
+
+    return response
+  }
+  ).catch((error) => {
+    console.log(error);
+    return null
+  }
+  );
 }
 
 export const savePassword = async (password: string): Promise<AxiosResponse | null> => {
