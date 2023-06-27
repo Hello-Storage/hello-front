@@ -3,11 +3,10 @@ import { FormEvent, useEffect, useState } from 'react'
 import ConnectWalletButton from './components/ConnectWalletButton'
 import axios, { AxiosResponse } from 'axios'
 import FileComponent from './components/FileComponent'
-import { FileDB } from './types'
+import { FileDB, FileUploadResponse } from './types'
 import Toast from './components/Toast'
 import { baseUrl } from './constants'
 import PasswordModal from './components/PasswordModal'
-import { getHashFromSignature } from './helpers/cipher'
 import { uploadFile } from './requests/clientRequests'
 
 function App() {
@@ -30,6 +29,7 @@ function App() {
     setShowPasswordModal(!showPasswordModal)
   }
   const onUploadFilePress = () => {
+    setFileToUpload(null)    
     ref?.click()
   }
 
@@ -39,11 +39,11 @@ function App() {
     }
 
 
-    uploadFile(fileToUplad).then((response: any) => {
+    uploadFile(fileToUplad).then((response: AxiosResponse<FileUploadResponse, any> | null) => {
       console.log(response)
       setFileToUpload(null)
       //update files list
-      const file: FileDB = response.data.files
+      const file: FileDB = response!.data.file
 
       filesList.files.push(file)
 
@@ -55,32 +55,15 @@ function App() {
 
     }).catch((error) => {
       console.log(error)
-    });
 
 
 
-    //send a post request to baseurl/api/upload with auth header "Bearer customToken" and file in body
-    const customToken = localStorage.getItem("customToken");
 
 
-    const formData = new FormData();
-    formData.append("file", fileToUplad);
-    axios.post(`${baseUrl}/api/upload`, formData, {
-      headers: {
-        Authorization: `Bearer ${customToken}`,
-      },
-    }).then((response: { data: { files: FileDB } }) => {
 
       setFileToUpload(null)
-      //update files list
-      const file: FileDB = response.data.files
 
-      filesList.files.push(file)
-
-      setFilesList({ ...filesList, files: filesList.files })
-      setDisplayedFilesList({ ...displayedFilesList, files: filesList.files }) // set displayed files list as well
-
-      setToastMessage("File uploaded successfully")
+      setToastMessage("Error uploading file: " + error.message)
       setShowToast(true);
 
     }
@@ -110,18 +93,6 @@ function App() {
     //FIREBASE: signOut(auth);
   };
 
-  const handleWelcome = async () => {
-    //create a get request with auth header "Bearer customToken" to /api
-    const customToken = localStorage.getItem("customToken");
-    const response = await axios.get(`${baseUrl}/api/welcome`, {
-      headers: {
-        Authorization: `Bearer ${customToken}`,
-      },
-    });
-
-    setToastMessage(response.data.msg)
-    setShowToast(true);
-  }
 
   const deleteFileFromList = (file: FileDB | null) => {
     if (file !== null) {
@@ -145,7 +116,7 @@ function App() {
       setFilesList(response.data)
       setDisplayedFilesList(response.data) // set displayed files list as well
       console.log(response.data)
-      handleWelcome()
+
     }).catch((error) => {
       console.log(error)
       //logout
@@ -153,6 +124,7 @@ function App() {
       setDisplayedFilesList({ files: [] }); // set displayed files list as well
       setAddress(null);
       localStorage.removeItem("customToken");
+      sessionStorage.removeItem("personalSignature");
     })
 
 

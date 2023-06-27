@@ -1,4 +1,8 @@
 import Web3 from 'web3';
+import { CID } from "multiformats/cid";
+import { sha256 } from "multiformats/hashes/sha2";
+
+const RAW_CODEC = 0x55;
 
 export const caesarCipher = (text: string, shift: number) => {
     return text.split('').map(char => {
@@ -49,29 +53,25 @@ export const getKeyFromHash = async (hash: ArrayBuffer): Promise<CryptoKey> => {
     return key;
 }
 
+export const encryptBuffer = async (buffer: ArrayBuffer, key: CryptoKey, iv: Uint8Array) => {
 
-export const encryptFile = async (file: File, keyBuffer: ArrayBuffer) => {
-    //generate a key suitable for AES-CBC from raw key
-    const key = await crypto.subtle.importKey(
-        "raw",
-        keyBuffer,
-        { name: "AES-CBC", length: 256 },
-        true,
-        ["encrypt", "decrypt"]
-    )
+    //encrypt the message
+    const encryptedBuffer = await crypto.subtle.encrypt(
+        { name: "AES-CBC", iv },
+        key,
+        buffer
+    );
+    //concatenate the IV and encrypted file
+    return encryptedBuffer;
+}
+
+
+export const encryptFileMetadata = async (file: File, key: CryptoKey) => {
 
     //generate an initialization vector (IV)
     const iv = crypto.getRandomValues(new Uint8Array(16));
 
-    //transform the file into an ArrayBuffer
-    const fileArrayBuffer = await file.arrayBuffer();    
-
     //encrypt the message
-    const encryptedFileBuffer = await crypto.subtle.encrypt(
-        { name: "AES-CBC", iv },
-        key,
-        fileArrayBuffer
-    );
 
     const metadataStr = JSON.stringify({
         name: file.name,
@@ -90,10 +90,55 @@ export const encryptFile = async (file: File, keyBuffer: ArrayBuffer) => {
     );
     //concatenate the IV and encrypted file
 
-    return { encryptedFileBuffer, encryptedMetadataBuffer, iv };
+    return { encryptedMetadataBuffer, iv };
 
 }
 
+export const encryptFileBuffer = async (file: File) => {
+    //convert file to an array buffer
+    const fileBuffer = await file.arrayBuffer();
+    const uint8FileBuffer = new Uint8Array(fileBuffer);
+
+    //hash the content
+    const hash = await sha256.digest(uint8FileBuffer);
+    //get CID of the file
+    const cid = CID.create(1, sha256.code, hash);
+
+    //tranform the cid to a string
+    const cidStr = cid.toString();
+    console.log(cidStr)
+    //convert the string to an array buffer
+    const cidArrayBuffer = await digestMessage(cidStr);
+
+
+    //transform cidArrayBuffer into a CryptoKey
+    const cidKey = await deriveKey(cidArrayBuffer);
+
+    const iv = new Uint8Array(16);
+    //start timer to calculate how much time it takes to encrypt the file
+    const start = performance.now();
+
+    //encrypt the file using AES and the cid as the key without iv
+    const encryptedFileBuffer = await crypto.subtle.encrypt(
+        { name: "AES-CBC", iv: iv },
+        cidKey,
+        fileBuffer
+    );
+
+    //stop timer
+    const end = performance.now();
+    console.log(`Encrypting the file took ${end - start} milliseconds.`);
+
+    //Hash the encrypted file buffer
+    const encryptedHash = await sha256.digest(new Uint8Array(encryptedFileBuffer));
+    //get CID of the encrypted file
+    const encryptedCid = CID.create(1, RAW_CODEC, encryptedHash); 
+    //tranform the cid to a string
+    const cidOfEncryptedBufferStr = encryptedCid.toString();
+
+    return {cidOfEncryptedBufferStr, cidStr, encryptedFileBuffer};
+
+}
 export const decryptContent = async (iv: Uint8Array, key: CryptoKey, encryptedFile: ArrayBuffer): Promise<ArrayBuffer> => {
     const decryptedContent = await crypto.subtle.decrypt(
         { name: "AES-CBC", iv },

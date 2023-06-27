@@ -24,3 +24,7 @@ export interface FileDB {
     filename: string;
     userAddress: string;
 }
+
+export interface FileUploadResponse {
+  file: FileDB;
+}

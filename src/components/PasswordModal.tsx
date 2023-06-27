@@ -3,6 +3,8 @@ import { PasswordModalProps } from "../types";
 import { connectMetamask } from '../requests/metaRequests';
 import { savePassword } from '../requests/clientRequests';
 import { setPersonalSignature } from '../helpers/cipher';
+import { baseUrl } from '../constants';
+import axios from 'axios';
 
 const PasswordModal = ({
     showPasswordModal,
@@ -36,6 +38,18 @@ const PasswordModal = ({
 
 
 
+    const handleWelcome = async () => {
+        //create a get request with auth header "Bearer customToken" to /api
+        const customToken = localStorage.getItem("customToken");
+        const response = await axios.get(`${baseUrl}/api/welcome`, {
+            headers: {
+                Authorization: `Bearer ${customToken}`,
+            },
+        });
+
+        setToastMessage(response.data.msg)
+        setShowToast(true);
+    }
 
     const handleSubmit = async () => {
         if (!passwordError) {
@@ -70,7 +84,7 @@ const PasswordModal = ({
 
 
 
-
+                handleWelcome();
                 setAddress(addressTemp);
                 setLoading(false);
             }
