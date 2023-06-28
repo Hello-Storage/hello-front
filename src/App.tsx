@@ -130,19 +130,11 @@ function App() {
 
         const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
 
-
-
-
-
-
         //decrypt metadata
         const metadataBuffer = await decryptContent(iv, key, encryptedMetadataBytes)
-        console.log("metadta: ")
-        console.log(metadataBuffer)
         //transform metadata from ArrayBuffer to string
         const decoder = new TextDecoder()
         const metadataString = decoder.decode(metadataBuffer)
-        console.log(metadataString)
 
         //transform metadata to object
         const metadata = JSON.parse(metadataString)

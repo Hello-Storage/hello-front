@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { FileDB, FileUploadResponse } from "../types";
 import { baseUrl } from "../constants";
-import { encryptBuffer, encryptFileBuffer, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
+import { decryptContent, decryptFile, deriveKey, digestMessage, encryptBuffer, encryptFileBuffer, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
 
 
 
@@ -25,30 +25,63 @@ export const deleteFile = async (file: FileDB | null): Promise<AxiosResponse | n
   });
 }
 
-export const downloadFile = (file: FileDB) => {
-  const cid = file.cidEncryptedOriginalStr;
-  if (!cid) {
+export const downloadFile = async (file: FileDB) => {
+  const cidOfEncryptedBuffer = file.cidOfEncryptedBuffer;
+  const fileMetadata = file.metadata;
+  const cidEncryptedOriginalStr = file.cidEncryptedOriginalStr;
+
+
+
+
+  const signature = sessionStorage.getItem("personalSignature")
+
+  const hash = await getHashFromSignature(signature!)
+  const key = await getKeyFromHash(hash)
+
+  const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
+
+
+    const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
+  if (!cidOfEncryptedBuffer || !fileMetadata) {
     return;
   }
+
+  const cidOriginalBuffer = await decryptContent(iv, key, cidEncryptedOriginalBytes)
+
   const customToken = localStorage.getItem("customToken");
 
-  axios.get(`${baseUrl}/api/file/${cid}`, {
+  axios.get(`${baseUrl}/api/file/${cidOfEncryptedBuffer}`, {
     headers: {
       Authorization: `Bearer ${customToken}`,
     },
-    responseType: 'blob', // set response type as blob to handle binary data
-  }).then((response) => {
+    responseType: 'arraybuffer', // set response type as blob to handle binary data
+  }).then(async (response) => {
     console.log(response)
-    // Create a new Blob object with the response data
-    const blob = new Blob([response.data], { type: response.headers['content-type'] });
+
+    const decoder = new TextDecoder()
+    const cidOriginalStr = decoder.decode(cidOriginalBuffer)
+
+    const cidOriginalDigestedBuffer = await digestMessage(cidOriginalStr)
+
+    //transform cidArrayBuffer into a CryptoKey
+    const cidKey = await deriveKey(cidOriginalDigestedBuffer);
+
+    const nilIv = new Uint8Array(16)
+    const decryptedFile = await decryptFile(nilIv, cidKey, response.data, fileMetadata).catch((error) => {
+      console.log("Error decrypting:")
+      console.log(error);
+      return null
+    });
+    console.log("decryptedFile:")
+    console.log(decryptedFile)
 
     // Create an object URL for the Blob
-    const url = window.URL.createObjectURL(blob);
+    const url = window.URL.createObjectURL(decryptedFile!);
 
     // Create a link and programmatically 'click' it to initiate the download
     const link = document.createElement('a');
     link.href = url;
-    const filename = response.headers['original-filename'];
+    const filename = fileMetadata.name;
 
     link.setAttribute('download', filename); // or any other filename you want
     link.click();
@@ -95,7 +128,7 @@ export const uploadFile = async (file: File): Promise<AxiosResponse<FileUploadRe
 
 
   //Transform iv so that formData can append it
-  const ivString = btoa(String.fromCharCode(...iv)) 
+  const ivString = btoa(String.fromCharCode(...iv))
 
 
 

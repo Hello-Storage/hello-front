@@ -1,6 +1,7 @@
 import Web3 from 'web3';
 import { CID } from "multiformats/cid";
 import { sha256 } from "multiformats/hashes/sha2";
+import { FileMetadata } from '../types';
 
 const RAW_CODEC = 0x55;
 
@@ -144,17 +145,26 @@ export const decryptContent = async (iv: Uint8Array, key: CryptoKey, encryptedFi
         { name: "AES-CBC", iv },
         key,
         encryptedFile
-    );
+    ).catch((err) => {
+        console.log("Error decrypting content")
+        console.log(err);
+        return err;
+    });
+    
 
     return decryptedContent;
 };
 //key = await getKeyFromHash(hash);
-export const decryptFile = async (iv: Uint8Array, key: CryptoKey, encryptedFileBuffer: ArrayBuffer, encryptedMetadataBuffer: ArrayBuffer): Promise<File> => {
-
-    const decryptedFileBuffer = await decryptContent(iv, key, encryptedFileBuffer);
-    const decryptedMetadataBuffer = await decryptContent(iv, key, encryptedMetadataBuffer);
-
-    const metadata = JSON.parse(new TextDecoder().decode(decryptedMetadataBuffer));
+export const decryptFile = async (iv: Uint8Array, key: CryptoKey, encryptedFileBuffer: ArrayBuffer, metadata: FileMetadata): Promise<File> => {
+    console.log("iv:")
+    console.log(iv)
+    console.log("key:")
+    console.log(key)
+    console.log("encryptedFileBuffer:")
+    console.log(encryptedFileBuffer)
+    console.log("metadata:")
+    console.log(metadata)
+    const decryptedFileBuffer = await decryptContent(iv, key, encryptedFileBuffer)
 
     const file = new File([decryptedFileBuffer], metadata.name, { type: metadata.type, lastModified: metadata.lastModified });
 

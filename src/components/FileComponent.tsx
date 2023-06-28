@@ -63,7 +63,7 @@ const FileComponent = (props: {displayedFilesList: FileDB[], deleteFileFromList:
                                 </button>
                                 <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                     <li><a className="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => setSelectedFile(file)} href="#">Delete</a></li>
-                                    <li><a className="dropdown-item" role="button" onClick={() => downloadFile(file)}>Download</a></li>
+                                    <li><a className="dropdown-item" role="button" onClick={async () => await downloadFile(file)}>Download</a></li>
                                     <li><hr className="dropdown-divider" /></li>
                                     <li><a className="dropdown-item" role="button" onClick={() => alert("No implementado")}>Share</a></li>
                                 </ul>

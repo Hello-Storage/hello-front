@@ -21,7 +21,7 @@ export interface FileDB {
     ID: number;
     UpdatedAt: string;
     cidEncryptedOriginalStr: string;
-    cidOfEncryptedBiffer: string;
+    cidOfEncryptedBuffer: string;
     encryptedMetadata: string;
     iv: string;
     userAddress: string;
