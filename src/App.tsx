@@ -8,6 +8,7 @@ import Toast from './components/Toast'
 import { baseUrl } from './constants'
 import PasswordModal from './components/PasswordModal'
 import { uploadFile } from './requests/clientRequests'
+import { decryptContent, getHashFromSignature, getKeyFromHash } from './helpers/cipher'
 
 function App() {
 
@@ -29,7 +30,7 @@ function App() {
     setShowPasswordModal(!showPasswordModal)
   }
   const onUploadFilePress = () => {
-    setFileToUpload(null)    
+    setFileToUpload(null)
     ref?.click()
   }
 
@@ -112,10 +113,50 @@ function App() {
       headers: {
         Authorization: `Bearer ${customToken}`,
       },
-    }).then((response) => {
-      setFilesList(response.data)
-      setDisplayedFilesList(response.data) // set displayed files list as well
-      console.log(response.data)
+    }).then(async (response) => {
+
+      const filesList: { files: FileDB[] } = await response.data
+
+      const signature = sessionStorage.getItem("personalSignature")
+
+      const hash = await getHashFromSignature(signature!)
+      const key = await getKeyFromHash(hash)
+      //iterate through filesList and decrypt metadata
+      const decryptedFiles = await Promise.all(filesList.files.map(async (file: FileDB) => {
+        //decrypt metadata
+        const encryptedMetadata = file.encryptedMetadata
+
+        const encryptedMetadataBytes = Uint8Array.from(atob(encryptedMetadata), c => c.charCodeAt(0))
+
+        const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
+
+
+
+
+
+
+        //decrypt metadata
+        const metadataBuffer = await decryptContent(iv, key, encryptedMetadataBytes)
+        console.log("metadta: ")
+        console.log(metadataBuffer)
+        //transform metadata from ArrayBuffer to string
+        const decoder = new TextDecoder()
+        const metadataString = decoder.decode(metadataBuffer)
+        console.log(metadataString)
+
+        //transform metadata to object
+        const metadata = JSON.parse(metadataString)
+
+        //set metadata
+        file.metadata = metadata
+        return file
+      }))
+
+      const newFileList = { files: decryptedFiles }
+
+
+      setFilesList(newFileList)
+      setDisplayedFilesList(newFileList) // set displayed files list as well
 
     }).catch((error) => {
       console.log(error)
@@ -138,7 +179,7 @@ function App() {
 
       const filteredFiles = filesList.files.filter((file: FileDB) => {
         if (searchTerm == "") return true;
-        return file.filename.includes(searchTerm)
+        return file.metadata!.name.includes(searchTerm)
       })
       // Set a new state with the updated files list.
       setDisplayedFilesList({ ...filesList, files: filteredFiles });

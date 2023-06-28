@@ -26,7 +26,7 @@ export const deleteFile = async (file: FileDB | null): Promise<AxiosResponse | n
 }
 
 export const downloadFile = (file: FileDB) => {
-  const cid = file.cid;
+  const cid = file.cidEncryptedOriginalStr;
   if (!cid) {
     return;
   }
@@ -81,14 +81,12 @@ export const uploadFile = async (file: File): Promise<AxiosResponse<FileUploadRe
   //transform cidOfEncryptedBufferStr to Uint8Array
   let cidBuffer = new TextEncoder().encode(cidStr);
   //transform encryptedMetadataBuffer to string
-  let encryptedMetadataStr = new TextDecoder().decode(encryptedMetadataBuffer);
-
+  let encryptedMetadataStr = btoa(String.fromCharCode(...new Uint8Array(encryptedMetadataBuffer)));
 
   //encrypt cidOfEncryptedBufferStr and cidStr with key
-  let cidEncrypted = await encryptBuffer(cidBuffer, key, iv);
+  let cidEncryptedOriginalBuffer = await encryptBuffer(cidBuffer, key, iv)
   //transform encryptedCidSigned to string
-  let cidEncryptedOriginalStr = new TextDecoder().decode(cidEncrypted);
-
+  let cidEncryptedOriginalStr = btoa(String.fromCharCode(...new Uint8Array(cidEncryptedOriginalBuffer)));
   const encryptedFileBlob = new Blob([encryptedFileBuffer]);
 
 
@@ -97,7 +95,7 @@ export const uploadFile = async (file: File): Promise<AxiosResponse<FileUploadRe
 
 
   //Transform iv so that formData can append it
-  const ivString = JSON.stringify(iv);
+  const ivString = btoa(String.fromCharCode(...iv)) 
 
 
 
@@ -112,18 +110,18 @@ const cidKeyArray = Uint8Array.from(atob(cidKeyBase64), c => c.charCodeAt(0));
 const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CBC", length: 256 }, false, ["encrypt", "decrypt"]);
   */
 
-/*
-  console.log("encryptedMetadataStr:")
-  console.log(encryptedMetadataStr)
-  console.log("encryptedFileBlob:")
-  console.log(encryptedFileBlob)
-  console.log("ivString:")
-  console.log(ivString)
-  console.log("cidOfEncryptedBufferStr:")
-  console.log(cidOfEncryptedBufferStr)
-  console.log("cidEncryptedOriginalStr:")
-  console.log(cidEncryptedOriginalStr)
-*/
+  /*
+    console.log("encryptedMetadataStr:")
+    console.log(encryptedMetadataStr)
+    console.log("encryptedFileBlob:")
+    console.log(encryptedFileBlob)
+    console.log("ivString:")
+    console.log(ivString)
+    console.log("cidOfEncryptedBufferStr:")
+    console.log(cidOfEncryptedBufferStr)
+    console.log("cidEncryptedOriginalStr:")
+    console.log(cidEncryptedOriginalStr)
+  */
 
   const formData = new FormData();
   formData.append("encryptedFileBlob", encryptedFileBlob);

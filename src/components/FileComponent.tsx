@@ -14,7 +14,7 @@ export const DeleteModal = (props: {selectedFile: FileDB | null, deleteFileFromL
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">Delete {selectedFile?.filename}</h5>
+                        <h5 className="modal-title" id="exampleModalLabel">Delete {selectedFile?.metadata!.name}</h5>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
@@ -48,12 +48,13 @@ const FileComponent = (props: {displayedFilesList: FileDB[], deleteFileFromList:
             {displayedFilesList.map((file: FileDB) => {
                 const date = parseISO(file.CreatedAt); // convert to Date object
                 const formattedDate = date.toLocaleString(); // convert to string using local timezone
-    
+
+
                 return (
                     <li className="list-group-item" key={file.ID}>
                         <div className="d-flex justify-content-between align-items-center">
                             <div className="w-100 d-flex align-items-center justify-content-between">
-                                <p className="mb-0 text-truncate text-dark mr-2">{file.filename}</p>
+                                <p className="mb-0 text-truncate text-dark mr-2">{file?.metadata?.name}</p>
                                 {/* Display the formatted date in a Bootstrap badge */}
                                 <span className="badge bg-white text-dark m-2" >{formattedDate}</span>
                             </div>

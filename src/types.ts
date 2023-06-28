@@ -20,11 +20,21 @@ export interface FileDB {
     DeletedAt: string|null;
     ID: number;
     UpdatedAt: string;
-    cid: string;
-    filename: string;
+    cidEncryptedOriginalStr: string;
+    cidOfEncryptedBiffer: string;
+    encryptedMetadata: string;
+    iv: string;
     userAddress: string;
+    metadata: FileMetadata | null;
 }
 
 export interface FileUploadResponse {
   file: FileDB;
+}
+
+export interface FileMetadata {
+    name: string;
+    size: number;
+    type: string;
+    lastModified: number;
 }
