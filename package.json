@@ -10,23 +10,27 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.9.5",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
     "ipfs-core": "^0.18.1",
     "multiformats": "^12.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-jazzicon": "^1.0.4",
+    "react-redux": "^8.1.1",
     "web3": "^1.10.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
-    "@typescript-eslint/parser": "^5.57.1",
+    "@typescript-eslint/parser": "^5.60.1",
     "@vitejs/plugin-react": "^4.0.0",
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
+    "prettier": "^2.8.8",
     "typescript": "^5.0.2",
     "user-agent-data-types": "^0.3.1",
     "vite": "^4.3.2"

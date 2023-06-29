@@ -94,6 +94,84 @@ export const downloadFile = async (file: FileDB) => {
   });
 }
 
+export const viewFile = async (file: FileDB) => {
+   const cidOfEncryptedBuffer = file.cidOfEncryptedBuffer;
+  const fileMetadata = file.metadata;
+  const cidEncryptedOriginalStr = file.cidEncryptedOriginalStr;
+
+
+
+
+  const signature = sessionStorage.getItem("personalSignature")
+
+  const hash = await getHashFromSignature(signature!)
+  const key = await getKeyFromHash(hash)
+
+  const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
+
+
+    const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
+  if (!cidOfEncryptedBuffer || !fileMetadata) {
+    return;
+  }
+
+  const cidOriginalBuffer = await decryptContent(iv, key, cidEncryptedOriginalBytes)
+
+  const customToken = localStorage.getItem("customToken");
+
+  axios.get(`${baseUrl}/api/file/${cidOfEncryptedBuffer}`, {
+    headers: {
+      Authorization: `Bearer ${customToken}`,
+    },
+    responseType: 'arraybuffer', // set response type as blob to handle binary data
+  }).then(async (response) => {
+    console.log(response)
+
+    const decoder = new TextDecoder()
+    const cidOriginalStr = decoder.decode(cidOriginalBuffer)
+
+    const cidOriginalDigestedBuffer = await digestMessage(cidOriginalStr)
+
+    //transform cidArrayBuffer into a CryptoKey
+    const cidKey = await deriveKey(cidOriginalDigestedBuffer);
+
+    const nilIv = new Uint8Array(16)
+    const decryptedFile = await decryptFile(nilIv, cidKey, response.data, fileMetadata).catch((error) => {
+      console.log("Error decrypting:")
+      console.log(error);
+      return null
+    });
+    console.log("decryptedFile:")
+    console.log(decryptedFile)
+
+
+    //get blob from decrypted file
+    const blob = new Blob([decryptedFile!], { type: fileMetadata.type });
+    // Create an object URL for the Blob
+    const url = window.URL.createObjectURL(blob!);
+
+  
+
+    window.open(url, '_blank')
+
+    // Create a link and programmatically 'click' it to initiate the download
+    const link = document.createElement('a');
+    link.href = url;
+    const filename = fileMetadata.name;
+
+    link.setAttribute('download', filename); // or any other filename you want
+
+    // For better performance, revoke the object URL after the download
+
+
+
+    window.URL.revokeObjectURL(url);
+  }).catch((error) => {
+    console.log(error);
+    return null
+  }); 
+}
+
 export const uploadFile = async (file: File): Promise<AxiosResponse<FileUploadResponse> | null> => {
   const customToken = localStorage.getItem("customToken");
 

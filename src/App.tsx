@@ -9,12 +9,20 @@ import { baseUrl } from './constants'
 import PasswordModal from './components/PasswordModal'
 import { uploadFile } from './requests/clientRequests'
 import { decryptContent, getHashFromSignature, getKeyFromHash } from './helpers/cipher'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectLoading, selectShowPasswordModal, setLoading, setShowPasswordModal} from "./features/counter/accountSlice"
+import { AppDispatch } from "./app/store"
+
 
 function App() {
 
+  const dispatch = useDispatch<AppDispatch>();
 
-  const [loading, setLoading] = useState(false)
-  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  //selectors
+  const showPasswordModal = useSelector(selectShowPasswordModal);
+  const loading = useSelector(selectLoading);
+  
+  //states
   const [address, setAddress] = useState<string | null>(null)
   const [ref, setRef] = useState<HTMLInputElement | null>(null)
   const [fileToUplad, setFileToUpload] = useState<File | null>(null)
@@ -26,8 +34,10 @@ function App() {
   const [toastMessage, setToastMessage] = useState("");
 
 
+
   const closePasswordModal = () => {
-    setShowPasswordModal(!showPasswordModal)
+    dispatch(setShowPasswordModal(!showPasswordModal))
+    dispatch(setLoading(false))
   }
   const onUploadFilePress = () => {
     setFileToUpload(null)
@@ -155,7 +165,8 @@ function App() {
       //logout
       setFilesList({ files: [] });
       setDisplayedFilesList({ files: [] }); // set displayed files list as well
-      setAddress(null);
+      setAddress(null)
+      setCustomToken(null)
       localStorage.removeItem("customToken");
       sessionStorage.removeItem("personalSignature");
     })
@@ -225,6 +236,7 @@ function App() {
         <FileComponent displayedFilesList={displayedFilesList.files} deleteFileFromList={deleteFileFromList} />
 
       </div>
+      <p>passwormodalshow: {showPasswordModal ? 'true' : 'false'}</p>
     </div>
   )
 }
