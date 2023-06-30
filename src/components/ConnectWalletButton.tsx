@@ -14,7 +14,7 @@ const ConnectWalletButton = ({
 
     return (
         <div>
-            {!loading && (address || customToken) ? (
+            {!loading && (address && customToken) ? (
                 <button onClick={
                     onPressLogout
             }

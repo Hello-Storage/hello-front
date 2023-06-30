@@ -3,8 +3,11 @@ import mobileCheck from "../helpers/mobileCheck"
 import getLinker from "../helpers/deepLink"
 import axios from "axios"
 import { baseUrl } from "../constants"
+import { useDispatch } from "react-redux"
+import { AppDispatch } from "../app/store"
 
 export const connectMetamask = async (): Promise<string | Error> => {
+
 
     try {
         const webUrl = "https://alexanderbkl.github.io/metaauth" //replace with specific domain url
@@ -64,13 +67,14 @@ const handleLogin = async (address: string): Promise<string> => {
 
     //alert jwtResponse all data
     //alert(JSON.stringify(jwtResponse))
-    const customToken = jwtResponse?.data?.access;
+    const customTokenRes = jwtResponse?.data?.access;
 
-    if (!customToken) {
+    if (!customTokenRes) {
         throw new Error("Invalid JWT");
     }
     //save customToken to local storage
-    localStorage.setItem("customToken", customToken);
+    localStorage.setItem("customToken", customTokenRes);
+
     //FIREBASE: await signInWithCustomToken(auth, customToken);
     return address;
 };

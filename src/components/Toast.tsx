@@ -1,24 +1,29 @@
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../app/store";
+import { selectShowToast, selectToastMessage, setShowToast } from "../features/counter/accountSlice";
 
 
-type ToastStateType = [boolean, React.Dispatch<React.SetStateAction<boolean>>];
 
 
-const Toast = ({ message, toastState }: { message: string, toastState:  ToastStateType}) => {
+const Toast = () => {
 
-    const [showToast, setShowToast] = toastState;
+    const dispatch = useDispatch<AppDispatch>();
+
+    const toastMessage = useSelector(selectToastMessage);
+    const showToast = useSelector(selectShowToast);
 
     const handleClose = () => {
-        setShowToast(false);
+        dispatch(setShowToast(false));
     };
 
     useEffect(() => {
         if (showToast) {
             setTimeout(() => {
-                setShowToast(false);
+                dispatch(setShowToast(false));
             }, 3000);
         }
-    }, [setShowToast, showToast]);
+    }, [dispatch, showToast, toastMessage]);
     
 
     return (
@@ -31,7 +36,7 @@ const Toast = ({ message, toastState }: { message: string, toastState:  ToastSta
                             <button type="button" className="btn-close" onClick={() => handleClose()}></button>
                         </div>
                         <div className="toast-body">
-                            {message}
+                            {toastMessage}
                         </div>
                     </div>
                 </div>

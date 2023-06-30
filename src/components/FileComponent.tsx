@@ -61,9 +61,9 @@ const FileComponent = (props: { displayedFilesList: FileDB[], deleteFileFromList
 
 
                 // Get the file icon
-                var fileIcon = (fileIcons as { [key: string]: string })[fileExtension] || 'fa-file';  // default to 'fa-file' if the extension is not found in the map
+                const fileIcon = (fileIcons as { [key: string]: string })[fileExtension] || 'fa-file';  // default to 'fa-file' if the extension is not found in the map
 
-                var viewable = viewableExtensions.has(fileExtension); // check if the file is viewable
+                const viewable = viewableExtensions.has(fileExtension); // check if the file is viewable
 
                 //if file?.metadata?.name is larger than 20 characters, truncate it
                 if (file && file.metadata) {
@@ -73,7 +73,7 @@ const FileComponent = (props: { displayedFilesList: FileDB[], deleteFileFromList
                 }
 
                 return (
-                    <li className="list-group-item" key={file.ID}>
+                    <li className="list-group-item" style={{position: "initial" as const}}  key={file.ID}>
                         <div className="d-flex justify-content-between align-items-center">
                             <div className="w-100 d-flex align-items-center justify-content-between">
                                 <i className={`fas fa-regular ${fileIcon} fa-2x me-2`}></i>

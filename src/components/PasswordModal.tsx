@@ -1,19 +1,25 @@
 import { useState } from 'react';
-import { PasswordModalProps } from "../types";
 import { connectMetamask } from '../requests/metaRequests';
 import { savePassword } from '../requests/clientRequests';
 import { setPersonalSignature } from '../helpers/cipher';
 import { baseUrl } from '../constants';
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '../app/store';
 
-const PasswordModal = ({
-    showPasswordModal,
-    closePasswordModal,
-    setAddress,
-    setLoading,
-    setToastMessage,
-    setShowToast,
-}: PasswordModalProps) => {
+import { setAddress, setLoading, setShowPasswordModal, setShowToast, setToastMessage, selectShowPasswordModal, setCustomToken } from '../features/counter/accountSlice';
+
+const PasswordModal = (
+) => {
+	const dispatch = useDispatch<AppDispatch>();
+
+
+	const showPasswordModal = useSelector(selectShowPasswordModal);
+	const closePasswordModal = () => {
+		dispatch(setShowPasswordModal(!showPasswordModal));
+		dispatch(setLoading(false));
+	};
+
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [passwordError, setPasswordError] = useState("");
@@ -41,14 +47,20 @@ const PasswordModal = ({
     const handleWelcome = async () => {
         //create a get request with auth header "Bearer customToken" to /api
         const customToken = localStorage.getItem("customToken");
+        if (!customToken) {
+            return;
+        }
+
+        dispatch(setCustomToken(customToken));
         const response = await axios.get(`${baseUrl}/api/welcome`, {
             headers: {
                 Authorization: `Bearer ${customToken}`,
             },
         });
-
-        setToastMessage(response.data.msg)
-        setShowToast(true);
+        
+        
+        dispatch(setToastMessage(response.data.msg))
+        dispatch(setShowToast(true));
     }
 
     const handleSubmit = async () => {
@@ -69,11 +81,11 @@ const PasswordModal = ({
                     localStorage.removeItem("customToken");
                     sessionStorage.removeItem("personalSignature");
                     //setLoading to false
-                    setLoading(false);
+                    dispatch(setLoading(false));
                     //set toast message to error.response.data
-                    setToastMessage(error.response.data);
+                    dispatch(setToastMessage(error.response.data));
                     //show toast
-                    setShowToast(true);
+                    dispatch(setShowToast(true));
                     return;
                 }
 
@@ -84,9 +96,9 @@ const PasswordModal = ({
 
 
 
-                handleWelcome();
-                setAddress(addressTemp);
-                setLoading(false);
+                await handleWelcome();
+                dispatch(setAddress(addressTemp));
+                dispatch(setLoading(false));
             }
         }
     }

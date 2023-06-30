@@ -4,11 +4,19 @@ import { RootState } from "../../app/store"
 export interface AccountState {
   showPasswordModal: boolean,
   loading: boolean,
+  address: string | null,
+  customToken: string | null,
+  toastMessage: string | null,
+  showToast: boolean
 }
 
 const initialState: AccountState = {
   showPasswordModal: false,
   loading: false,
+  address: null,
+  toastMessage: null,
+  showToast: false,
+  customToken: localStorage.getItem('customToken') || null 
 }
 
 
@@ -30,11 +38,23 @@ export const accountSlice = createSlice({
     setLoading: (state, action) => {
         state.loading = action.payload
     },
+    setAddress: (state, action) => {
+        state.address = action.payload
+    },
+    setShowToast: (state, action) => {
+        state.showToast = action.payload
+    },
+    setToastMessage: (state, action) => {
+        state.toastMessage = action.payload
+    },
+    setCustomToken: (state, action) => {
+        state.customToken = action.payload
+    }
 
   },
 })
 
-export const { switcher, setShowPasswordModal, setLoading } = accountSlice.actions
+export const { switcher, setShowPasswordModal, setLoading, setAddress, setShowToast, setToastMessage, setCustomToken } = accountSlice.actions
 
 
 // The function below is called a selector and allows us to select a value from
@@ -42,6 +62,10 @@ export const { switcher, setShowPasswordModal, setLoading } = accountSlice.actio
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectShowPasswordModal = (state: RootState) => state.account.showPasswordModal
 export const selectLoading = (state: RootState) => state.account.loading
+export const selectAddress = (state: RootState) => state.account.address
+export const selectToastMessage = (state: RootState) => state.account.toastMessage
+export const selectShowToast = (state: RootState) => state.account.showToast
+export const selectCustomToken = (state: RootState) => state.account.customToken
 
 
 export default accountSlice.reducer
