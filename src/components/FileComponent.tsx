@@ -82,8 +82,8 @@ const FileComponent = (props: { displayedFilesList: FileDB[], deleteFileFromList
                                 {/* Display the formatted date in a Bootstrap badge */}
                                 <span className="badge bg-white text-dark m-2" >{formattedDate}</span>
                             </div>
-                            <div className="dropdown">
-                                <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div className="dropdown"style={{position: "initial" as const}}>
+                                <button className="btn btn-secondary dropdown-toggle"  type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
                                 </button>
                                 <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                     <li><a className="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => setSelectedFile(file)} href="#">Delete</a></li>

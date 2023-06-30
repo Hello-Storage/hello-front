@@ -3,8 +3,6 @@ import mobileCheck from "../helpers/mobileCheck"
 import getLinker from "../helpers/deepLink"
 import axios from "axios"
 import { baseUrl } from "../constants"
-import { useDispatch } from "react-redux"
-import { AppDispatch } from "../app/store"
 
 export const connectMetamask = async (): Promise<string | Error> => {
 

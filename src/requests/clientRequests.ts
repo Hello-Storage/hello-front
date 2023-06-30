@@ -35,13 +35,17 @@ export const downloadFile = async (file: FileDB) => {
 
   const signature = sessionStorage.getItem("personalSignature")
 
-  const hash = await getHashFromSignature(signature!)
+  if (!signature) {
+    return;
+  }
+
+  const hash = await getHashFromSignature(signature)
   const key = await getKeyFromHash(hash)
 
   const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
 
 
-    const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
+  const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
   if (!cidOfEncryptedBuffer || !fileMetadata) {
     return;
   }
@@ -75,8 +79,12 @@ export const downloadFile = async (file: FileDB) => {
     console.log("decryptedFile:")
     console.log(decryptedFile)
 
+    if (!decryptedFile) {
+      return;
+    }
+
     // Create an object URL for the Blob
-    const url = window.URL.createObjectURL(decryptedFile!);
+    const url = window.URL.createObjectURL(decryptedFile);
 
     // Create a link and programmatically 'click' it to initiate the download
     const link = document.createElement('a');
@@ -95,7 +103,7 @@ export const downloadFile = async (file: FileDB) => {
 }
 
 export const viewFile = async (file: FileDB) => {
-   const cidOfEncryptedBuffer = file.cidOfEncryptedBuffer;
+  const cidOfEncryptedBuffer = file.cidOfEncryptedBuffer;
   const fileMetadata = file.metadata;
   const cidEncryptedOriginalStr = file.cidEncryptedOriginalStr;
 
@@ -104,13 +112,17 @@ export const viewFile = async (file: FileDB) => {
 
   const signature = sessionStorage.getItem("personalSignature")
 
-  const hash = await getHashFromSignature(signature!)
+  if (!signature) {
+    return;
+  }
+
+  const hash = await getHashFromSignature(signature)
   const key = await getKeyFromHash(hash)
 
   const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
 
 
-    const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
+  const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
   if (!cidOfEncryptedBuffer || !fileMetadata) {
     return;
   }
@@ -144,13 +156,19 @@ export const viewFile = async (file: FileDB) => {
     console.log("decryptedFile:")
     console.log(decryptedFile)
 
+    if (!decryptedFile) {
+      return;
+    }
 
     //get blob from decrypted file
-    const blob = new Blob([decryptedFile!], { type: fileMetadata.type });
-    // Create an object URL for the Blob
-    const url = window.URL.createObjectURL(blob!);
+    const blob = new Blob([decryptedFile], { type: fileMetadata.type });
 
-  
+    if (!blob) {return}
+
+    // Create an object URL for the Blob
+    const url = window.URL.createObjectURL(blob);
+
+
 
     window.open(url, '_blank')
 
@@ -169,7 +187,7 @@ export const viewFile = async (file: FileDB) => {
   }).catch((error) => {
     console.log(error);
     return null
-  }); 
+  });
 }
 
 export const uploadFile = async (file: File): Promise<AxiosResponse<FileUploadResponse> | null> => {
@@ -177,7 +195,11 @@ export const uploadFile = async (file: File): Promise<AxiosResponse<FileUploadRe
 
   const signature = sessionStorage.getItem("personalSignature");
 
-  const hash = await getHashFromSignature(signature!);
+  if (!signature) {
+    return null;
+  }
+
+  const hash = await getHashFromSignature(signature);
 
   const key = await getKeyFromHash(hash);
 
@@ -190,14 +212,14 @@ export const uploadFile = async (file: File): Promise<AxiosResponse<FileUploadRe
   const { cidOfEncryptedBufferStr, cidStr, encryptedFileBuffer } = await encryptFileBuffer(file);
 
   //transform cidOfEncryptedBufferStr to Uint8Array
-  let cidBuffer = new TextEncoder().encode(cidStr);
+  const cidBuffer = new TextEncoder().encode(cidStr);
   //transform encryptedMetadataBuffer to string
-  let encryptedMetadataStr = btoa(String.fromCharCode(...new Uint8Array(encryptedMetadataBuffer)));
+  const encryptedMetadataStr = btoa(String.fromCharCode(...new Uint8Array(encryptedMetadataBuffer)));
 
   //encrypt cidOfEncryptedBufferStr and cidStr with key
-  let cidEncryptedOriginalBuffer = await encryptBuffer(cidBuffer, key, iv)
+  const cidEncryptedOriginalBuffer = await encryptBuffer(cidBuffer, key, iv)
   //transform encryptedCidSigned to string
-  let cidEncryptedOriginalStr = btoa(String.fromCharCode(...new Uint8Array(cidEncryptedOriginalBuffer)));
+  const cidEncryptedOriginalStr = btoa(String.fromCharCode(...new Uint8Array(cidEncryptedOriginalBuffer)));
   const encryptedFileBlob = new Blob([encryptedFileBuffer]);
 
 
@@ -256,7 +278,7 @@ const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CB
   );
 }
 
-export const savePassword = async (password: string): Promise<AxiosResponse | null> => {
+export const savePassword = async (password: string): Promise<AxiosResponse | Error> => {
   const customToken = localStorage.getItem("customToken");
   return axios.post(`${baseUrl}/api/password`, { password: password }, {
     headers: {

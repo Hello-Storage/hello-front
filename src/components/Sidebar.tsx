@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import ConnectWalletButton from "./ConnectWalletButton";
 import { FileDB } from "../types";
-import { Counter } from "../features/counter/Counter";
 import { useDispatch, useSelector } from "react-redux";
 import {
 	selectAddress,
 	selectCustomToken,
 	selectLoading,
-	selectShowPasswordModal,
 	setAddress,
 	setLoading,
 	setShowPasswordModal,
@@ -21,6 +19,7 @@ import axios from "axios";
 import Web3 from "web3";
 import Toast from "./Toast";
 import PasswordModal from "./PasswordModal";
+import { Link } from "react-router-dom";
 
 export const Sidebar = () => {
 	const dispatch = useDispatch<AppDispatch>();
@@ -38,7 +37,6 @@ export const Sidebar = () => {
 	}>({ files: [] });
 
 	//selectors
-	const passwordModalShow = useSelector(selectShowPasswordModal);
 	const loading = useSelector(selectLoading);
 	const address = useSelector(selectAddress);
 	const customToken = useSelector(selectCustomToken);
@@ -59,7 +57,7 @@ export const Sidebar = () => {
 	};
 
 
-	const checkLoggedIn = async (customToken: string) => {
+	const checkLoggedIn = useCallback(async (customToken: string) => {
 		await axios
 			.get(`${baseUrl}/api/welcome`, {
 				headers: {
@@ -92,7 +90,9 @@ export const Sidebar = () => {
 				sessionStorage.removeItem("personalSignature");
 				dispatch(setCustomToken(null));
 			});
-	};
+	}, [dispatch, setFilesList, setDisplayedFilesList]);
+
+
 	const sidebarStyles = {
 		transform: isSidebarOpen ? "translateX(0)" : "translateX(-100%)",
 		transition: "transform 0.3s ease-in-out",
@@ -103,14 +103,12 @@ export const Sidebar = () => {
 	};
 
 	useEffect(() => {
-		console.log("Custom token = ", customToken);
-		console.log("Address = ", address);
 		if (!customToken) {
 			return;
 		}
 		checkLoggedIn(customToken);
 		//FIREBASE: signInWithCustomToken(auth, customToken);
-	}, [address]);
+	}, [address, checkLoggedIn, customToken]);
 
 	useEffect(() => {
 		//truncate the address wallet string
@@ -169,9 +167,9 @@ export const Sidebar = () => {
 						</a>
 					</li>
 					<li>
-						<a href="#" className="nav-link px-2 link-dark">
+						<Link to="/files" className="nav-link px-2 link-dark">
 							Files
-						</a>
+						</Link>
 					</li>
 					<li>
 						<a href="#" className="nav-link px-2 link-dark">
@@ -331,7 +329,6 @@ export const Sidebar = () => {
 				</div>
 			)}
 			{/*<Counter />*/}
-			<p>Address: {address ? address : "not connected"}</p>
 		</div>
 	);
 };
