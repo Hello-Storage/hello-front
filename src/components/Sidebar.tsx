@@ -162,9 +162,9 @@ export const Sidebar = () => {
 						</a>
 					</li>
 					<li>
-						<a href="#" className="nav-link px-2 link-dark">
+						<Link to="/dashboard" className="nav-link px-2 link-dark">
 							Dashboard
-						</a>
+						</Link>
 					</li>
 					<li>
 						<Link to="/files" className="nav-link px-2 link-dark">
