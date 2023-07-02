@@ -1,8 +1,17 @@
 #root {
-  max-width: 1280px;
   margin: 0 auto;
+  width: 100%;
+  height: 100vh;
+  padding-top: 60px;
 }
-
+#App {
+    display: flex;
+    flex-direction: column;
+    background-image: url('./assets/background.png');
+    background-repeat: repeat;
+    background-size: 70%;  /* Adjust this value according to your needs */
+    opacity : 90%
+}
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -40,4 +49,8 @@
 }
 .grid-container {
   display: grid
+}
+
+.container footer {
+  margin-top: auto;
 }
