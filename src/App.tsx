@@ -1,12 +1,35 @@
 import "./App.css";
 import DataUploadDisplay from "./components/DataUploadDisplay";
 import Footer from "./components/Footer";
+import Typical from "react-typical";
 
 function App() {
 	return (
 		<div id="App">
 			<div className="container p-5 rounded">
-				<h1 className="mt-5 text-right">Hello | Decentralized</h1>
+				<h1 className="mt-5 text-right">
+					<Typical
+						steps={[
+							"Hello.",
+							2000,
+							"We don't know who you are...",
+							3000,
+							"We don't know what you store...",
+							3000,
+							"But we know you need privacy...",
+							3000,
+							"And we've got just the solution.",
+							3000,
+							"Welcome to a new era of storage.",
+							3000,
+							"Decentralized. Secure. Private.",
+							3000,
+							"Hello | Decentralized",
+							3000,
+						]}
+						loop={1}
+					/>
+				</h1>
 				<p className="lead">
 					Welcome to Hello, an open-source, encrypted, and
 					user-controlled decentralized storage software designed for
@@ -93,7 +116,7 @@ function App() {
 										decentralized approach to optimize
 										efficiency and horizontal scalability.
 										Our sustainable network operates without
-										the need for creating new servers,
+										the need on creating new servers,
 										reducing our carbon footprint.
 									</p>
 								</div>
