@@ -1,6 +1,6 @@
 import "./App.css";
 import DataUploadDisplay from "./components/DataUploadDisplay";
-import Footer from "./components/Footer";
+import Footer from "./components/partials/Footer";
 import Typical from "react-typical";
 
 function App() {

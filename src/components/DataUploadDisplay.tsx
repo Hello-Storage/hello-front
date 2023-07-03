@@ -44,10 +44,10 @@ const DataUploadDisplay = () => {
 		}}
 		className="m-4 p-4 rounded shadow text-white"
 	>
-		<h1>{`${uploadData.toFixed(0)} GB`}</h1>
-		<h3>
+		<h2>{`${uploadData.toFixed(0)} GB`}</h2>
+		<h5>
 			<b>UPLOADED TODAY</b>
-		</h3>
+		</h5>
 	</div>
 	<div className="m-4 p-4 bg-white rounded shadow">
 		<h1>20 EiB</h1>
@@ -61,10 +61,10 @@ const DataUploadDisplay = () => {
 		}}
 		className="m-4 p-4 rounded shadow text-white"
 	>
-		<h1>$0.008 / GB</h1>
-		<h3>
+		<h2>$0.008 / GB</h2>
+		<h5>
 			<b>PRICE / GB / 30 DAYS</b>
-		</h3>
+		</h5>
 	</div>
 </div>
 	);

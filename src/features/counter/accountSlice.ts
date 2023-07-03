@@ -7,7 +7,8 @@ export interface AccountState {
   address: string | null,
   customToken: string | null,
   toastMessage: string | null,
-  showToast: boolean
+  showToast: boolean,
+  selectedPage: string | null
 }
 
 const initialState: AccountState = {
@@ -16,7 +17,8 @@ const initialState: AccountState = {
   address: null,
   toastMessage: null,
   showToast: false,
-  customToken: localStorage.getItem('customToken') || null 
+  customToken: localStorage.getItem('customToken') || null,
+  selectedPage: localStorage.getItem('selectedPage') || null
 }
 
 
@@ -49,12 +51,17 @@ export const accountSlice = createSlice({
     },
     setCustomToken: (state, action) => {
         state.customToken = action.payload
-    }
+        localStorage.setItem('customToken', action.payload)
+    },
+    setSelectedPage: (state, action) => {
+        state.selectedPage = action.payload
+        localStorage.setItem('selectedPage', action.payload)
+    },
 
   },
 })
 
-export const { switcher, setShowPasswordModal, setLoading, setAddress, setShowToast, setToastMessage, setCustomToken } = accountSlice.actions
+export const { switcher, setShowPasswordModal, setLoading, setAddress, setShowToast, setToastMessage, setCustomToken, setSelectedPage } = accountSlice.actions
 
 
 // The function below is called a selector and allows us to select a value from
@@ -66,6 +73,7 @@ export const selectAddress = (state: RootState) => state.account.address
 export const selectToastMessage = (state: RootState) => state.account.toastMessage
 export const selectShowToast = (state: RootState) => state.account.showToast
 export const selectCustomToken = (state: RootState) => state.account.customToken
+export const selectSelectedPage = (state: RootState) => state.account.selectedPage
 
 
 export default accountSlice.reducer

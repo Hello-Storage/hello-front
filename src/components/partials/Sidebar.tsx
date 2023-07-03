@@ -1,24 +1,27 @@
 import { useCallback, useEffect, useState } from "react";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
-import ConnectWalletButton from "./ConnectWalletButton";
-import { FileDB } from "../types";
+import ConnectWalletButton from "../ConnectWalletButton";
+import { FileDB } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
 import {
 	selectAddress,
 	selectCustomToken,
 	selectLoading,
+	selectSelectedPage,
 	setAddress,
 	setLoading,
 	setShowPasswordModal,
 	setToastMessage,
-	setCustomToken
-} from "../features/counter/accountSlice";
-import { AppDispatch } from "../app/store";
-import { baseUrl } from "../constants";
+	setCustomToken,
+	setSelectedPage,
+
+} from "../../features/counter/accountSlice";
+import { AppDispatch } from "../../app/store";
+import { baseUrl } from "../../constants";
 import axios from "axios";
 import Web3 from "web3";
-import Toast from "./Toast";
-import PasswordModal from "./PasswordModal";
+import Toast from "../modals/Toast";
+import PasswordModal from "../modals/PasswordModal";
 import { Link } from "react-router-dom";
 
 export const Sidebar = () => {
@@ -40,6 +43,7 @@ export const Sidebar = () => {
 	const loading = useSelector(selectLoading);
 	const address = useSelector(selectAddress);
 	const customToken = useSelector(selectCustomToken);
+	const selectedPage = useSelector(selectSelectedPage);
 
 	const onPressConnect = async () => {
 		dispatch(setShowPasswordModal(true));
@@ -51,6 +55,7 @@ export const Sidebar = () => {
 		localStorage.removeItem("customToken");
 		sessionStorage.removeItem("personalSignature");
 		dispatch(setCustomToken(null));
+		dispatch(setSelectedPage("home"));
 		setFilesList({ files: [] });
 		setDisplayedFilesList({ files: [] }); // set displayed files list as well
 		//FIREBASE: signOut(auth);
@@ -89,6 +94,7 @@ export const Sidebar = () => {
 				localStorage.removeItem("customToken");
 				sessionStorage.removeItem("personalSignature");
 				dispatch(setCustomToken(null));
+				dispatch(setSelectedPage("home"));
 			});
 	}, [dispatch, setFilesList, setDisplayedFilesList]);
 
@@ -122,6 +128,10 @@ export const Sidebar = () => {
 		)}...${address.substring(address.length - 4, address.length)}`;
 		setTruncatedAddress(truncatedAddressTemp);
 	}, [address]);
+
+	useEffect(() => {
+		console.log("Selected page is: " + selectedPage);
+	}, [selectedPage])
 
 	return (
 		<div style={{ position: "fixed", top: 0, left: 0, width: "100%" }}>
@@ -157,29 +167,44 @@ export const Sidebar = () => {
 
 				<ul className="d-none d-md-flex nav mb-2 justify-content-center mb-md-0 ml-auto">
 					<li>
-						<a href="#" className="nav-link px-2 link-secondary">
+						<Link to={"/"} className={`nav-link px-2 ${selectedPage === "home" ? "link-dark" : "link-secondary"}`}
+						onClick={() => {
+							dispatch(setSelectedPage("home"));
+						}}>
 							Home
-						</a>
+						</Link>
 					</li>
 					<li>
-						<Link to="/dashboard" className="nav-link px-2 link-dark">
+						<Link to="/dashboard" className={`nav-link px-2 ${selectedPage === "dashboard" ? "link-dark" : "link-secondary"}`}
+						onClick={() => {
+							dispatch(setSelectedPage("dashboard"));
+						}}>
 							Dashboard
 						</Link>
 					</li>
 					<li>
-						<Link to="/files" className="nav-link px-2 link-dark">
+						<Link to="/files" className={`nav-link px-2 ${selectedPage === "files" ? "link-dark" : "link-secondary"}`}
+						onClick={() => {
+							dispatch(setSelectedPage("files"));
+						}}>
 							Files
 						</Link>
 					</li>
 					<li>
-						<a href="#" className="nav-link px-2 link-dark">
+						<Link to={"data"} className={`nav-link px-2 ${selectedPage === "data" ? "link-dark" : "link-secondary"}`}
+						onClick={() => {
+							dispatch(setSelectedPage("data"));
+						}}>
 							Data
-						</a>
+						</Link>
 					</li>
 					<li>
-						<a href="#" className="nav-link px-2 link-dark">
+						<Link to={"pricing"} className={`nav-link px-2 ${selectedPage === "pricing" ? "link-dark" : "link-secondary"}`}
+						onClick={() => {
+							dispatch(setSelectedPage("pricing"));
+						}}>
 							Pricing
-						</a>
+						</Link>
 					</li>
 				</ul>
 
@@ -200,84 +225,83 @@ export const Sidebar = () => {
 					style={sidebarStyles}
 					className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark h-100"
 				>
-					<a
-						href="/"
+					<Link
+						to="/"
 						className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
 					>
 						<svg className="bi me-2" width="40" height="32">
-							<use x-link:href="#bootstrap"></use>
+							<use x-link:to="#bootstrap"></use>
 						</svg>
 						<span className="fs-4">Settings</span>
-					</a>
+					</Link>
 					<hr />
 					<ul className="nav nav-pills flex-column mb-auto">
 						<li className="nav-item">
-							<a
-								href="#"
-								className="nav-link text-white"
+							<Link
+								to="/"
+								className={`nav-link text-white ${selectedPage == "home" && "active"}`}
 								aria-current="page"
+								onClick={() => {
+									dispatch(setSelectedPage("home"));
+								}}
 							>
 								<svg className="bi" width="16" height="16">
-									<use x-link:href="#home"></use>
+									<use x-link:to="#home"></use>
 								</svg>
 								Home
-							</a>
+							</Link>
 						</li>
 						<li className="nav-item">
-							<a
-								href="#"
-								className="nav-link text-white"
+							<Link
+								to="/dashboard"
+								className={`nav-link text-white ${selectedPage == "dashboard" && "active"}`}
 								aria-current="page"
+								onClick={() => {
+									dispatch(setSelectedPage("dashboard"));
+								}}
 							>
 								<svg className="bi" width="16" height="16">
-									<use x-link:href="#dashboard"></use>
+									<use x-link:to="#dashboard"></use>
 								</svg>
 								Dashboard
-							</a>
+							</Link>
 						</li>
 						<li className="nav-item">
-							<a
-								href="#"
-								className="nav-link active"
+							<Link
+								to="/files"
+								className={`nav-link text-white ${selectedPage == "files" && "active"}`}
 								aria-current="page"
+								onClick={() => {
+									dispatch(setSelectedPage("files"));
+								}}
 							>
 								<svg className="bi" width="16" height="16">
-									<use x-link:href="#files"></use>
+									<use x-link:to="#files"></use>
 								</svg>
 								Files
-							</a>
+							</Link>
 						</li>
 						<li>
-							<a href="#" className="nav-link text-white">
-								<svg className="bi" width="16" height="16">
-									<use x-link:href="#speedometer2"></use>
-								</svg>
-								Dashboard
-							</a>
-						</li>
-						<li>
-							<a href="#" className="nav-link text-white">
+							<Link to="data" className={`nav-link text-white ${selectedPage == "data" && "active"}`}
+							onClick={() => {
+								dispatch(setSelectedPage("data"));
+							}}>
 								<svg className="bi" width="16" height="16">
 									<use x-link:href="#table"></use>
 								</svg>
 								Data
-							</a>
+							</Link>
 						</li>
 						<li>
-							<li>
-								<a href="#" className="nav-link text-white">
-									<svg className="bi" width="16" height="16">
-										<use x-link:href="#grid"></use>
-									</svg>
-									Account
-								</a>
-							</li>
-							<a href="#" className="nav-link text-white">
+							<Link to="/pricing" className={`nav-link text-white ${selectedPage == "pricing" && "active"}`}
+							onClick={() => {
+								dispatch(setSelectedPage("pricing"));
+							}}>
 								<svg className="bi" width="16" height="16">
 									<use x-link:href="#grid"></use>
 								</svg>
 								Pricing
-							</a>
+							</Link>
 						</li>
 					</ul>
 					<hr />
@@ -312,9 +336,12 @@ export const Sidebar = () => {
 								</a>
 							</li>
 							<li>
-								<a className="dropdown-item" href="#">
+								<Link className="dropdown-item" to="/profile"
+								onClick={() => {
+									dispatch(setSelectedPage("profile"));
+								}}>
 									Profile
-								</a>
+								</Link>
 							</li>
 							<li>
 								<hr className="dropdown-divider" />

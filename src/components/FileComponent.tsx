@@ -14,7 +14,7 @@ export const DeleteModal = (props: { selectedFile: FileDB | null, deleteFileFrom
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">Delete {selectedFile?.metadata!.name}</h5>
+                        <h5 className="modal-title" id="exampleModalLabel">Delete {selectedFile?.metadata?.name}</h5>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
@@ -65,10 +65,12 @@ const FileComponent = (props: { displayedFilesList: FileDB[], deleteFileFromList
 
                 const viewable = viewableExtensions.has(fileExtension); // check if the file is viewable
 
-                //if file?.metadata?.name is larger than 20 characters, truncate it
+                let filename = file?.metadata?.name
+
+                //if file?.metadata?.name is larger than 20 characters, truncate it (add "..." at the end and put the extension at the end)
                 if (file && file.metadata) {
                     if (file?.metadata?.name.length > 20) {
-                        file.metadata.name = file?.metadata?.name.substring(0, 20) + "..."
+                        filename = file?.metadata?.name.substring(0, 20) + "..." + fileExtension
                     }
                 }
 
@@ -78,7 +80,7 @@ const FileComponent = (props: { displayedFilesList: FileDB[], deleteFileFromList
                             <div className="w-100 d-flex align-items-center justify-content-between">
                                 <i className={`fas fa-regular ${fileIcon} fa-2x me-2`}></i>
 
-                                <p className="mb-0 text-truncate text-dark mr-2">{file?.metadata?.name}</p>
+                                <p className="mb-0 text-truncate text-dark mr-2">{filename}</p>
                                 {/* Display the formatted date in a Bootstrap badge */}
                                 <span className="badge bg-white text-dark m-2" >{formattedDate}</span>
                             </div>

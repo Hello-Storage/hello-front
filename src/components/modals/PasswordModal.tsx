@@ -1,24 +1,24 @@
 import { useState } from 'react';
-import { connectMetamask } from '../requests/metaRequests';
-import { savePassword } from '../requests/clientRequests';
-import { setPersonalSignature } from '../helpers/cipher';
-import { baseUrl } from '../constants';
+import { connectMetamask } from '../../requests/metaRequests';
+import { savePassword } from '../../requests/clientRequests';
+import { setPersonalSignature } from '../../helpers/cipher';
+import { baseUrl } from '../../constants';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from '../app/store';
+import { AppDispatch } from '../../app/store';
 
-import { setAddress, setLoading, setShowPasswordModal, setShowToast, setToastMessage, selectShowPasswordModal, setCustomToken } from '../features/counter/accountSlice';
+import { setAddress, setLoading, setShowPasswordModal, setShowToast, setToastMessage, selectShowPasswordModal, setCustomToken } from '../../features/counter/accountSlice';
 
 const PasswordModal = (
 ) => {
-	const dispatch = useDispatch<AppDispatch>();
+    const dispatch = useDispatch<AppDispatch>();
 
 
-	const showPasswordModal = useSelector(selectShowPasswordModal);
-	const closePasswordModal = () => {
-		dispatch(setShowPasswordModal(!showPasswordModal));
-		dispatch(setLoading(false));
-	};
+    const showPasswordModal = useSelector(selectShowPasswordModal);
+    const closePasswordModal = () => {
+        dispatch(setShowPasswordModal(!showPasswordModal));
+        dispatch(setLoading(false));
+    };
 
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -57,8 +57,8 @@ const PasswordModal = (
                 Authorization: `Bearer ${customToken}`,
             },
         });
-        
-        
+
+
         dispatch(setToastMessage(response.data.msg))
         dispatch(setShowToast(true));
     }

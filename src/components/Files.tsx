@@ -13,18 +13,26 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import {
 	selectAddress,
+	selectCustomToken,
 	setAddress,
 	setCustomToken,
 	setShowToast,
 	setToastMessage,
 } from "../features/counter/accountSlice";
 import { AppDispatch } from "../app/store";
+import { useLocation, useNavigate } from "react-router-dom";
+import { isSignedIn } from "../helpers/userHelper";
+
 
 function Files() {
+	const location = useLocation();
+	const navigate = useNavigate();
+
 	const dispatch = useDispatch<AppDispatch>();
 
 	//selectors
 	const address = useSelector(selectAddress);
+	const customToken = useSelector(selectCustomToken);
 
 	//states
 	const [ref, setRef] = useState<HTMLInputElement | null>(null);
@@ -100,10 +108,25 @@ function Files() {
 		}
 	};
 
+	//if not signed in, remove all credentials and redirect to login
+	useEffect(() => {
+		if (!isSignedIn(navigate)) {
+			return;
+		}
+	}, [navigate])
+
 	useEffect(() => {
 		//get files list from /api/files with auth header "Bearer customToken"
-		const customToken = localStorage.getItem("customToken");
 		if (!customToken) {
+			//go to /login if no customToken
+			dispatch(setAddress(null));
+			dispatch(setCustomToken(null));
+			sessionStorage.removeItem("personalSignature");
+			//redirect to login
+			location.pathname !== "/login" && location.pathname !== "/register"
+				? navigate("/login")
+				: console.log("already on login page");
+
 			return;
 		}
 		axios
@@ -172,7 +195,7 @@ function Files() {
 				localStorage.removeItem("customToken");
 				sessionStorage.removeItem("personalSignature");
 			});
-	}, [address, dispatch]);
+	}, [address, customToken, dispatch, location.pathname, navigate]);
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

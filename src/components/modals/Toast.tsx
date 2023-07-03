@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../app/store";
-import { selectShowToast, selectToastMessage, setShowToast } from "../features/counter/accountSlice";
+import { AppDispatch } from "../../app/store";
+import { selectShowToast, selectToastMessage, setShowToast } from "../../features/counter/accountSlice";
 
 
 
@@ -24,7 +24,7 @@ const Toast = () => {
             }, 3000);
         }
     }, [dispatch, showToast, toastMessage]);
-    
+
 
     return (
         <>

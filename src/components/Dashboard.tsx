@@ -64,5 +64,11 @@ const Dashboard = () => {
                         </tbody>
                     </table>
                     
+                </div>
+            </div>
+        </div>
+
     )
 }
+
+export default Dashboard;
