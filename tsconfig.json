@@ -13,7 +13,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "declaration": true
+    "declaration": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "constants.ts"]
 }
