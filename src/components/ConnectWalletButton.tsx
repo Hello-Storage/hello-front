@@ -34,7 +34,7 @@ const ConnectWalletButton = ({
                     <img
                         width={30}
                         className="mx-2"
-                        src="../assets/MetaMask_Fox.svg.png"
+                        src="./assets/MetaMask_Fox.svg.png"
                     />
                 </button>
             )}

@@ -3,7 +3,7 @@ import { connectMetamask } from '../../requests/metaRequests';
 import { savePassword } from '../../requests/clientRequests';
 import { setPersonalSignature } from '../../helpers/cipher';
 import { baseUrl } from '../../constants';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../app/store';
 
@@ -72,19 +72,20 @@ const PasswordModal = (
             if (addressTemp instanceof Error) {
                 alert(addressTemp.message)
             } else {
-                const response = await savePassword(password);
+                const passwordRequest = await savePassword(password);
 
                 //check if the response is an error
-                if (response instanceof Error) {
+                if (passwordRequest instanceof AxiosError) {
                     //extend response so it response.response.data exists
-                    const error = response as Error;
+                    //alerts "Passwords don't match"
+                    const errorMessage = passwordRequest.response?.data;
                     //remove customToken from localStorage
                     localStorage.removeItem("customToken");
                     sessionStorage.removeItem("personalSignature");
                     //setLoading to false
                     dispatch(setLoading(false));
                     //set toast message to error.response.data
-                    dispatch(setToastMessage(error));
+                    dispatch(setToastMessage(errorMessage));
                     //show toast
                     dispatch(setShowToast(true));
                     return;

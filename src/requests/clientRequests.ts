@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios"
+import axios, { AxiosError, AxiosResponse } from "axios"
 import { FileDB, FileUploadResponse } from "../types";
 import { baseUrl } from "../constants";
 import { decryptContent, decryptFile, deriveKey, digestMessage, encryptBuffer, encryptFileBuffer, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
@@ -276,7 +276,7 @@ const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CB
   );
 }
 
-export const savePassword = async (password: string): Promise<AxiosResponse | Error> => {
+export const savePassword = async (password: string): Promise<AxiosResponse | AxiosError> => {
   const customToken = localStorage.getItem("customToken");
   return axios.post(`${baseUrl}/api/password`, { password: password }, {
     headers: {
@@ -285,7 +285,7 @@ export const savePassword = async (password: string): Promise<AxiosResponse | Er
   }).then((response) => {
     console.log(response);
     return response
-  }).catch((error) => {
+  }).catch((error: AxiosError) => {
     console.log(error);
     return error;
   });
