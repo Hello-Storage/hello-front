@@ -6,6 +6,8 @@
     "moduleResolution": "bundler",
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
+    "isolatedModules": false,
+    "declaration": true,
   },
   "include": ["src/**/*.ts", "vite.config.ts", "constants.ts"]
 }
