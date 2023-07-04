@@ -16,7 +16,6 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "declaration": true,
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
