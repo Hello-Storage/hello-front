@@ -173,8 +173,7 @@ export const viewFile = async (file: FileDB) => {
     window.open(url, '_blank')
 
     // Create a link and programmatically 'click' it to initiate the download
-    const link = document.createElement('a');
-    link.href = url;
+    const link = document.createElement('video');
     const filename = fileMetadata.name;
 
     link.setAttribute('download', filename); // or any other filename you want
@@ -183,7 +182,6 @@ export const viewFile = async (file: FileDB) => {
 
 
 
-    window.URL.revokeObjectURL(url);
   }).catch((error) => {
     console.log(error);
     return null

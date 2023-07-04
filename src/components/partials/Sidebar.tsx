@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import ConnectWalletButton from "../ConnectWalletButton";
-import { FileDB } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
 import {
 	selectAddress,
@@ -19,6 +18,11 @@ import {
 	setRedirectTo,
 
 } from "../../features/counter/accountSlice";
+
+import {
+	setFilesList,
+} from "../../features/files/filesSlice";
+
 import { AppDispatch } from "../../app/store";
 import { baseUrl } from "../../constants";
 import axios from "axios";
@@ -35,14 +39,8 @@ export const Sidebar = () => {
 	);
 
 	const navigate = useNavigate();
+	
 
-
-	const [filesList, setFilesList] = useState<{ files: FileDB[] }>({
-		files: [],
-	});
-	const [displayedFilesList, setDisplayedFilesList] = useState<{
-		files: FileDB[];
-	}>({ files: [] });
 
 	//selectors
 	const loading = useSelector(selectLoading);
@@ -71,8 +69,7 @@ export const Sidebar = () => {
 		sessionStorage.removeItem("personalSignature");
 		dispatch(setCustomToken(null));
 		dispatch(setSelectedPage("home"));
-		setFilesList({ files: [] });
-		setDisplayedFilesList({ files: [] }); // set displayed files list as well
+		dispatch(setFilesList({ files: [] }));
 		//FIREBASE: signOut(auth);
 	};
 
@@ -104,14 +101,13 @@ export const Sidebar = () => {
 				console.log(error);
 				//logout
 				setFilesList({ files: [] });
-				setDisplayedFilesList({ files: [] }); // set displayed files list as well
 				dispatch(setAddress(null));
 				localStorage.removeItem("customToken");
 				sessionStorage.removeItem("personalSignature");
 				dispatch(setCustomToken(null));
 				dispatch(setSelectedPage("home"));
 			});
-	}, [dispatch, setFilesList, setDisplayedFilesList]);
+	}, [dispatch]);
 
 
 	const sidebarStyles = {

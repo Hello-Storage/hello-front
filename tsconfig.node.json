@@ -4,9 +4,8 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
   },
   "include": ["src/**/*.ts", "vite.config.ts", "constants.ts"]
 }

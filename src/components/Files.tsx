@@ -6,7 +6,6 @@ import { FileDB, FileUploadResponse } from "../types";
 import { baseUrl } from "../constants";
 import { uploadFile } from "../requests/clientRequests";
 import {
-	decryptContent,
 	getHashFromSignature,
 	getKeyFromHash,
 } from "../helpers/cipher";
@@ -19,9 +18,16 @@ import {
 	setShowToast,
 	setToastMessage,
 } from "../features/counter/accountSlice";
+
+import {
+	selectFilesList,
+	setFilesList,
+	addFile,
+} from "../features/files/filesSlice";
 import { AppDispatch } from "../app/store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isSignedIn } from "../helpers/userHelper";
+import { decryptMetadata } from "../helpers/fileHelper";
 
 
 function Files() {
@@ -37,9 +43,14 @@ function Files() {
 	//states
 	const [ref, setRef] = useState<HTMLInputElement | null>(null);
 	const [fileToUplad, setFileToUpload] = useState<File | null>(null);
-	const [filesList, setFilesList] = useState<{ files: FileDB[] }>({
-		files: [],
-	});
+
+
+	const filesList = useSelector(selectFilesList);
+
+
+
+
+
 	const [displayedFilesList, setDisplayedFilesList] = useState<{
 		files: FileDB[];
 	}>({ files: [] });
@@ -54,10 +65,9 @@ function Files() {
 		if (!fileToUplad) {
 			return;
 		}
-
 		uploadFile(fileToUplad)
 			.then(
-				(
+				async (
 					response: AxiosResponse<FileUploadResponse, unknown> | null
 				) => {
 					console.log(response);
@@ -68,13 +78,29 @@ function Files() {
 					}
 					const file: FileDB = response?.data?.file;
 
-					filesList.files.push(file);
+					//decrypt metadata
+					const signature = sessionStorage.getItem("personalSignature");
 
-					setFilesList({ ...filesList, files: filesList.files });
+					if (!signature) {
+						navigate("/profile");
+						return;
+					}
+
+					const hash = await getHashFromSignature(signature);
+					const key = await getKeyFromHash(hash);
+					const metadata = await decryptMetadata(file.encryptedMetadata, file.iv, key);
+					//set metadata
+					file.metadata = metadata;
+					//add file to files list
+					dispatch(addFile(file));
+					//add file to displayed files list
+
+
+
 					setDisplayedFilesList({
 						...displayedFilesList,
-						files: filesList.files,
-					}); // set displayed files list as well
+						files: [...displayedFilesList.files, file],
+					});
 
 					dispatch(setToastMessage("File uploaded successfully"));
 					dispatch(setShowToast(true));
@@ -93,7 +119,7 @@ function Files() {
 			.catch((error) => {
 				console.log(error);
 			});
-	}, [dispatch, displayedFilesList, fileToUplad, filesList, filesList.files]);
+	}, [dispatch, displayedFilesList, fileToUplad, navigate]);
 
 	const deleteFileFromList = (file: FileDB | null) => {
 		if (file !== null) {
@@ -150,30 +176,7 @@ function Files() {
 				const decryptedFiles = await Promise.all(
 					filesList.files.map(async (file: FileDB) => {
 						//decrypt metadata
-						const encryptedMetadata = file.encryptedMetadata;
-
-						const encryptedMetadataBytes = Uint8Array.from(
-							atob(encryptedMetadata),
-							(c) => c.charCodeAt(0)
-						);
-
-						const iv = Uint8Array.from(atob(file.iv), (c) =>
-							c.charCodeAt(0)
-						);
-
-						//decrypt metadata
-						const metadataBuffer = await decryptContent(
-							iv,
-							key,
-							encryptedMetadataBytes
-						);
-						//transform metadata from ArrayBuffer to string
-						const decoder = new TextDecoder();
-						const metadataString = decoder.decode(metadataBuffer);
-
-						//transform metadata to object
-						const metadata = JSON.parse(metadataString);
-
+						const metadata = await decryptMetadata(file.encryptedMetadata, file.iv, key);
 						//set metadata
 						file.metadata = metadata;
 						return file;
@@ -199,10 +202,10 @@ function Files() {
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		if (filesList && filesList.files) {
+		if (filesList && filesList) {
 			//remove all files from filesList that do not contain searchTerm in their filename
 
-			const filteredFiles = filesList.files.filter((file: FileDB) => {
+			const filteredFiles = filesList.filter((file: FileDB) => {
 				if (searchTerm == "") return true;
 				return file.metadata?.name.includes(searchTerm);
 			});

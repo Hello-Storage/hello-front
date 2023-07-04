@@ -1,11 +1,13 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit"
 import counterReducer from "../features/counter/counterSlice.ts"
 import accountReducer from "../features/counter/accountSlice.ts"
+import filesReducer from "../features/files/filesSlice.ts"
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
     account: accountReducer,
+    files: filesReducer,
   },
 })
 

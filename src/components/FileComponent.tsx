@@ -1,5 +1,5 @@
 import { FileDB } from "../types"
-import { deleteFile, downloadFile, viewFile } from '../requests/clientRequests.ts'
+import { deleteFile, downloadFile, viewFile } from '../requests/clientRequests'
 import { useState } from 'react'
 import { AxiosResponse } from "axios"
 import { parseISO } from 'date-fns'; // for parsing the date
