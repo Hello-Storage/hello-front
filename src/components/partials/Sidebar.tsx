@@ -8,12 +8,15 @@ import {
 	selectCustomToken,
 	selectLoading,
 	selectSelectedPage,
+	selectRedirectTo,
 	setAddress,
 	setLoading,
 	setShowPasswordModal,
 	setToastMessage,
 	setCustomToken,
 	setSelectedPage,
+	setDestiny,
+	setRedirectTo,
 
 } from "../../features/counter/accountSlice";
 import { AppDispatch } from "../../app/store";
@@ -22,7 +25,7 @@ import axios from "axios";
 import Web3 from "web3";
 import Toast from "../modals/Toast";
 import PasswordModal from "../modals/PasswordModal";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const Sidebar = () => {
 	const dispatch = useDispatch<AppDispatch>();
@@ -30,6 +33,8 @@ export const Sidebar = () => {
 	const [truncatedAddress, setTruncatedAddress] = useState<string | null>(
 		null
 	);
+
+	const navigate = useNavigate();
 
 
 	const [filesList, setFilesList] = useState<{ files: FileDB[] }>({
@@ -44,6 +49,16 @@ export const Sidebar = () => {
 	const address = useSelector(selectAddress);
 	const customToken = useSelector(selectCustomToken);
 	const selectedPage = useSelector(selectSelectedPage);
+	const redirectTo = useSelector(selectRedirectTo);
+
+	useEffect(() => {
+		if (redirectTo) {
+			navigate(redirectTo);
+			dispatch(setSelectedPage("home"))
+			dispatch(setRedirectTo(null));
+			dispatch(setDestiny(null));
+		}
+	}, [dispatch, navigate, redirectTo])
 
 	const onPressConnect = async () => {
 		dispatch(setShowPasswordModal(true));

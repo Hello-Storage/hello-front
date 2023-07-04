@@ -1,3 +1,8 @@
+import ConnectWalletButton from "../ConnectWalletButton";
+import { AppDispatch } from "../../app/store";
+import { useDispatch, useSelector } from "react-redux";
+import { selectLoading, selectCustomToken, setShowPasswordModal, setLoading, selectAddress, setDestiny } from "../../features/counter/accountSlice";
+import { useParams } from "react-router-dom";
 const roundedDivStyle = {
     width: "299px",
     height: "199px",
@@ -12,19 +17,35 @@ const roundedDivStyle = {
 
 }
 
+
 const Login = () => {
 
+    const { destiny } = useParams();
 
+    const dispatch = useDispatch<AppDispatch>();
+
+    const loading = useSelector(selectLoading);
+    const address = useSelector(selectAddress);
+    const customToken = useSelector(selectCustomToken);
+
+    const onPressConnect = async () => {
+        dispatch(setShowPasswordModal(true));
+        dispatch(setLoading(true));
+        dispatch(setDestiny(destiny));
+    };
     return (
         <div className="d-flex flex-column h-75 container mt-4 align-items-center justify-content-center">
             <div className="rounded-top text-center text-dark p-2">
-            <p className="m-0" style={{ color: "#999999" }}>Login with provider</p>
+                <p className="m-0" style={{ color: "#999999" }}>Login with provider</p>
             </div>
             <div style={roundedDivStyle} className="rounded-div">
-                <button className="btn btn-primary" onClick={() => alert("Connecting to Metamask...")}>
-                    {/* <img src={metamaskLogo} alt="Metamask Logo" className="metamask-logo"/> */}
-                    Connect with Metamask
-                </button>
+                <ConnectWalletButton
+                    onPressConnect={onPressConnect}
+                    onPressLogout={() => { return }}
+                    loading={loading}
+                    address={address}
+                    customToken={customToken}
+                />
             </div>
         </div>
     )

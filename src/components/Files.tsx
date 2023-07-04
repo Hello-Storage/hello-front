@@ -110,7 +110,7 @@ function Files() {
 
 	//if not signed in, remove all credentials and redirect to login
 	useEffect(() => {
-		if (!isSignedIn(navigate)) {
+		if (!isSignedIn(navigate, "files")) {
 			return;
 		}
 	}, [navigate])
@@ -124,7 +124,7 @@ function Files() {
 			sessionStorage.removeItem("personalSignature");
 			//redirect to login
 			location.pathname !== "/login" && location.pathname !== "/register"
-				? navigate("/login")
+				? navigate("/login/files")
 				: console.log("already on login page");
 
 			return;

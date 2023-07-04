@@ -17,7 +17,7 @@ const ConnectWalletButton = ({
             {!loading && (address && customToken) ? (
                 <button onClick={
                     onPressLogout
-            }
+                }
                     className={styles["connect-wallet"]}>
                     Disconnect
                 </button>
@@ -31,6 +31,11 @@ const ConnectWalletButton = ({
             ) : (
                 <button onClick={onPressConnect} className={styles["connect-wallet"]}>
                     Connect
+                    <img
+                        width={30}
+                        className="mx-2"
+                        src="../assets/MetaMask_Fox.svg.png"
+                    />
                 </button>
             )}
         </div>

@@ -7,12 +7,13 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../app/store';
 
-import { setAddress, setLoading, setShowPasswordModal, setShowToast, setToastMessage, selectShowPasswordModal, setCustomToken } from '../../features/counter/accountSlice';
+import { selectDestiny, setAddress, setLoading, setShowPasswordModal, setShowToast, setToastMessage, selectShowPasswordModal, setCustomToken, setRedirectTo } from '../../features/counter/accountSlice';
 
 const PasswordModal = (
 ) => {
     const dispatch = useDispatch<AppDispatch>();
 
+    const destiny = useSelector(selectDestiny);
 
     const showPasswordModal = useSelector(selectShowPasswordModal);
     const closePasswordModal = () => {
@@ -99,6 +100,9 @@ const PasswordModal = (
                 await handleWelcome();
                 dispatch(setAddress(addressTemp));
                 dispatch(setLoading(false));
+                if (destiny) {
+                    dispatch(setRedirectTo(destiny));
+                }
             }
         }
     }
