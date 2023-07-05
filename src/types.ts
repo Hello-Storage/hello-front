@@ -1,3 +1,5 @@
+import { AxiosResponse } from "axios";
+
 export interface ConnectWalletButtonProps {
     onPressLogout: () => void;
     onPressConnect: () => void;
@@ -29,6 +31,11 @@ export interface FileDB {
 
 export interface FileUploadResponse {
   file: FileDB;
+}
+
+export interface FileUploadResponseWithTime {
+    response: AxiosResponse<FileUploadResponse>;
+    encryptionTime: number;
 }
 
 export interface FileMetadata {

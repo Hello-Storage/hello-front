@@ -1,8 +1,8 @@
 import "../App.css";
 import { FormEvent, useEffect, useState } from "react";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import FileComponent from "./FileComponent";
-import { FileDB, FileUploadResponse } from "../types";
+import { FileDB, FileUploadResponseWithTime } from "../types";
 import { baseUrl } from "../constants";
 import { uploadFile } from "../requests/clientRequests";
 import {
@@ -23,14 +23,43 @@ import {
 	selectFilesList,
 	setFilesList,
 	addFile,
-} from "../features/files/filesSlice";
+	selectEncryptionTime,
+	setEncryptionTime,
+} from "../features/files/dataSlice";
 import { AppDispatch } from "../app/store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isSignedIn } from "../helpers/userHelper";
 import { decryptMetadata } from "../helpers/fileHelper";
+import NProgress from 'nprogress';
+import TopBarProgress from "react-topbar-progress-indicator";
+import 'nprogress/nprogress.css'; // Import CSS
+
+
+
+TopBarProgress.config({
+	barColors: {
+		"0": "#fff",
+		"1.0": "#fff"
+	},
+	shadowBlur: 5,
+})
 
 
 function Files() {
+
+
+	const [uploadProgress, setUploadProgress] = useState(0);
+
+
+	useEffect(() => {
+		NProgress.configure({ showSpinner: false })
+		NProgress.set(uploadProgress)
+	}, [uploadProgress])
+
+	useEffect(() => {
+		NProgress.remove()
+	}, [])
+
 	const location = useLocation();
 	const navigate = useNavigate();
 
@@ -39,6 +68,7 @@ function Files() {
 	//selectors
 	const address = useSelector(selectAddress);
 	const customToken = useSelector(selectCustomToken);
+	const encryptionTime = useSelector(selectEncryptionTime);
 
 	//states
 	const [ref, setRef] = useState<HTMLInputElement | null>(null);
@@ -65,18 +95,26 @@ function Files() {
 		if (!fileToUplad) {
 			return;
 		}
-		uploadFile(fileToUplad)
+		//wrap uploadProgresss and setUploadProgress in a function
+		//to be able to pass it to uploadFile
+		const updateUploadProgress = (progress: number) => {
+			setUploadProgress(progress);
+		};
+		uploadFile(fileToUplad, updateUploadProgress)
 			.then(
 				async (
-					response: AxiosResponse<FileUploadResponse, unknown> | null
+					uploadFileResponse: FileUploadResponseWithTime | null
 				) => {
-					console.log(response);
+					NProgress.done()
+					//console.log(uploadFileResponse);
+					dispatch(setEncryptionTime(uploadFileResponse?.encryptionTime || 0));
 					setFileToUpload(null);
 					//update files list
-					if (!response?.data?.file) {
+					if (!uploadFileResponse?.response.data?.file) {
 						return;
 					}
-					const file: FileDB = response?.data?.file;
+					
+					const file: FileDB = uploadFileResponse?.response.data?.file;
 
 					//decrypt metadata
 					const signature = sessionStorage.getItem("personalSignature");
@@ -102,11 +140,12 @@ function Files() {
 						files: [...displayedFilesList.files, file],
 					});
 
-					dispatch(setToastMessage("File uploaded successfully"));
+					dispatch(setToastMessage(`File uploaded successfully.\nEncryption time: ${encryptionTime}ms`));
 					dispatch(setShowToast(true));
 				}
 			)
 			.catch((error) => {
+				NProgress.remove()
 				console.log(error);
 
 				setFileToUpload(null);
@@ -119,6 +158,7 @@ function Files() {
 			.catch((error) => {
 				console.log(error);
 			});
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, displayedFilesList, fileToUplad, navigate]);
 
 	const deleteFileFromList = (file: FileDB | null) => {

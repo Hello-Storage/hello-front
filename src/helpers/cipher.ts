@@ -128,7 +128,24 @@ export const encryptFileBuffer = async (file: File) => {
 
     //stop timer
     const end = performance.now();
-    console.log(`Encrypting the file took ${end - start} milliseconds.`);
+    let encryptionTime = end - start;
+    let encryptionSuffix = "milliseconds";
+    //format the time (if it's less than 1 second, it will be displayed in milliseconds, otherwise in seconds, otherwise in minutes)
+    if (encryptionTime < 1000) {
+        //round to 2 decimal places
+        encryptionTime = Math.round(encryptionTime * 100) / 100;
+        encryptionSuffix = "milliseconds";
+    } else if (encryptionTime < 60000) {
+        encryptionTime = Math.round(encryptionTime / 1000);
+        encryptionSuffix = "seconds";
+    } else {
+        encryptionTime = Math.round(encryptionTime / 60000);
+        encryptionSuffix = "minutes";
+    }
+
+    
+
+    console.log(`Encrypting the file took ${encryptionTime} ${encryptionSuffix}`)
 
     //Hash the encrypted file buffer
     const encryptedHash = await sha256.digest(new Uint8Array(encryptedFileBuffer));
@@ -137,7 +154,7 @@ export const encryptFileBuffer = async (file: File) => {
     //tranform the cid to a string
     const cidOfEncryptedBufferStr = encryptedCid.toString();
 
-    return {cidOfEncryptedBufferStr, cidStr, encryptedFileBuffer};
+    return {cidOfEncryptedBufferStr, cidStr, encryptedFileBuffer, encryptionTime};
 
 }
 export const decryptContent = async (iv: Uint8Array, key: CryptoKey, encryptedFile: ArrayBuffer): Promise<ArrayBuffer> => {

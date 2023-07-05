@@ -21,7 +21,7 @@ import {
 
 import {
 	setFilesList,
-} from "../../features/files/filesSlice";
+} from "../../features/files/dataSlice";
 
 import { AppDispatch } from "../../app/store";
 import { baseUrl } from "../../constants";

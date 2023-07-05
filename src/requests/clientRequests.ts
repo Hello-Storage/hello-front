@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from "axios"
-import { FileDB, FileUploadResponse } from "../types";
+import { FileDB, FileUploadResponseWithTime } from "../types";
 import { baseUrl } from "../constants";
 import { decryptContent, decryptFile, deriveKey, digestMessage, encryptBuffer, encryptFileBuffer, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
 
@@ -187,15 +187,20 @@ export const viewFile = async (file: FileDB) => {
     return null
   });
 }
+/*
+const updateUploadProgress = (progress: number) => {
+			setUploadProgress(progress);
+		};*/
 
-export const uploadFile = async (file: File): Promise<AxiosResponse<FileUploadResponse> | null> => {
+export const uploadFile = async (file: File, updateUploadProgress: { (progress: number): void; (arg0: number): void; } ):
+  Promise<FileUploadResponseWithTime | null> => {
   const customToken = localStorage.getItem("customToken");
 
   const signature = sessionStorage.getItem("personalSignature");
 
   if (!signature) {
     return null;
-  }
+  } 
 
   const hash = await getHashFromSignature(signature);
 
@@ -207,7 +212,9 @@ export const uploadFile = async (file: File): Promise<AxiosResponse<FileUploadRe
   console.log(file)
 
   //get the CID of the encrypted file, get the key used to encrypt the file (cidKey), and the encrypted file buffer
-  const { cidOfEncryptedBufferStr, cidStr, encryptedFileBuffer } = await encryptFileBuffer(file);
+  const { cidOfEncryptedBufferStr, cidStr, encryptedFileBuffer, encryptionTime } = await encryptFileBuffer(file);
+
+
 
   //transform cidOfEncryptedBufferStr to Uint8Array
   const cidBuffer = new TextEncoder().encode(cidStr);
@@ -264,10 +271,15 @@ const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CB
     headers: {
       Authorization: `Bearer ${customToken}`,
     },
+    onUploadProgress: (progressEvent) => {
+      const percentCompleted = progressEvent.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
+      
+      updateUploadProgress(percentCompleted)
+    },
   }).then((response) => {
 
 
-    return response
+    return {response: response, encryptionTime: encryptionTime}
   }
   ).catch((error) => {
     console.log(error);
@@ -284,7 +296,7 @@ export const savePassword = async (password: string): Promise<AxiosResponse | Ax
     },
   }).then((response) => {
     console.log(response);
-    return response
+    return response 
   }).catch((error: AxiosError) => {
     console.log(error);
     return error;
