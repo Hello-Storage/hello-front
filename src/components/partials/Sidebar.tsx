@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import ConnectWalletButton from "../ConnectWalletButton";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,10 +12,14 @@ import {
 	setLoading,
 	setShowPasswordModal,
 	setToastMessage,
-	setCustomToken,
+	removeCustomToken,
 	setSelectedPage,
 	setDestiny,
 	setRedirectTo,
+	setDatacap,
+	setShowToast,
+	setUsedStorage,
+	setUploadedFilesCount,
 
 } from "../../features/counter/accountSlice";
 
@@ -30,10 +34,15 @@ import Web3 from "web3";
 import Toast from "../modals/Toast";
 import PasswordModal from "../modals/PasswordModal";
 import { Link, useNavigate } from "react-router-dom";
+import { getDataCap, getUploadedFilesCount, getUsedStorage } from "../../requests/clientRequests";
 
 export const Sidebar = () => {
 	const dispatch = useDispatch<AppDispatch>();
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+	const sidebarRef = useRef<HTMLDivElement>(null);
+	const sidebarToggleRef = useRef<HTMLButtonElement>(null);
+
+
 	const [truncatedAddress, setTruncatedAddress] = useState<string | null>(
 		null
 	);
@@ -58,6 +67,25 @@ export const Sidebar = () => {
 		}
 	}, [dispatch, navigate, redirectTo])
 
+
+
+	useEffect(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (sidebarRef.current &&
+				!sidebarRef.current.contains(event.target as Node) &&
+				(!sidebarToggleRef.current ||
+					!sidebarToggleRef.current.contains(event.target as Node))) {
+				setIsSidebarOpen(false);
+			}
+		}
+
+		document.addEventListener("mouseup", handleClickOutside);
+
+		return () => {
+			document.removeEventListener("mouseup", handleClickOutside);
+		};
+	}, []);
+
 	const onPressConnect = async () => {
 		dispatch(setShowPasswordModal(true));
 		dispatch(setLoading(true));
@@ -67,7 +95,7 @@ export const Sidebar = () => {
 		dispatch(setAddress(null));
 		localStorage.removeItem("customToken");
 		sessionStorage.removeItem("personalSignature");
-		dispatch(setCustomToken(null));
+		dispatch(removeCustomToken());
 		dispatch(setSelectedPage("home"));
 		dispatch(setFilesList({ files: [] }));
 		//FIREBASE: signOut(auth);
@@ -95,6 +123,33 @@ export const Sidebar = () => {
 
 					const account = Web3.utils.toChecksumAddress(accounts[0]);
 					dispatch(setAddress(account));
+				const dataCap = await getDataCap(account);
+				const usedStorage = await getUsedStorage(account);
+				const uploadedFilesCount = await getUploadedFilesCount(account);
+                if (dataCap instanceof Error) {
+
+                    console.log(dataCap);
+                    //setLoading to false
+                    dispatch(setLoading(false));
+                    //set toast message to error.response.data
+                    dispatch(setToastMessage("Error getting datacap: " + dataCap.message));
+                    //show toast
+                    dispatch(setShowToast(true));
+                    return;
+                }
+				if (usedStorage instanceof Error) {
+					console.log(usedStorage);
+					//setLoading to false
+					dispatch(setLoading(false));
+					//set toast message to error.response.data
+					dispatch(setToastMessage("Error getting used storage: " + usedStorage.message));
+					//show toast
+					dispatch(setShowToast(true));
+					return;
+				}
+                dispatch(setDatacap(dataCap));
+				dispatch(setUsedStorage(usedStorage));
+				dispatch(setUploadedFilesCount(uploadedFilesCount));
 				}
 			})
 			.catch((error) => {
@@ -104,7 +159,7 @@ export const Sidebar = () => {
 				dispatch(setAddress(null));
 				localStorage.removeItem("customToken");
 				sessionStorage.removeItem("personalSignature");
-				dispatch(setCustomToken(null));
+				dispatch(removeCustomToken());
 				dispatch(setSelectedPage("home"));
 			});
 	}, [dispatch]);
@@ -156,6 +211,7 @@ export const Sidebar = () => {
 			>
 				<div className="d-flex align-items-center">
 					<button
+						ref={sidebarToggleRef}
 						className={
 							isSidebarOpen
 								? "btn-primary m-2 btn start-0"
@@ -202,7 +258,7 @@ export const Sidebar = () => {
 						</Link>
 					</li>
 					<li>
-						<Link to={"data"} className={`nav-link px-2 ${selectedPage === "data" ? "link-dark" : "link-secondary"}`}
+						<Link to={"/data"} className={`nav-link px-2 ${selectedPage === "data" ? "link-dark" : "link-secondary"}`}
 						onClick={() => {
 							dispatch(setSelectedPage("data"));
 						}}>
@@ -210,7 +266,7 @@ export const Sidebar = () => {
 						</Link>
 					</li>
 					<li>
-						<Link to={"pricing"} className={`nav-link px-2 ${selectedPage === "pricing" ? "link-dark" : "link-secondary"}`}
+						<Link to={"/pricing"} className={`nav-link px-2 ${selectedPage === "pricing" ? "link-dark" : "link-secondary"}`}
 						onClick={() => {
 							dispatch(setSelectedPage("pricing"));
 						}}>
@@ -233,6 +289,7 @@ export const Sidebar = () => {
 
 			{isSidebarOpen && (
 				<div
+					ref={sidebarRef}
 					style={sidebarStyles}
 					className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark h-100"
 				>
@@ -246,7 +303,7 @@ export const Sidebar = () => {
 						<span className="fs-4">Settings</span>
 					</Link>
 					<hr />
-					<ul className="nav nav-pills flex-column mb-auto">
+					<ul  className="nav nav-pills flex-column mb-auto">
 						<li className="nav-item">
 							<Link
 								to="/"
@@ -293,12 +350,12 @@ export const Sidebar = () => {
 							</Link>
 						</li>
 						<li>
-							<Link to="data" className={`nav-link text-white ${selectedPage == "data" && "active"}`}
+							<Link to="/data" className={`nav-link text-white ${selectedPage == "data" && "active"} `}
 							onClick={() => {
 								dispatch(setSelectedPage("data"));
 							}}>
 								<svg className="bi" width="16" height="16">
-									<use x-link:href="#table"></use>
+									<use x-link:href="#data"></use>
 								</svg>
 								Data
 							</Link>

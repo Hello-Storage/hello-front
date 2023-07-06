@@ -102,6 +102,54 @@ export const downloadFile = async (file: FileDB) => {
   });
 }
 
+export const getDataCap = async (address: string): Promise<number | Error> => {
+  const dataCap = axios.get(`${baseUrl}/api/storage/datacap/get/${address}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("customToken")}`,
+    },
+  }).then((response) => {
+    console.log(response);
+    return response.data
+  }).catch((error: Error) => {
+    console.log(error);
+    return error;
+  });
+
+  return dataCap;
+}
+
+export const getUsedStorage = async (address: string): Promise<number | Error> => {
+  const usedStorage = axios.get(`${baseUrl}/api/storage/used/get/${address}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("customToken")}`,
+    },
+  }).then((response) => {
+    console.log(response);
+    return response.data
+  }).catch((error: Error) => {
+    console.log(error);
+    return error;
+  });
+
+  return usedStorage;
+}
+
+export const getUploadedFilesCount = async (address: string): Promise<number | Error> => {
+  const uploadedFilesCount = axios.get(`${baseUrl}/api/storage/uploaded/count/get/${address}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("customToken")}`,
+    },
+  }).then((response) => {
+    console.log(response);
+    return response.data
+  }).catch((error: Error) => {
+    console.log(error);
+    return error;
+  });
+
+  return uploadedFilesCount ;
+}
+
 export const viewFile = async (file: FileDB) => {
   const cidOfEncryptedBuffer = file.cidOfEncryptedBuffer;
   const fileMetadata = file.metadata;
@@ -163,7 +211,7 @@ export const viewFile = async (file: FileDB) => {
     //get blob from decrypted file
     const blob = new Blob([decryptedFile], { type: fileMetadata.type });
 
-    if (!blob) {return}
+    if (!blob) { return }
 
     // Create an object URL for the Blob
     const url = window.URL.createObjectURL(blob);
@@ -189,10 +237,10 @@ export const viewFile = async (file: FileDB) => {
 }
 /*
 const updateUploadProgress = (progress: number) => {
-			setUploadProgress(progress);
-		};*/
+      setUploadProgress(progress);
+    };*/
 
-export const uploadFile = async (file: File, updateUploadProgress: { (progress: number): void; (arg0: number): void; } ):
+export const uploadFile = async (file: File, updateUploadProgress: { (progress: number): void; (arg0: number): void; }):
   Promise<FileUploadResponseWithTime | null> => {
   const customToken = localStorage.getItem("customToken");
 
@@ -200,7 +248,7 @@ export const uploadFile = async (file: File, updateUploadProgress: { (progress: 
 
   if (!signature) {
     return null;
-  } 
+  }
 
   const hash = await getHashFromSignature(signature);
 
@@ -273,13 +321,13 @@ const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CB
     },
     onUploadProgress: (progressEvent) => {
       const percentCompleted = progressEvent.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
-      
+
       updateUploadProgress(percentCompleted)
     },
   }).then((response) => {
 
 
-    return {response: response, encryptionTime: encryptionTime}
+    return { response: response, encryptionTime: encryptionTime }
   }
   ).catch((error) => {
     console.log(error);
@@ -296,7 +344,7 @@ export const savePassword = async (password: string): Promise<AxiosResponse | Ax
     },
   }).then((response) => {
     console.log(response);
-    return response 
+    return response
   }).catch((error: AxiosError) => {
     console.log(error);
     return error;

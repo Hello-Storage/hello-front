@@ -1,13 +1,26 @@
 import { useState } from 'react';
 import { connectMetamask } from '../../requests/metaRequests';
-import { savePassword } from '../../requests/clientRequests';
+import { getDataCap, getUploadedFilesCount, getUsedStorage, savePassword } from '../../requests/clientRequests';
 import { setPersonalSignature } from '../../helpers/cipher';
 import { baseUrl } from '../../constants';
 import axios, { AxiosError } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../app/store';
 
-import { selectDestiny, setAddress, setLoading, setShowPasswordModal, setShowToast, setToastMessage, selectShowPasswordModal, setCustomToken, setRedirectTo } from '../../features/counter/accountSlice';
+import {
+    selectDestiny,
+    setAddress,
+    setLoading,
+    setShowPasswordModal,
+    setShowToast,
+    setToastMessage,
+    selectShowPasswordModal,
+    setCustomToken,
+    setRedirectTo,
+    setDatacap,
+    setUsedStorage,
+    setUploadedFilesCount
+} from '../../features/counter/accountSlice';
 
 const PasswordModal = (
 ) => {
@@ -71,8 +84,50 @@ const PasswordModal = (
             const addressTemp: (string | Error) = await connectMetamask();
             if (addressTemp instanceof Error) {
                 alert(addressTemp.message)
+                console.log(addressTemp);
+                return;
             } else {
                 const passwordRequest = await savePassword(password);
+                const dataCap = await getDataCap(addressTemp);
+                const usedStorage = await getUsedStorage(addressTemp);
+                const uploadedFilesCount = await getUploadedFilesCount(addressTemp);
+
+                if (dataCap instanceof Error) {
+
+                    console.log(dataCap);
+                    //setLoading to false
+                    dispatch(setLoading(false));
+                    //set toast message to error.response.data
+                    dispatch(setToastMessage(dataCap.message));
+                    //show toast
+                    dispatch(setShowToast(true));
+                    return;
+                }
+                if (usedStorage instanceof Error) {
+
+                    console.log(usedStorage);
+                    //setLoading to false
+                    dispatch(setLoading(false));
+                    //set toast message to error.response.data
+                    dispatch(setToastMessage(usedStorage.message));
+                    //show toast
+                    dispatch(setShowToast(true));
+                    return;
+                }
+                if (uploadedFilesCount instanceof Error) {
+                    console.log(uploadedFilesCount);
+                    //setLoading to false
+                    dispatch(setLoading(false));
+                    //set toast message to error.response.data
+                    dispatch(setToastMessage(uploadedFilesCount.message));
+                    //show toast
+                    dispatch(setShowToast(true));
+                    return;
+                }
+                dispatch(setDatacap(dataCap));
+                dispatch(setUsedStorage(usedStorage));
+                dispatch(setUploadedFilesCount(uploadedFilesCount));
+
 
                 //check if the response is an error
                 if (passwordRequest instanceof AxiosError) {

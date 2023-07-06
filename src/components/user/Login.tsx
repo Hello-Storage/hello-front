@@ -3,6 +3,8 @@ import { AppDispatch } from "../../app/store";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLoading, selectCustomToken, setShowPasswordModal, setLoading, selectAddress, setDestiny } from "../../features/counter/accountSlice";
 import { useParams } from "react-router-dom";
+
+
 const roundedDivStyle = {
     width: "299px",
     height: "199px",
@@ -14,7 +16,6 @@ const roundedDivStyle = {
     justifyContent: "center",
     textAlign: "center" as const,
     margin: "-1 auto",
-
 }
 
 

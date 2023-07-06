@@ -9,18 +9,25 @@ import { Provider } from "react-redux";
 import { store } from "./app/store.ts";
 import Dashboard from "./components/Dashboard.tsx";
 import Login from "./components/user/Login.tsx";
+import Data from "./components/Data.tsx";
+import "./main.css"
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
 		<Provider store={store}>
 			<Router>
-				<Routes>
-					<Route path="/" element={<App />} />
-					<Route path="/files" element={<Files />} />
-					<Route path="/dashboard" element={<Dashboard />} />
-					<Route path="/login/:destiny" element={<Login/>} />
-				</Routes>
-				<Sidebar />
+				<div className="app">
+					<main className="main-content">
+						<Routes>
+							<Route path="/" element={<App />} />
+							<Route path="/files" element={<Files />} />
+							<Route path="/dashboard" element={<Dashboard />} />
+							<Route path="/data" element={<Data />} />
+							<Route path="/login/:destiny" element={<Login />} />
+						</Routes>
+					</main>
+					<Sidebar />
+				</div>
 			</Router>
 		</Provider>
 	</React.StrictMode>

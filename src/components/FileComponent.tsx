@@ -1,39 +1,11 @@
 import { FileDB } from "../types"
-import { deleteFile, downloadFile, viewFile } from '../requests/clientRequests'
+import { downloadFile, viewFile } from '../requests/clientRequests'
 import { useState } from 'react'
-import { AxiosResponse } from "axios"
 import { parseISO } from 'date-fns'; // for parsing the date
+import { DeleteModal } from "./modals/DeleteModal";
 
 
 
-export const DeleteModal = (props: { selectedFile: FileDB | null, deleteFileFromList: (file: FileDB | null) => void }) => {
-    const selectedFile: FileDB | null = props.selectedFile
-
-    return (
-        <div className="modal fade" id="exampleModal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div className="modal-dialog">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">Delete {selectedFile?.metadata?.name}</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div className="modal-body">
-                        Are you sure you want to delete this file?
-                    </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                        <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={() => deleteFile(selectedFile).then((res: AxiosResponse<unknown, unknown> | null) => {
-                            if (res?.status === 200) {
-                                props.deleteFileFromList(selectedFile)
-                            }
-                        })}>Yes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-
-}
 
 
 
@@ -65,22 +37,24 @@ const FileComponent = (props: { displayedFilesList: FileDB[], deleteFileFromList
 
                 const viewable = viewableExtensions.has(fileExtension); // check if the file is viewable
 
+                const originalFilename = file?.metadata?.name
                 let filename = file?.metadata?.name
 
-                //if file?.metadata?.name is larger than 20 characters, truncate it (add "..." at the end and put the extension at the end)
+                //if file?.metadata?.name is larger than 20 characters, truncate it (add "..." at the middle and put the extension at the end)
                 if (file && file.metadata) {
-                    if (file?.metadata?.name.length > 20) {
-                        filename = file?.metadata?.name.substring(0, 20) + "..." + fileExtension
+                    if (file?.metadata?.name.length > 40) {
+                        filename = file?.metadata?.name.slice(0, 10) + "..." + file?.metadata?.name.slice(file?.metadata?.name.length - 10, file?.metadata?.name.length) + "." + fileExtension
                     }
                 }
 
                 return (
                     <li className="list-group-item" style={{position: "initial" as const}}  key={file.ID}>
                         <div className="d-flex justify-content-between align-items-center">
-                            <div className="w-100 d-flex align-items-center justify-content-between">
+                            
+                            <div className="w-100 d-flex align-items-center justify-content-between" title={originalFilename}>
                                 <i className={`fas fa-regular ${fileIcon} fa-2x me-2`}></i>
-
-                                <p className="mb-0 text-truncate text-dark mr-2">{filename}</p>
+{/*align filename to left */}
+                                <p className="mb-0 text-truncate text-start align-self-left w-100 text-dark mr-2">{filename}</p>
                                 {/* Display the formatted date in a Bootstrap badge */}
                                 <span className="badge bg-white text-dark m-2" >{formattedDate}</span>
                             </div>

@@ -14,7 +14,7 @@ import {
 	selectAddress,
 	selectCustomToken,
 	setAddress,
-	setCustomToken,
+	removeCustomToken,
 	setShowToast,
 	setToastMessage,
 } from "../features/counter/accountSlice";
@@ -29,7 +29,7 @@ import {
 import { AppDispatch } from "../app/store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isSignedIn } from "../helpers/userHelper";
-import { decryptMetadata } from "../helpers/fileHelper";
+import { decryptMetadata } from "../helpers/storageHelper";
 import NProgress from 'nprogress';
 import TopBarProgress from "react-topbar-progress-indicator";
 import 'nprogress/nprogress.css'; // Import CSS
@@ -44,12 +44,33 @@ TopBarProgress.config({
 	shadowBlur: 5,
 })
 
+const currentPage = "files";
+
 
 function Files() {
 
 
 	const [uploadProgress, setUploadProgress] = useState(0);
 
+	//if not signed in, remove all credentials and redirect to login
+	useEffect(() => {
+		if (!isSignedIn(navigate, currentPage)) {
+			return;
+		}
+		if (!customToken) {
+			//go to /login if no customToken
+			dispatch(setAddress(null));
+			dispatch(removeCustomToken())
+			sessionStorage.removeItem("personalSignature");
+			//redirect to login
+			location.pathname !== "/login" && location.pathname !== "/register"
+				? navigate(`/login/${currentPage}`)
+				: console.log("already on login page");
+
+			return;
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
 	useEffect(() => {
 		NProgress.configure({ showSpinner: false })
@@ -113,7 +134,7 @@ function Files() {
 					if (!uploadFileResponse?.response.data?.file) {
 						return;
 					}
-					
+
 					const file: FileDB = uploadFileResponse?.response.data?.file;
 
 					//decrypt metadata
@@ -140,7 +161,7 @@ function Files() {
 						files: [...displayedFilesList.files, file],
 					});
 
-					dispatch(setToastMessage(`File uploaded successfully.\nEncryption time: ${encryptionTime}ms`));
+					dispatch(setToastMessage(`File uploaded successfully.\nEncrypting took: ${encryptionTime}ms`));
 					dispatch(setShowToast(true));
 				}
 			)
@@ -158,7 +179,7 @@ function Files() {
 			.catch((error) => {
 				console.log(error);
 			});
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, displayedFilesList, fileToUplad, navigate]);
 
 	const deleteFileFromList = (file: FileDB | null) => {
@@ -174,27 +195,9 @@ function Files() {
 		}
 	};
 
-	//if not signed in, remove all credentials and redirect to login
-	useEffect(() => {
-		if (!isSignedIn(navigate, "files")) {
-			return;
-		}
-	}, [navigate])
 
 	useEffect(() => {
 		//get files list from /api/files with auth header "Bearer customToken"
-		if (!customToken) {
-			//go to /login if no customToken
-			dispatch(setAddress(null));
-			dispatch(setCustomToken(null));
-			sessionStorage.removeItem("personalSignature");
-			//redirect to login
-			location.pathname !== "/login" && location.pathname !== "/register"
-				? navigate("/login/files")
-				: console.log("already on login page");
-
-			return;
-		}
 		axios
 			.get(`${baseUrl}/api/files`, {
 				headers: {
@@ -234,7 +237,7 @@ function Files() {
 				setFilesList({ files: [] });
 				setDisplayedFilesList({ files: [] }); // set displayed files list as well
 				dispatch(setAddress(null));
-				dispatch(setCustomToken(null));
+				dispatch(removeCustomToken());
 				localStorage.removeItem("customToken");
 				sessionStorage.removeItem("personalSignature");
 			});
@@ -274,10 +277,10 @@ function Files() {
 				}}
 			/>
 
-			<div className="container mt-4">
+			<div className="container mt-5">
 				<button
 					onClick={onUploadFilePress}
-					className="btn btn-primary mb-4"
+					className="btn btn-primary mb-4 z-index-1"
 				>
 					Upload file
 				</button>
