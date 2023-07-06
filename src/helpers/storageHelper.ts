@@ -36,19 +36,19 @@ export const formatByteWeight = (weight: number): string => {
   let size: string;
   switch (true) {
     case weight >= TB:
-      size = `${(weight / TB).toFixed(2)}TB`;
+      size = `${(weight / TB).toFixed(2)} TB`;
       break;
     case weight >= GB:
-      size = `${(weight / GB).toFixed(2)}GB`;
+      size = `${(weight / GB).toFixed(2)} GB`;
       break;
     case weight >= MB:
-      size = `${(weight / MB).toFixed(2)}MB`;
+      size = `${(weight / MB).toFixed(2)} MB`;
       break;
     case weight >= KB:
-      size = `${(weight / KB).toFixed(2)}KB`;
+      size = `${(weight / KB).toFixed(2)} KB`;
       break;
     default:
-      size = `${weight}B`;
+      size = `${weight} B`;
   }
 
   console.log("File Size:", size);
