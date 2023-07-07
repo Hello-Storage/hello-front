@@ -7,7 +7,7 @@ import "./index.css";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./app/store.ts";
-import Dashboard from "./components/Dashboard.tsx";
+import Dashboard from "./components/dashboard/Dashboard.tsx";
 import Login from "./components/user/Login.tsx";
 import Data from "./components/Data.tsx";
 import "./main.css"

@@ -14,7 +14,7 @@ export const isSignedIn = (navigate: NavigateFunction, destiny: string): boolean
     } else if (!sessionStorage.getItem('personalSignature')) {
         //redirect to profile
         location.pathname !== "/profile"
-            ? navigate("/profile/" + destiny)
+            ? navigate("/login/" + destiny)
             : console.log("already on profile page");
     }
     return false;

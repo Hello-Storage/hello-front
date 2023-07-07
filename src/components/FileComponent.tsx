@@ -3,22 +3,23 @@ import { downloadFile, viewFile } from '../requests/clientRequests'
 import { useState } from 'react'
 import { parseISO } from 'date-fns'; // for parsing the date
 import { DeleteModal } from "./modals/DeleteModal";
+import { selectDisplayedFilesList } from "../features/files/dataSlice";
+import { useSelector } from "react-redux";
 
 
 
 
 
-
-
-const FileComponent = (props: { displayedFilesList: FileDB[], deleteFileFromList: (file: FileDB | null) => void }) => {
+const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => void }) => {
     const [selectedFile, setSelectedFile] = useState<FileDB | null>(null)
-
-    const displayedFilesList: FileDB[] = props.displayedFilesList
+    const displayedFilesList = useSelector(selectDisplayedFilesList);
     const deleteFileFromList = props.deleteFileFromList
+
     return (
         <ul className="list-group">
             <DeleteModal selectedFile={selectedFile} deleteFileFromList={deleteFileFromList} />
-            {displayedFilesList.map((file: FileDB) => {
+            { displayedFilesList && displayedFilesList.length !== 0 && displayedFilesList.map((file: FileDB) => {
+
                 const date = parseISO(file.CreatedAt); // convert to Date object
                 const formattedDate = date.toLocaleString(); // convert to string using local timezone
 
@@ -43,23 +44,21 @@ const FileComponent = (props: { displayedFilesList: FileDB[], deleteFileFromList
                 //if file?.metadata?.name is larger than 20 characters, truncate it (add "..." at the middle and put the extension at the end)
                 if (file && file.metadata) {
                     if (file?.metadata?.name.length > 40) {
-                        filename = file?.metadata?.name.slice(0, 10) + "..." + file?.metadata?.name.slice(file?.metadata?.name.length - 10, file?.metadata?.name.length) + "." + fileExtension
+                        filename = file?.metadata?.name.slice(0, 10) + "..." + file?.metadata?.name.slice(file?.metadata?.name.length - 10, file?.metadata?.name.length)
                     }
                 }
 
                 return (
-                    <li className="list-group-item" style={{position: "initial" as const}}  key={file.ID}>
+                    <li className="list-group-item" style={{ position: "initial" as const }} key={file.ID}>
                         <div className="d-flex justify-content-between align-items-center">
-                            
+
                             <div className="w-100 d-flex align-items-center justify-content-between" title={originalFilename}>
                                 <i className={`fas fa-regular ${fileIcon} fa-2x me-2`}></i>
-{/*align filename to left */}
                                 <p className="mb-0 text-truncate text-start align-self-left w-100 text-dark mr-2">{filename}</p>
-                                {/* Display the formatted date in a Bootstrap badge */}
                                 <span className="badge bg-white text-dark m-2" >{formattedDate}</span>
                             </div>
-                            <div className="dropdown"style={{position: "initial" as const}}>
-                                <button className="btn btn-secondary dropdown-toggle"  type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div className="dropdown" style={{ position: "initial" as const }}>
+                                <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
                                 </button>
                                 <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                     <li><a className="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => setSelectedFile(file)} href="#">Delete</a></li>
@@ -67,11 +66,6 @@ const FileComponent = (props: { displayedFilesList: FileDB[], deleteFileFromList
 
                                     <li><a className={viewable ? "dropdown-item" : "disabled dropdown-item"} role="button" onClick={async () => await viewFile(file)}>View</a></li>
                                     <li><hr className="dropdown-divider" /></li>
-                                    {/*
-                                    share function will give out the cid of the original file,
-                                    and will get a special link
-                                    that will allow the user to download the file
-                                    */}
                                     <li><a className="dropdown-item" role="button" onClick={() => alert("No implementado")}>Share</a></li>
                                 </ul>
                             </div>

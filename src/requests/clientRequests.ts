@@ -108,7 +108,6 @@ export const getDataCap = async (address: string): Promise<number | Error> => {
       Authorization: `Bearer ${localStorage.getItem("customToken")}`,
     },
   }).then((response) => {
-    console.log(response);
     return response.data
   }).catch((error: Error) => {
     console.log(error);
@@ -124,7 +123,6 @@ export const getUsedStorage = async (address: string): Promise<number | Error> =
       Authorization: `Bearer ${localStorage.getItem("customToken")}`,
     },
   }).then((response) => {
-    console.log(response);
     return response.data
   }).catch((error: Error) => {
     console.log(error);
@@ -140,7 +138,6 @@ export const getUploadedFilesCount = async (address: string): Promise<number | E
       Authorization: `Bearer ${localStorage.getItem("customToken")}`,
     },
   }).then((response) => {
-    console.log(response);
     return response.data
   }).catch((error: Error) => {
     console.log(error);

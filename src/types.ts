@@ -4,8 +4,8 @@ export interface ConnectWalletButtonProps {
     onPressLogout: () => void;
     onPressConnect: () => void;
     loading: boolean;
-    address: string|null;
-    customToken: string|null;
+    address: string | null;
+    customToken: string | null;
 }
 
 export interface PasswordModalProps {
@@ -16,9 +16,10 @@ export interface PasswordModalProps {
     setShowToast: (showToast: boolean) => void;
 }
 
+
 export interface FileDB {
     CreatedAt: string;
-    DeletedAt: string|null;
+    DeletedAt: string | null;
     ID: number;
     UpdatedAt: string;
     cidEncryptedOriginalStr: string;
@@ -30,7 +31,7 @@ export interface FileDB {
 }
 
 export interface FileUploadResponse {
-  file: FileDB;
+    file: FileDB;
 }
 
 export interface FileUploadResponseWithTime {

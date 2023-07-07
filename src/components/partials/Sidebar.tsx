@@ -24,6 +24,8 @@ import {
 } from "../../features/counter/accountSlice";
 
 import {
+	selectFilesList,
+	setDisplayedFilesList,
 	setFilesList,
 } from "../../features/files/dataSlice";
 
@@ -35,12 +37,14 @@ import Toast from "../modals/Toast";
 import PasswordModal from "../modals/PasswordModal";
 import { Link, useNavigate } from "react-router-dom";
 import { getDataCap, getUploadedFilesCount, getUsedStorage } from "../../requests/clientRequests";
+import { getDecryptedFilesList } from "../../helpers/storageHelper";
 
 export const Sidebar = () => {
 	const dispatch = useDispatch<AppDispatch>();
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const sidebarToggleRef = useRef<HTMLButtonElement>(null);
+	const filesList = useSelector(selectFilesList);
 
 
 	const [truncatedAddress, setTruncatedAddress] = useState<string | null>(
@@ -68,6 +72,39 @@ export const Sidebar = () => {
 	}, [dispatch, navigate, redirectTo])
 
 
+	//get files and put them in the store
+	useEffect(() => {
+		if (!customToken) {
+			return;
+		}
+		const getFilesList = async () => {
+			let decryptedFiles;
+
+			try {
+				decryptedFiles = await getDecryptedFilesList(customToken);
+				dispatch(setFilesList( decryptedFiles || [] ));
+					console.log("aAAAAAAAA")
+					console.log(filesList)
+					dispatch(setDisplayedFilesList(decryptedFiles || []))
+				} catch (error) {
+					console.log(error);
+					dispatch(setToastMessage("Error getting files list: " + (error as Error).message));
+					dispatch(setShowToast(true));
+					dispatch(setAddress(null));
+					dispatch(removeCustomToken());
+					localStorage.removeItem("customToken");
+					sessionStorage.removeItem("personalSignature");
+					return;
+			}
+
+			const newFileList = decryptedFiles || []; // set files to an empty array if decryptedFiles is undefined
+			dispatch(setFilesList(newFileList));
+			
+		};
+
+		getFilesList();
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [customToken, dispatch]);
 
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
@@ -97,7 +134,7 @@ export const Sidebar = () => {
 		sessionStorage.removeItem("personalSignature");
 		dispatch(removeCustomToken());
 		dispatch(setSelectedPage("home"));
-		dispatch(setFilesList({ files: [] }));
+		dispatch(setFilesList( [] ));
 		//FIREBASE: signOut(auth);
 	};
 
@@ -155,13 +192,15 @@ export const Sidebar = () => {
 			.catch((error) => {
 				console.log(error);
 				//logout
-				setFilesList({ files: [] });
+				setFilesList( [] );
 				dispatch(setAddress(null));
 				localStorage.removeItem("customToken");
 				sessionStorage.removeItem("personalSignature");
 				dispatch(removeCustomToken());
 				dispatch(setSelectedPage("home"));
+				navigate("/login");
 			});
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch]);
 
 

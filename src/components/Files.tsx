@@ -1,9 +1,7 @@
 import "../App.css";
 import { FormEvent, useEffect, useState } from "react";
-import axios from "axios";
 import FileComponent from "./FileComponent";
 import { FileDB, FileUploadResponseWithTime } from "../types";
-import { baseUrl } from "../constants";
 import { uploadFile } from "../requests/clientRequests";
 import {
 	getHashFromSignature,
@@ -11,7 +9,6 @@ import {
 } from "../helpers/cipher";
 import { useDispatch, useSelector } from "react-redux";
 import {
-	selectAddress,
 	selectCustomToken,
 	setAddress,
 	removeCustomToken,
@@ -25,6 +22,8 @@ import {
 	addFile,
 	selectEncryptionTime,
 	setEncryptionTime,
+	selectDisplayedFilesList,
+	setDisplayedFilesList,
 } from "../features/files/dataSlice";
 import { AppDispatch } from "../app/store";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -45,7 +44,6 @@ TopBarProgress.config({
 })
 
 const currentPage = "files";
-
 
 function Files() {
 
@@ -69,7 +67,7 @@ function Files() {
 
 			return;
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	useEffect(() => {
@@ -77,17 +75,13 @@ function Files() {
 		NProgress.set(uploadProgress)
 	}, [uploadProgress])
 
-	useEffect(() => {
-		NProgress.remove()
-	}, [])
-
 	const location = useLocation();
 	const navigate = useNavigate();
 
 	const dispatch = useDispatch<AppDispatch>();
 
 	//selectors
-	const address = useSelector(selectAddress);
+	//const address = useSelector(selectAddress);
 	const customToken = useSelector(selectCustomToken);
 	const encryptionTime = useSelector(selectEncryptionTime);
 
@@ -99,12 +93,17 @@ function Files() {
 	const filesList = useSelector(selectFilesList);
 
 
+	useEffect(() => {
+		NProgress.remove()
+		console.log("CCCCCCCCCCCCCCCCC")
+		console.log(displayedFilesList)
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 
 
-	const [displayedFilesList, setDisplayedFilesList] = useState<{
-		files: FileDB[];
-	}>({ files: [] });
+	const displayedFilesList = useSelector(selectDisplayedFilesList);
+
 	const [searchTerm, setSearchTerm] = useState("");
 
 	const onUploadFilePress = () => {
@@ -153,13 +152,9 @@ function Files() {
 					//add file to files list
 					dispatch(addFile(file));
 					//add file to displayed files list
-
-
-
-					setDisplayedFilesList({
-						...displayedFilesList,
-						files: [...displayedFilesList.files, file],
-					});
+					dispatch(setDisplayedFilesList([
+						...displayedFilesList, file
+					]));
 
 					dispatch(setToastMessage(`File uploaded successfully.\nEncrypting took: ${encryptionTime}ms`));
 					dispatch(setShowToast(true));
@@ -184,64 +179,18 @@ function Files() {
 
 	const deleteFileFromList = (file: FileDB | null) => {
 		if (file !== null) {
-			const updatedFilesList = displayedFilesList.files.filter(
+			const updatedFilesList = displayedFilesList.filter(
 				(item: FileDB) => item.ID !== file.ID
 			);
-			setFilesList({ ...filesList, files: updatedFilesList });
-			setDisplayedFilesList({
-				...displayedFilesList,
-				files: updatedFilesList,
-			});
+			setFilesList( [...filesList, updatedFilesList ]);
+			dispatch(setDisplayedFilesList({
+				updatedFilesList
+			}))
 		}
 	};
 
 
-	useEffect(() => {
-		//get files list from /api/files with auth header "Bearer customToken"
-		axios
-			.get(`${baseUrl}/api/files`, {
-				headers: {
-					Authorization: `Bearer ${customToken}`,
-				},
-			})
-			.then(async (response) => {
-				const filesList: { files: FileDB[] } = await response.data;
 
-				const signature = sessionStorage.getItem("personalSignature");
-
-				if (!signature) {
-					return;
-				}
-
-				const hash = await getHashFromSignature(signature);
-				const key = await getKeyFromHash(hash);
-				//iterate through filesList and decrypt metadata
-				const decryptedFiles = await Promise.all(
-					filesList.files.map(async (file: FileDB) => {
-						//decrypt metadata
-						const metadata = await decryptMetadata(file.encryptedMetadata, file.iv, key);
-						//set metadata
-						file.metadata = metadata;
-						return file;
-					})
-				);
-
-				const newFileList = { files: decryptedFiles };
-
-				setFilesList(newFileList);
-				setDisplayedFilesList(newFileList); // set displayed files list as well
-			})
-			.catch((error) => {
-				console.log(error);
-				//logout
-				setFilesList({ files: [] });
-				setDisplayedFilesList({ files: [] }); // set displayed files list as well
-				dispatch(setAddress(null));
-				dispatch(removeCustomToken());
-				localStorage.removeItem("customToken");
-				sessionStorage.removeItem("personalSignature");
-			});
-	}, [address, customToken, dispatch, location.pathname, navigate]);
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -250,10 +199,10 @@ function Files() {
 
 			const filteredFiles = filesList.filter((file: FileDB) => {
 				if (searchTerm == "") return true;
-				return file.metadata?.name.includes(searchTerm);
+				return file.metadata?.name.toLowerCase().includes(searchTerm.toLowerCase());
 			});
 			// Set a new state with the updated files list.
-			setDisplayedFilesList({ ...filesList, files: filteredFiles });
+			dispatch(setDisplayedFilesList( filteredFiles ));
 		}
 	};
 
@@ -303,12 +252,13 @@ function Files() {
 						Search
 					</button>
 				</form>
-
-				<FileComponent
-					displayedFilesList={displayedFilesList.files}
-					deleteFileFromList={deleteFileFromList}
-				/>
-			</div>
+				{displayedFilesList.length === 0 ? <h4>No files found</h4> :
+					<>
+						<FileComponent
+							deleteFileFromList={deleteFileFromList}
+						/>
+					</>
+				}			</div>
 		</div>
 	);
 }
