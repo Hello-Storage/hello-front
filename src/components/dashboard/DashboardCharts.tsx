@@ -1,5 +1,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList, CartesianGrid, ResponsiveContainer, LabelProps, Cell, Pie, PieChart } from 'recharts';
+import { FileDB } from '../../types';
+import { sortFilesByType } from '../../helpers/storageHelper';
 
 type StorageData = {
   used: number | null,
@@ -56,19 +58,6 @@ export const StorageBarChart: React.FC<StorageData> = ({ used, available }) => {
 
 
 
-//file types can be:
-/*
-photos
-videos
-documents
-music
-presentations
-spreadsheets
-pdfs
-compressedfiles
-codeefiles
-other
-*/
 
 
 
@@ -107,26 +96,38 @@ const renderCustomizedLabel = ({
   )
 }
 
-export const UsedStoragePieChart = () => {
+type UsedStorageFiles = {
+  filesList: FileDB[],
+}
+
+
+export const UsedStoragePieChart: React.FC<UsedStorageFiles> = (filesList) => {
+
+
+const fileTypes = sortFilesByType(filesList.filesList)
+console.log(fileTypes)
   return (
-    <ResponsiveContainer width="100%" height={250}>
-      <PieChart>
-        <Pie
-          data={data01}
-          dataKey="value"
-          nameKey="name"
-          cx="50%"
-          cy="50%"
-          outerRadius={80}
-          fill="#8884d8"
-          label={renderCustomizedLabel}
-        >
-          {
-            data01.map((_entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
-          }
-        </Pie>
-        <Legend />
-        <Tooltip />
-      </PieChart>
-    </ResponsiveContainer>)
+    <div>
+      <ResponsiveContainer width="100%" height={250}>
+        <PieChart>
+          <Pie
+            data={fileTypes}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={80}
+            fill="#8884d8"
+            label={renderCustomizedLabel}
+          >
+            {
+              fileTypes.map((_entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+            }
+          </Pie>
+          <Legend />
+          <Tooltip />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  )
 }

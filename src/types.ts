@@ -45,3 +45,12 @@ export interface FileMetadata {
     type: string;
     lastModified: number;
 }
+
+export interface PieData {
+    name: string;
+    value: number;
+}
+
+export interface PieTypes {
+    [key: string]: string[];
+}
