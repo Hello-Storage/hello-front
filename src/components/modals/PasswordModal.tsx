@@ -87,11 +87,21 @@ const PasswordModal = (
                 console.log(addressTemp);
                 return;
             } else {
+
+
+
+                await setPersonalSignature(addressTemp, password);
+
+
+
+
+
+                await handleWelcome();
                 const passwordRequest = await savePassword(password);
                 const dataCap = await getDataCap(addressTemp);
                 const usedStorage = await getUsedStorage(addressTemp);
-                const uploadedFilesCount = await getUploadedFilesCount(addressTemp);
 
+                const uploadedFilesCount = await getUploadedFilesCount(addressTemp);
                 if (dataCap instanceof Error) {
 
                     console.log(dataCap);
@@ -124,9 +134,6 @@ const PasswordModal = (
                     dispatch(setShowToast(true));
                     return;
                 }
-                dispatch(setDatacap(dataCap));
-                dispatch(setUsedStorage(usedStorage));
-                dispatch(setUploadedFilesCount(uploadedFilesCount));
 
 
                 //check if the response is an error
@@ -145,15 +152,9 @@ const PasswordModal = (
                     dispatch(setShowToast(true));
                     return;
                 }
-
-
-                await setPersonalSignature(addressTemp, password);
-
-
-
-
-
-                await handleWelcome();
+                dispatch(setDatacap(dataCap));
+                dispatch(setUsedStorage(usedStorage));
+                dispatch(setUploadedFilesCount(uploadedFilesCount));
                 dispatch(setAddress(addressTemp));
                 dispatch(setLoading(false));
                 if (destiny) {
