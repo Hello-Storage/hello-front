@@ -24,7 +24,6 @@ import {
 } from "../../features/counter/accountSlice";
 
 import {
-	selectFilesList,
 	setDisplayedFilesList,
 	setFilesList,
 } from "../../features/files/dataSlice";
@@ -44,7 +43,6 @@ export const Sidebar = () => {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const sidebarToggleRef = useRef<HTMLButtonElement>(null);
-	const filesList = useSelector(selectFilesList);
 
 
 	const [truncatedAddress, setTruncatedAddress] = useState<string | null>(
@@ -83,8 +81,6 @@ export const Sidebar = () => {
 			try {
 				decryptedFiles = await getDecryptedFilesList(customToken);
 				dispatch(setFilesList( decryptedFiles || [] ));
-					console.log("aAAAAAAAA")
-					console.log(filesList)
 					dispatch(setDisplayedFilesList(decryptedFiles || []))
 				} catch (error) {
 					console.log(error);
@@ -148,7 +144,6 @@ export const Sidebar = () => {
 			})
 			.then(async (response) => {
 				//log the response
-				console.log(response);
 				dispatch(setToastMessage(response.data.msg))
 				//set the address from window.ethereum
 
@@ -192,7 +187,7 @@ export const Sidebar = () => {
 			.catch((error) => {
 				console.log(error);
 				//logout
-				setFilesList( [] );
+				dispatch(setFilesList( null ));
 				dispatch(setAddress(null));
 				localStorage.removeItem("customToken");
 				sessionStorage.removeItem("personalSignature");

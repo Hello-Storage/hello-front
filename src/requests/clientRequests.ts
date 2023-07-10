@@ -2,6 +2,10 @@ import axios, { AxiosError, AxiosResponse } from "axios"
 import { FileDB, FileUploadResponseWithTime } from "../types";
 import { baseUrl } from "../constants";
 import { decryptContent, decryptFile, deriveKey, digestMessage, encryptBuffer, encryptFileBuffer, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
+import { removeCustomToken, setAddress } from "../features/counter/accountSlice";
+import { isSignedIn } from "../helpers/userHelper";
+import { NavigateFunction } from "react-router-dom";
+import { Dispatch } from "@reduxjs/toolkit";
 
 
 
@@ -141,10 +145,9 @@ export const getUploadedFilesCount = async (address: string): Promise<number | E
     return response.data
   }).catch((error: Error) => {
     console.log(error);
-    return error;
+    return 0;
   });
-
-  return uploadedFilesCount ;
+  return uploadedFilesCount;
 }
 
 export const viewFile = async (file: FileDB) => {
@@ -228,8 +231,9 @@ export const viewFile = async (file: FileDB) => {
 
 
   }).catch((error) => {
+    //TODO: LOGOUT
     console.log(error);
-    return null
+    return "Session expired. Please login again." 
   });
 }
 /*
@@ -293,18 +297,18 @@ const cidKeyArray = Uint8Array.from(atob(cidKeyBase64), c => c.charCodeAt(0));
 const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CBC", length: 256 }, false, ["encrypt", "decrypt"]);
   */
 
-  /*
-    console.log("encryptedMetadataStr:")
-    console.log(encryptedMetadataStr)
-    console.log("encryptedFileBlob:")
-    console.log(encryptedFileBlob)
-    console.log("ivString:")
-    console.log(ivString)
-    console.log("cidOfEncryptedBufferStr:")
-    console.log(cidOfEncryptedBufferStr)
-    console.log("cidEncryptedOriginalStr:")
-    console.log(cidEncryptedOriginalStr)
-  */
+
+  console.log("encryptedMetadataStr:")
+  console.log(encryptedMetadataStr)
+  console.log("encryptedFileBlob:")
+  console.log(encryptedFileBlob)
+  console.log("ivString:")
+  console.log(ivString)
+  console.log("cidOfEncryptedBufferStr:")
+  console.log(cidOfEncryptedBufferStr)
+  console.log("cidEncryptedOriginalStr:")
+  console.log(cidEncryptedOriginalStr)
+
 
   const formData = new FormData();
   formData.append("encryptedFileBlob", encryptedFileBlob);
@@ -322,8 +326,6 @@ const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CB
       updateUploadProgress(percentCompleted)
     },
   }).then((response) => {
-
-
     return { response: response, encryptionTime: encryptionTime }
   }
   ).catch((error) => {
@@ -347,5 +349,24 @@ export const savePassword = async (password: string): Promise<AxiosResponse | Ax
     return error;
   });
 
+
+}
+
+export const logOut = async (customToken: string|null, navigate: NavigateFunction, dispatch: Dispatch, currentPage: string)  => {
+  if (!customToken) {
+    //go to /login if no customToken
+    dispatch(setAddress(null));
+    dispatch(removeCustomToken())
+    sessionStorage.removeItem("personalSignature");
+    //redirect to login
+    location.pathname !== "/login" && location.pathname !== "/register"
+      ? navigate(`/login/${currentPage}`)
+      : console.log("already on login page");
+
+    return;
+  }
+  if (!isSignedIn(navigate, currentPage)) {
+    return;
+  }
 
 }

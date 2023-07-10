@@ -54,20 +54,6 @@ export const StorageBarChart: React.FC<StorageData> = ({ used, available }) => {
   );
 };
 
-
-
-
-
-
-
-
-
-
-const data01 = [
-  { name: 'Photos', value: 30 },
-  { name: 'Videos', value: 70 },
-];
-
 const COLORS = ['#8883d8', '#82ca9d'];
 
 

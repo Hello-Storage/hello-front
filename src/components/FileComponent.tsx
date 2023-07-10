@@ -1,24 +1,30 @@
 import { FileDB } from "../types"
-import { downloadFile, viewFile } from '../requests/clientRequests'
+import { downloadFile, logOut, viewFile } from '../requests/clientRequests'
 import { useState } from 'react'
 import { parseISO } from 'date-fns'; // for parsing the date
 import { DeleteModal } from "./modals/DeleteModal";
 import { selectDisplayedFilesList } from "../features/files/dataSlice";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { selectCustomToken, setShowToast, setToastMessage } from "../features/counter/accountSlice";
+import { useNavigate } from "react-router-dom";
 
 
 
 
 
 const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => void }) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [selectedFile, setSelectedFile] = useState<FileDB | null>(null)
     const displayedFilesList = useSelector(selectDisplayedFilesList);
     const deleteFileFromList = props.deleteFileFromList
+    const customToken = useSelector(selectCustomToken)
+    const currentPage = "files";
 
     return (
         <ul className="list-group">
             <DeleteModal selectedFile={selectedFile} deleteFileFromList={deleteFileFromList} />
-            { displayedFilesList && displayedFilesList.length !== 0 && displayedFilesList.map((file: FileDB) => {
+            {displayedFilesList && displayedFilesList.length !== 0 && displayedFilesList.map((file: FileDB) => {
 
                 const date = parseISO(file.CreatedAt); // convert to Date object
                 const formattedDate = date.toLocaleString(); // convert to string using local timezone
@@ -64,7 +70,11 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
                                     <li><a className="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => setSelectedFile(file)} href="#">Delete</a></li>
                                     <li><a className="dropdown-item" role="button" onClick={async () => await downloadFile(file)}>Download</a></li>
 
-                                    <li><a className={viewable ? "dropdown-item" : "disabled dropdown-item"} role="button" onClick={async () => await viewFile(file)}>View</a></li>
+                                    <li><a className={viewable ? "dropdown-item" : "disabled dropdown-item"} role="button" onClick={async () => await viewFile(file).catch((e) => {
+                                        logOut(customToken, navigate, dispatch, currentPage);
+                                        dispatch(setToastMessage(e));
+                                        dispatch(setShowToast(true));
+                                    })}>View</a></li>
                                     <li><hr className="dropdown-divider" /></li>
                                     <li><a className="dropdown-item" role="button" onClick={() => alert("No implementado")}>Share</a></li>
                                 </ul>
