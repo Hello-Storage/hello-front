@@ -1,10 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { selectShowShareModal, setShowShareModal } from "../../features/storage/filesSlice";
 import { useState } from "react";
-import { setLoading } from "../../features/account/accountSlice";
+import { setLoading, setShowToast, setToastMessage } from "../../features/account/accountSlice";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FileDB } from "../../types";
-
+import { shareFile } from "../../requests/shareRequests";
+import { AxiosError, AxiosResponse } from "axios";
 
 //can be public, one time, address restricted, password restricted, temporary link or subscription
 
@@ -48,8 +49,8 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
             state: "disabled"
         },
         {
-            title: "temporary-link",
-            type: "Temporary link",
+            type: "temporary-link",
+            title: "Temporary link",
             description: "Generate a URL that can be accessed only for a limited time. The URL will self-destroy after the time expires.",
             state: "disabled"
         },
@@ -63,18 +64,16 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
 
 
 
-
     const showShareModal = useSelector(selectShowShareModal);
     const [shareError, setShareError] = useState("");
-    const [shareType, setShareType] = useState("");
+    const [selectedShareTypes, setSelectedShareTypes] = useState<string[]>([]);
 
     const closeShareModal = () => {
         dispatch(setShowShareModal(!showShareModal));
         dispatch(setLoading(false))
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const handleShareChange = (type: string) => (_e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleShareChange = (type: string) => async (e: React.ChangeEvent<HTMLInputElement>) => {
         const shareTypeObject = shareTypes.find(st => st.type === type);
 
         if (!shareTypeObject) {
@@ -83,12 +82,38 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
             setShareError("This share type is not available yet");
         } else {
             setShareError("");
-            setShareType(type);
+            if (e.target.checked) {
+                //handle sharing from shareRequests.ts
+                shareFile(selectedFile, type).then((res) => {
+                    //if res is AxiosResponse:
+                    if ((res as AxiosResponse).status === 200) {
+                        dispatch(setLoading(false));
+                        dispatch(setToastMessage("File shared successfully"));
+                        dispatch(setShowToast(true));
+                    }
+                    if ((res as AxiosError).isAxiosError) {
+                        dispatch(setLoading(false));
+                        dispatch(setToastMessage((res as AxiosError).response?.data));
+                        dispatch(setShowToast(true));
+                    }
+                }).catch(err => {
+                    setShareError(err.message);
+                });
+
+                setSelectedShareTypes(prevTypes => [...prevTypes, type]);
+            } else {
+                setSelectedShareTypes(prevTypes => prevTypes.filter(t => t !== type))
+            }
         }
     }
-
-    //shareType useEffect lisstener
-
+/*
+    //shareType useEffect listener
+    useEffect(() => {
+        if (selectedShareTypes.length > 0) {
+            setShareError("");
+        }
+    }, [selectedShareTypes])
+*/
     return (
         <>
             <div style={{ display: showShareModal ? "block" : "none" }} className="modal-backdrop show"></div>
@@ -104,7 +129,7 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
                                 {shareTypes.map((st, index) => {
                                     return (
                                         <div title={st.description} className="col-12 form-check form-switch" key={index}>
-                                            <input className="form-check-input" type="checkbox" id={`flexSwitch${st.type}`} checked={st.type === shareType} onChange={handleShareChange(st.type)} disabled={st.state === "disabled"} />
+                                            <input className="form-check-input" type="checkbox" id={`flexSwitch${st.type}`} checked={selectedShareTypes.includes(st.type)} onChange={handleShareChange(st.type)} disabled={st.state === "disabled"} />
                                             <label className="form-check-label" htmlFor={`flexSwitch${st.type}`}><h6 className="display-6">{st.title}</h6></label>
                                             <OverlayTrigger
                                                 key={`tooltip-${index}`}

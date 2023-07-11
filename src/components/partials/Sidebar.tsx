@@ -102,7 +102,6 @@ export const Sidebar = () => {
 		};
 
 		getFilesList();
-	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [customToken, dispatch]);
 
 	useEffect(() => {

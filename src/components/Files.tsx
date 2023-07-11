@@ -95,7 +95,6 @@ function Files() {
 
 	useEffect(() => {
 		NProgress.remove()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 
