@@ -20,13 +20,14 @@ import {
 	setShowToast,
 	setUsedStorage,
 	setUploadedFilesCount,
+	selectDestiny,
 
-} from "../../features/counter/accountSlice";
+} from "../../features/account/accountSlice";
 
 import {
 	setDisplayedFilesList,
 	setFilesList,
-} from "../../features/files/dataSlice";
+} from "../../features/storage/filesSlice";
 
 import { AppDispatch } from "../../app/store";
 import { baseUrl } from "../../constants";
@@ -35,8 +36,9 @@ import Web3 from "web3";
 import Toast from "../modals/Toast";
 import PasswordModal from "../modals/PasswordModal";
 import { Link, useNavigate } from "react-router-dom";
-import { getDataCap, getUploadedFilesCount, getUsedStorage } from "../../requests/clientRequests";
+import { getDataCap, getUploadedFilesCount, getUsedStorage, logOut } from "../../requests/clientRequests";
 import { getDecryptedFilesList } from "../../helpers/storageHelper";
+
 
 export const Sidebar = () => {
 	const dispatch = useDispatch<AppDispatch>();
@@ -44,6 +46,8 @@ export const Sidebar = () => {
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const sidebarToggleRef = useRef<HTMLButtonElement>(null);
 
+	const destiny = useSelector(selectDestiny);
+	const currentPage = typeof destiny === "string" ? destiny : "";
 
 	const [truncatedAddress, setTruncatedAddress] = useState<string | null>(
 		null
@@ -95,7 +99,6 @@ export const Sidebar = () => {
 
 			const newFileList = decryptedFiles || []; // set files to an empty array if decryptedFiles is undefined
 			dispatch(setFilesList(newFileList));
-			
 		};
 
 		getFilesList();
@@ -187,13 +190,9 @@ export const Sidebar = () => {
 			.catch((error) => {
 				console.log(error);
 				//logout
-				dispatch(setFilesList( null ));
-				dispatch(setAddress(null));
-				localStorage.removeItem("customToken");
-				sessionStorage.removeItem("personalSignature");
-				dispatch(removeCustomToken());
-				dispatch(setSelectedPage("home"));
-				navigate("/login");
+				logOut(customToken, navigate, dispatch, currentPage)
+				dispatch(setToastMessage("Error checking login: " + error.message));
+				dispatch(setShowToast(true));
 			});
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch]);
@@ -237,8 +236,9 @@ export const Sidebar = () => {
 		<div style={{ position: "fixed", top: 0, left: 0, width: "100%" }}>
 			<Toast
 			/>
-
+			{/*//modals*/}
 			<PasswordModal/>
+
 			<header
 				style={{ height: "80px" }}
 				className="d-flex flex-nowrap align-items-center justify-content-between py-3 mb-4 border-bottom "
@@ -256,7 +256,7 @@ export const Sidebar = () => {
 					>
 						<i className="fas fa-bars"></i>
 					</button>
-					<a className="navbar-brand" href="https://joinhello.app">
+					<a className="navbar-brand" href="https://hello.storage">
 						<img
 							width={30}
 							className="mx-2"

@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosResponse } from "axios"
 import { FileDB, FileUploadResponseWithTime } from "../types";
 import { baseUrl } from "../constants";
 import { decryptContent, decryptFile, deriveKey, digestMessage, encryptBuffer, encryptFileBuffer, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
-import { removeCustomToken, setAddress } from "../features/counter/accountSlice";
+import { removeCustomToken, setAddress } from "../features/account/accountSlice";
 import { isSignedIn } from "../helpers/userHelper";
 import { NavigateFunction } from "react-router-dom";
 import { Dispatch } from "@reduxjs/toolkit";
@@ -233,7 +233,7 @@ export const viewFile = async (file: FileDB) => {
   }).catch((error) => {
     //TODO: LOGOUT
     console.log(error);
-    return "Session expired. Please login again." 
+    return "Session expired. Please login again."
   });
 }
 /*
@@ -352,7 +352,7 @@ export const savePassword = async (password: string): Promise<AxiosResponse | Ax
 
 }
 
-export const logOut = async (customToken: string|null, navigate: NavigateFunction, dispatch: Dispatch, currentPage: string)  => {
+export const logOut = async (customToken: string | null, navigate: NavigateFunction, dispatch: Dispatch, currentPage: string) => {
   if (!customToken) {
     //go to /login if no customToken
     dispatch(setAddress(null));

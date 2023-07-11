@@ -3,10 +3,11 @@ import { downloadFile, logOut, viewFile } from '../requests/clientRequests'
 import { useState } from 'react'
 import { parseISO } from 'date-fns'; // for parsing the date
 import { DeleteModal } from "./modals/DeleteModal";
-import { selectDisplayedFilesList } from "../features/files/dataSlice";
+import { selectDisplayedFilesList, setShowShareModal } from "../features/storage/filesSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { selectCustomToken, setShowToast, setToastMessage } from "../features/counter/accountSlice";
+import { selectCustomToken, setShowToast, setToastMessage } from "../features/account/accountSlice";
 import { useNavigate } from "react-router-dom";
+import ShareModal from "./modals/ShareModal";
 
 
 
@@ -24,6 +25,7 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
     return (
         <ul className="list-group">
             <DeleteModal selectedFile={selectedFile} deleteFileFromList={deleteFileFromList} />
+			<ShareModal selectedFile={selectedFile} />
             {displayedFilesList && displayedFilesList.length !== 0 && displayedFilesList.map((file: FileDB) => {
 
                 const date = parseISO(file.CreatedAt); // convert to Date object
@@ -76,7 +78,7 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
                                         dispatch(setShowToast(true));
                                     })}>View</a></li>
                                     <li><hr className="dropdown-divider" /></li>
-                                    <li><a className="dropdown-item" role="button" onClick={() => alert("No implementado")}>Share</a></li>
+                                    <li><a className="dropdown-item" role="button" onClick={() => {setSelectedFile(file), dispatch(setShowShareModal(true))}}>Share</a></li>
                                 </ul>
                             </div>
                         </div>

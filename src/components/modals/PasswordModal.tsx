@@ -20,7 +20,7 @@ import {
     setDatacap,
     setUsedStorage,
     setUploadedFilesCount
-} from '../../features/counter/accountSlice';
+} from '../../features/account/accountSlice';
 
 const PasswordModal = (
 ) => {
@@ -172,7 +172,7 @@ const PasswordModal = (
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Account password</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" onClick={closePasswordModal} aria-label="Closx"></button>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" onClick={closePasswordModal} aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
                             <div className="input-group">

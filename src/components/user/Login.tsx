@@ -1,7 +1,7 @@
 import ConnectWalletButton from "../ConnectWalletButton";
 import { AppDispatch } from "../../app/store";
 import { useDispatch, useSelector } from "react-redux";
-import { selectLoading, selectCustomToken, setShowPasswordModal, setLoading, selectAddress, setDestiny } from "../../features/counter/accountSlice";
+import { selectLoading, selectCustomToken, setShowPasswordModal, setLoading, selectAddress, setDestiny } from "../../features/account/accountSlice";
 import { useParams } from "react-router-dom";
 
 

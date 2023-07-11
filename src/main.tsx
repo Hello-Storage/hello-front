@@ -23,6 +23,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 							<Route path="/files" element={<Files />} />
 							<Route path="/dashboard" element={<Dashboard />} />
 							<Route path="/data" element={<Data />} />
+							<Route path="/login" element={<Login />} />
 							<Route path="/login/:destiny" element={<Login />} />
 						</Routes>
 					</main>

@@ -14,7 +14,7 @@ import {
 	removeCustomToken,
 	setShowToast,
 	setToastMessage,
-} from "../features/counter/accountSlice";
+} from "../features/account/accountSlice";
 
 import {
 	selectFilesList,
@@ -24,7 +24,7 @@ import {
 	setEncryptionTime,
 	selectDisplayedFilesList,
 	setDisplayedFilesList,
-} from "../features/files/dataSlice";
+} from "../features/storage/filesSlice";
 import { AppDispatch } from "../app/store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isSignedIn } from "../helpers/userHelper";
@@ -95,7 +95,7 @@ function Files() {
 
 	useEffect(() => {
 		NProgress.remove()
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 
@@ -180,7 +180,7 @@ function Files() {
 			const updatedFilesList = displayedFilesList.filter(
 				(item: FileDB) => item.ID !== file.ID
 			);
-			setFilesList( [...filesList, updatedFilesList ]);
+			setFilesList([...filesList, updatedFilesList]);
 			dispatch(setDisplayedFilesList({
 				updatedFilesList
 			}))
@@ -200,7 +200,7 @@ function Files() {
 				return file.metadata?.name.toLowerCase().includes(searchTerm.toLowerCase());
 			});
 			// Set a new state with the updated files list.
-			dispatch(setDisplayedFilesList( filteredFiles ));
+			dispatch(setDisplayedFilesList(filteredFiles));
 		}
 	};
 

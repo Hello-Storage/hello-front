@@ -3,7 +3,7 @@ import {
     selectCustomToken,
     setAddress,
     removeCustomToken,
-} from '../../features/counter/accountSlice.ts';
+} from '../../features/account/accountSlice.ts';
 import { useEffect } from 'react';
 import { isSignedIn } from '../../helpers/userHelper.tsx';
 import { useNavigate } from 'react-router-dom';

@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { selectDatacap, selectUsedStorage, selectUploadedFilesCount } from "../../features/counter/accountSlice";
+import { selectDatacap, selectUsedStorage, selectUploadedFilesCount } from "../../features/account/accountSlice";
 import { formatByteWeight } from "../../helpers/storageHelper";
 import { StorageBarChart } from "./DashboardCharts";
 
