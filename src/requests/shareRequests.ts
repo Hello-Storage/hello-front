@@ -36,6 +36,38 @@ export const shareFile = async (selectedFile: FileDB | null, type: string): Prom
     return response;
 }
 
+export const unshareFile = async (selectedFile: FileDB | null, type: string): Promise<AxiosResponse | AxiosError | undefined> => {
+    let response: AxiosResponse | AxiosError | undefined;
+    if (selectedFile) {
+        switch (type) {
+            case "public":
+                //unpublish file and get sharing URL from server
+                response = await unpublishFile(selectedFile)
+                break;
+            case "one-time":
+                console.log(type)
+                break;
+            case "address-restricted":
+                console.log(type)
+                break;
+            case "password-restricted":
+                console.log(type)
+                break;
+            case "time-restricted":
+                console.log(type)
+                break;
+            case "subscription":
+                console.log(type)
+                break;
+            default:
+                alert("Error: Invalid share type")
+                break;
+        }
+    }
+
+    return response;
+}
+
 const publishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResponse | undefined> => {
     console.log(selectedFile)
     const customToken = localStorage.getItem("customToken")
@@ -73,19 +105,67 @@ const publishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResp
         {
             cidOriginalStr: cidOriginalStr,
             cidOfEncryptedBuffer: cidOfEncryptedBuffer,
-            metadata: JSON.stringify(metadata)
+            metadata: JSON.stringify(metadata),
+            fileId: selectedFile.ID,
         },
         {
             headers: {
                 Authorization: `Bearer ${customToken}`
             },
         }).then((response: AxiosResponse) => {
-            console.log("response")
             return response;
         }).catch((error: AxiosError) => {
-            console.log("error")
             return error;
         })
 
     return responseLink;
+}
+
+const unpublishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResponse | undefined> => {
+    console.log(selectedFile)
+    const customToken = localStorage.getItem("customToken");
+    
+    if (!customToken) {
+        alert("Error: Not logged in")
+        return;
+    }
+
+    //make an axios delete request to /api/v0/unpublish with the ID of the file
+    //the response will be a confirmation message
+    //update the state accordingly
+
+    const response = await axios.delete(`${baseUrl}/api/v0/file/unpublish/${selectedFile.ID}`,
+    {
+        headers: {
+            Authorization: `Bearer ${customToken}`
+        },
+    }).then((response: AxiosResponse) => {
+        return response;
+    }).catch((error: AxiosError) => {
+        return error;
+    })
+
+    return response;
+}
+
+
+export const getFileSharedState = async (fileId: number | undefined): Promise<AxiosResponse | AxiosError | undefined> => {
+    const customToken = localStorage.getItem("customToken")
+    if (!customToken || !fileId) {
+        alert("Error: Not logged in")
+        return Promise.resolve(undefined);
+    }
+
+    try {
+        const response = await axios.get(`${baseUrl}/api/v0/file/share/states/${fileId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${customToken}`
+                },
+            });
+        console.log(response)
+        return response;
+    } catch (error) {
+        return error as AxiosError;
+    }
 }

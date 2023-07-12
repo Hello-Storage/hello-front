@@ -1,29 +1,60 @@
 import { useDispatch, useSelector } from "react-redux";
 import { selectShowShareModal, setShowShareModal } from "../../features/storage/filesSlice";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { setLoading, setShowToast, setToastMessage } from "../../features/account/accountSlice";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FileDB } from "../../types";
-import { shareFile } from "../../requests/shareRequests";
+import { getFileSharedState, shareFile, unshareFile } from "../../requests/shareRequests";
 import { AxiosError, AxiosResponse } from "axios";
 
 //can be public, one time, address restricted, password restricted, temporary link or subscription
 
 //share type interface:
 
-interface ShareType {
+interface ShareDetails {
     type: string;
     title: string;
     description?: string;
     state: string; //selected, enabled or disabled
 }
 
+interface ShareState {
+    public: boolean;
+    oneTime: boolean;
+    addressRestricted: boolean;
+    passwordRestricted: boolean;
+    temporaryLink: boolean;
+    subscription: boolean;
+}
+
 const ShareModal = (props: { selectedFile: FileDB | null }) => {
     const selectedFile: FileDB | null = props.selectedFile;
+    const [fileSharedState, setFileSharedState] = useState<ShareState>();
 
     const dispatch = useDispatch();
 
-    const shareTypes: ShareType[] = [
+
+    useEffect(() => {
+        getFileSharedState(selectedFile?.ID).then((res: AxiosResponse | AxiosError | undefined) => {
+            if ((res as AxiosResponse).status === 200) {
+                setFileSharedState((res as AxiosResponse).data);
+            }
+            if ((res as AxiosError).isAxiosError) {
+                if ((res as AxiosError).response?.status === 404) {
+                    return;
+                }
+                dispatch(setToastMessage((res as AxiosError).response?.data));
+                dispatch(setShowToast(true));
+            }
+        }).catch(err => {
+            dispatch(setToastMessage(err.message));
+            dispatch(setShowToast(true));
+        }
+        )
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const shareDetails: ShareDetails[] = [
         {
             type: "public",
             title: "Public",
@@ -43,8 +74,8 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
             state: "disabled"
         },
         {
-            type: "password-restricted",
-            title: "Password restricted",
+            type: "password-protected",
+            title: "Password protected",
             description: "Generate a URL that can be accessed only by providing a password. The password' hash will be stored in the blockchain and will be required to access the file.",
             state: "disabled"
         },
@@ -74,8 +105,8 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
     }
 
     const handleShareChange = (type: string) => async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const shareTypeObject = shareTypes.find(st => st.type === type);
-
+        const shareTypeObject = shareDetails.find(st => st.type === type);
+        console.log(shareTypeObject)
         if (!shareTypeObject) {
             setShareError("Invalid share type");
         } else if (shareTypeObject.state === 'disabled') {
@@ -102,20 +133,38 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
 
                 setSelectedShareTypes(prevTypes => [...prevTypes, type]);
             } else {
+                console.log("unshare")
+                
+                unshareFile(selectedFile, type).then((res) => {
+                    //if res is AxiosResponse:
+                    if ((res as AxiosResponse).status === 200) {
+                        dispatch(setLoading(false));
+                        dispatch(setToastMessage("File unshared successfully"));
+                        dispatch(setShowToast(true));
+                    }
+                    if ((res as AxiosError).isAxiosError) {
+                        dispatch(setLoading(false));
+                        dispatch(setToastMessage((res as AxiosError).response?.data));
+                        dispatch(setShowToast(true));
+                    }
+                }).catch(err => {
+                    setShareError(err.message);
+                });
                 setSelectedShareTypes(prevTypes => prevTypes.filter(t => t !== type))
             }
         }
     }
-/*
-    //shareType useEffect listener
-    useEffect(() => {
-        if (selectedShareTypes.length > 0) {
-            setShareError("");
-        }
-    }, [selectedShareTypes])
-*/
+    /*
+        //shareType useEffect listener
+        useEffect(() => {
+            if (selectedShareTypes.length > 0) {
+                setShareError("");
+            }
+        }, [selectedShareTypes])
+    */
     return (
         <>
+            <p>{fileSharedState?.public}</p>
             <div style={{ display: showShareModal ? "block" : "none" }} className="modal-backdrop show"></div>
             <div style={{ display: showShareModal ? "block" : "none" }} className="modal show fade" tabIndex={-1}>
                 <div className="modal-dialog modal-dialog-centered">
@@ -126,7 +175,7 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
                         </div>
                         <div className="modal-body">
                             <div className="row input-group mb-3 p-3">
-                                {shareTypes.map((st, index) => {
+                                {shareDetails.map((st, index) => {
                                     return (
                                         <div title={st.description} className="col-12 form-check form-switch" key={index}>
                                             <input className="form-check-input" type="checkbox" id={`flexSwitch${st.type}`} checked={selectedShareTypes.includes(st.type)} onChange={handleShareChange(st.type)} disabled={st.state === "disabled"} />

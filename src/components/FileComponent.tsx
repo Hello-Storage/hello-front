@@ -3,7 +3,7 @@ import { downloadFile, logOut, viewFile } from '../requests/clientRequests'
 import { useState } from 'react'
 import { parseISO } from 'date-fns'; // for parsing the date
 import { DeleteModal } from "./modals/DeleteModal";
-import { selectDisplayedFilesList, setShowShareModal } from "../features/storage/filesSlice";
+import { selectDisplayedFilesList, selectShowShareModal, setShowShareModal } from "../features/storage/filesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { selectCustomToken, setShowToast, setToastMessage } from "../features/account/accountSlice";
 import { useNavigate } from "react-router-dom";
@@ -21,11 +21,12 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
     const deleteFileFromList = props.deleteFileFromList
     const customToken = useSelector(selectCustomToken)
     const currentPage = "files";
+    const showShareModal = useSelector(selectShowShareModal)
 
     return (
         <ul className="list-group">
             <DeleteModal selectedFile={selectedFile} deleteFileFromList={deleteFileFromList} />
-			<ShareModal selectedFile={selectedFile} />
+			{showShareModal && <ShareModal selectedFile={selectedFile} />}
             {displayedFilesList && displayedFilesList.length !== 0 && displayedFilesList.map((file: FileDB) => {
 
                 const date = parseISO(file.CreatedAt); // convert to Date object
