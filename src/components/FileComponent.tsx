@@ -5,7 +5,7 @@ import { parseISO } from 'date-fns'; // for parsing the date
 import { DeleteModal } from "./modals/DeleteModal";
 import { selectDisplayedFilesList, selectShowShareModal, setShowShareModal } from "../features/storage/filesSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { selectCustomToken, setShowToast, setToastMessage } from "../features/account/accountSlice";
+import { setShowToast, setToastMessage } from "../features/account/accountSlice";
 import { useNavigate } from "react-router-dom";
 import ShareModal from "./modals/ShareModal";
 
@@ -19,14 +19,13 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
     const [selectedFile, setSelectedFile] = useState<FileDB | null>(null)
     const displayedFilesList = useSelector(selectDisplayedFilesList);
     const deleteFileFromList = props.deleteFileFromList
-    const customToken = useSelector(selectCustomToken)
     const currentPage = "files";
     const showShareModal = useSelector(selectShowShareModal)
 
     return (
         <ul className="list-group">
             <DeleteModal selectedFile={selectedFile} deleteFileFromList={deleteFileFromList} />
-			{showShareModal && <ShareModal selectedFile={selectedFile} />}
+			{showShareModal && <ShareModal selectedFile={selectedFile} navigate={navigate} currentPage={currentPage} />}
             {displayedFilesList && displayedFilesList.length !== 0 && displayedFilesList.map((file: FileDB) => {
 
                 const date = parseISO(file.CreatedAt); // convert to Date object
@@ -74,7 +73,7 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
                                     <li><a className="dropdown-item" role="button" onClick={async () => await downloadFile(file)}>Download</a></li>
 
                                     <li><a className={viewable ? "dropdown-item" : "disabled dropdown-item"} role="button" onClick={async () => await viewFile(file).catch((e) => {
-                                        logOut(customToken, navigate, dispatch, currentPage);
+                                        logOut(navigate, dispatch, currentPage);
                                         dispatch(setToastMessage(e));
                                         dispatch(setShowToast(true));
                                     })}>View</a></li>

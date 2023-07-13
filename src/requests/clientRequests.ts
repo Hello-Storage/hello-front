@@ -352,21 +352,19 @@ export const savePassword = async (password: string): Promise<AxiosResponse | Ax
 
 }
 
-export const logOut = async (customToken: string | null, navigate: NavigateFunction, dispatch: Dispatch, currentPage: string) => {
-  if (!customToken) {
-    //go to /login if no customToken
-    dispatch(setAddress(null));
-    dispatch(removeCustomToken())
-    sessionStorage.removeItem("personalSignature");
-    //redirect to login
-    location.pathname !== "/login" && location.pathname !== "/register"
-      ? navigate(`/login/${currentPage}`)
-      : console.log("already on login page");
-
-    return;
-  }
+export const logOut = async (navigate: NavigateFunction, dispatch: Dispatch, currentPage: string) => {
   if (!isSignedIn(navigate, currentPage)) {
     return;
   }
+  //go to /login if no customToken
+  dispatch(setAddress(null));
+  dispatch(removeCustomToken())
+  sessionStorage.removeItem("personalSignature");
+  //redirect to login
+  location.pathname !== "/login" && location.pathname !== "/register"
+    ? navigate(`/login/${currentPage}`)
+    : console.log("already on login page");
+
+  return;
 
 }

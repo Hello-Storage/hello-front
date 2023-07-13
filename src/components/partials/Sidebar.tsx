@@ -189,7 +189,7 @@ export const Sidebar = () => {
 			.catch((error) => {
 				console.log(error);
 				//logout
-				logOut(customToken, navigate, dispatch, currentPage)
+				logOut(navigate, dispatch, currentPage)
 				dispatch(setToastMessage("Error checking login: " + error.message));
 				dispatch(setShowToast(true));
 			});

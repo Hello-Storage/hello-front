@@ -14,6 +14,7 @@ import {
 	removeCustomToken,
 	setShowToast,
 	setToastMessage,
+	setSelectedPage,
 } from "../features/account/accountSlice";
 
 import {
@@ -67,6 +68,7 @@ function Files() {
 
 			return;
 		}
+		dispatch(setSelectedPage(currentPage));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 

@@ -3,9 +3,12 @@ import { selectShowShareModal, setShowShareModal } from "../../features/storage/
 import { useEffect, useState } from "react";
 import { setLoading, setShowToast, setToastMessage } from "../../features/account/accountSlice";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { FileDB } from "../../types";
+import { FileDB, FileMetadata } from "../../types";
 import { getFileSharedState, shareFile, unshareFile } from "../../requests/shareRequests";
 import { AxiosError, AxiosResponse } from "axios";
+import { baseUrl } from "../../constants";
+import { logOut } from "../../requests/clientRequests";
+import { NavigateFunction } from "react-router-dom";
 
 //can be public, one time, address restricted, password restricted, temporary link or subscription
 
@@ -19,15 +22,32 @@ interface ShareDetails {
 }
 
 interface ShareState {
-    public: boolean;
-    oneTime: boolean;
-    addressRestricted: boolean;
-    passwordRestricted: boolean;
-    temporaryLink: boolean;
-    subscription: boolean;
+    ID: number;
+    CreatedAt: Date;
+    DeletedAt?: Date;
+    UpdatedAt?: Date;
+    File: FileDB;
+    fileID: number;
+    PublishedFile: PublishedFile;
+    publishedFileID: number;
+    userAddress: string;
 }
 
-const ShareModal = (props: { selectedFile: FileDB | null }) => {
+interface PublishedFile {
+    ID: number;
+    CreatedAt: Date;
+    DeletedAt?: Date;
+    UpdatedAt?: Date;
+    File: FileDB;
+    fileID: number;
+    hash: string;
+    metadata: FileMetadata;
+}
+
+
+const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunction, currentPage: string }) => {
+    const navigate = props.navigate;
+    const currentPage = props.currentPage;
     const selectedFile: FileDB | null = props.selectedFile;
     const [fileSharedState, setFileSharedState] = useState<ShareState>();
 
@@ -37,10 +57,18 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
     useEffect(() => {
         getFileSharedState(selectedFile?.ID).then((res: AxiosResponse | AxiosError | undefined) => {
             if ((res as AxiosResponse).status === 200) {
-                setFileSharedState((res as AxiosResponse).data);
+                res = res as AxiosResponse;
+                //parse response data to ShareState
+                const shareState = res.data as ShareState;
+                setFileSharedState(shareState);
+
+                // If the PublishedFile has a valid ID, consider it as "public" share type
+                if (shareState.PublishedFile.ID !== 0) {
+                    setSelectedShareTypes(prevTypes => [...prevTypes, "public"])
+                }
             }
             if ((res as AxiosError).isAxiosError) {
-                if ((res as AxiosError).response?.status === 404) {
+                if ((res as AxiosError).response?.status === 404 || (res as AxiosError).response?.status === 503) {
                     return;
                 }
                 dispatch(setToastMessage((res as AxiosError).response?.data));
@@ -118,6 +146,9 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
                 shareFile(selectedFile, type).then((res) => {
                     //if res is AxiosResponse:
                     if ((res as AxiosResponse).status === 200) {
+                        res = res as AxiosResponse;
+                        const shareState = res?.data as ShareState;
+                        setFileSharedState(shareState);
                         dispatch(setLoading(false));
                         dispatch(setToastMessage("File shared successfully"));
                         dispatch(setShowToast(true));
@@ -134,21 +165,27 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
                 setSelectedShareTypes(prevTypes => [...prevTypes, type]);
             } else {
                 console.log("unshare")
-                
-                unshareFile(selectedFile, type).then((res) => {
+
+                unshareFile(selectedFile, type).then(async (res) => {
                     //if res is AxiosResponse:
                     if ((res as AxiosResponse).status === 200) {
+                        res = res as AxiosResponse;
+                        const shareState = res?.data as ShareState;
+                        setFileSharedState(shareState);
                         dispatch(setLoading(false));
                         dispatch(setToastMessage("File unshared successfully"));
                         dispatch(setShowToast(true));
                     }
                     if ((res as AxiosError).isAxiosError) {
+                        await logOut(navigate, dispatch, currentPage)
+                        console.log("dsa")
                         dispatch(setLoading(false));
                         dispatch(setToastMessage((res as AxiosError).response?.data));
                         dispatch(setShowToast(true));
                     }
                 }).catch(err => {
                     setShareError(err.message);
+                    logOut(navigate, dispatch, currentPage)
                 });
                 setSelectedShareTypes(prevTypes => prevTypes.filter(t => t !== type))
             }
@@ -164,7 +201,6 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
     */
     return (
         <>
-            <p>{fileSharedState?.public}</p>
             <div style={{ display: showShareModal ? "block" : "none" }} className="modal-backdrop show"></div>
             <div style={{ display: showShareModal ? "block" : "none" }} className="modal show fade" tabIndex={-1}>
                 <div className="modal-dialog modal-dialog-centered">
@@ -175,22 +211,28 @@ const ShareModal = (props: { selectedFile: FileDB | null }) => {
                         </div>
                         <div className="modal-body">
                             <div className="row input-group mb-3 p-3">
-                                {shareDetails.map((st, index) => {
+                                {shareDetails.map((sd, index) => {
                                     return (
-                                        <div title={st.description} className="col-12 form-check form-switch" key={index}>
-                                            <input className="form-check-input" type="checkbox" id={`flexSwitch${st.type}`} checked={selectedShareTypes.includes(st.type)} onChange={handleShareChange(st.type)} disabled={st.state === "disabled"} />
-                                            <label className="form-check-label" htmlFor={`flexSwitch${st.type}`}><h6 className="display-6">{st.title}</h6></label>
+                                        <div title={sd.description} className="col-12 form-check form-switch" key={index}>
+                                            <input className="form-check-input" type="checkbox" id={`flexSwitch${sd.type}`} checked={selectedShareTypes.includes(sd.type)} onChange={handleShareChange(sd.type)} disabled={sd.state === "disabled"} />
+                                            <label className="form-check-label" htmlFor={`flexSwitch${sd.type}`}><h6 className="display-6">{sd.title}</h6></label>
                                             <OverlayTrigger
                                                 key={`tooltip-${index}`}
                                                 placement="top"
                                                 overlay={
                                                     <Tooltip id={`tooltip-${index}`}>
-                                                        {st.description}
+                                                        {sd.description}
                                                     </Tooltip>
                                                 }
                                             >
                                                 <i className={`fas fa-thin fa-question-circle p-2 me-2`}></i>
                                             </OverlayTrigger>
+                                            {sd.type === "public" && fileSharedState?.publishedFileID !== null &&
+                                                <div>
+                                                    <label htmlFor="shareLink" className="form-label">Share link</label>
+                                                    <input type="email" className="form-control mb-2" id="shareLink" aria-describedby="shareLink" value={`${baseUrl}/shared/${fileSharedState?.PublishedFile.hash}`} readOnly />
+                                                </div>
+                                            }
                                         </div>
                                     )
                                 }

@@ -74,7 +74,7 @@ const publishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResp
     const signature = sessionStorage.getItem("personalSignature")
 
     if (!customToken || !signature) {
-        alert("Error: Not logged in")
+        alert("Error: Not logged in!")
         return;
     }
 
@@ -122,18 +122,17 @@ const publishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResp
 }
 
 const unpublishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResponse | undefined> => {
-    console.log(selectedFile)
     const customToken = localStorage.getItem("customToken");
     
     if (!customToken) {
-        alert("Error: Not logged in")
+        alert("Error: Not logged in...")
         return;
     }
 
     //make an axios delete request to /api/v0/unpublish with the ID of the file
     //the response will be a confirmation message
     //update the state accordingly
-
+    
     const response = await axios.delete(`${baseUrl}/api/v0/file/unpublish/${selectedFile.ID}`,
     {
         headers: {
@@ -152,7 +151,6 @@ const unpublishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosRe
 export const getFileSharedState = async (fileId: number | undefined): Promise<AxiosResponse | AxiosError | undefined> => {
     const customToken = localStorage.getItem("customToken")
     if (!customToken || !fileId) {
-        alert("Error: Not logged in")
         return Promise.resolve(undefined);
     }
 
