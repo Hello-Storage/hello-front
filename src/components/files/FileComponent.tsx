@@ -1,13 +1,13 @@
-import { FileDB } from "../types"
-import { downloadFile, logOut, viewFile } from '../requests/clientRequests'
+import { FileDB } from "../../types"
+import { downloadFile, logOut, viewFile } from '../../requests/clientRequests'
 import { useState } from 'react'
 import { parseISO } from 'date-fns'; // for parsing the date
-import { DeleteModal } from "./modals/DeleteModal";
-import { selectDisplayedFilesList, selectShowShareModal, setShowShareModal } from "../features/storage/filesSlice";
+import { DeleteModal } from "../modals/DeleteModal";
+import { selectDisplayedFilesList, selectShowShareModal, setShowShareModal } from "../../features/storage/filesSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { setShowToast, setToastMessage } from "../features/account/accountSlice";
+import { setShowToast, setToastMessage } from "../../features/account/accountSlice";
 import { useNavigate } from "react-router-dom";
-import ShareModal from "./modals/ShareModal";
+import ShareModal from "../modals/ShareModal";
 
 
 
@@ -25,7 +25,7 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
     return (
         <ul className="list-group">
             <DeleteModal selectedFile={selectedFile} deleteFileFromList={deleteFileFromList} />
-			{showShareModal && <ShareModal selectedFile={selectedFile} navigate={navigate} currentPage={currentPage} />}
+            {showShareModal && <ShareModal selectedFile={selectedFile} navigate={navigate} currentPage={currentPage} />}
             {displayedFilesList && displayedFilesList.length !== 0 && displayedFilesList.map((file: FileDB) => {
 
                 const date = parseISO(file.CreatedAt); // convert to Date object
@@ -78,7 +78,7 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
                                         dispatch(setShowToast(true));
                                     })}>View</a></li>
                                     <li><hr className="dropdown-divider" /></li>
-                                    <li><a className="dropdown-item" role="button" onClick={() => {setSelectedFile(file), dispatch(setShowShareModal(true))}}>Share</a></li>
+                                    <li><a className="dropdown-item" role="button" onClick={() => { setSelectedFile(file), dispatch(setShowShareModal(true)) }}>Share</a></li>
                                 </ul>
                             </div>
                         </div>

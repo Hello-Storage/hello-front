@@ -69,7 +69,6 @@ export const unshareFile = async (selectedFile: FileDB | null, type: string): Pr
 }
 
 const publishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResponse | undefined> => {
-    console.log(selectedFile)
     const customToken = localStorage.getItem("customToken")
     const signature = sessionStorage.getItem("personalSignature")
 
@@ -161,7 +160,25 @@ export const getFileSharedState = async (fileId: number | undefined): Promise<Ax
                     Authorization: `Bearer ${customToken}`
                 },
             });
-        console.log(response)
+        return response;
+    } catch (error) {
+        return error as AxiosError;
+    }
+}
+
+export const getPublicMetadata = async (hash: string): Promise<AxiosResponse | AxiosError | undefined> => {
+    const customToken = localStorage.getItem("customToken")
+    if (!customToken || !hash) {
+        return Promise.resolve(undefined);
+    }
+
+    try {
+        const response = await axios.get(`${baseUrl}/api/v0/file/public/metadata/${hash}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${customToken}`
+                },
+            });
         return response;
     } catch (error) {
         return error as AxiosError;

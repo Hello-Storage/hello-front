@@ -1,12 +1,12 @@
-import "../App.css";
+import "../../App.css";
 import { FormEvent, useEffect, useState } from "react";
 import FileComponent from "./FileComponent";
-import { FileDB, FileUploadResponseWithTime } from "../types";
-import { uploadFile } from "../requests/clientRequests";
+import { FileDB, FileUploadResponseWithTime } from "../../types";
+import { uploadFile } from "../../requests/clientRequests";
 import {
 	getHashFromSignature,
 	getKeyFromHash,
-} from "../helpers/cipher";
+} from "../../helpers/cipher";
 import { useDispatch, useSelector } from "react-redux";
 import {
 	selectCustomToken,
@@ -15,7 +15,7 @@ import {
 	setShowToast,
 	setToastMessage,
 	setSelectedPage,
-} from "../features/account/accountSlice";
+} from "../../features/account/accountSlice";
 
 import {
 	selectFilesList,
@@ -25,11 +25,11 @@ import {
 	setEncryptionTime,
 	selectDisplayedFilesList,
 	setDisplayedFilesList,
-} from "../features/storage/filesSlice";
-import { AppDispatch } from "../app/store";
+} from "../../features/storage/filesSlice";
+import { AppDispatch } from "../../app/store";
 import { useLocation, useNavigate } from "react-router-dom";
-import { isSignedIn } from "../helpers/userHelper";
-import { decryptMetadata } from "../helpers/storageHelper";
+import { isSignedIn } from "../../helpers/userHelper";
+import { decryptMetadata } from "../../helpers/storageHelper";
 import NProgress from 'nprogress';
 import TopBarProgress from "react-topbar-progress-indicator";
 import 'nprogress/nprogress.css'; // Import CSS

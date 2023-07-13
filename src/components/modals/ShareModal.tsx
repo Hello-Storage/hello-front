@@ -6,7 +6,7 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FileDB, FileMetadata } from "../../types";
 import { getFileSharedState, shareFile, unshareFile } from "../../requests/shareRequests";
 import { AxiosError, AxiosResponse } from "axios";
-import { baseUrl } from "../../constants";
+import { baseName } from "../../constants";
 import { logOut } from "../../requests/clientRequests";
 import { NavigateFunction } from "react-router-dom";
 
@@ -164,7 +164,6 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
 
                 setSelectedShareTypes(prevTypes => [...prevTypes, type]);
             } else {
-                console.log("unshare")
 
                 unshareFile(selectedFile, type).then(async (res) => {
                     //if res is AxiosResponse:
@@ -178,7 +177,6 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
                     }
                     if ((res as AxiosError).isAxiosError) {
                         await logOut(navigate, dispatch, currentPage)
-                        console.log("dsa")
                         dispatch(setLoading(false));
                         dispatch(setToastMessage((res as AxiosError).response?.data));
                         dispatch(setShowToast(true));
@@ -230,7 +228,7 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
                                             {sd.type === "public" && fileSharedState?.publishedFileID !== null &&
                                                 <div>
                                                     <label htmlFor="shareLink" className="form-label">Share link</label>
-                                                    <input type="email" className="form-control mb-2" id="shareLink" aria-describedby="shareLink" value={`${baseUrl}/shared/${fileSharedState?.PublishedFile.hash}`} readOnly />
+                                                    <input type="email" className="form-control mb-2" id="shareLink" aria-describedby="shareLink" value={`${window.location.origin + baseName}/#/shared/public/${fileSharedState?.PublishedFile.hash}`} readOnly />
                                                 </div>
                                             }
                                         </div>
