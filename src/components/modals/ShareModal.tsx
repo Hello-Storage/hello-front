@@ -62,7 +62,7 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
                 const shareState = res.data as ShareState;
                 setFileSharedState(shareState);
 
-                // If the PublishedFile has a valid ID, consider it as "public" share type
+                // If the PublishedFile has a valid ID, consider it as "public" share type.
                 if (shareState.PublishedFile.ID !== 0) {
                     setSelectedShareTypes(prevTypes => [...prevTypes, "public"])
                 }
