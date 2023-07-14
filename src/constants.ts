@@ -3,4 +3,4 @@
 //export const baseUrl = "http://localhost:6969" //replace with specific domain url
 //export const baseUrl = "https://ounn.space" //replace with specific domain url
 export const baseUrl = "https://ounn.space" //replace with specific domain url
-export const baseName = "/metaauth"
+export const baseName = "/hello-storage"
