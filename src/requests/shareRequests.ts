@@ -166,14 +166,14 @@ export const getFileSharedState = async (fileId: number | undefined): Promise<Ax
     }
 }
 
-export const getPublicMetadata = async (hash: string): Promise<AxiosResponse | AxiosError | undefined> => {
+export const getPublishedFile = async (hash: string): Promise<AxiosResponse | AxiosError | undefined> => {
     const customToken = localStorage.getItem("customToken")
     if (!customToken || !hash) {
         return Promise.resolve(undefined);
     }
 
     try {
-        const response = await axios.get(`${baseUrl}/api/v0/file/public/metadata/${hash}`,
+        const response = await axios.get(`${baseUrl}/api/v0/file/public/file/${hash}`,
             {
                 headers: {
                     Authorization: `Bearer ${customToken}`

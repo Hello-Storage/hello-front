@@ -1,8 +1,9 @@
 import ConnectWalletButton from "../ConnectWalletButton";
 import { AppDispatch } from "../../app/store";
 import { useDispatch, useSelector } from "react-redux";
-import { selectLoading, selectCustomToken, setShowPasswordModal, setLoading, selectAddress, setDestiny } from "../../features/account/accountSlice";
+import { selectLoading, selectCustomToken, setShowPasswordModal, setLoading, selectAddress, setDestiny, setAddress, removeCustomToken, setSelectedPage, selectSelectedPage } from "../../features/account/accountSlice";
 import { useParams } from "react-router-dom";
+import { setFilesList } from "../../features/storage/filesSlice";
 
 
 const roundedDivStyle = {
@@ -28,11 +29,21 @@ const Login = () => {
     const loading = useSelector(selectLoading);
     const address = useSelector(selectAddress);
     const customToken = useSelector(selectCustomToken);
+    const selectedPage = useSelector(selectSelectedPage);
 
     const onPressConnect = async () => {
         dispatch(setShowPasswordModal(true));
         dispatch(setLoading(true));
         dispatch(setDestiny(destiny));
+    };
+    const onPressLogout = () => {
+        dispatch(setAddress(null));
+        localStorage.removeItem("customToken");
+        sessionStorage.removeItem("personalSignature");
+        dispatch(removeCustomToken());
+        dispatch(setSelectedPage(selectedPage))
+        dispatch(setFilesList([]));
+        //FIREBASE: signOut(auth);
     };
     return (
         <div className="d-flex flex-column h-75 container mt-4 align-items-center justify-content-center">
@@ -42,7 +53,7 @@ const Login = () => {
             <div style={roundedDivStyle} className="rounded-div">
                 <ConnectWalletButton
                     onPressConnect={onPressConnect}
-                    onPressLogout={() => { return }}
+                    onPressLogout={onPressLogout}
                     loading={loading}
                     address={address}
                     customToken={customToken}

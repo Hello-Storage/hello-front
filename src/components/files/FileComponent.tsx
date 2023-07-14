@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setShowToast, setToastMessage } from "../../features/account/accountSlice";
 import { useNavigate } from "react-router-dom";
 import ShareModal from "../modals/ShareModal";
+import { fileIcons, viewableExtensions } from "../../helpers/fileConstants";
 
 
 
@@ -34,11 +35,6 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
                 //get the file extension
                 const fileExtension = (file.metadata?.name.split('.').pop() || '').toLowerCase();
 
-                // Create a map of file extensions to their corresponding icons
-                const fileIcons = { pdf: 'fa-file-pdf', png: 'fa-file-image', jpg: 'fa-file-image', jpeg: 'fa-file-image', doc: 'fa-file-word', docx: 'fa-file-word', xls: 'fa-file-excel', xlsx: 'fa-file-excel', ppt: 'fa-file-powerpoint', pptx: 'fa-file-powerpoint', zip: 'fa-file-archive', rar: 'fa-file-archive', mp3: 'fa-file-audio', wav: 'fa-file-audio', mp4: 'fa-file-video', avi: 'fa-file-video', mov: 'fa-file-video', txt: 'fa-file-alt', js: 'fa-file-code', ts: 'fa-file-code', py: 'fa-file-code', java: 'fa-file-code', c: 'fa-file-code', cpp: 'fa-file-code', cs: 'fa-file-code', go: 'fa-file-code', php: 'fa-file-code', html: 'fa-file-code', css: 'fa-file-code', key: 'fa-key', dll: 'fa-wrench', apk: 'fa-file-code', exe: 'fa-file-code', iso: 'fa-file-code', dmg: 'fa-file-code', json: 'fa-file-code', csv: 'fa-file-code', xml: 'fa-file-code', svg: 'fa-file-code', ttf: 'fa-file-code', woff: 'fa-file-code', woff2: 'fa-file-code', eot: 'fa-file-code', otf: 'fa-file-code', md: 'fa-file-code', yml: 'fa-file-code', yaml: 'fa-file-code', sh: 'fa-file-code', bat: 'fa-file-code', bin: 'fa-file-code', ps1: 'fa-file-code', vbs: 'fa-file-code', cmd: 'fa-file-code', jar: 'fa-file-code', sql: 'fa-file-code' };
-
-                // Create a set of viewable file extensions
-                const viewableExtensions = new Set(['html', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'webp', 'ico', 'mp4', 'webm', 'ogg', 'mp3', 'wav', 'txt', 'csv', 'md', 'xml', 'js', 'json', 'css', 'pdf']);
 
 
                 // Get the file icon
@@ -70,9 +66,9 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
                                 </button>
                                 <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                     <li><a className="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => setSelectedFile(file)} href="#">Delete</a></li>
-                                    <li><a className="dropdown-item" role="button" onClick={async () => await downloadFile(file)}>Download</a></li>
+                                    <li><a className="dropdown-item" role="button" onClick={async () => await downloadFile(file, 'original')}>Download</a></li>
 
-                                    <li><a className={viewable ? "dropdown-item" : "disabled dropdown-item"} role="button" onClick={async () => await viewFile(file).catch((e) => {
+                                    <li><a className={viewable ? "dropdown-item" : "disabled dropdown-item"} role="button" onClick={async () => await viewFile(file, "original").catch((e) => {
                                         logOut(navigate, dispatch, currentPage);
                                         dispatch(setToastMessage(e));
                                         dispatch(setShowToast(true));

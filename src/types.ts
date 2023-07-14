@@ -23,6 +23,7 @@ export interface FileDB {
     ID: number;
     UpdatedAt: string;
     cidEncryptedOriginalStr: string;
+    cidOriginalStr?: string;
     cidOfEncryptedBuffer: string;
     encryptedMetadata: string;
     iv: string;
@@ -53,4 +54,19 @@ export interface PieData {
 
 export interface PieTypes {
     [key: string]: string[];
+}
+
+
+
+export interface PublishedFile {
+    ID: number;
+    CreatedAt: Date;
+    UpdatedAt: Date;
+    DeletedAt: Date;
+    cidOfEncryptedBuffer: string;
+    cidOriginalStr: string;
+    fileID: number;
+    hash: string;
+    metadata: FileMetadata;
+    userAddress: string;
 }

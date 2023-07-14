@@ -229,6 +229,9 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
                                                 <div>
                                                     <label htmlFor="shareLink" className="form-label">Share link</label>
                                                     <input type="email" className="form-control mb-2" id="shareLink" aria-describedby="shareLink" value={`${window.location.origin + baseName}/#/shared/public/${fileSharedState?.PublishedFile.hash}`} readOnly />
+                                                    <button className="btn btn-primary" onClick={() => window.open(`${window.location.origin + baseName}/#/shared/public/${fileSharedState?.PublishedFile.hash}`, '_blank')}>
+                                                        <i className="fas fa-external-link-alt"></i> Go 
+                                                    </button>
                                                 </div>
                                             }
                                         </div>

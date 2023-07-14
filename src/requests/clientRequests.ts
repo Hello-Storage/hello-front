@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from "axios"
-import { FileDB, FileUploadResponseWithTime } from "../types";
+import { FileDB, FileMetadata, FileUploadResponseWithTime, PublishedFile } from "../types";
 import { baseUrl } from "../constants";
 import { decryptContent, decryptFile, deriveKey, digestMessage, encryptBuffer, encryptFileBuffer, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
 import { removeCustomToken, setAddress } from "../features/account/accountSlice";
@@ -29,9 +29,9 @@ export const deleteFile = async (file: FileDB | null): Promise<AxiosResponse | n
   });
 }
 
-export const downloadFile = async (file: FileDB) => {
+export const downloadFile = async (file: FileDB, type: string) => {
   const cidOfEncryptedBuffer = file.cidOfEncryptedBuffer;
-  const fileMetadata = file.metadata;
+  let fileMetadata: FileMetadata | null = null;
   const cidEncryptedOriginalStr = file.cidEncryptedOriginalStr;
 
 
@@ -46,16 +46,24 @@ export const downloadFile = async (file: FileDB) => {
   const hash = await getHashFromSignature(signature)
   const key = await getKeyFromHash(hash)
 
-  const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
+  let cidOriginalBuffer: ArrayBuffer | undefined;
+  if (type === "original") {
+    fileMetadata = file.metadata;
+    const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
 
-
-  const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
-  if (!cidOfEncryptedBuffer || !fileMetadata) {
-    return;
+    const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
+    if (!cidOfEncryptedBuffer || !fileMetadata) {
+      return;
+    }
+    cidOriginalBuffer = await decryptContent(iv, key, cidEncryptedOriginalBytes)
+  } else if (type === "public") {
+    fileMetadata = file.metadata
+    cidOriginalBuffer = new TextEncoder().encode(file.cidOriginalStr);
   }
 
-  const cidOriginalBuffer = await decryptContent(iv, key, cidEncryptedOriginalBytes)
-
+  if (!cidOriginalBuffer || fileMetadata === null) {
+    return;
+  }
   const customToken = localStorage.getItem("customToken");
 
   axios.get(`${baseUrl}/api/file/${cidOfEncryptedBuffer}`, {
@@ -64,6 +72,7 @@ export const downloadFile = async (file: FileDB) => {
     },
     responseType: 'arraybuffer', // set response type as blob to handle binary data
   }).then(async (response) => {
+    if (fileMetadata === null) return;
     console.log(response)
 
     const decoder = new TextDecoder()
@@ -150,10 +159,9 @@ export const getUploadedFilesCount = async (address: string): Promise<number | E
   return uploadedFilesCount;
 }
 
-export const viewFile = async (file: FileDB) => {
+export const viewFile = async (file: FileDB, type: string) => {
   const cidOfEncryptedBuffer = file.cidOfEncryptedBuffer;
   const fileMetadata = file.metadata;
-  const cidEncryptedOriginalStr = file.cidEncryptedOriginalStr;
 
 
 
@@ -167,15 +175,22 @@ export const viewFile = async (file: FileDB) => {
   const hash = await getHashFromSignature(signature)
   const key = await getKeyFromHash(hash)
 
-  const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
+  let cidOriginalBuffer: ArrayBuffer | undefined;
 
+  if (type === "original") {
+    const cidEncryptedOriginalStr = (file as FileDB).cidEncryptedOriginalStr;
+    const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
+    const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
 
-  const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
-  if (!cidOfEncryptedBuffer || !fileMetadata) {
-    return;
+    if (!cidOfEncryptedBuffer || !fileMetadata) {
+      return;
+    }
+
+    cidOriginalBuffer = await decryptContent(iv, key, cidEncryptedOriginalBytes)
+  } else if (type === "public") {
+    const cidOriginalStr = (file as unknown as PublishedFile).cidOriginalStr;
+    cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
   }
-
-  const cidOriginalBuffer = await decryptContent(iv, key, cidEncryptedOriginalBytes)
 
   const customToken = localStorage.getItem("customToken");
 
@@ -186,6 +201,10 @@ export const viewFile = async (file: FileDB) => {
     responseType: 'arraybuffer', // set response type as blob to handle binary data
   }).then(async (response) => {
     console.log(response)
+
+    if (!cidOfEncryptedBuffer || !fileMetadata) {
+      return;
+    }
 
     const decoder = new TextDecoder()
     const cidOriginalStr = decoder.decode(cidOriginalBuffer)
