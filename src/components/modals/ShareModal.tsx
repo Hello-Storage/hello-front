@@ -77,10 +77,6 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
         }).catch(err => {
             if (!err.message.includes("Cannot read"))
             console.log(err.message)
-            /*
-            dispatch(setToastMessage(err.message));
-            dispatch(setShowToast(true));
-            */
         }
         )
         // eslint-disable-next-line react-hooks/exhaustive-deps
