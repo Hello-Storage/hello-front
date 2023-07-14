@@ -97,7 +97,7 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
             type: "one-time",
             title: "One-time only",
             description: "Generate an obfuscated URL that can be accessed only once. Once visited, the URL will self-destroy.",
-            state: "enabled"
+            state: "disabled"
         },
         {
             type: "address-restricted",
