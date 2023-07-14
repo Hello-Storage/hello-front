@@ -24,13 +24,6 @@ const getLinker = (fallbackUrl: string) => {
             }
         }
 
-        /*
-        function onVisibilityChange(e) {
-            if (e.target.visibilityState === "hidden") {
-                didHide = true;
-            }
-        }
-        */
 
         const onFocus = () => {
             if (didHide) {
