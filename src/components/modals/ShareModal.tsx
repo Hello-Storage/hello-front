@@ -142,7 +142,7 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
         } else {
             setShareError("");
             if (e.target.checked) {
-                //handle sharing from shareRequests.ts
+                //handle sharing from shareRequests.ts.
                 shareFile(selectedFile, type).then((res) => {
                     //if res is AxiosResponse:
                     if ((res as AxiosResponse).status === 200) {
