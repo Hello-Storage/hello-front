@@ -58,7 +58,7 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
         getFileSharedState(selectedFile?.ID).then((res: AxiosResponse | AxiosError | undefined) => {
             if ((res as AxiosResponse).status === 200) {
                 res = res as AxiosResponse;
-                //parse response data to ShareState
+                //parse response data to ShareState.
                 const shareState = res.data as ShareState;
                 setFileSharedState(shareState);
 
