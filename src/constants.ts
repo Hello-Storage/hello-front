@@ -3,3 +3,4 @@
 //LOCAL: "http://localhost:6969" //replace with specific domain url
 export const baseUrl = "https://ounn.space" //replace with specific domain url
 export const baseName = "/hello-front"
+export const viteBase = "/hello-front/"
