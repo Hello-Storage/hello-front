@@ -16,7 +16,7 @@ import Shared from "./components/files/Shared.tsx";
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
 		<Provider store={store}>
-			<Router>
+			<Router basename="hello-front">
 				<div className="app">
 					<main className="main-content">
 						<Routes>
