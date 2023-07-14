@@ -316,7 +316,7 @@ const cidKeyArray = Uint8Array.from(atob(cidKeyBase64), c => c.charCodeAt(0));
 const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CBC", length: 256 }, false, ["encrypt", "decrypt"]);
   */
 
-
+/*
   console.log("encryptedMetadataStr:")
   console.log(encryptedMetadataStr)
   console.log("encryptedFileBlob:")
@@ -327,7 +327,7 @@ const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CB
   console.log(cidOfEncryptedBufferStr)
   console.log("cidEncryptedOriginalStr:")
   console.log(cidEncryptedOriginalStr)
-
+*/
 
   const formData = new FormData();
   formData.append("encryptedFileBlob", encryptedFileBlob);

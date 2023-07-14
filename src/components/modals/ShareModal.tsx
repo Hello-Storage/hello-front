@@ -75,8 +75,12 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
                 dispatch(setShowToast(true));
             }
         }).catch(err => {
+            if (!err.message.includes("Cannot read"))
+            console.log(err.message)
+            /*
             dispatch(setToastMessage(err.message));
             dispatch(setShowToast(true));
+            */
         }
         )
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,7 +97,7 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
             type: "one-time",
             title: "One-time only",
             description: "Generate an obfuscated URL that can be accessed only once. Once visited, the URL will self-destroy.",
-            state: "disabled"
+            state: "enabled"
         },
         {
             type: "address-restricted",
@@ -225,7 +229,7 @@ const ShareModal = (props: { selectedFile: FileDB | null, navigate: NavigateFunc
                                             >
                                                 <i className={`fas fa-thin fa-question-circle p-2 me-2`}></i>
                                             </OverlayTrigger>
-                                            {sd.type === "public" && fileSharedState?.publishedFileID !== null &&
+                                            {sd.type === "public" && fileSharedState?.publishedFileID &&
                                                 <div>
                                                     <label htmlFor="shareLink" className="form-label">Share link</label>
                                                     <input type="email" className="form-control mb-2" id="shareLink" aria-describedby="shareLink" value={`${window.location.origin + baseName}/#/shared/public/${fileSharedState?.PublishedFile.hash}`} readOnly />

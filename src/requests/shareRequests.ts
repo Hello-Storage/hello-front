@@ -4,7 +4,7 @@ import { baseUrl } from "../constants";
 import { decryptContent, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
 
 
-export const shareFile = async (selectedFile: FileDB | null, type: string): Promise<AxiosResponse | AxiosError | undefined>  => {
+export const shareFile = async (selectedFile: FileDB | null, type: string): Promise<AxiosResponse | AxiosError | undefined> => {
     let response: AxiosResponse | AxiosError | undefined;
     if (selectedFile) {
         switch (type) {
@@ -13,7 +13,7 @@ export const shareFile = async (selectedFile: FileDB | null, type: string): Prom
                 response = await publishFile(selectedFile)
                 break;
             case "one-time":
-                console.log(type)
+                response = await requestFileOneTime(selectedFile, true)
                 break;
             case "address-restricted":
                 console.log(type)
@@ -45,7 +45,7 @@ export const unshareFile = async (selectedFile: FileDB | null, type: string): Pr
                 response = await unpublishFile(selectedFile)
                 break;
             case "one-time":
-                console.log(type)
+                response = await requestFileOneTime(selectedFile, false)
                 break;
             case "address-restricted":
                 console.log(type)
@@ -100,7 +100,7 @@ const publishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResp
     //transform cidOriginalBuffer to a string
     const cidOriginalStr = new TextDecoder().decode(cidOriginalBuffer)
 
-    const responseLink = await axios.post(`${baseUrl}/api/v0/file/publish`,
+    const responseLink = await axios.post(`${baseUrl}/api/v0/file/share/publish`,
         {
             cidOriginalStr: cidOriginalStr,
             cidOfEncryptedBuffer: cidOfEncryptedBuffer,
@@ -122,7 +122,7 @@ const publishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResp
 
 const unpublishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResponse | undefined> => {
     const customToken = localStorage.getItem("customToken");
-    
+
     if (!customToken) {
         alert("Error: Not logged in...")
         return;
@@ -131,17 +131,17 @@ const unpublishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosRe
     //make an axios delete request to /api/v0/unpublish with the ID of the file
     //the response will be a confirmation message
     //update the state accordingly
-    
-    const response = await axios.delete(`${baseUrl}/api/v0/file/unpublish/${selectedFile.ID}`,
-    {
-        headers: {
-            Authorization: `Bearer ${customToken}`
-        },
-    }).then((response: AxiosResponse) => {
-        return response;
-    }).catch((error: AxiosError) => {
-        return error;
-    })
+
+    const response = await axios.delete(`${baseUrl}/api/v0/file/share/unpublish/${selectedFile.ID}`,
+        {
+            headers: {
+                Authorization: `Bearer ${customToken}`
+            },
+        }).then((response: AxiosResponse) => {
+            return response;
+        }).catch((error: AxiosError) => {
+            return error;
+        })
 
     return response;
 }
@@ -173,12 +173,70 @@ export const getPublishedFile = async (hash: string): Promise<AxiosResponse | Ax
     }
 
     try {
-        const response = await axios.get(`${baseUrl}/api/v0/file/public/file/${hash}`,
+        const response = await axios.get(`${baseUrl}/api/v0/file/share/file/${hash}`,
             {
                 headers: {
                     Authorization: `Bearer ${customToken}`
                 },
             });
+        return response;
+    } catch (error) {
+        return error as AxiosError;
+    }
+}
+
+const requestFileOneTime = async (selectedFile: FileDB, shareBool: boolean): Promise<AxiosError | AxiosResponse | undefined> => {
+    const customToken = localStorage.getItem("customToken")
+    const signature = sessionStorage.getItem("personalSignature")
+
+    if (!customToken || !signature) {
+        alert("Error: Not logged in!")
+        return;
+    }
+
+    const hash = await getHashFromSignature(signature)
+    const key = await getKeyFromHash(hash)
+
+    //get cidEncryptedOriginalStr, cidOfEncryptedBuffer and metadata from selectedFile
+    const { cidEncryptedOriginalStr, cidOfEncryptedBuffer, metadata, iv } = selectedFile
+
+    //make an axios post request to /api/v0/publish with cidEncryptedOriginalStr, cidOfEncryptedBuffer and the unencrypted metadata
+    //the response will be the sharing URL
+    //set the sharing URL in the store
+
+    const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
+
+    const ivBytes = Uint8Array.from(atob(iv), c => c.charCodeAt(0))
+    if (!cidOfEncryptedBuffer || !cidEncryptedOriginalBytes || !ivBytes || !metadata) {
+        alert("Error: Invalid file")
+        return;
+    }
+
+    const cidOriginalBuffer: ArrayBuffer = await decryptContent(ivBytes, key, cidEncryptedOriginalBytes)
+
+    //transform cidOriginalBuffer to a string
+    const cidOriginalStr = new TextDecoder().decode(cidOriginalBuffer)
+
+    const endpoint = `${baseUrl}/api/v0/file/share/one-time`
+    const method = shareBool ? "post" : "delete"
+
+
+    try {
+        const response = await axios(
+            {
+                method: method,
+                url: endpoint,
+                headers: {
+                    Authorization: `Bearer ${customToken}`
+                },
+                data: {
+                    cidOriginalStr: cidOriginalStr,
+                    cidOfEncryptedBuffer: cidOfEncryptedBuffer,
+                    metadata: JSON.stringify(metadata),
+                    fileId: selectedFile.ID,
+                }
+            },
+        );
         return response;
     } catch (error) {
         return error as AxiosError;
