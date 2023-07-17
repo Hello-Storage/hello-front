@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { connectMetamask } from '../../requests/metaRequests';
 import { getDataCap, getUploadedFilesCount, getUsedStorage, savePassword } from '../../requests/clientRequests';
-import { setPersonalSignature } from '../../helpers/cipher';
+import { setPersonalSignature } from '../../helpers/encryption/cipher';
 import { baseUrl } from '../../constants';
 import axios, { AxiosError } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';

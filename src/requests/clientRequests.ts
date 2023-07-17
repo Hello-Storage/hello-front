@@ -1,11 +1,12 @@
 import axios, { AxiosError, AxiosResponse } from "axios"
 import { FileDB, FileMetadata, FileUploadResponseWithTime, PublishedFile } from "../types";
 import { baseUrl } from "../constants";
-import { decryptContent, decryptFile, deriveKey, digestMessage, encryptBuffer, encryptFileBuffer, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
+import { decryptContent, decryptFile, deriveKey, digestMessage, encryptBuffer, encryptFile, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/encryption/cipher";
 import { removeCustomToken, setAddress } from "../features/account/accountSlice";
 import { isSignedIn } from "../helpers/userHelper";
 import { NavigateFunction } from "react-router-dom";
 import { Dispatch } from "@reduxjs/toolkit";
+import { encryptFileBuffer } from "../helpers/encryption/fileEncryption";
 
 
 
@@ -280,7 +281,8 @@ export const uploadFile = async (file: File, updateUploadProgress: { (progress: 
   console.log(file)
 
   //get the CID of the encrypted file, get the key used to encrypt the file (cidKey), and the encrypted file buffer
-  const { cidOfEncryptedBufferStr, cidStr, encryptedFileBuffer, encryptionTime } = await encryptFileBuffer(file);
+  const fileArrayBuffer = await file.arrayBuffer(); 
+  const { cidOfEncryptedBufferStr, cidStr, encryptedFileBuffer, encryptionTime } = await encryptFileBuffer(fileArrayBuffer);
 
 
 
@@ -316,18 +318,18 @@ const cidKeyArray = Uint8Array.from(atob(cidKeyBase64), c => c.charCodeAt(0));
 const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CBC", length: 256 }, false, ["encrypt", "decrypt"]);
   */
 
-/*
-  console.log("encryptedMetadataStr:")
-  console.log(encryptedMetadataStr)
-  console.log("encryptedFileBlob:")
-  console.log(encryptedFileBlob)
-  console.log("ivString:")
-  console.log(ivString)
-  console.log("cidOfEncryptedBufferStr:")
-  console.log(cidOfEncryptedBufferStr)
-  console.log("cidEncryptedOriginalStr:")
-  console.log(cidEncryptedOriginalStr)
-*/
+  /*
+    console.log("encryptedMetadataStr:")
+    console.log(encryptedMetadataStr)
+    console.log("encryptedFileBlob:")
+    console.log(encryptedFileBlob)
+    console.log("ivString:")
+    console.log(ivString)
+    console.log("cidOfEncryptedBufferStr:")
+    console.log(cidOfEncryptedBufferStr)
+    console.log("cidEncryptedOriginalStr:")
+    console.log(cidEncryptedOriginalStr)
+  */
 
   const formData = new FormData();
   formData.append("encryptedFileBlob", encryptedFileBlob);

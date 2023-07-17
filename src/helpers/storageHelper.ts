@@ -1,5 +1,5 @@
 import axios from "axios";
-import { decryptContent, getHashFromSignature, getKeyFromHash } from "./cipher";
+import { decryptContent, getHashFromSignature, getKeyFromHash } from "./encryption/cipher";
 import { baseUrl } from "../constants";
 import { FileDB, PieData, PieTypes } from "../types";
 
@@ -118,37 +118,37 @@ export const sortFilesByType = (files: FileDB[]): PieData[] => {
   const counts: { [key: string]: number } = {}
   let totalCount = 0;
 
-    for (const file of files) {
-        if (file.metadata) {
-            let extension = file.metadata.type.split('/').pop()?.toLowerCase() || '';
-            if (!extension) {
-                const fileNameParts = file.metadata.name.split('.');
-                extension = fileNameParts.length > 1 ? fileNameParts.pop()?.toLowerCase() || '' : '';
-            }
-            let found = false;
-            for (const typeName in types) {
-                if (types[typeName].includes(extension)) {
-                    counts[typeName] = (counts[typeName] || 0) + 1;
-                    totalCount += 1;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-              counts['Others'] = (counts['Others'] ||0) + 1;
-              totalCount += 1;
-            }
+  for (const file of files) {
+    if (file.metadata) {
+      let extension = file.metadata.type.split('/').pop()?.toLowerCase() || '';
+      if (!extension) {
+        const fileNameParts = file.metadata.name.split('.');
+        extension = fileNameParts.length > 1 ? fileNameParts.pop()?.toLowerCase() || '' : '';
+      }
+      let found = false;
+      for (const typeName in types) {
+        if (types[typeName].includes(extension)) {
+          counts[typeName] = (counts[typeName] || 0) + 1;
+          totalCount += 1;
+          found = true;
+          break;
         }
+      }
+      if (!found) {
+        counts['Others'] = (counts['Others'] || 0) + 1;
+        totalCount += 1;
+      }
     }
+  }
 
-    const data: PieData[] = [];
-    for (const typeName in counts) {
-        data.push({
-            name: typeName,
-            value: (counts[typeName] / totalCount) * 100,
-        });
-    }
+  const data: PieData[] = [];
+  for (const typeName in counts) {
+    data.push({
+      name: typeName,
+      value: (counts[typeName] / totalCount) * 100,
+    });
+  }
 
-    return data;
+  return data;
 }
 

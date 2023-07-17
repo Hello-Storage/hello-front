@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { FileDB } from "../types";
 import { baseUrl } from "../constants";
-import { decryptContent, getHashFromSignature, getKeyFromHash } from "../helpers/cipher";
+import { decryptContent, getHashFromSignature, getKeyFromHash } from "../helpers/encryption/cipher";
 
 
 export const shareFile = async (selectedFile: FileDB | null, type: string): Promise<AxiosResponse | AxiosError | undefined> => {

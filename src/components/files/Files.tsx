@@ -6,7 +6,7 @@ import { uploadFile } from "../../requests/clientRequests";
 import {
 	getHashFromSignature,
 	getKeyFromHash,
-} from "../../helpers/cipher";
+} from "../../helpers/encryption/cipher";
 import { useDispatch, useSelector } from "react-redux";
 import {
 	selectCustomToken,
@@ -14,7 +14,6 @@ import {
 	removeCustomToken,
 	setShowToast,
 	setToastMessage,
-	setSelectedPage,
 } from "../../features/account/accountSlice";
 
 import {
@@ -51,11 +50,9 @@ function Files() {
 
 	const [uploadProgress, setUploadProgress] = useState(0);
 
+
 	//if not signed in, remove all credentials and redirect to login
 	useEffect(() => {
-		if (!isSignedIn(navigate, currentPage)) {
-			return;
-		}
 		if (!customToken) {
 			//go to /login if no customToken
 			dispatch(setAddress(null));
@@ -68,7 +65,9 @@ function Files() {
 
 			return;
 		}
-		dispatch(setSelectedPage(currentPage));
+		if (!isSignedIn(navigate, currentPage)) {
+			return;
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
