@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { FileDB } from "../types";
 import { baseUrl } from "../constants";
-import { decryptContent, getHashFromSignature, getKeyFromHash } from "../helpers/encryption/cipher";
+import { decryptContent } from "../helpers/encryption/filesCipher";
 
 
 export const shareFile = async (selectedFile: FileDB | null, type: string): Promise<AxiosResponse | AxiosError | undefined> => {
@@ -77,11 +77,9 @@ const publishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResp
         return;
     }
 
-    const hash = await getHashFromSignature(signature)
-    const key = await getKeyFromHash(hash)
 
     //get cidEncryptedOriginalStr, cidOfEncryptedBuffer and metadata from selectedFile
-    const { cidEncryptedOriginalStr, cidOfEncryptedBuffer, metadata, iv } = selectedFile
+    const { cidEncryptedOriginalStr, cidOfEncryptedBuffer, metadata } = selectedFile
 
     //make an axios post request to /api/v0/publish with cidEncryptedOriginalStr, cidOfEncryptedBuffer and the unencrypted metadata
     //the response will be the sharing URL
@@ -89,13 +87,12 @@ const publishFile = async (selectedFile: FileDB): Promise<AxiosError | AxiosResp
 
     const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
 
-    const ivBytes = Uint8Array.from(atob(iv), c => c.charCodeAt(0))
-    if (!cidOfEncryptedBuffer || !cidEncryptedOriginalBytes || !ivBytes || !metadata) {
+    if (!cidOfEncryptedBuffer || !cidEncryptedOriginalBytes || !metadata) {
         alert("Error: Invalid file")
         return;
     }
 
-    const cidOriginalBuffer: ArrayBuffer = await decryptContent(ivBytes, key, cidEncryptedOriginalBytes)
+    const cidOriginalBuffer: ArrayBuffer = await decryptContent(cidEncryptedOriginalBytes, signature)
 
     //transform cidOriginalBuffer to a string
     const cidOriginalStr = new TextDecoder().decode(cidOriginalBuffer)
@@ -194,11 +191,8 @@ const requestFileOneTime = async (selectedFile: FileDB, shareBool: boolean): Pro
         return;
     }
 
-    const hash = await getHashFromSignature(signature)
-    const key = await getKeyFromHash(hash)
-
     //get cidEncryptedOriginalStr, cidOfEncryptedBuffer and metadata from selectedFile
-    const { cidEncryptedOriginalStr, cidOfEncryptedBuffer, metadata, iv } = selectedFile
+    const { cidEncryptedOriginalStr, cidOfEncryptedBuffer, metadata } = selectedFile
 
     //make an axios post request to /api/v0/publish with cidEncryptedOriginalStr, cidOfEncryptedBuffer and the unencrypted metadata
     //the response will be the sharing URL
@@ -206,13 +200,12 @@ const requestFileOneTime = async (selectedFile: FileDB, shareBool: boolean): Pro
 
     const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
 
-    const ivBytes = Uint8Array.from(atob(iv), c => c.charCodeAt(0))
-    if (!cidOfEncryptedBuffer || !cidEncryptedOriginalBytes || !ivBytes || !metadata) {
+    if (!cidOfEncryptedBuffer || !cidEncryptedOriginalBytes || !metadata) {
         alert("Error: Invalid file")
         return;
     }
 
-    const cidOriginalBuffer: ArrayBuffer = await decryptContent(ivBytes, key, cidEncryptedOriginalBytes)
+    const cidOriginalBuffer: ArrayBuffer = await decryptContent(cidEncryptedOriginalBytes, signature)
 
     //transform cidOriginalBuffer to a string
     const cidOriginalStr = new TextDecoder().decode(cidOriginalBuffer)

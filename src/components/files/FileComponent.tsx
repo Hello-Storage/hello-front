@@ -3,7 +3,7 @@ import { downloadFile, logOut, viewFile } from '../../requests/clientRequests'
 import { useState } from 'react'
 import { parseISO } from 'date-fns'; // for parsing the date
 import { DeleteModal } from "../modals/DeleteModal";
-import { selectDisplayedFilesList, selectShowShareModal, setShowShareModal } from "../../features/storage/filesSlice";
+import { selectDisplayedFilesList, selectShowShareModal, setDisplayedFilesList, setShowShareModal } from "../../features/storage/filesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { setShowToast, setToastMessage } from "../../features/account/accountSlice";
 import { useNavigate } from "react-router-dom";
@@ -14,12 +14,16 @@ import { fileIcons, viewableExtensions } from "../../helpers/fileConstants";
 
 
 
-const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => void }) => {
+const FileComponent = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [selectedFile, setSelectedFile] = useState<FileDB | null>(null)
     const displayedFilesList = useSelector(selectDisplayedFilesList);
-    const deleteFileFromList = props.deleteFileFromList
+    const deleteFileFromList = (file: FileDB | null) => {
+        //delete the file from the list
+        const newFilesList = displayedFilesList.filter((f: FileDB) => f.ID !== file?.ID)
+        dispatch(setDisplayedFilesList(newFilesList))
+    }
     const currentPage = "files";
     const showShareModal = useSelector(selectShowShareModal)
 
@@ -65,7 +69,7 @@ const FileComponent = (props: { deleteFileFromList: (file: FileDB | null) => voi
                                 <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
                                 </button>
                                 <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                    <li><a className="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => setSelectedFile(file)} href="#">Delete</a></li>
+                                    <li><a className="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal" onClick={() => setSelectedFile(file)} href="#">Delete</a></li>
                                     <li><a className="dropdown-item" role="button" onClick={async () => await downloadFile(file, 'original')}>Download</a></li>
 
                                     <li><a className={viewable ? "dropdown-item" : "disabled dropdown-item"} role="button" onClick={async () => await viewFile(file, "original").catch((e) => {

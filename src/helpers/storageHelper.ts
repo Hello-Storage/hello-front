@@ -1,34 +1,8 @@
 import axios from "axios";
-import { decryptContent, getHashFromSignature, getKeyFromHash } from "./encryption/cipher";
 import { baseUrl } from "../constants";
-import { FileDB, PieData, PieTypes } from "../types";
+import { FileDB, FileMetadata, PieData, PieTypes } from "../types";
+import { decryptContent } from "./encryption/filesCipher";
 
-export const decryptMetadata = async (encryptedMetadata: string, ivStr: string, key: CryptoKey) => {
-  //decrypt metadata
-
-  const encryptedMetadataBytes = Uint8Array.from(
-    atob(encryptedMetadata),
-    (c) => c.charCodeAt(0)
-  )
-
-  const iv = Uint8Array.from(atob(ivStr), (c) => c.charCodeAt(0))
-
-  //deecrypt the metadata
-  const metadataBuffer = await decryptContent(
-    iv,
-    key,
-    encryptedMetadataBytes
-  )
-
-  //transform metadata from ArrayBuffer to string
-  const decoder = new TextDecoder()
-  const metadataString = decoder.decode(metadataBuffer)
-
-  //transform metadata from string to JSON Object
-  const metadata = JSON.parse(metadataString)
-
-  return metadata
-}
 
 export const formatByteWeight = (weight: number): string => {
   const KB = 1024;
@@ -75,13 +49,16 @@ export const getDecryptedFilesList = async (customToken: string | null): Promise
       return;
     }
 
-    const hash = await getHashFromSignature(signature);
-    const key = await getKeyFromHash(hash);
     //iterate through filesList and decrypt metadata
     const decryptedFiles = await Promise.all(
       filesList.map(async (file: FileDB) => {
         //decrypt metadata
-        const metadata = await decryptMetadata(file.encryptedMetadata, file.iv, key);
+        const metadataBuffer = await decryptContent(file.encryptedMetadata, signature);
+
+        //transform metadata from ArrayBuffer to FileMetadata
+        const decoder = new TextDecoder();
+        const metadata: FileMetadata = JSON.parse(decoder.decode(metadataBuffer));
+        
         //set metadata
         file.metadata = metadata;
         return file;

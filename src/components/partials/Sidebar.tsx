@@ -139,7 +139,7 @@ export const Sidebar = () => {
 
 	const checkLoggedIn = useCallback(async (customToken: string) => {
 		await axios
-			.get(`${baseUrl}/api/welcome`, {
+			.get(`${baseUrl}/api/authenticate`, {
 				headers: {
 					Authorization: `Bearer ${customToken}`,
 				},
@@ -212,7 +212,7 @@ export const Sidebar = () => {
 		}
 		checkLoggedIn(customToken);
 		//FIREBASE: signInWithCustomToken(auth, customToken);
-	}, [address, checkLoggedIn, customToken]);
+	}, [checkLoggedIn, customToken]);
 
 	useEffect(() => {
 		//truncate the address wallet string

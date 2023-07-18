@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { connectMetamask } from '../../requests/metaRequests';
-import { getDataCap, getUploadedFilesCount, getUsedStorage, savePassword } from '../../requests/clientRequests';
+import { getDataCap, getUploadedFilesCount, getUsedStorage, savePersonalSignature} from '../../requests/clientRequests';
 import { setPersonalSignature } from '../../helpers/encryption/cipher';
 import { baseUrl } from '../../constants';
 import axios, { AxiosError } from 'axios';
@@ -58,7 +58,7 @@ const PasswordModal = (
 
 
 
-    const handleWelcome = async () => {
+    const handleAuthentication = async () => {
         //create a get request with auth header "Bearer customToken" to /api
         const customToken = localStorage.getItem("customToken");
         if (!customToken) {
@@ -66,7 +66,7 @@ const PasswordModal = (
         }
 
         dispatch(setCustomToken(customToken));
-        const response = await axios.get(`${baseUrl}/api/welcome`, {
+        const response = await axios.get(`${baseUrl}/api/authenticate`, {
             headers: {
                 Authorization: `Bearer ${customToken}`,
             },
@@ -87,17 +87,10 @@ const PasswordModal = (
                 console.log(addressTemp);
                 return;
             } else {
+                const signature = await setPersonalSignature(addressTemp);
 
-
-
-                await setPersonalSignature(addressTemp, password);
-
-
-
-
-
-                await handleWelcome();
-                const passwordRequest = await savePassword(password);
+                await handleAuthentication();
+                const passwordRequest = await savePersonalSignature(signature);
                 const dataCap = await getDataCap(addressTemp);
                 const usedStorage = await getUsedStorage(addressTemp);
 

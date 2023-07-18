@@ -1,12 +1,8 @@
 import "../../App.css";
 import { FormEvent, useEffect, useState } from "react";
 import FileComponent from "./FileComponent";
-import { FileDB, FileUploadResponseWithTime } from "../../types";
+import { FileDB, FileMetadata, FileUploadResponseWithTime } from "../../types";
 import { uploadFile } from "../../requests/clientRequests";
-import {
-	getHashFromSignature,
-	getKeyFromHash,
-} from "../../helpers/encryption/cipher";
 import { useDispatch, useSelector } from "react-redux";
 import {
 	selectCustomToken,
@@ -18,7 +14,6 @@ import {
 
 import {
 	selectFilesList,
-	setFilesList,
 	addFile,
 	selectEncryptionTime,
 	setEncryptionTime,
@@ -28,10 +23,10 @@ import {
 import { AppDispatch } from "../../app/store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isSignedIn } from "../../helpers/userHelper";
-import { decryptMetadata } from "../../helpers/storageHelper";
 import NProgress from 'nprogress';
 import TopBarProgress from "react-topbar-progress-indicator";
 import 'nprogress/nprogress.css'; // Import CSS
+import { decryptContent } from "../../helpers/encryption/filesCipher";
 
 
 
@@ -142,9 +137,11 @@ function Files() {
 						return;
 					}
 
-					const hash = await getHashFromSignature(signature);
-					const key = await getKeyFromHash(hash);
-					const metadata = await decryptMetadata(file.encryptedMetadata, file.iv, key);
+					const metadataBuffer = await decryptContent(file.encryptedMetadata, signature);
+
+					//transform ddecrypted metadata buffer to FileMetadata object
+					const decoder = new TextDecoder();
+					const metadata: FileMetadata = JSON.parse(decoder.decode(metadataBuffer));
 					//set metadata
 					file.metadata = metadata;
 					//add file to files list
@@ -175,17 +172,7 @@ function Files() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, displayedFilesList, fileToUplad, navigate]);
 
-	const deleteFileFromList = (file: FileDB | null) => {
-		if (file !== null) {
-			const updatedFilesList = displayedFilesList.filter(
-				(item: FileDB) => item.ID !== file.ID
-			);
-			setFilesList([...filesList, updatedFilesList]);
-			dispatch(setDisplayedFilesList({
-				updatedFilesList
-			}))
-		}
-	};
+
 
 
 
@@ -252,9 +239,7 @@ function Files() {
 				</form>
 				{displayedFilesList.length === 0 ? <h4>No files found</h4> :
 					<>
-						<FileComponent
-							deleteFileFromList={deleteFileFromList}
-						/>
+						<FileComponent />
 					</>
 				}			</div>
 		</div>

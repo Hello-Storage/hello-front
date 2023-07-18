@@ -26,7 +26,6 @@ export interface FileDB {
     cidOriginalStr?: string;
     cidOfEncryptedBuffer: string;
     encryptedMetadata: string;
-    iv: string;
     userAddress: string;
     metadata: FileMetadata | null;
 }

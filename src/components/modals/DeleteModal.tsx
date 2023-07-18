@@ -8,7 +8,7 @@ export const DeleteModal = (props: { selectedFile: FileDB | null, deleteFileFrom
 
     return createPortal(
         (
-        <div className="modal fade" id="exampleModal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal fade" id="deleteModal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
@@ -22,6 +22,7 @@ export const DeleteModal = (props: { selectedFile: FileDB | null, deleteFileFrom
                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">No</button>
                         <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={() => deleteFile(selectedFile).then((res: AxiosResponse<unknown, unknown> | null) => {
                             if (res?.status === 200) {
+                                
                                 props.deleteFileFromList(selectedFile)
                             }
                         })}>Yes</button>

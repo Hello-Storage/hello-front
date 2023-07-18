@@ -1,12 +1,12 @@
 import axios, { AxiosError, AxiosResponse } from "axios"
 import { FileDB, FileMetadata, FileUploadResponseWithTime, PublishedFile } from "../types";
 import { baseUrl } from "../constants";
-import { decryptContent, decryptFile, deriveKey, digestMessage, encryptBuffer, encryptFile, encryptFileMetadata, getHashFromSignature, getKeyFromHash } from "../helpers/encryption/cipher";
+import { getHashFromSignature } from "../helpers/encryption/cipher";
 import { removeCustomToken, setAddress } from "../features/account/accountSlice";
 import { isSignedIn } from "../helpers/userHelper";
 import { NavigateFunction } from "react-router-dom";
 import { Dispatch } from "@reduxjs/toolkit";
-import { encryptFileBuffer } from "../helpers/encryption/fileEncryption";
+import { decryptContent, decryptFileBuffer, encryptBuffer, encryptFileBuffer, encryptMetadata } from "../helpers/encryption/filesCipher";
 
 
 
@@ -44,19 +44,16 @@ export const downloadFile = async (file: FileDB, type: string) => {
     return;
   }
 
-  const hash = await getHashFromSignature(signature)
-  const key = await getKeyFromHash(hash)
 
   let cidOriginalBuffer: ArrayBuffer | undefined;
   if (type === "original") {
     fileMetadata = file.metadata;
     const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
 
-    const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
     if (!cidOfEncryptedBuffer || !fileMetadata) {
       return;
     }
-    cidOriginalBuffer = await decryptContent(iv, key, cidEncryptedOriginalBytes)
+    cidOriginalBuffer = await decryptContent(cidEncryptedOriginalBytes, signature)
   } else if (type === "public") {
     fileMetadata = file.metadata
     cidOriginalBuffer = new TextEncoder().encode(file.cidOriginalStr);
@@ -79,17 +76,16 @@ export const downloadFile = async (file: FileDB, type: string) => {
     const decoder = new TextDecoder()
     const cidOriginalStr = decoder.decode(cidOriginalBuffer)
 
-    const cidOriginalDigestedBuffer = await digestMessage(cidOriginalStr)
 
-    //transform cidArrayBuffer into a CryptoKey
-    const cidKey = await deriveKey(cidOriginalDigestedBuffer);
-
-    const nilIv = new Uint8Array(16)
-    const decryptedFile = await decryptFile(nilIv, cidKey, response.data, fileMetadata).catch((error) => {
+    const decryptedFileBuffer = await decryptFileBuffer(response.data, cidOriginalStr).catch((error) => {
       console.log("Error decrypting:")
       console.log(error);
       return null
     });
+    if (!decryptedFileBuffer) {
+      return;
+    }
+    const decryptedFile = new File([decryptedFileBuffer], fileMetadata.name, { type: fileMetadata.type })
     console.log("decryptedFile:")
     console.log(decryptedFile)
 
@@ -173,21 +169,17 @@ export const viewFile = async (file: FileDB, type: string) => {
     return;
   }
 
-  const hash = await getHashFromSignature(signature)
-  const key = await getKeyFromHash(hash)
-
   let cidOriginalBuffer: ArrayBuffer | undefined;
 
   if (type === "original") {
     const cidEncryptedOriginalStr = (file as FileDB).cidEncryptedOriginalStr;
     const cidEncryptedOriginalBytes = Uint8Array.from(atob(cidEncryptedOriginalStr), c => c.charCodeAt(0))
-    const iv = Uint8Array.from(atob(file.iv), c => c.charCodeAt(0))
 
     if (!cidOfEncryptedBuffer || !fileMetadata) {
       return;
     }
 
-    cidOriginalBuffer = await decryptContent(iv, key, cidEncryptedOriginalBytes)
+    cidOriginalBuffer = await decryptContent(cidEncryptedOriginalBytes, signature)
   } else if (type === "public") {
     const cidOriginalStr = (file as unknown as PublishedFile).cidOriginalStr;
     cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
@@ -210,17 +202,17 @@ export const viewFile = async (file: FileDB, type: string) => {
     const decoder = new TextDecoder()
     const cidOriginalStr = decoder.decode(cidOriginalBuffer)
 
-    const cidOriginalDigestedBuffer = await digestMessage(cidOriginalStr)
 
-    //transform cidArrayBuffer into a CryptoKey
-    const cidKey = await deriveKey(cidOriginalDigestedBuffer);
 
-    const nilIv = new Uint8Array(16)
-    const decryptedFile = await decryptFile(nilIv, cidKey, response.data, fileMetadata).catch((error) => {
+    const decryptedFileBuffer = await decryptFileBuffer(response.data, cidOriginalStr).catch((error) => {
       console.log("Error decrypting:")
       console.log(error);
       return null
     });
+    if (!decryptedFileBuffer) {
+      return;
+    }
+    const decryptedFile = new File([decryptedFileBuffer], fileMetadata.name, { type: fileMetadata.type })
     console.log("decryptedFile:")
     console.log(decryptedFile)
 
@@ -271,17 +263,13 @@ export const uploadFile = async (file: File, updateUploadProgress: { (progress: 
     return null;
   }
 
-  const hash = await getHashFromSignature(signature);
-
-  const key = await getKeyFromHash(hash);
-
   //encrypt file
-  const { encryptedMetadataBuffer, iv } = await encryptFileMetadata(file, key);
+  const encryptedMetadataBuffer = await encryptMetadata(file, signature);
 
   console.log(file)
 
   //get the CID of the encrypted file, get the key used to encrypt the file (cidKey), and the encrypted file buffer
-  const fileArrayBuffer = await file.arrayBuffer(); 
+  const fileArrayBuffer = await file.arrayBuffer();
   const { cidOfEncryptedBufferStr, cidStr, encryptedFileBuffer, encryptionTime } = await encryptFileBuffer(fileArrayBuffer);
 
 
@@ -289,52 +277,18 @@ export const uploadFile = async (file: File, updateUploadProgress: { (progress: 
   //transform cidOfEncryptedBufferStr to Uint8Array
   const cidBuffer = new TextEncoder().encode(cidStr);
   //transform encryptedMetadataBuffer to string
-  const encryptedMetadataStr = btoa(String.fromCharCode(...new Uint8Array(encryptedMetadataBuffer)));
+  const encryptedMetadataStr = btoa(String.fromCharCode(...encryptedMetadataBuffer));
 
   //encrypt cidOfEncryptedBufferStr and cidStr with key
-  const cidEncryptedOriginalBuffer = await encryptBuffer(cidBuffer, key, iv)
+  const cidEncryptedOriginalBuffer = await encryptBuffer(cidBuffer, signature)
   //transform encryptedCidSigned to string
-  const cidEncryptedOriginalStr = btoa(String.fromCharCode(...new Uint8Array(cidEncryptedOriginalBuffer)));
+  const cidEncryptedOriginalStr = btoa(String.fromCharCode(...cidEncryptedOriginalBuffer));
   const encryptedFileBlob = new Blob([encryptedFileBuffer]);
 
-
-
-
-
-
-  //Transform iv so that formData can append it
-  const ivString = btoa(String.fromCharCode(...iv))
-
-
-
-
-  //To reverse and get original CryptoKey:
-
-  /*
-// Convert the base64-encoded string back to a Uint8Array
-const cidKeyArray = Uint8Array.from(atob(cidKeyBase64), c => c.charCodeAt(0));
-
-// Import the key back into a CryptoKey
-const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CBC", length: 256 }, false, ["encrypt", "decrypt"]);
-  */
-
-  /*
-    console.log("encryptedMetadataStr:")
-    console.log(encryptedMetadataStr)
-    console.log("encryptedFileBlob:")
-    console.log(encryptedFileBlob)
-    console.log("ivString:")
-    console.log(ivString)
-    console.log("cidOfEncryptedBufferStr:")
-    console.log(cidOfEncryptedBufferStr)
-    console.log("cidEncryptedOriginalStr:")
-    console.log(cidEncryptedOriginalStr)
-  */
 
   const formData = new FormData();
   formData.append("encryptedFileBlob", encryptedFileBlob);
   formData.append("encryptedMetadataStr", encryptedMetadataStr);
-  formData.append("ivString", ivString);
   formData.append("cidOfEncryptedBufferStr", cidOfEncryptedBufferStr);
   formData.append("cidEncryptedOriginalStr", cidEncryptedOriginalStr);
   return axios.post(`${baseUrl}/api/file/upload`, formData, {
@@ -356,9 +310,14 @@ const cidKey = await crypto.subtle.importKey("raw", cidKeyArray, { name: "AES-CB
   );
 }
 
-export const savePassword = async (password: string): Promise<AxiosResponse | AxiosError> => {
+export const savePersonalSignature = async (personalSignature: string): Promise<AxiosResponse | AxiosError> => {
   const customToken = localStorage.getItem("customToken");
-  return axios.post(`${baseUrl}/api/password`, { password: password }, {
+  //hash the personalSignature
+  const personalSignatureClientHash = await getHashFromSignature(personalSignature);
+  //transform the hash to a string
+  const personalSignatureClientHashStr = btoa(String.fromCharCode(...new Uint8Array(personalSignatureClientHash)));
+
+  return axios.post(`${baseUrl}/api/personalSignature`, { personalSignatureClientHash: personalSignatureClientHashStr }, {
     headers: {
       Authorization: `Bearer ${customToken}`,
     },
