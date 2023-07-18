@@ -1,9 +1,10 @@
 import ConnectWalletButton from "../ConnectWalletButton";
 import { AppDispatch } from "../../app/store";
 import { useDispatch, useSelector } from "react-redux";
-import { selectLoading, selectCustomToken, setShowPasswordModal, setLoading, selectAddress, setDestiny, setAddress, removeCustomToken, setSelectedPage, selectSelectedPage } from "../../features/account/accountSlice";
+import { selectLoading, selectCustomToken, setLoading, selectAddress, setDestiny, setAddress, removeCustomToken, setSelectedPage, selectSelectedPage } from "../../features/account/accountSlice";
 import { useParams } from "react-router-dom";
 import { setFilesList } from "../../features/storage/filesSlice";
+import { loginMetamask } from "../../helpers/userHelper";
 
 
 const roundedDivStyle = {
@@ -32,9 +33,15 @@ const Login = () => {
     const selectedPage = useSelector(selectSelectedPage);
 
     const onPressConnect = async () => {
-        dispatch(setShowPasswordModal(true));
+//        dispatch(setShowPasswordModal(true));
         dispatch(setLoading(true));
         dispatch(setDestiny(destiny));
+
+        await loginMetamask(dispatch);
+
+
+
+
     };
     const onPressLogout = () => {
         dispatch(setAddress(null));

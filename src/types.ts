@@ -8,13 +8,6 @@ export interface ConnectWalletButtonProps {
     customToken: string | null;
 }
 
-export interface PasswordModalProps {
-    showPasswordModal: boolean;
-    closePasswordModal: () => void;
-    setLoading: (loading: boolean) => void;
-    setToastMessage: (message: string) => void;
-    setShowToast: (showToast: boolean) => void;
-}
 
 
 export interface FileDB {

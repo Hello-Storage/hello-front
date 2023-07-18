@@ -10,7 +10,6 @@ export const digestMessage = async (message: string) => {
 
 export const setPersonalSignature = async (addressTemp: string): Promise<string> => {
     //Caesar's cipher?
-    //const obfuscatedPassword = caesarCipher(password, 5);
     const nonce = "http://hello.storage/\nPersonal signature\nNONCE: 1";
     //Store signature to the session storage
     const web3 = new Web3(Web3.givenProvider);

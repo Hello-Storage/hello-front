@@ -10,7 +10,6 @@ import {
 	selectRedirectTo,
 	setAddress,
 	setLoading,
-	setShowPasswordModal,
 	setToastMessage,
 	removeCustomToken,
 	setSelectedPage,
@@ -34,10 +33,10 @@ import { baseUrl } from "../../constants";
 import axios from "axios";
 import Web3 from "web3";
 import Toast from "../modals/Toast";
-import PasswordModal from "../modals/PasswordModal";
 import { Link, useNavigate } from "react-router-dom";
 import { getDataCap, getUploadedFilesCount, getUsedStorage, logOut } from "../../requests/clientRequests";
 import { getDecryptedFilesList } from "../../helpers/storageHelper";
+import { loginMetamask } from "../../helpers/userHelper";
 
 
 export const Sidebar = () => {
@@ -122,8 +121,8 @@ export const Sidebar = () => {
 	}, []);
 
 	const onPressConnect = async () => {
-		dispatch(setShowPasswordModal(true));
 		dispatch(setLoading(true));
+        await loginMetamask(dispatch);
 	};
 
 	const onPressLogout = () => {
@@ -233,11 +232,7 @@ export const Sidebar = () => {
 
 	return (
 		<div style={{ position: "fixed", top: 0, left: 0, width: "100%" }}>
-			<Toast
-			/>
-			{/*//modals*/}
-			<PasswordModal/>
-
+			<Toast />
 			<header
 				style={{ height: "80px" }}
 				className="d-flex flex-nowrap align-items-center justify-content-between py-3 mb-4 border-bottom "
