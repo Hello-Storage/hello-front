@@ -1,3 +1,3 @@
-To launch app in background:
+# joinhelloapp - frontend
 
-nohup yarn dev > yarn.log 2>&1 &
+Join Hello App

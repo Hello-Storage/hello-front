@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "./components/modal.scss";
+@import "./fonts.scss";
+
+body {
+}
+
+* {
+  font-family: "Poppins";
+  box-sizing: border-box;
+  min-width: 0;
+}
