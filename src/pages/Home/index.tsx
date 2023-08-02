@@ -1,21 +1,20 @@
+import { EncryptedIcon, PublicIcon } from "components";
 import {
-  CopyIcon,
-  DocIcon,
-  EncryptedIcon,
-  FolderIcon,
-  ImageIcon,
-  OptionIcon,
-  PublicIcon,
-} from "components";
+  HiDocumentDuplicate,
+  HiFolder,
+  HiDotsVertical,
+  HiDocumentText,
+  HiPhotograph,
+} from "react-icons/hi";
 
 export default function Home() {
   return (
     <div>
       <h1 className="text-xl">My Storage</h1>
 
-      <div className="relative overflow-x-auto mt-3">
+      <div className="relative mt-3 overflow-x-auto">
         <table className="w-full text-sm text-left text-gray-500 ">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50  ">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
             <tr>
               <th scope="col" className="px-6 py-3">
                 Name
@@ -36,14 +35,14 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            <tr className="bg-white border-b  ">
+            <tr className="bg-white border-b ">
               <th
                 scope="row"
                 className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
               >
                 <div className="flex items-center gap-3">
-                  <div className="bg-gray-100 p-1 rounded-md">
-                    <FolderIcon className="w-5 h-5" />
+                  <div className="p-1 bg-gray-100 rounded-md">
+                    <HiFolder className="w-5 h-5" />
                   </div>
                   Assets
                 </div>
@@ -51,7 +50,7 @@ export default function Home() {
               <td className="px-6 py-4">
                 <div className="flex items-center">
                   0E70...270A
-                  <CopyIcon />
+                  <HiDocumentDuplicate />
                 </div>
               </td>
               <td className="px-6 py-4">10.6 MB</td>
@@ -62,17 +61,17 @@ export default function Home() {
               </td>
               <td className="px-6 py-4">1 days ago</td>
               <td className="px-6 py-4">
-                <OptionIcon />
+                <HiDotsVertical />
               </td>
             </tr>
-            <tr className="bg-white border-b  ">
+            <tr className="bg-white border-b ">
               <th
                 scope="row"
                 className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
               >
                 <div className="flex items-center gap-3">
-                  <div className="bg-gray-100 p-1 rounded-md">
-                    <FolderIcon className="w-5 h-5" />
+                  <div className="p-1 bg-gray-100 rounded-md">
+                    <HiFolder className="w-5 h-5" />
                   </div>
                   images
                 </div>
@@ -80,7 +79,7 @@ export default function Home() {
               <td className="px-6 py-4">
                 <div className="flex items-center">
                   0A33...251J
-                  <CopyIcon />
+                  <HiDocumentDuplicate />
                 </div>
               </td>
               <td className="px-6 py-4">1.3 GB</td>
@@ -91,18 +90,18 @@ export default function Home() {
               </td>
               <td className="px-6 py-4">2 days ago</td>
               <td className="px-6 py-4">
-                <OptionIcon />
+                <HiDotsVertical />
               </td>
             </tr>
 
-            <tr className="bg-white border-b  ">
+            <tr className="bg-white border-b ">
               <th
                 scope="row"
                 className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
               >
                 <div className="flex items-center gap-3">
-                  <div className="bg-gray-100 p-1 rounded-md">
-                    <FolderIcon className="w-5 h-5" />
+                  <div className="p-1 bg-gray-100 rounded-md">
+                    <HiFolder className="w-5 h-5" />
                   </div>
                   Docs
                 </div>
@@ -110,7 +109,7 @@ export default function Home() {
               <td className="px-6 py-4">
                 <div className="flex items-center">
                   2E33...556J
-                  <CopyIcon />
+                  <HiDocumentDuplicate />
                 </div>
               </td>
               <td className="px-6 py-4">150.9 MB</td>
@@ -121,17 +120,17 @@ export default function Home() {
               </td>
               <td className="px-6 py-4">3 days ago</td>
               <td className="px-6 py-4">
-                <OptionIcon />
+                <HiDotsVertical />
               </td>
             </tr>
-            <tr className="bg-white border-b  ">
+            <tr className="bg-white border-b ">
               <th
                 scope="row"
                 className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
               >
                 <div className="flex items-center gap-3">
-                  <div className="bg-gray-100 p-1 rounded-md">
-                    <ImageIcon className="w-5 h-5" />
+                  <div className="p-1 bg-gray-100 rounded-md">
+                    <HiPhotograph className="w-5 h-5" />
                   </div>
                   3d credit card.jpg
                 </div>
@@ -139,7 +138,7 @@ export default function Home() {
               <td className="px-6 py-4">
                 <div className="flex items-center">
                   0A4T...937N
-                  <CopyIcon />
+                  <HiDocumentDuplicate />
                 </div>
               </td>
               <td className="px-6 py-4">244.92 KB</td>
@@ -150,7 +149,7 @@ export default function Home() {
               </td>
               <td className="px-6 py-4">8 days ago</td>
               <td className="px-6 py-4">
-                <OptionIcon />
+                <HiDotsVertical />
               </td>
             </tr>
             <tr className="bg-white ">
@@ -159,8 +158,8 @@ export default function Home() {
                 className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
               >
                 <div className="flex items-center gap-3">
-                  <div className="bg-gray-100 p-1 rounded-md">
-                    <DocIcon className="w-5 h-5" />
+                  <div className="p-1 bg-gray-100 rounded-md">
+                    <HiDocumentText className="w-5 h-5" />
                   </div>
                   branding details.doc
                 </div>
@@ -168,7 +167,7 @@ export default function Home() {
               <td className="px-6 py-4">
                 <div className="flex items-center">
                   0E73...887V
-                  <CopyIcon />
+                  <HiDocumentDuplicate />
                 </div>
               </td>
               <td className="px-6 py-4">1.3 MB</td>
@@ -179,7 +178,7 @@ export default function Home() {
               </td>
               <td className="px-6 py-4">15 days ago</td>
               <td className="px-6 py-4">
-                <OptionIcon />
+                <HiDotsVertical />
               </td>
             </tr>
           </tbody>
