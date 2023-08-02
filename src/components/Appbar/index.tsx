@@ -1,4 +1,9 @@
-import { ChevronDownIcon, EthIcon, HexIcon, MoonIcon } from "components";
+import { EthIcon } from "components";
+import {
+  HiChevronDown,
+  HiCubeTransparent,
+  HiOutlineMoon,
+} from "react-icons/hi";
 
 export default function Appbar() {
   return (
@@ -22,9 +27,9 @@ export default function Appbar() {
               >
                 <path
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                 />
               </svg>
@@ -32,7 +37,7 @@ export default function Appbar() {
             <input
               type="search"
               id="default-search"
-              className="block w-full pr-4 pl-10 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus-visible:outline-none"
+              className="block w-full py-3 pl-10 pr-4 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus-visible:outline-none"
               placeholder="Search inside Hello storage"
               required
             />
@@ -43,18 +48,18 @@ export default function Appbar() {
           <div className="flex items-center gap-1">
             <EthIcon />
             <label className="text-sm">Ethereum</label>
-            <ChevronDownIcon />
+            <HiChevronDown />
           </div>
 
           <div className="flex items-center gap-1">
-            <HexIcon />
+            <HiCubeTransparent />
             <label className="text-sm">| 0xC4....8aMe</label>
-            <ChevronDownIcon />
+            <HiChevronDown />
           </div>
 
           <div>
-            <button className="p-2 rounded-xl border border-gray-200">
-              <MoonIcon />
+            <button className="p-2 border border-gray-200 rounded-xl">
+              <HiOutlineMoon />
             </button>
           </div>
         </div>
