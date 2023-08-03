@@ -1,4 +1,8 @@
+import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { EncryptedIcon, PublicIcon } from "components";
+import { Api, RootResponse } from "api";
 import {
   HiDocumentDuplicate,
   HiFolder,
@@ -6,8 +10,65 @@ import {
   HiDocumentText,
   HiPhotograph,
 } from "react-icons/hi";
+import { formatBytes, formatUid } from "utils";
+
+const constFolders = [
+  {
+    name: "Assets",
+    uid: "0E70...270A",
+    size: "10.6 MB",
+    encryption: false,
+    UpdatedAt: "2023-08-03T17:37:41.036027Z",
+  },
+  {
+    name: "images",
+    uid: "0A33...251J",
+    size: "10.6 MB",
+    encryption: false,
+    UpdatedAt: "2023-08-03T17:37:41.036027Z",
+  },
+  {
+    name: "Docs",
+    uid: "2E33...556J",
+    size: "10.6 MB",
+    encryption: false,
+    UpdatedAt: "2023-08-03T17:37:41.036027Z",
+  },
+];
+
+const constFiles = [
+  {
+    name: "3d credit card.jpg",
+    uid: "0A4T...937N",
+    size: "244.92 KB",
+    encryption: false,
+    UpdatedAt: "2023-08-03T17:37:41.036027Z",
+  },
+  {
+    name: "branding details.doc",
+    uid: "0E73...887V",
+    size: "1.3 MB",
+    encryption: false,
+    UpdatedAt: "2023-08-03T17:37:41.036027Z",
+  },
+];
+
+dayjs.extend(relativeTime);
 
 export default function Home() {
+  const [response, setResponse] = useState<RootResponse>();
+
+  const fetchContents = () => {
+    Api.get<RootResponse>("/folder").then((res) => {
+      console.log(res.data);
+      setResponse(res.data);
+    });
+  };
+
+  useEffect(() => {
+    fetchContents();
+  }, []);
+
   return (
     <div>
       <h1 className="text-xl">My Storage</h1>
@@ -93,7 +154,6 @@ export default function Home() {
                 <HiDotsVertical />
               </td>
             </tr>
-
             <tr className="bg-white border-b ">
               <th
                 scope="row"
@@ -181,6 +241,37 @@ export default function Home() {
                 <HiDotsVertical />
               </td>
             </tr>
+            {response?.files.map((v, i) => (
+              <tr className="bg-white" key={i}>
+                <th
+                  scope="row"
+                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-1 bg-gray-100 rounded-md">
+                      <HiDocumentText className="w-5 h-5" />
+                    </div>
+                    {v.name}
+                  </div>
+                </th>
+                <td className="px-6 py-4">
+                  <div className="flex items-center">
+                    {formatUid(v.uid)}
+                    <HiDocumentDuplicate />
+                  </div>
+                </td>
+                <td className="px-6 py-4">{formatBytes(v.size)}</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center">
+                    <EncryptedIcon /> Encrypted
+                  </div>
+                </td>
+                <td className="px-6 py-4">{dayjs(v.UpdatedAt).fromNow()}</td>
+                <td className="px-6 py-4">
+                  <HiDotsVertical />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
