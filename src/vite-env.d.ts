@@ -5,3 +5,13 @@ declare module "*.svg" {
   const src: string;
   export default src;
 }
+
+// define env types
+interface ImportMetaEnv {
+  readonly VITE_API_ENDPOINT: string
+  // more env variables...
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
