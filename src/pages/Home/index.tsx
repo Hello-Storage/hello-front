@@ -1,72 +1,27 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { EncryptedIcon, PublicIcon } from "components";
-import { Api, RootResponse } from "api";
+import { PublicIcon } from "components";
 import {
   HiDocumentDuplicate,
-  HiFolder,
+  // HiFolder,
   HiDotsVertical,
   HiDocumentText,
-  HiPhotograph,
+  // HiPhotograph,
 } from "react-icons/hi";
 import { formatBytes, formatUid } from "utils";
+import { useAppSelector } from "state";
 
-const constFolders = [
-  {
-    name: "Assets",
-    uid: "0E70...270A",
-    size: "10.6 MB",
-    encryption: false,
-    UpdatedAt: "2023-08-03T17:37:41.036027Z",
-  },
-  {
-    name: "images",
-    uid: "0A33...251J",
-    size: "10.6 MB",
-    encryption: false,
-    UpdatedAt: "2023-08-03T17:37:41.036027Z",
-  },
-  {
-    name: "Docs",
-    uid: "2E33...556J",
-    size: "10.6 MB",
-    encryption: false,
-    UpdatedAt: "2023-08-03T17:37:41.036027Z",
-  },
-];
-
-const constFiles = [
-  {
-    name: "3d credit card.jpg",
-    uid: "0A4T...937N",
-    size: "244.92 KB",
-    encryption: false,
-    UpdatedAt: "2023-08-03T17:37:41.036027Z",
-  },
-  {
-    name: "branding details.doc",
-    uid: "0E73...887V",
-    size: "1.3 MB",
-    encryption: false,
-    UpdatedAt: "2023-08-03T17:37:41.036027Z",
-  },
-];
+import useRoot from "hooks/useRoot";
 
 dayjs.extend(relativeTime);
 
 export default function Home() {
-  const [response, setResponse] = useState<RootResponse>();
-
-  const fetchContents = () => {
-    Api.get<RootResponse>("/folder").then((res) => {
-      console.log(res.data);
-      setResponse(res.data);
-    });
-  };
+  const response = useAppSelector((state) => state.dashboard);
+  const { fetchRootContent } = useRoot();
 
   useEffect(() => {
-    fetchContents();
+    fetchRootContent();
   }, []);
 
   return (
@@ -96,151 +51,6 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            <tr className="bg-white border-b ">
-              <th
-                scope="row"
-                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-1 bg-gray-100 rounded-md">
-                    <HiFolder className="w-5 h-5" />
-                  </div>
-                  Assets
-                </div>
-              </th>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  0E70...270A
-                  <HiDocumentDuplicate />
-                </div>
-              </td>
-              <td className="px-6 py-4">10.6 MB</td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <EncryptedIcon /> Encrypted
-                </div>
-              </td>
-              <td className="px-6 py-4">1 days ago</td>
-              <td className="px-6 py-4">
-                <HiDotsVertical />
-              </td>
-            </tr>
-            <tr className="bg-white border-b ">
-              <th
-                scope="row"
-                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-1 bg-gray-100 rounded-md">
-                    <HiFolder className="w-5 h-5" />
-                  </div>
-                  images
-                </div>
-              </th>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  0A33...251J
-                  <HiDocumentDuplicate />
-                </div>
-              </td>
-              <td className="px-6 py-4">1.3 GB</td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <EncryptedIcon /> Encrypted
-                </div>
-              </td>
-              <td className="px-6 py-4">2 days ago</td>
-              <td className="px-6 py-4">
-                <HiDotsVertical />
-              </td>
-            </tr>
-            <tr className="bg-white border-b ">
-              <th
-                scope="row"
-                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-1 bg-gray-100 rounded-md">
-                    <HiFolder className="w-5 h-5" />
-                  </div>
-                  Docs
-                </div>
-              </th>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  2E33...556J
-                  <HiDocumentDuplicate />
-                </div>
-              </td>
-              <td className="px-6 py-4">150.9 MB</td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <EncryptedIcon /> Encrypted
-                </div>
-              </td>
-              <td className="px-6 py-4">3 days ago</td>
-              <td className="px-6 py-4">
-                <HiDotsVertical />
-              </td>
-            </tr>
-            <tr className="bg-white border-b ">
-              <th
-                scope="row"
-                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-1 bg-gray-100 rounded-md">
-                    <HiPhotograph className="w-5 h-5" />
-                  </div>
-                  3d credit card.jpg
-                </div>
-              </th>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  0A4T...937N
-                  <HiDocumentDuplicate />
-                </div>
-              </td>
-              <td className="px-6 py-4">244.92 KB</td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <PublicIcon /> Public
-                </div>
-              </td>
-              <td className="px-6 py-4">8 days ago</td>
-              <td className="px-6 py-4">
-                <HiDotsVertical />
-              </td>
-            </tr>
-            <tr className="bg-white ">
-              <th
-                scope="row"
-                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-1 bg-gray-100 rounded-md">
-                    <HiDocumentText className="w-5 h-5" />
-                  </div>
-                  branding details.doc
-                </div>
-              </th>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  0E73...887V
-                  <HiDocumentDuplicate />
-                </div>
-              </td>
-              <td className="px-6 py-4">1.3 MB</td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <EncryptedIcon /> Encrypted
-                </div>
-              </td>
-              <td className="px-6 py-4">15 days ago</td>
-              <td className="px-6 py-4">
-                <HiDotsVertical />
-              </td>
-            </tr>
             {response?.files.map((v, i) => (
               <tr className="bg-white" key={i}>
                 <th
@@ -263,7 +73,7 @@ export default function Home() {
                 <td className="px-6 py-4">{formatBytes(v.size)}</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center">
-                    <EncryptedIcon /> Encrypted
+                    <PublicIcon /> Public
                   </div>
                 </td>
                 <td className="px-6 py-4">{dayjs(v.UpdatedAt).fromNow()}</td>

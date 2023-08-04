@@ -17,8 +17,11 @@ import { Api } from "api";
 
 import AlvaroPFP from "@images/alvaro.png";
 import "react-toggle/style.css";
+import useRoot from "hooks/useRoot";
 
 export default function Sidebar() {
+  const { fetchRootContent } = useRoot();
+
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
 
@@ -48,6 +51,7 @@ export default function Sidebar() {
       .then((data) => {
         console.log(data);
         toast.success("upload Succeed!");
+        fetchRootContent();
       })
       .catch((err) => {
         console.log(err);
