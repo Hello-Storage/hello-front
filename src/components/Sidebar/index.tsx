@@ -1,4 +1,6 @@
+import { ChangeEventHandler, useRef } from "react";
 import Toggle from "react-toggle";
+import { toast } from "react-toastify";
 import { ProgressBar } from "components";
 import {
   HiFolderOpen,
@@ -11,11 +13,54 @@ import {
   HiCubeTransparent,
   HiCog,
 } from "react-icons/hi";
-import AlvaroPFP from "@images/alvaro.png";
+import { Api } from "api";
 
+import AlvaroPFP from "@images/alvaro.png";
 import "react-toggle/style.css";
+import useRoot from "hooks/useRoot";
 
 export default function Sidebar() {
+  const { fetchRootContent } = useRoot();
+
+  const fileInput = useRef<HTMLInputElement>(null);
+  const folderInput = useRef<HTMLInputElement>(null);
+
+  const handleUpload = () => {
+    console.log("click file input!");
+    console.log(fileInput);
+    fileInput.current?.click();
+  };
+
+  const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    console.log(files);
+
+    var formData = new FormData();
+    formData.append("root", "/");
+    for (const file of files) formData.append("files", file);
+
+    Api.post("/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+      .then((data) => {
+        console.log(data);
+        toast.success("upload Succeed!");
+        fetchRootContent();
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("upload failed!");
+      });
+  };
+
+  const handleFolderInputChange = () => {};
+
   return (
     <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-5 py-3">
       <div className="flex-1">
@@ -26,6 +71,7 @@ export default function Sidebar() {
               alt="alvaro"
               className="rounded-full w-7 h-7"
             />
+
             <label>Álvaro Pintado</label>
           </div>
 
@@ -43,7 +89,10 @@ export default function Sidebar() {
         <hr className="my-4" />
 
         <div className="">
-          <button className="flex items-center justify-center w-full p-3 text-white rounded-xl bg-gradient-to-b from-green-500 to-green-700">
+          <button
+            className="flex items-center justify-center w-full p-3 text-white rounded-xl bg-gradient-to-b from-green-500 to-green-700"
+            onClick={handleUpload}
+          >
             <HiPlus /> Upload file
           </button>
         </div>
@@ -101,6 +150,22 @@ export default function Sidebar() {
           </button>
         </div>
       </div>
+
+      <input
+        ref={fileInput}
+        type="file"
+        id="file"
+        onChange={handleFileInputChange}
+        accept="*/*"
+        hidden
+      />
+      <input
+        ref={folderInput}
+        type="file"
+        id="folder"
+        onChange={handleFolderInputChange}
+        hidden
+      />
     </div>
   );
 }
