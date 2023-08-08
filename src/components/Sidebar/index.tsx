@@ -43,7 +43,7 @@ export default function Sidebar() {
         <hr className="my-4" />
 
         <div className="">
-          <button className="flex items-center justify-center text-white w-56 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700">
+          <button className="flex items-center justify-center text-white w-56 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800">
             <PlusIcon /> Upload file
           </button>
         </div>
@@ -96,7 +96,7 @@ export default function Sidebar() {
           20% used - 40 GB available
         </label>
         <div className="mt-4">
-          <button className="text-white w-56 p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700">
+          <button className="text-white w-56 p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
             Buy storage
           </button>
         </div>
