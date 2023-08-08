@@ -13,7 +13,9 @@ export default function AppLayout() {
           <Sidebar setSidebarOpen={setSidebarOpen} />
         </div>
         <div
-          className={`flex-1 px-10 py-4 ${sidebarOpen ? "hidden" : "block"}`}
+          className={`flex-1 md:px-10 px-5 py-4 ${
+            sidebarOpen ? "hidden" : "block"
+          }`}
         >
           <Appbar />
           <Suspense fallback={<></>}>
@@ -23,7 +25,7 @@ export default function AppLayout() {
       </div>
       {!sidebarOpen && (
         <button
-          className="pt-5 my-5 border-t w-full"
+          className="pt-5 my-5 border-t w-full md:hidden"
           onClick={() => setSidebarOpen(true)}
         >
           Open Sidebar

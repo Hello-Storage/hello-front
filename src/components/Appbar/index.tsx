@@ -3,8 +3,24 @@ import { ChevronDownIcon, EthIcon, HexIcon, MoonIcon } from "components";
 export default function Appbar() {
   return (
     <div>
-      <div className="flex gap-8">
-        <form className="flex-1">
+      <div className="flex flex-col md:flex-row md:gap-8 items-center">
+        <div className="flex justify-between items-center md:order-last w-full md:gap-8 md:w-fit">
+          <div className="flex items-center gap-1">
+            <EthIcon />
+            <label className="text-sm">Ethereum</label>
+            <ChevronDownIcon />
+          </div>
+          <div className="flex items-center gap-1">
+            <HexIcon />
+            <label className="text-sm">| 0xC4....8aMe</label>
+            <ChevronDownIcon />
+          </div>
+          <button className="p-2 rounded-xl border border-gray-200">
+            <MoonIcon />
+          </button>
+        </div>
+
+        <form className="flex-1 mt-4 md:mt-0 md:mb-0 w-full">
           <label
             htmlFor="default-search"
             className="mb-2 text-sm font-medium text-gray-900 sr-only"
@@ -22,9 +38,9 @@ export default function Appbar() {
               >
                 <path
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                 />
               </svg>
@@ -38,26 +54,6 @@ export default function Appbar() {
             />
           </div>
         </form>
-
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-1">
-            <EthIcon />
-            <label className="text-sm">Ethereum</label>
-            <ChevronDownIcon />
-          </div>
-
-          <div className="flex items-center gap-1">
-            <HexIcon />
-            <label className="text-sm">| 0xC4....8aMe</label>
-            <ChevronDownIcon />
-          </div>
-
-          <div>
-            <button className="p-2 rounded-xl border border-gray-200">
-              <MoonIcon />
-            </button>
-          </div>
-        </div>
       </div>
 
       <hr className="my-4" />

@@ -105,7 +105,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           </button>
         </div>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 md:hidden">
         <button
           className="w-56 py-2 border-y border-gray-300"
           onClick={() => setSidebarOpen(false)}
