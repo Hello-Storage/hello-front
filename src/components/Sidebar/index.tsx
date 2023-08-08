@@ -10,7 +10,6 @@ import {
   TrashIcon,
   UploadIcon,
   SettingIcon,
-  Lock,
 } from "components";
 import AlvaroPFP from "@images/alvaro.png";
 
@@ -44,7 +43,7 @@ export default function Sidebar() {
         <hr className="my-4" />
 
         <div className="">
-          <button className="flex items-center justify-center text-white w-full p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700">
+          <button className="flex items-center justify-center text-white w-56 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700">
             <PlusIcon /> Upload file
           </button>
         </div>
@@ -97,7 +96,7 @@ export default function Sidebar() {
           20% used - 40 GB available
         </label>
         <div className="mt-4">
-          <button className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700">
+          <button className="text-white w-56 p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700">
             Buy storage
           </button>
         </div>
