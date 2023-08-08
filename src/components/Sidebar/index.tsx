@@ -10,6 +10,7 @@ import {
   TrashIcon,
   UploadIcon,
   SettingIcon,
+  Lock,
 } from "components";
 import AlvaroPFP from "@images/alvaro.png";
 
@@ -37,7 +38,7 @@ export default function Sidebar() {
         <div className="flex items-center justify-between mt-5">
           <label className="text-sm">Encryption on</label>
 
-          <Toggle />
+          <Toggle icons={false} />
         </div>
 
         <hr className="my-4" />

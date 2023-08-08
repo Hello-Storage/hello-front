@@ -16,3 +16,4 @@ export { default as PublicIcon } from "./Public";
 export { default as CopyIcon } from "./Copy";
 export { default as ImageIcon } from "./Image";
 export { default as DocIcon } from "./Doc";
+export { default as Lock } from "./Lock";
