@@ -19,7 +19,11 @@ import AlvaroPFP from "@images/alvaro.png";
 import "react-toggle/style.css";
 import useRoot from "hooks/useRoot";
 
-export default function Sidebar() {
+type SidebarProps = {
+  setSidebarOpen: (open: boolean) => void;
+};
+
+export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const { fetchRootContent } = useRoot();
 
   const fileInput = useRef<HTMLInputElement>(null);
@@ -62,7 +66,7 @@ export default function Sidebar() {
   const handleFolderInputChange = () => {};
 
   return (
-    <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-5 py-3">
+    <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-16 md:px-5 py-3 w-full">
       <div className="flex-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1">
@@ -83,14 +87,14 @@ export default function Sidebar() {
         <div className="flex items-center justify-between mt-5">
           <label className="text-sm">Encryption on</label>
 
-          <Toggle />
+          <Toggle icons={false} />
         </div>
 
         <hr className="my-4" />
 
         <div className="">
           <button
-            className="flex items-center justify-center w-full p-3 text-white rounded-xl bg-gradient-to-b from-green-500 to-green-700"
+            className="flex items-center justify-center text-white w-56 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
             onClick={handleUpload}
           >
             <HiPlus /> Upload file
@@ -145,27 +149,36 @@ export default function Sidebar() {
           20% used - 40 GB available
         </label>
         <div className="mt-4">
-          <button className="w-full p-3 text-white rounded-xl bg-gradient-to-b from-violet-500 to-violet-700">
+          <button className="text-white w-56 p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
             Buy storage
           </button>
         </div>
       </div>
-
-      <input
-        ref={fileInput}
-        type="file"
-        id="file"
-        onChange={handleFileInputChange}
-        accept="*/*"
-        hidden
-      />
-      <input
-        ref={folderInput}
-        type="file"
-        id="folder"
-        onChange={handleFolderInputChange}
-        hidden
-      />
+      <div>
+        <input
+          ref={fileInput}
+          type="file"
+          id="file"
+          onChange={handleFileInputChange}
+          accept="*/*"
+          hidden
+        />
+        <input
+          ref={folderInput}
+          type="file"
+          id="folder"
+          onChange={handleFolderInputChange}
+          hidden
+        />
+      </div>
+      <div className="mt-4 md:hidden">
+        <button
+          className="w-56 py-2 border-y border-gray-300"
+          onClick={() => setSidebarOpen(false)}
+        >
+          Close Sidebar
+        </button>
+      </div>
     </div>
   );
 }

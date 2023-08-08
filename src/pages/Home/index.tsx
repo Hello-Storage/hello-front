@@ -27,29 +27,32 @@ export default function Home() {
   return (
     <div>
       <h1 className="text-xl">My Storage</h1>
-
       <div className="relative mt-3 overflow-x-auto">
         <table className="w-full text-sm text-left text-gray-500 ">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Name
-              </th>
-              <th scope="col" className="px-6 py-3">
-                CID
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Size
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Type
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Last Modified
-              </th>
-              <th scope="col" className="px-6 py-3"></th>
-            </tr>
-          </thead>
+          <div className="text-xs uppercase bg-gray-50 rounded-lg">
+            <table className="w-full">
+              <thead className="text-xs text-gray-700 ">
+                <tr>
+                  <th scope="col" className="px-6 py-3">
+                    Name
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    CID
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Size
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Type
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Last Modified
+                  </th>
+                  <th scope="col" className="px-6 py-3"></th>
+                </tr>
+              </thead>
+            </table>
+          </div>
           <tbody>
             {response?.files.map((v, i) => (
               <tr className="bg-white" key={i}>
