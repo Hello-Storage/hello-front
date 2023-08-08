@@ -21,7 +21,7 @@ type SidebarProps = {
 
 export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   return (
-    <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-5 py-3">
+    <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-16 md:px-5 py-3 w-full">
       <div className="flex-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1">
@@ -107,7 +107,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       </div>
       <div className="mt-4">
         <button
-          className="text-white w-56 p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
+          className="w-56 py-2 border-y border-gray-300"
           onClick={() => setSidebarOpen(false)}
         >
           Close Sidebar

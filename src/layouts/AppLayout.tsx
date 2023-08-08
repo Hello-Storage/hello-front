@@ -7,17 +7,28 @@ export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen">
-      <div className={`p-6 ${sidebarOpen ? "block" : "hidden"} md:block`}>
-        <Sidebar setSidebarOpen={setSidebarOpen} />
+    <div className="flex h-screen flex-col justify-between">
+      <div className="flex flex-grow">
+        <div className={`p-6 ${sidebarOpen ? "block" : "hidden"} md:block`}>
+          <Sidebar setSidebarOpen={setSidebarOpen} />
+        </div>
+        <div
+          className={`flex-1 px-10 py-4 ${sidebarOpen ? "hidden" : "block"}`}
+        >
+          <Appbar />
+          <Suspense fallback={<></>}>
+            <Outlet />
+          </Suspense>
+        </div>
       </div>
-      <div className={`flex-1 px-10 py-4 ${sidebarOpen ? "hidden" : "block"}`}>
-        <button onClick={() => setSidebarOpen(true)}>Open Sidebar</button>
-        <Appbar />
-        <Suspense fallback={<></>}>
-          <Outlet />
-        </Suspense>
-      </div>
+      {!sidebarOpen && (
+        <button
+          className="pt-5 my-5 border-t w-full"
+          onClick={() => setSidebarOpen(true)}
+        >
+          Open Sidebar
+        </button>
+      )}
     </div>
   );
 }
