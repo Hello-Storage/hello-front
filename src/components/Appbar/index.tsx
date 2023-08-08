@@ -1,26 +1,15 @@
-import { ChevronDownIcon, EthIcon, HexIcon, MoonIcon } from "components";
+import { EthIcon } from "components";
+import {
+  HiChevronDown,
+  HiCubeTransparent,
+  HiOutlineMoon,
+} from "react-icons/hi";
 
 export default function Appbar() {
   return (
     <div>
       <div className="flex flex-col md:flex-row md:gap-8 items-center">
-        <div className="flex justify-between items-center md:order-last w-full md:gap-8 md:w-fit">
-          <div className="flex items-center gap-1">
-            <EthIcon />
-            <label className="text-sm">Ethereum</label>
-            <ChevronDownIcon />
-          </div>
-          <div className="flex items-center gap-1">
-            <HexIcon />
-            <label className="text-sm">| 0xC4....8aMe</label>
-            <ChevronDownIcon />
-          </div>
-          <button className="p-2 rounded-xl border border-gray-200">
-            <MoonIcon />
-          </button>
-        </div>
-
-        <form className="flex-1 mt-4 md:mt-0 md:mb-0 w-full">
+        <form className="flex-1 order-last w-full mt-4 md:mt-0 md:order-first">
           <label
             htmlFor="default-search"
             className="mb-2 text-sm font-medium text-gray-900 sr-only"
@@ -48,12 +37,31 @@ export default function Appbar() {
             <input
               type="search"
               id="default-search"
-              className="block w-full pr-4 pl-10 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus-visible:outline-none"
+              className="block w-full py-3 pl-10 pr-4 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus-visible:outline-none"
               placeholder="Search inside Hello storage"
               required
             />
           </div>
         </form>
+        <div className="flex items-center md:gap-8 justify-between w-full md:w-fit">
+          <div className="flex items-center gap-1">
+            <EthIcon />
+            <label className="text-sm">Ethereum</label>
+            <HiChevronDown />
+          </div>
+
+          <div className="flex items-center gap-1">
+            <HiCubeTransparent />
+            <label className="text-sm">| 0xC4....8aMe</label>
+            <HiChevronDown />
+          </div>
+
+          <div>
+            <button className="p-2 border border-gray-200 rounded-xl">
+              <HiOutlineMoon />
+            </button>
+          </div>
+        </div>
       </div>
 
       <hr className="my-4" />

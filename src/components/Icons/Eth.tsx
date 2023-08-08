@@ -10,7 +10,7 @@ export default function Eth({ ...props }: HTMLAttributes<SVGElement>) {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <g clip-path="url(#clip0_24_2316)">
+      <g clipPath="url(#clip0_24_2316)">
         <path
           d="M5.62992 0.5L5.5127 0.88729V12.1256L5.62992 12.2393L10.9967 9.15573L5.62992 0.5Z"
           fill="#343434"
