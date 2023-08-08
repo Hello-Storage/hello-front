@@ -15,7 +15,11 @@ import AlvaroPFP from "@images/alvaro.png";
 
 import "react-toggle/style.css";
 
-export default function Sidebar() {
+type SidebarProps = {
+  setSidebarOpen: (open: boolean) => void;
+};
+
+export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   return (
     <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-5 py-3">
       <div className="flex-1">
@@ -100,6 +104,14 @@ export default function Sidebar() {
             Buy storage
           </button>
         </div>
+      </div>
+      <div className="mt-4">
+        <button
+          className="text-white w-56 p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
+          onClick={() => setSidebarOpen(false)}
+        >
+          Close Sidebar
+        </button>
       </div>
     </div>
   );
