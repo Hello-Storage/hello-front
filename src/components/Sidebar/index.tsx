@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import { ProgressBar } from "components";
 import {
   HiFolderOpen,
-  HiChevronDown,
   HiPlus,
   HiTrash,
   HiCloudUpload,
@@ -15,7 +14,7 @@ import {
 } from "react-icons/hi";
 import { Api } from "api";
 
-import AlvaroPFP from "@images/alvaro.png";
+import LogoHello from "@images/LogoHello.png";
 import "react-toggle/style.css";
 import useRoot from "hooks/useRoot";
 
@@ -68,20 +67,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   return (
     <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-16 md:px-5 py-3 w-full">
       <div className="flex-1">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
-            <img
-              src={AlvaroPFP}
-              alt="alvaro"
-              className="rounded-full w-7 h-7"
-            />
-
-            <label>Álvaro Pintado</label>
-          </div>
-
-          <div className="">
-            <HiChevronDown />
-          </div>
+        <div className="flex items-center gap-2">
+          <img src={LogoHello} alt="alvaro" className="w-[88px] h-7" />
         </div>
 
         <div className="flex items-center justify-between mt-5">
@@ -94,7 +81,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         <div className="">
           <button
-            className="flex items-center justify-center text-white w-56 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+            className="flex items-center gap-2 justify-center text-white w-56 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
             onClick={handleUpload}
           >
             <HiPlus /> Upload file
