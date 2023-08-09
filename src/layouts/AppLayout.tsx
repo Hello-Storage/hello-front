@@ -9,7 +9,9 @@ export default function AppLayout() {
   return (
     <div className="flex h-screen flex-col justify-between">
       <div className="flex flex-grow">
-        <div className={`p-6 ${sidebarOpen ? "block" : "hidden"} md:block`}>
+        <div
+          className={`px-6 py-4 ${sidebarOpen ? "block" : "hidden"} md:block`}
+        >
           <Sidebar setSidebarOpen={setSidebarOpen} />
         </div>
         <div
@@ -25,7 +27,7 @@ export default function AppLayout() {
       </div>
       {!sidebarOpen && (
         <button
-          className="pt-5 my-5 border-t w-full md:hidden"
+          className="py-6 border-t w-full md:hidden fixed bottom-0 left-0 bg-white z-50 bg-white"
           onClick={() => setSidebarOpen(true)}
         >
           Open Sidebar
