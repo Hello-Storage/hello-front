@@ -10,7 +10,7 @@ import {
 import { formatBytes, formatUid } from "utils";
 import { useAppSelector } from "state";
 
-import useRoot from "hooks/useRoot";
+import { useRoot } from "hooks";
 
 dayjs.extend(relativeTime);
 
