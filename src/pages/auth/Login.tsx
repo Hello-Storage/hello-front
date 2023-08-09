@@ -74,7 +74,7 @@ export default function Login() {
         </div>
 
         <div
-          className={`flex items-center flex-1 bg-[url('/public/images/login-bg.jpg')] bg-cover rounded-[40px]`}
+          className={`flex items-center flex-1 bg-[url('/images/login-bg.jpg')] bg-cover rounded-[40px]`}
         >
           <div className="w-full p-6 md:p-0">
             <img className="mx-auto" src={shows} alt="shows" />
