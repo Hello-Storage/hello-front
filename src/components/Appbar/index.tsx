@@ -37,7 +37,7 @@ export default function Appbar() {
             <input
               type="search"
               id="default-search"
-              className="block w-full py-3 pl-10 pr-4 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:border-gray-400 focus:outline-none"
+              className="block w-full py-3 pl-10 pr-4 text-sm text-gray-900 border border-gray-200 rounded-2xl bg-white focus:border-gray-400 focus:outline-none md:w-3/4"
               placeholder="Search inside Hello storage"
               required
             />
@@ -52,7 +52,7 @@ export default function Appbar() {
 
           <button className="flex items-center gap-1">
             <HiCubeTransparent />
-            <span className="text-sm">| 0xC4....8aMe</span>
+            <span className="text-sm">| 0xC4.....8aMe</span>
             <HiChevronDown />
           </button>
 
