@@ -27,7 +27,7 @@ export default function AppLayout() {
       </div>
       {!sidebarOpen && (
         <button
-          className="pt-5 my-5 border-t w-full md:hidden"
+          className="py-6 border-t w-full md:hidden fixed bottom-0 left-0 bg-white z-50 bg-white"
           onClick={() => setSidebarOpen(true)}
         >
           Open Sidebar
