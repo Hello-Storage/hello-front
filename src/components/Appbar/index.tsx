@@ -52,7 +52,7 @@ export default function Appbar() {
 
           <button className="flex items-center gap-1">
             <HiCubeTransparent />
-            <span className="text-sm">| 0xC4....8aMe</span>
+            <span className="text-sm">| 0xC4.....8aMe</span>
             <HiChevronDown />
           </button>
 
