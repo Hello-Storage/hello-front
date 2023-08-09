@@ -7,6 +7,7 @@ import { API_ENDPOINT } from "config";
 import "react-toastify/dist/ReactToastify.css";
 
 const Home = lazy(() => import("pages/Home"));
+const Login = lazy(() => import("pages/auth/Login"));
 
 function App() {
   console.log(API_ENDPOINT);
@@ -16,6 +17,10 @@ function App() {
         <Routes>
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Home />} />
+          </Route>
+
+          <Route path="/login">
+            <Route index element={<Login />} />
           </Route>
         </Routes>
       </BrowserRouter>
