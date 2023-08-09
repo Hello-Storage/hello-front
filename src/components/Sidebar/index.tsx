@@ -16,7 +16,7 @@ import { Api } from "api";
 
 import LogoHello from "@images/LogoHello.png";
 import "react-toggle/style.css";
-import useRoot from "hooks/useRoot";
+import { useRoot } from "hooks";
 
 type SidebarProps = {
   setSidebarOpen: (open: boolean) => void;
