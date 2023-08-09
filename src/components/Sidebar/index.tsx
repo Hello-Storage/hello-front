@@ -81,7 +81,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         <div className="">
           <button
-            className="flex items-center justify-center text-white w-56 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+            className="flex items-center gap-2 justify-center text-white w-56 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
             onClick={handleUpload}
           >
             <HiPlus /> Upload file

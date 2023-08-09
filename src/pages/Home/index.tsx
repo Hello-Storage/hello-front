@@ -4,10 +4,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { PublicIcon } from "components";
 import {
   HiDocumentDuplicate,
-  // HiFolder,
   HiDotsVertical,
   HiDocumentText,
-  // HiPhotograph,
 } from "react-icons/hi";
 import { formatBytes, formatUid } from "utils";
 import { useAppSelector } from "state";
@@ -27,32 +25,28 @@ export default function Home() {
   return (
     <div>
       <h1 className="text-xl">My Storage</h1>
-      <div className="relative mt-3 overflow-x-auto">
-        <table className="w-full text-sm text-left text-gray-500 ">
-          <div className="text-xs uppercase bg-gray-50 rounded-lg">
-            <table className="w-full">
-              <thead className="text-xs text-gray-700 ">
-                <tr>
-                  <th scope="col" className="px-6 py-3">
-                    Name
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    CID
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Size
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Type
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Last Modified
-                  </th>
-                  <th scope="col" className="px-6 py-3"></th>
-                </tr>
-              </thead>
-            </table>
-          </div>
+      <div className="relative mt-3 overflow-hidden">
+        <table className="w-full text-sm text-left text-gray-500">
+          <thead className="text-xs text-gray-700 bg-gray-100">
+            <tr>
+              <th scope="col" className="px-6 py-2">
+                Name
+              </th>
+              <th scope="col" className="px-6 py-2">
+                CID
+              </th>
+              <th scope="col" className="px-6 py-2">
+                Size
+              </th>
+              <th scope="col" className="px-6 py-2">
+                Type
+              </th>
+              <th scope="col" className="px-6 py-2 whitespace-nowrap">
+                Last Modified
+              </th>
+              <th scope="col" className="px-3 py-2"></th>
+            </tr>
+          </thead>
           <tbody>
             {response?.files.map((v, i) => (
               <tr className="bg-white" key={i}>
@@ -80,7 +74,7 @@ export default function Home() {
                   </div>
                 </td>
                 <td className="px-6 py-4">{dayjs(v.UpdatedAt).fromNow()}</td>
-                <td className="px-6 py-4">
+                <td className="px-3 py-4">
                   <HiDotsVertical />
                 </td>
               </tr>
