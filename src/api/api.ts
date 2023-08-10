@@ -20,3 +20,5 @@ Api.interceptors.response.use(
     return Promise.reject(err);
   }
 );
+
+export { default as setAuthToken } from "./setAuthToken";
