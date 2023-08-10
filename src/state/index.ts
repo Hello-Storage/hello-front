@@ -2,9 +2,11 @@ import { useDispatch, useSelector } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 
+import userReducer from "./user/reducer";
 import dashboardReducer from "./dashboard/reducer";
 
 const rootReducer = combineReducers({
+  user: userReducer,
   dashboard: dashboardReducer,
 });
 

@@ -4,8 +4,11 @@ import {
   HiCubeTransparent,
   HiOutlineMoon,
 } from "react-icons/hi";
+import { useAppSelector } from "state";
+import { formatUid } from "utils";
 
 export default function Appbar() {
+  const { walletAddress } = useAppSelector((state) => state.user);
   return (
     <div>
       <div className="flex flex-col md:flex-row md:gap-8 items-center">
@@ -52,7 +55,7 @@ export default function Appbar() {
 
           <button className="flex items-center gap-1">
             <HiCubeTransparent />
-            <span className="text-sm">| 0xC4.....8aMe</span>
+            <span className="text-sm">| {formatUid(walletAddress)}</span>
             <HiChevronDown />
           </button>
 

@@ -21,9 +21,5 @@ export interface Folder extends Base {
   path: string;
 }
 
-export interface RootResponse {
-    root: string;
-    files: File[];
-    folders: Folder[];
-  }
-  
+export * from "./root";
+export * from "./auth";

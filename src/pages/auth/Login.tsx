@@ -1,8 +1,19 @@
 import { GithubIcon, GoogleIcon, LogoIcon } from "components";
 
 import shows from "@images/auth/shows.png";
+import ConnectWalletButton from "./components/ConnectWalletButton";
+import { useAppSelector } from "state";
+import { Navigate } from "react-router-dom";
+import Spinner from "components/Spinner";
 
 export default function Login() {
+  const { authenticated, loading } = useAppSelector((state) => state.user);
+
+  if (loading) return <Spinner />;
+  if (authenticated) {
+    return <Navigate to="/" />;
+  }
+
   return (
     <div className="p-8 h-screen">
       <div className="md:absolute flex items-center gap-2">
@@ -17,9 +28,7 @@ export default function Login() {
             <h3 className="text-lg mt-4">Select your favorite login option</h3>
 
             <div className="mt-12">
-              <button className="w-full inline-flex items-center justify-center text-white p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
-                Connect with Wallet
-              </button>
+              <ConnectWalletButton />
             </div>
 
             <hr className="my-5" />
