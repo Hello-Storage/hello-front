@@ -4,12 +4,12 @@ import shows from "@images/auth/shows.png";
 import ConnectWalletButton from "./components/ConnectWalletButton";
 import { useAppSelector } from "state";
 import { Navigate } from "react-router-dom";
-import Spinner from "components/Spinner";
+import { Spinner1 } from "components/Spinner";
 
 export default function Login() {
   const { authenticated, loading } = useAppSelector((state) => state.user);
 
-  if (loading) return <Spinner />;
+  if (loading) return <Spinner1 />;
   if (authenticated) {
     return <Navigate to="/" />;
   }

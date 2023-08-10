@@ -1,4 +1,4 @@
-export default function Spinner() {
+export default function Spinner2() {
   return (
     <div className="h-screen flex justify-center items-center">
       <div role="status">
