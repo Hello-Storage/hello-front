@@ -2,15 +2,17 @@ import { useCallback } from "react";
 import { Api, LoadUserResponse, LoginResponse, setAuthToken } from "api";
 import { signMessage } from "@wagmi/core";
 import state from "state";
-import { loadUser } from "state/user/actions";
+import { loadUser, loadUserFail, loadingUser } from "state/user/actions";
 
 const useAuth = () => {
   const load = useCallback(async () => {
     try {
+      state.dispatch(loadingUser());
       const loadResp = await Api.get<LoadUserResponse>("/load");
 
       state.dispatch(loadUser(loadResp.data));
     } catch (error) {
+      state.dispatch(loadUserFail());
       //   console.log(error);
       throw error;
     }

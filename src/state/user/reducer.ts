@@ -1,6 +1,6 @@
 import { createReducer } from "@reduxjs/toolkit";
 
-import { loadUser, logout } from "./actions";
+import { loadUser, loadingUser, loadUserFail, logout } from "./actions";
 
 interface User {
   uid: string;
@@ -8,6 +8,7 @@ interface User {
   role: string;
   walletAddress: string;
   authenticated: boolean;
+  loading: boolean;
 }
 
 const initialState: User = {
@@ -16,14 +17,24 @@ const initialState: User = {
   role: "",
   walletAddress: "",
   authenticated: false,
+  loading: true,
 };
 
 export default createReducer<User>(initialState, (builder) => {
   builder
+    .addCase(loadingUser, (state) => ({
+      ...state,
+      loading: true,
+    }))
     .addCase(loadUser, (state, { payload }) => ({
       ...state,
       ...payload,
       authenticated: true,
+      loading: false,
+    }))
+    .addCase(loadUserFail, (state) => ({
+      ...state,
+      loading: false,
     }))
     .addCase(logout, (state) => ({
       ...state,

@@ -6,6 +6,7 @@ import { AppLayout } from "layouts";
 import "react-toastify/dist/ReactToastify.css";
 import { setAuthToken } from "api";
 import { useAuth } from "hooks";
+import PrivateRoute from "components/PrivateRoute";
 
 const Home = lazy(() => import("pages/Home"));
 const Login = lazy(() => import("pages/auth/Login"));
@@ -26,7 +27,7 @@ function App() {
     <Providers>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<AppLayout />}>
+          <Route path="/" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Home />} />
           </Route>
 
