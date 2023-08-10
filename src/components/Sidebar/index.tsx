@@ -1,7 +1,6 @@
 import { ChangeEventHandler, useRef } from "react";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
-import { ProgressBar } from "components";
 import {
   HiFolderOpen,
   HiPlus,
@@ -12,11 +11,12 @@ import {
   HiCubeTransparent,
   HiCog,
 } from "react-icons/hi";
+import { ProgressBar } from "components";
 import { Api } from "api";
+import { useRoot } from "hooks";
 
 import LogoHello from "@images/LogoHello.png";
 import "react-toggle/style.css";
-import { useRoot } from "hooks";
 
 type SidebarProps = {
   setSidebarOpen: (open: boolean) => void;
