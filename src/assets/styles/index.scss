@@ -2,8 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "./components/modal.scss";
 @import "./fonts.scss";
+@import "./components/modal.scss";
+@import "./components/spinner.scss";
 
 body {
 }

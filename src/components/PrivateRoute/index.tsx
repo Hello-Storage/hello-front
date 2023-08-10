@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Navigate } from "react-router-dom";
-import Spinner from "components/Spinner";
+import { Spinner1 } from "components/Spinner";
 import { useAppSelector } from "state";
 
 const PrivateRoute: FC<{ component: React.ComponentType }> = ({
@@ -8,7 +8,7 @@ const PrivateRoute: FC<{ component: React.ComponentType }> = ({
 }) => {
   const { authenticated, loading } = useAppSelector((state) => state.user);
 
-  if (loading) return <Spinner />;
+  if (loading) return <Spinner1 />;
   if (authenticated) return <RouteComponent />;
 
   return <Navigate to="/login" />;
