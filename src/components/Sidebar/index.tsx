@@ -29,8 +29,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const folderInput = useRef<HTMLInputElement>(null);
 
   const handleUpload = () => {
-    console.log("click file input!");
-    console.log(fileInput);
     fileInput.current?.click();
   };
 
@@ -39,8 +37,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   ) => {
     const files = event.target.files;
     if (!files) return;
-
-    console.log(files);
 
     var formData = new FormData();
     formData.append("root", "/");
@@ -52,12 +48,10 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       },
     })
       .then((data) => {
-        console.log(data);
         toast.success("upload Succeed!");
         fetchRootContent();
       })
       .catch((err) => {
-        console.log(err);
         toast.error("upload failed!");
       });
   };

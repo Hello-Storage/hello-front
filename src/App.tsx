@@ -14,10 +14,9 @@ const Login = lazy(() => import("pages/auth/Login"));
 function App() {
   const { load } = useAuth();
   useEffect(() => {
-    const token = sessionStorage.getItem("access_token");
+    const token = localStorage.getItem("access_token");
 
     if (token) {
-      console.log("token", token);
       setAuthToken(token);
     }
 

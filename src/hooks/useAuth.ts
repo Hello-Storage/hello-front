@@ -13,8 +13,6 @@ const useAuth = () => {
       state.dispatch(loadUser(loadResp.data));
     } catch (error) {
       state.dispatch(loadUserFail());
-      //   console.log(error);
-      throw error;
     }
   }, []);
 
