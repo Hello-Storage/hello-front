@@ -16,7 +16,6 @@ interface ConnectButtonProps {
 export default function ConnectWalletButton() {
   const { address, isConnected } = useAccount();
   const { login } = useAuth();
-  console.log("isConnected", isConnected);
 
   useEffect(() => {
     if (isConnected && address) login(address);

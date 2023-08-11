@@ -8,12 +8,9 @@ const useRoot = () => {
   const fetchRootContent = () => {
     Api.get<RootResponse>("/folder")
       .then((res) => {
-        console.log(res.data);
         dispatch(fetchContent(res.data));
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   return {

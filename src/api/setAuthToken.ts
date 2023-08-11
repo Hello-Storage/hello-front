@@ -5,11 +5,11 @@ import { Api } from "./api";
 const setAuthToken = (token: string) => {
   if (token) {
     Api.defaults.headers.common["authorization"] = "bearer " + token;
-    sessionStorage.setItem("access_token", token);
+    localStorage.setItem("access_token", token);
     // localStorage.setItem("access_token", token);
   } else {
     delete Api.defaults.headers.common["authorization"];
-    sessionStorage.removeItem("access_token");
+    localStorage.removeItem("access_token");
     // localStorage.removeItem("access_token");
   }
 };
