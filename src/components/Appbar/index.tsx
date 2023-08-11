@@ -1,14 +1,26 @@
 import { EthIcon } from "components";
+import { useAuth } from "hooks";
+import useDropdown from "hooks/useDropdown";
+import { useRef, useState } from "react";
 import {
   HiChevronDown,
   HiCubeTransparent,
   HiOutlineMoon,
+  HiOutlineLogout,
+  HiOutlineUser,
+  HiOutlineChartSquareBar,
+  HiOutlineCalculator,
 } from "react-icons/hi";
 import { useAppSelector } from "state";
 import { formatUid } from "utils";
 
 export default function Appbar() {
   const { walletAddress } = useAppSelector((state) => state.user);
+  const { logout } = useAuth();
+  const ref = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  useDropdown(ref, open, setOpen);
+
   return (
     <div>
       <div className="flex flex-col md:flex-row md:gap-8 items-center">
@@ -47,20 +59,63 @@ export default function Appbar() {
           </div>
         </form>
         <div className="flex items-center md:gap-8 justify-between w-full md:w-fit">
-          <button className="flex items-center gap-1">
+          <button className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-200 ">
             <EthIcon />
             <span className="text-sm">Ethereum</span>
             <HiChevronDown />
           </button>
 
-          <button className="flex items-center gap-1">
-            <HiCubeTransparent />
-            <span className="text-sm">| {formatUid(walletAddress)}</span>
-            <HiChevronDown />
-          </button>
+          <div className="relative" ref={ref}>
+            <button
+              className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-200 "
+              type="button"
+              onClick={() => setOpen(!open)}
+            >
+              <HiCubeTransparent />
+              <span className="text-sm">| {formatUid(walletAddress)}</span>
+              <HiChevronDown />
+            </button>
+            {open && (
+              <div
+                id="dropdown"
+                aria-label="dropdown-list"
+                className="absolute mt-1 z-10 w-full bg-white shadow divide-y border text-sm text-gray-700"
+              >
+                <ul className="py-2" aria-labelledby="dropdownDefaultButton">
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                      <HiOutlineUser className="inline-flex mr-3" />
+                      Profile
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                      <HiOutlineChartSquareBar className="inline-flex mr-3" />
+                      Dashboard
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                      <HiOutlineCalculator className="inline-flex mr-3" />
+                      Settings
+                    </a>
+                  </li>
+                </ul>
+                <div className="py-2">
+                  <a
+                    className="block cursor-pointer px-4 py-2 hover:bg-gray-100"
+                    onClick={logout}
+                  >
+                    <HiOutlineLogout className="inline-flex mr-3" />
+                    Sign out
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div>
-            <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-100">
+            <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-200">
               <HiOutlineMoon />
             </button>
           </div>

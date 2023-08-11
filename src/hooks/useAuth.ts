@@ -2,7 +2,12 @@ import { useCallback } from "react";
 import { Api, LoadUserResponse, LoginResponse, setAuthToken } from "api";
 import { signMessage } from "@wagmi/core";
 import state from "state";
-import { loadUser, loadUserFail, loadingUser } from "state/user/actions";
+import {
+  loadUser,
+  loadUserFail,
+  loadingUser,
+  logoutUser,
+} from "state/user/actions";
 
 const useAuth = () => {
   const load = useCallback(async () => {
@@ -39,9 +44,16 @@ const useAuth = () => {
     }
   }, []);
 
+  const logout = useCallback(() => {
+    state.dispatch(logoutUser());
+
+    setAuthToken(undefined);
+  }, []);
+
   return {
     login,
     load,
+    logout,
   };
 };
 
