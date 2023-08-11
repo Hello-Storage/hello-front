@@ -7,6 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { setAuthToken } from "api";
 import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
+import state from "state";
+import { logoutUser } from "state/user/actions";
 
 const Home = lazy(() => import("pages/Home"));
 const Login = lazy(() => import("pages/auth/Login"));
@@ -21,6 +23,11 @@ function App() {
     }
 
     load();
+
+    // log user out from all tabs if they log out in one tab
+    window.addEventListener("storage", () => {
+      if (!localStorage.token) state.dispatch(logoutUser());
+    });
   }, []);
   return (
     <Providers>

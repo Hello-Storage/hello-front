@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import state from "state";
-import { logout } from "state/user/actions";
+import { logoutUser } from "state/user/actions";
 
 // Create an instance of axios
 export const Api = axios.create({
@@ -15,7 +15,7 @@ Api.interceptors.response.use(
   (err: AxiosError) => {
     if (err.response?.status === 401) {
       // dispatch logout
-      state.dispatch(logout());
+      state.dispatch(logoutUser());
     }
     return Promise.reject(err);
   }

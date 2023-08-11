@@ -1,6 +1,6 @@
 import { createReducer } from "@reduxjs/toolkit";
 
-import { loadUser, loadingUser, loadUserFail, logout } from "./actions";
+import { loadUser, loadingUser, loadUserFail, logoutUser } from "./actions";
 
 interface User {
   uid: string;
@@ -36,8 +36,8 @@ export default createReducer<User>(initialState, (builder) => {
       ...state,
       loading: false,
     }))
-    .addCase(logout, (state) => ({
-      ...state,
-      authenticated: false,
+    .addCase(logoutUser, (state) => ({
+      ...initialState,
+      loading: false,
     }));
 });
