@@ -1,10 +1,30 @@
-import { ChevronDownIcon, EthIcon, HexIcon, MoonIcon } from "components";
+import { EthIcon } from "components";
+import { useAuth } from "hooks";
+import useDropdown from "hooks/useDropdown";
+import { useRef, useState } from "react";
+import {
+  HiChevronDown,
+  HiCubeTransparent,
+  HiOutlineMoon,
+  HiOutlineLogout,
+  HiOutlineUser,
+  HiOutlineChartSquareBar,
+  HiOutlineCalculator,
+} from "react-icons/hi";
+import { useAppSelector } from "state";
+import { formatUid } from "utils";
 
 export default function Appbar() {
+  const { walletAddress } = useAppSelector((state) => state.user);
+  const { logout } = useAuth();
+  const ref = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  useDropdown(ref, open, setOpen);
+
   return (
     <div>
-      <div className="flex gap-8">
-        <form className="flex-1">
+      <div className="flex flex-col md:flex-row md:gap-8 items-center">
+        <form className="flex-1 order-last w-full mt-4 md:mt-0 md:order-first">
           <label
             htmlFor="default-search"
             className="mb-2 text-sm font-medium text-gray-900 sr-only"
@@ -22,9 +42,9 @@ export default function Appbar() {
               >
                 <path
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                 />
               </svg>
@@ -32,29 +52,71 @@ export default function Appbar() {
             <input
               type="search"
               id="default-search"
-              className="block w-full pr-4 pl-10 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus-visible:outline-none"
+              className="block w-full py-3 pl-10 pr-4 text-sm text-gray-900 border border-gray-200 rounded-2xl bg-white focus:border-gray-400 focus:outline-none md:w-3/4"
               placeholder="Search inside Hello storage"
               required
             />
           </div>
         </form>
-
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center md:gap-8 justify-between w-full md:w-fit">
+          <button className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-200 ">
             <EthIcon />
-            <label className="text-sm">Ethereum</label>
-            <ChevronDownIcon />
-          </div>
+            <span className="text-sm">Ethereum</span>
+            <HiChevronDown />
+          </button>
 
-          <div className="flex items-center gap-1">
-            <HexIcon />
-            <label className="text-sm">| 0xC4....8aMe</label>
-            <ChevronDownIcon />
+          <div className="relative" ref={ref}>
+            <button
+              className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-200 "
+              type="button"
+              onClick={() => setOpen(!open)}
+            >
+              <HiCubeTransparent />
+              <span className="text-sm">| {formatUid(walletAddress)}</span>
+              <HiChevronDown />
+            </button>
+            {open && (
+              <div
+                id="dropdown"
+                aria-label="dropdown-list"
+                className="absolute mt-1 z-10 w-full bg-white shadow divide-y border text-sm text-gray-700"
+              >
+                <ul className="py-2" aria-labelledby="dropdownDefaultButton">
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                      <HiOutlineUser className="inline-flex mr-3" />
+                      Profile
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                      <HiOutlineChartSquareBar className="inline-flex mr-3" />
+                      Dashboard
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                      <HiOutlineCalculator className="inline-flex mr-3" />
+                      Settings
+                    </a>
+                  </li>
+                </ul>
+                <div className="py-2">
+                  <a
+                    className="block cursor-pointer px-4 py-2 hover:bg-gray-100"
+                    onClick={logout}
+                  >
+                    <HiOutlineLogout className="inline-flex mr-3" />
+                    Sign out
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
-            <button className="p-2 rounded-xl border border-gray-200">
-              <MoonIcon />
+            <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-200">
+              <HiOutlineMoon />
             </button>
           </div>
         </div>

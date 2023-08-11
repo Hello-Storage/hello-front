@@ -2,14 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "./components/modal.scss";
 @import "./fonts.scss";
+@import "./components/modal.scss";
+@import "./components/spinner.scss";
 
 body {
 }
 
 * {
-  font-family: "Poppins";
+  font-family: "SF Mono";
+  letter-spacing: -0.3px;
   box-sizing: border-box;
   min-width: 0;
 }
