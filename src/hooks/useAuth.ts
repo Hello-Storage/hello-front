@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { Api, LoadUserResponse, LoginResponse, setAuthToken } from "api";
-import { signMessage } from "@wagmi/core";
+import { signMessage, disconnect } from "@wagmi/core";
 import state from "state";
 import {
   loadUser,
@@ -48,6 +48,9 @@ const useAuth = () => {
     state.dispatch(logoutUser());
 
     setAuthToken(undefined);
+
+    // disconnect when you sign with wallet
+    disconnect();
   }, []);
 
   return {
