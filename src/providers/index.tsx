@@ -6,14 +6,17 @@ import { ModalProvider } from "components/Modal";
 
 import state from "state";
 import EthProvider from "./EthProvider";
+import GoogleOAuth from "./GoogleOAuthProvider";
 
 const Providers: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <>
       <Provider store={state}>
-        <EthProvider>
-          <ModalProvider>{children}</ModalProvider>
-        </EthProvider>
+        <GoogleOAuth>
+          <EthProvider>
+            <ModalProvider>{children}</ModalProvider>
+          </EthProvider>
+        </GoogleOAuth>
       </Provider>
 
       {/* toast */}

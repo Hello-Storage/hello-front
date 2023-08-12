@@ -7,6 +7,7 @@ export const Api = axios.create({
   baseURL: import.meta.env.VITE_API_ENDPOINT,
   headers: {
     "Content-Type": "application/json",
+    "Cross-Origin-Opener-Policy": "same-origin",
   },
 });
 
