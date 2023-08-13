@@ -15,7 +15,7 @@ import { useAppSelector } from "state";
 import { formatUid } from "utils";
 
 export default function Appbar() {
-  const { walletAddress } = useAppSelector((state) => state.user);
+  const { name, walletAddress } = useAppSelector((state) => state.user);
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -72,7 +72,7 @@ export default function Appbar() {
               onClick={() => setOpen(!open)}
             >
               <HiCubeTransparent />
-              <span className="text-sm">| {formatUid(walletAddress)}</span>
+              <span className="text-sm">| {name ?? formatUid(walletAddress)}</span>
               <HiChevronDown />
             </button>
             {open && (
