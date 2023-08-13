@@ -7,8 +7,10 @@ export default function GoogleLoginButton() {
   const { load } = useAuth();
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      const oauthResp = await Api.post("/oauth/google", {
-        token: tokenResponse.access_token,
+      const oauthResp = await Api.get("/oauth/google", {
+        params: {
+          code: tokenResponse.access_token
+        },
       });
       setAuthToken(oauthResp.data.access_token);
 
