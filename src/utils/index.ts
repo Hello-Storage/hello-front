@@ -1,3 +1,3 @@
 export * from "./formatBytes";
-export * from "./formatUid";
+export * from "./format";
 export * from "./framerAnimations";

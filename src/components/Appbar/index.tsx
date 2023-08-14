@@ -12,10 +12,10 @@ import {
   HiOutlineCalculator,
 } from "react-icons/hi";
 import { useAppSelector } from "state";
-import { formatUid } from "utils";
+import { formatName } from "utils";
 
 export default function Appbar() {
-  const { walletAddress } = useAppSelector((state) => state.user);
+  const { name, walletAddress } = useAppSelector((state) => state.user);
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -72,14 +72,14 @@ export default function Appbar() {
               onClick={() => setOpen(!open)}
             >
               <HiCubeTransparent />
-              <span className="text-sm">| {formatUid(walletAddress)}</span>
+              <span className="text-sm">| {formatName(name)}</span>
               <HiChevronDown />
             </button>
             {open && (
               <div
                 id="dropdown"
                 aria-label="dropdown-list"
-                className="absolute mt-1 z-10 w-full bg-white shadow divide-y border text-sm text-gray-700"
+                className="absolute mt-1 z-10 w-[150px] bg-white shadow divide-y border text-sm text-gray-700"
               >
                 <ul className="py-2" aria-labelledby="dropdownDefaultButton">
                   <li>

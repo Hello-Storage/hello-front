@@ -21,14 +21,13 @@ function App() {
     if (token) {
       setAuthToken(token);
     }
-
     load();
-
     // log user out from all tabs if they log out in one tab
     window.addEventListener("storage", () => {
       if (!localStorage.token) state.dispatch(logoutUser());
     });
   }, []);
+
   return (
     <Providers>
       <BrowserRouter>
