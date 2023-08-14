@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Api, setAuthToken } from "api";
 import { GithubIcon } from "components";
 import { GITHUB_CLIENT_ID } from "config";
@@ -13,21 +14,19 @@ const options = {
   //   state: "/login",
 };
 
-
 export default function GithubLoginButton() {
   const { load } = useAuth();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onCode = async (code: string, params: any) => {
-    console.log("code: ", code);
-
-    const oauthResp = await Api.get("/oauth/google", {
+    const oauthResp = await Api.get("/oauth/github", {
       params: {
-        code: code
+        code: code,
       },
     });
     setAuthToken(oauthResp.data.access_token);
-
     load();
+    setLoading(false);
   };
   const onClose = () => console.log("closed!");
 
@@ -43,8 +42,10 @@ export default function GithubLoginButton() {
       <button
         className="w-full inline-flex items-center justify-center gap-4 rounded-xl p-3 bg-gray-100 hover:bg-gray-200"
         type="button"
+        onClick={() => setLoading(true)}
+        disabled={loading ? true : false}
       >
-        <GithubIcon /> Connect with Github
+        <GithubIcon /> {loading ? "Connecting..." : "Connect with Github"}
       </button>
     </OauthPopup>
   );
