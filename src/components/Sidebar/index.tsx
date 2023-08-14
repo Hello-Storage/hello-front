@@ -17,6 +17,43 @@ import { useRoot } from "hooks";
 
 import LogoHello from "@images/LogoHello.png";
 import "react-toggle/style.css";
+import { NavLink } from "react-router-dom";
+
+const links = [
+  {
+    to: "/my-storage",
+    icon: <HiFolderOpen />,
+    content: "My storage",
+  },
+  {
+    to: "/shared-with-me",
+    icon: <HiGlobeAlt />,
+    content: "Shared with me",
+  },
+  {
+    to: "/recent",
+    icon: <HiCollection />,
+    content: "Recent",
+  },
+  {
+    to: "/deleted",
+    icon: <HiTrash />,
+    content: "Deleted",
+  },
+];
+
+const links2 = [
+  {
+    to: "/migration",
+    icon: <HiCloudUpload />,
+    content: "Migration",
+  },
+  {
+    to: "/api",
+    icon: <HiCog />,
+    content: "Api key",
+  },
+];
 
 type SidebarProps = {
   setSidebarOpen: (open: boolean) => void;
@@ -84,39 +121,38 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         <hr className="my-4" />
 
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <HiFolderOpen />
-            <label className="text-sm">My storage</label>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <HiGlobeAlt />
-            <label className="text-sm">Shared with me</label>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <HiCollection />
-            <label className="text-sm">Recent</label>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <HiTrash />
-            <label className="text-sm">Deleted</label>
-          </div>
+        <div className="flex flex-col gap-1">
+          {links.map((v) => (
+            <NavLink
+              to={v.to}
+              className={({ isActive }) =>
+                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
+              }
+            >
+              <div className="flex items-center gap-3  p-2">
+                {v.icon}
+                <label className="text-sm cursor-pointer">{v.content}</label>
+              </div>
+            </NavLink>
+          ))}
         </div>
 
         <hr className="my-4" />
 
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <HiCloudUpload />
-            <label className="text-sm">Migration</label>
-          </div>
-          <div className="flex items-center gap-3">
-            <HiCog />
-            <label className="text-sm">Api key</label>
-          </div>
+        <div className="flex flex-col gap-1">
+          {links2.map((v) => (
+            <NavLink
+              to={v.to}
+              className={({ isActive }) =>
+                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
+              }
+            >
+              <div className="flex items-center gap-3  p-2">
+                {v.icon}
+                <label className="text-sm cursor-pointer">{v.content}</label>
+              </div>
+            </NavLink>
+          ))}
         </div>
       </div>
 
