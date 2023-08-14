@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
 import { Api, setAuthToken } from "api";
 import { GithubIcon } from "components";
-import { GITHUB_CLIENT_ID, GITHUB_REDIRECT_URL } from "config";
+import { GITHUB_CLIENT_ID } from "config";
 import { useAuth } from "hooks";
 import OauthPopup from "react-oauth-popup";
 
@@ -16,12 +15,19 @@ const options = {
 
 
 export default function GithubLoginButton() {
-  const onCode = (code: string, params: any) => {
-    console.log("wooooo a code", code);
-    console.log(
-      "alright! the URLSearchParams interface from the popup url",
-      params
-    );
+  const { load } = useAuth();
+
+  const onCode = async (code: string, params: any) => {
+    console.log("code: ", code);
+
+    const oauthResp = await Api.get("/oauth/google", {
+      params: {
+        code: code
+      },
+    });
+    setAuthToken(oauthResp.data.access_token);
+
+    load();
   };
   const onClose = () => console.log("closed!");
 
@@ -34,16 +40,12 @@ export default function GithubLoginButton() {
       width={600}
       height={700}
     >
-    
       <button
         className="w-full inline-flex items-center justify-center gap-4 rounded-xl p-3 bg-gray-100 hover:bg-gray-200"
         type="button"
-        
       >
         <GithubIcon /> Connect with Github
       </button>
-    
-
     </OauthPopup>
   );
 }
