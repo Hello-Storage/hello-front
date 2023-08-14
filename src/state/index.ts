@@ -12,7 +12,7 @@ const rootReducer = combineReducers({
 
 export const state = configureStore({
   reducer: rootReducer,
-  devTools: process.env.NODE_ENV !== "production",
+  devTools: import.meta.env.MODE !== "production",
 });
 
 export type AppState = ReturnType<typeof state.getState>;
