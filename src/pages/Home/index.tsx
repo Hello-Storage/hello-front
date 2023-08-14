@@ -7,7 +7,7 @@ import {
   HiDotsVertical,
   HiDocumentText,
 } from "react-icons/hi";
-import { formatBytes, formatUid } from "utils";
+import { formatBytes, formatUID } from "utils";
 import { useAppSelector } from "state";
 
 import { useRoot } from "hooks";
@@ -64,7 +64,7 @@ export default function Home() {
                   </th>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1">
-                      {formatUid(v.uid)}
+                      {formatUID(v.uid)}
                       <HiDocumentDuplicate />
                     </div>
                   </td>
@@ -97,7 +97,7 @@ export default function Home() {
                 <div className="font-medium text-gray-900 w-full">{v.name}</div>
               </div>
               <div className="flex items-center mt-4 text-xs gap-2">
-                {formatUid(v.uid)} <HiDocumentDuplicate />
+                {formatUID(v.uid)} <HiDocumentDuplicate />
               </div>
             </div>
           ))}
