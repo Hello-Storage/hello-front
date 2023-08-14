@@ -1,10 +1,12 @@
-import { GithubIcon, GoogleIcon, LogoIcon } from "components";
+import { GithubIcon, LogoIcon } from "components";
 
 import shows from "@images/auth/shows.png";
 import ConnectWalletButton from "./components/ConnectWalletButton";
 import { useAppSelector } from "state";
 import { Navigate } from "react-router-dom";
 import { Spinner3 } from "components/Spinner";
+import GoogleLoginButton from "./components/GoogleLoginButton";
+import GithubLoginButton from "./components/GithubLoginButton";
 
 export default function Login() {
   const { authenticated, loading } = useAppSelector((state) => state.user);
@@ -71,17 +73,12 @@ export default function Login() {
 
             {/* connect with google */}
             <div className="mt-6">
-              <button className="w-full inline-flex items-center justify-center gap-4 rounded-xl p-3 bg-gray-100 hover:bg-gray-200">
-                <GoogleIcon />
-                Connect with Google
-              </button>
+              <GoogleLoginButton />
             </div>
 
             {/* connect with github */}
             <div className="mt-6">
-              <button className="w-full inline-flex items-center justify-center gap-4 rounded-xl p-3 bg-gray-100 hover:bg-gray-200">
-                <GithubIcon /> Connect with Github
-              </button>
+              <GithubLoginButton />
             </div>
           </div>
         </div>
