@@ -65,6 +65,8 @@ type SidebarProps = {
 
 export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const { fetchRootContent } = useRoot();
+  const [isEncryptionOn, setEncryptionOn] = useState(false);
+
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(dropRef, open, setOpen);
@@ -147,11 +149,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         </div>
 
         <div className="flex items-center justify-between mt-5">
-          <label className="text-sm">Encryption on</label>
-
-          <Toggle icons={false} />
+          <label className="text-sm">
+            Encryption {isEncryptionOn ? "ON" : "OFF"}
+          </label>
+          <div className="flex items-center">
+            <Toggle
+              checked={isEncryptionOn}
+              onChange={() => setEncryptionOn(!isEncryptionOn)}
+              className={isEncryptionOn ? "encryption-on" : "encryption-off"}
+            />
+            <label className="text-sm ml-2"></label>
+          </div>
         </div>
-
         <hr className="my-4" />
 
         <div className="relative" ref={dropRef}>
@@ -266,7 +275,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           type="file"
           id="folder"
           onChange={handleFolderInputChange}
-          multiple={true}
           hidden
         />
       </div>
