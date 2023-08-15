@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { ChangeEventHandler, useEffect, useRef } from "react";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import {
@@ -59,6 +59,9 @@ const links2 = [
   },
 ];
 
+import React, { useState } from "react";
+import { HiLockClosed, HiLockOpen } from "react-icons/hi";
+
 type SidebarProps = {
   setSidebarOpen: (open: boolean) => void;
 };
@@ -68,6 +71,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(dropRef, open, setOpen);
+  const [isEncryptionOn, setEncryptionOn] = useState(false);
+
 
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
@@ -147,11 +152,17 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         </div>
 
         <div className="flex items-center justify-between mt-5">
-          <label className="text-sm">Encryption on</label>
-
-          <Toggle icons={false} />
+          <label className="text-sm">Encryption  {isEncryptionOn ? "ON" : "OFF"}</label>
+          <div className="flex items-center">
+            <Toggle
+              checked={isEncryptionOn}
+              onChange={() => setEncryptionOn(!isEncryptionOn)}
+              className={isEncryptionOn ? "encryption-on" : "encryption-off"}
+            />
+            <label className="text-sm ml-2">
+            </label>
+          </div>
         </div>
-
         <hr className="my-4" />
 
         <div className="relative" ref={dropRef}>
