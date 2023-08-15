@@ -73,7 +73,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(dropRef, open, setOpen);
-  const [isEncryptionOn, setEncryptionOn] = useState(false);
 
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
