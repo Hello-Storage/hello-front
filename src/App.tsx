@@ -42,6 +42,7 @@ function App() {
           <Route path="/" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Home />} />
             <Route path="/my-storage" element={<MyStorage />} />
+            <Route path="/folder/*" element={<MyStorage />} />
             <Route path="/shared-with-me" element={<Shared />} />
             <Route path="/recent" element={<Recent />} />
             <Route path="/deleted" element={<Deleted />} />
