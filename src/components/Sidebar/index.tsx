@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { ChangeEventHandler, useEffect, useRef } from "react";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import {
@@ -59,6 +59,9 @@ const links2 = [
   },
 ];
 
+import React, { useState } from "react";
+import { HiLockClosed, HiLockOpen } from "react-icons/hi";
+
 type SidebarProps = {
   setSidebarOpen: (open: boolean) => void;
 };
@@ -70,6 +73,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(dropRef, open, setOpen);
+  const [isEncryptionOn, setEncryptionOn] = useState(false);
 
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
