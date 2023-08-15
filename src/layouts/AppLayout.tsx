@@ -15,7 +15,7 @@ export default function AppLayout() {
           <Sidebar setSidebarOpen={setSidebarOpen} />
         </div>
         <div
-          className={`flex-1 md:px-10 px-5 py-4 ${
+          className={`flex flex-col flex-1 md:px-10 px-5 py-4 ${
             sidebarOpen ? "hidden" : "block"
           }`}
         >
