@@ -8,7 +8,7 @@ import {
   HiCloudUpload,
   HiCollection,
   HiGlobeAlt,
-  HiCubeTransparent,
+  HiBookOpen,
   HiCog,
   HiFolderAdd,
   HiDocumentDownload,
@@ -23,7 +23,7 @@ import "react-toggle/style.css";
 import { NavLink } from "react-router-dom";
 import useDropdown from "hooks/useDropdown";
 
-const links = [
+const links1 = [
   {
     to: "/my-storage",
     icon: <HiFolderOpen />,
@@ -56,6 +56,11 @@ const links2 = [
     to: "/api",
     icon: <HiCog />,
     content: "Api key",
+  },
+  {
+    to: "/docs",
+    icon: <HiBookOpen />,
+    content: "Documentation",
   },
 ];
 
@@ -212,7 +217,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <hr className="my-4" />
 
         <div className="flex flex-col gap-1">
-          {links.map((v, i) => (
+          {links1.map((v, i) => (
             <NavLink
               to={v.to}
               className={({ isActive }) =>
