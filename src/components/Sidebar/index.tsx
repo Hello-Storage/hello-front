@@ -18,7 +18,7 @@ import { ProgressBar } from "components";
 import { Api } from "api";
 import { useRoot } from "hooks";
 
-import LogoHello from "@images/LogoHello.png";
+import LogoHello from "@images/logo.png";
 import "react-toggle/style.css";
 import { NavLink } from "react-router-dom";
 import useDropdown from "hooks/useDropdown";
@@ -148,7 +148,10 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-16 md:px-5 py-3 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <img src={LogoHello} alt="alvaro" className="w-[88px] h-7" />
+          <img src={LogoHello} alt="alvaro" className="w-7 h-7 rounded-full" />
+          <label className="text-2xl font-semibold font-[Outfit]">
+            Hello.storage
+          </label>
         </div>
 
         <div className="flex items-center justify-between mt-5">
@@ -249,9 +252,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       </div>
 
       <div className="">
-        <div className="flex items-center gap-1">
-          <HiCubeTransparent /> <label>10 GB Used</label>
-        </div>
+        <label>10 GB Used</label>
+
         <ProgressBar />
 
         <label className="text-xs text-neutral-800">
