@@ -275,7 +275,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           type="file"
           id="folder"
           onChange={handleFolderInputChange}
-          multiple={true}
           hidden
         />
       </div>
