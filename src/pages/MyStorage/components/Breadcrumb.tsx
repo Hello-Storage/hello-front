@@ -1,17 +1,21 @@
 import React from "react";
 import { HiChevronRight } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "state";
 
 export default function Breadcrumb() {
   const response = useAppSelector((state) => state.dashboard);
-
+  const navigate = useNavigate();
+  const onClick = (url: string) => {
+    navigate(url);
+  };
   return (
     <nav className="flex" aria-label="Breadcrumb">
       <ol className="inline-flex items-center space-x-1 md:space-x-3 text-xl font-medium">
         <li className="inline-flex items-center">
           <a
-            href="/my-storage"
-            className="inline-flex items-center font-medium text-gray-700 hover:text-blue-600"
+            onClick={() => onClick("/my-storage")}
+            className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer"
           >
             My Storage
           </a>
@@ -21,8 +25,8 @@ export default function Breadcrumb() {
             <div className="flex items-center">
               <HiChevronRight />
               <a
-                href={`/folder/${v.uid}`}
-                className="ml-1 font-medium text-gray-700 hover:text-blue-600 md:ml-2"
+                onClick={() => onClick(`/folder/${v.uid}`)}
+                className="ml-1 text-gray-700 hover:text-blue-600 md:ml-2 cursor-pointer"
               >
                 {v.title}
               </a>
