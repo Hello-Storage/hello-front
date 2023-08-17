@@ -2,17 +2,15 @@ import { useEffect } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useLocation } from "react-router-dom";
-import {
-  HiDocumentDuplicate,
-  HiDocumentText,
-} from "react-icons/hi";
+import { HiDocumentDuplicate, HiDocumentText } from "react-icons/hi";
 import { ContextMenu } from "components";
 
 import { formatUID } from "utils";
 import { useAppSelector } from "state";
 
 import { useRoot } from "hooks";
-import Files from "./Files";
+import Files from "./components/Files";
+import Breadcrumb from "./components/Breadcrumb";
 
 dayjs.extend(relativeTime);
 
@@ -21,18 +19,13 @@ export default function Home() {
   const response = useAppSelector((state) => state.dashboard);
   const { fetchRootContent } = useRoot();
 
-
   useEffect(() => {
     fetchRootContent();
   }, [location]);
 
-
-
-
   return (
     <div className="flex flex-col flex-1">
-      <h1 className="text-xl">My Storage</h1>
-      <p>Dropdown index: {response.dropdownIndex}</p>
+      <Breadcrumb />
       <div className="flex flex-1 mt-3 overflow-hidden">
         <div className="hidden md:flex flex-col flex-1">
           <table className="w-full text-sm text-left text-gray-500">
@@ -56,10 +49,7 @@ export default function Home() {
                 <th scope="col" className=""></th>
               </tr>
             </thead>
-            <Files
-              folders={response.folders}
-              files={response.files}
-            />
+            <Files folders={response.folders} files={response.files} />
           </table>
           <div className="flex-1" id="right">
             <ContextMenu targetId="right" />
