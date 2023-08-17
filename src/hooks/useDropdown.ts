@@ -3,7 +3,8 @@ import { useEffect } from "react";
 const useDropdown = (
   ref: React.RefObject<HTMLDivElement>,
   open: boolean,
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  onClose?: () => void
 ) => {
   useEffect(() => {
     const checkIfClickedOutside = (e: any) => {
@@ -20,7 +21,7 @@ const useDropdown = (
       // Cleanup the event listener
       document.removeEventListener("mousedown", checkIfClickedOutside);
     };
-  }, [open]);
+  }, [open, onClose]);
 };
 
 export default useDropdown;
