@@ -24,7 +24,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchRootContent();
-  }, [location]);
+  }, [fetchRootContent, location]);
 
 
 
@@ -32,7 +32,7 @@ export default function Home() {
   return (
     <div className="flex flex-col flex-1">
       <h1 className="text-xl">My Storage</h1>
-      <p>Dropdown index: {response.dropdownIndex}</p>
+      {/*<p>Dropdown index: {response.dropdownIndex}</p>*/}
       <div className="flex flex-1 mt-3 overflow-hidden">
         <div className="hidden md:flex flex-col flex-1">
           <table className="w-full text-sm text-left text-gray-500">
