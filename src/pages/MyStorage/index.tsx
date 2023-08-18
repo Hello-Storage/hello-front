@@ -9,7 +9,7 @@ import { formatUID } from "utils";
 import { useAppSelector } from "state";
 
 import { useRoot } from "hooks";
-import Files from "./Files";
+import Files from "./components/Files";
 import Breadcrumb from "./components/Breadcrumb";
 
 dayjs.extend(relativeTime);
@@ -22,9 +22,6 @@ export default function Home() {
   useEffect(() => {
     fetchRootContent();
   }, [fetchRootContent, location]);
-
-
-
 
   return (
     <div className="flex flex-col flex-1">
