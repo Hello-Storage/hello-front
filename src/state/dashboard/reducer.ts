@@ -1,6 +1,11 @@
 import { createReducer } from "@reduxjs/toolkit";
 
-import { fetchContent, openDropdown, closeDropdown } from "./actions";
+import {
+  fetchContent,
+  openDropdown,
+  closeDropdown,
+  createFolder,
+} from "./actions";
 import { RootResponse } from "api";
 
 const initialState: RootResponse = {
@@ -16,6 +21,10 @@ export default createReducer<RootResponse>(initialState, (builder) => {
     .addCase(fetchContent, (state, { payload }) => ({
       ...state,
       ...payload,
+    }))
+    .addCase(createFolder, (state, { payload }) => ({
+      ...state,
+      folders: [...state.folders, payload],
     }))
     .addCase(openDropdown, (state, { payload }) => ({
       ...state,
