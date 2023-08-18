@@ -49,16 +49,19 @@ const links1 = [
 const links2 = [
   {
     to: "/migration",
+    outRef: false,
     icon: <HiCloudUpload />,
     content: "Migration",
   },
   {
     to: "/api",
+    outRef: false,
     icon: <HiCog />,
     content: "Api key",
   },
   {
-    to: "/docs",
+    to: "https://hello-decentralized.gitbook.io/hello-documentation/",
+    outRef: true,
     icon: <HiBookOpen />,
     content: "Documentation",
   },
@@ -156,11 +159,24 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           </label>
         </div>
 
+        {isEncryptionOn && (
+          <div className="flex items-center justify-between mt-3">
+            <label htmlFor="auto-signature" className="text-sm">
+              Automatic Signature
+            </label>
+            <input
+              type="checkbox"
+              id="auto-signature"
+              className="h-4 w-4 border border-gray-300 rounded-md"
+            />
+          </div>
+        )}
+
         <div className="flex items-center justify-between mt-5">
           <label className="text-sm">
             Encryption {isEncryptionOn ? "ON" : "OFF"}
           </label>
-          <div className="flex items-center">
+          <div className="flex items-center align-middle">
             <Toggle
               checked={isEncryptionOn}
               onChange={() => setEncryptionOn(!isEncryptionOn)}
@@ -169,6 +185,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             <label className="text-sm ml-2"></label>
           </div>
         </div>
+
         <hr className="my-4" />
 
         <div className="relative" ref={dropRef}>
@@ -239,6 +256,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           {links2.map((v, i) => (
             <NavLink
               to={v.to}
+              target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>
                 `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
               }

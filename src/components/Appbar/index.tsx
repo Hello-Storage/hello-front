@@ -60,8 +60,8 @@ export default function Appbar() {
         </form>
         <div className="flex items-center md:gap-8 justify-between w-full md:w-fit">
           <button className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-200 ">
-            <EthIcon />
-            <span className="text-sm">Ethereum</span>
+            <HiCubeTransparent />
+            <span className="text-sm">Chain</span>
             <HiChevronDown />
           </button>
 
@@ -71,7 +71,7 @@ export default function Appbar() {
               type="button"
               onClick={() => setOpen(!open)}
             >
-              <HiCubeTransparent />
+              <EthIcon />
               <span className="text-sm">| {formatName(name)}</span>
               <HiChevronDown />
             </button>
