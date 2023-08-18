@@ -95,9 +95,13 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file, index, openDropdownInde
             });
     }
 
+    const onFileDoubleClick = (file: FileType) => {
+        handleView(file);
+    }
     return (
         <tr
             className="bg-white cursor-pointer border-b hover:bg-gray-100"
+            onDoubleClick={() => onFileDoubleClick(file)}
         >
             <th
                 scope="row"
