@@ -1,4 +1,5 @@
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { NavLink } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import {
@@ -14,14 +15,13 @@ import {
   HiDocumentDownload,
   HiFolderDownload,
 } from "react-icons/hi";
-import { ProgressBar } from "components";
+import { CreateFolderModal, ProgressBar } from "components";
+import { useModal } from "components/Modal";
 import { Api } from "api";
-import { useRoot } from "hooks";
+import { useRoot, useDropdown } from "hooks";
 
 import LogoHello from "@images/logo.png";
 import "react-toggle/style.css";
-import { NavLink } from "react-router-dom";
-import useDropdown from "hooks/useDropdown";
 
 const links1 = [
   {
@@ -81,6 +81,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
+
+  const [onPresent] = useModal(<CreateFolderModal />);
   useEffect(() => {
     if (folderInput.current !== null) {
       folderInput.current.setAttribute("directory", "");
@@ -202,10 +204,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               className="absolute mt-1 z-10 w-full bg-white shadow divide-y border text-sm text-gray-700"
             >
               <div className="py-2">
-                <a className="block cursor-pointer px-4 py-2 hover:bg-gray-100">
+                <div
+                  className="block cursor-pointer px-4 py-2 hover:bg-gray-100"
+                  onClick={onPresent}
+                >
                   <HiFolderAdd className="inline-flex mr-3" />
                   New Folder
-                </a>
+                </div>
               </div>
               <ul className="py-2" aria-labelledby="dropdownDefaultButton">
                 <li>

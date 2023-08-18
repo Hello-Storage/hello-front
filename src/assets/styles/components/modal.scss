@@ -5,13 +5,13 @@
   bottom: 0;
   left: 0;
 
-  background: #121924cc;
+  background: #32323280;
   z-index: 90;
 }
 
 .modal-wrapper {
   position: fixed;
-  top: 40px;
+  top: 0;
   left: 0;
   z-index: 100;
   width: 100%;
@@ -20,9 +20,12 @@
   overflow-y: auto;
   outline: 0;
 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   .modal {
     position: relative;
-    background: transparent;
     max-width: 500px;
     z-index: 100;
   }
