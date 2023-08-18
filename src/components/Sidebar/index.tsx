@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useEffect, useRef } from "react";
+import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import {
@@ -65,9 +65,6 @@ const links2 = [
     content: "Documentation",
   },
 ];
-
-import React, { useState } from "react";
-import { HiLockClosed, HiLockOpen } from "react-icons/hi";
 
 type SidebarProps = {
   setSidebarOpen: (open: boolean) => void;
@@ -162,13 +159,17 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         </div>
 
         {isEncryptionOn && (
-        <div className="flex items-center justify-between mt-3">
-          <label htmlFor="auto-signature" className="text-sm">
-            Automatic Signature
-          </label>
-          <input type="checkbox" id="auto-signature" className="h-4 w-4 border border-gray-300 rounded-md"  />
-        </div>
-      )}
+          <div className="flex items-center justify-between mt-3">
+            <label htmlFor="auto-signature" className="text-sm">
+              Automatic Signature
+            </label>
+            <input
+              type="checkbox"
+              id="auto-signature"
+              className="h-4 w-4 border border-gray-300 rounded-md"
+            />
+          </div>
+        )}
 
         <div className="flex items-center justify-between mt-5">
           <label className="text-sm">
@@ -183,7 +184,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             <label className="text-sm ml-2"></label>
           </div>
         </div>
-        
+
         <hr className="my-4" />
 
         <div className="relative" ref={dropRef}>
