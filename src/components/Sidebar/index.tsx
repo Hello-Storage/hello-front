@@ -38,11 +38,7 @@ const links1 = [
     to: "/recent",
     icon: <HiCollection />,
     content: "Recent",
-  },
-  {
-    to: "/deleted",
-    icon: <HiTrash />,
-    content: "Deleted",
+    soon: "soon",
   },
 ];
 
@@ -52,6 +48,7 @@ const links2 = [
     outRef: false,
     icon: <HiCloudUpload />,
     content: "Migration",
+    soon: "soon",
   },
   {
     to: "/api",
@@ -247,9 +244,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               }
               key={i}
             >
-              <div className="flex items-center gap-3  p-2">
-                {v.icon}
-                <label className="text-sm cursor-pointer">{v.content}</label>
+              <div className="flex items-center p-2 justify-between">
+                <div className="flex items-center gap-3">
+                  {v.icon}
+                  <label className="text-sm cursor-pointer">{v.content}</label>
+                </div>
+                <label className="text-sm bg-gray-200 px-2 rounded-full">
+                  {v.soon}
+                </label>
               </div>
             </NavLink>
           ))}
@@ -267,9 +269,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               }
               key={i}
             >
-              <div className="flex items-center gap-3  p-2">
-                {v.icon}
-                <label className="text-sm cursor-pointer">{v.content}</label>
+              <div className="flex items-center p-2 justify-between">
+                <div className="flex items-center gap-3">
+                  {v.icon}
+                  <label className="text-sm cursor-pointer">{v.content}</label>
+                </div>
+                <label className="text-sm bg-gray-200 px-2 rounded-full">
+                  {v.soon}
+                </label>
               </div>
             </NavLink>
           ))}
