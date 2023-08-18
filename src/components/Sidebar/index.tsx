@@ -13,6 +13,8 @@ import {
   HiFolderAdd,
   HiDocumentDownload,
   HiFolderDownload,
+  HiLockClosed,
+  HiLockOpen,
 } from "react-icons/hi";
 import { ProgressBar } from "components";
 import { Api } from "api";
@@ -58,7 +60,7 @@ const links2 = [
     content: "Api key",
   },
   {
-    to: "/docs",
+    to: "https://hello-decentralized.gitbook.io/hello-documentation/",
     icon: <HiBookOpen />,
     content: "Documentation",
   },
@@ -159,11 +161,20 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           </label>
         </div>
 
+        {isEncryptionOn && (
+        <div className="flex items-center justify-between mt-3">
+          <label htmlFor="auto-signature" className="text-sm">
+            Automatic Signature
+          </label>
+          <input type="checkbox" id="auto-signature" className="h-4 w-4 border border-gray-300 rounded-md"  />
+        </div>
+      )}
+
         <div className="flex items-center justify-between mt-5">
           <label className="text-sm">
             Encryption {isEncryptionOn ? "ON" : "OFF"}
           </label>
-          <div className="flex items-center">
+          <div className="flex items-center align-middle">
             <Toggle
               checked={isEncryptionOn}
               onChange={() => setEncryptionOn(!isEncryptionOn)}
@@ -172,6 +183,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             <label className="text-sm ml-2"></label>
           </div>
         </div>
+        
         <hr className="my-4" />
 
         <div className="relative" ref={dropRef}>
