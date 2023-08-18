@@ -49,16 +49,19 @@ const links1 = [
 const links2 = [
   {
     to: "/migration",
+    outRef: false,
     icon: <HiCloudUpload />,
     content: "Migration",
   },
   {
     to: "/api",
+    outRef: false,
     icon: <HiCog />,
     content: "Api key",
   },
   {
     to: "https://hello-decentralized.gitbook.io/hello-documentation/",
+    outRef: true,
     icon: <HiBookOpen />,
     content: "Documentation",
   },
@@ -253,6 +256,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           {links2.map((v, i) => (
             <NavLink
               to={v.to}
+              target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>
                 `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
               }
