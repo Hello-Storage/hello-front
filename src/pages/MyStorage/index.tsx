@@ -9,7 +9,7 @@ import { formatUID } from "utils";
 import { useAppSelector } from "state";
 
 import { useRoot } from "hooks";
-import Files from "./components/Files";
+import Files from "./Files";
 import Breadcrumb from "./components/Breadcrumb";
 
 dayjs.extend(relativeTime);
