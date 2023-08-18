@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import {
   HiFolderOpen,
   HiPlus,
-  HiTrash,
   HiCloudUpload,
   HiCollection,
   HiGlobeAlt,
@@ -24,6 +23,11 @@ import LogoHello from "@images/logo.png";
 import "react-toggle/style.css";
 
 const links1 = [
+  {
+    to: "/",
+    icon: <HiFolderOpen />,
+    content: "Dashboard",
+  },
   {
     to: "/my-storage",
     icon: <HiFolderOpen />,
