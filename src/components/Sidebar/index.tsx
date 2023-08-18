@@ -103,7 +103,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     if (!files) return;
 
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append("root", "/");
     for (const file of files) formData.append("files", file);
 
@@ -130,7 +130,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     console.log(files);
 
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append("root", "/");
     for (const file of files) formData.append("files", file);
 

@@ -21,7 +21,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchRootContent();
-  }, [location]);
+  }, [fetchRootContent, location]);
 
   return (
     <div className="flex flex-col flex-1">
