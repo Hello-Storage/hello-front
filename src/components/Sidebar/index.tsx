@@ -180,6 +180,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               checked={isEncryptionOn}
               onChange={() => setEncryptionOn(!isEncryptionOn)}
               className={isEncryptionOn ? "encryption-on" : "encryption-off"}
+              icons={false}
             />
             <label className="text-sm ml-2"></label>
           </div>
