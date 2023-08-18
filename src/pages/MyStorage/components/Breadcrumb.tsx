@@ -1,4 +1,3 @@
-import React from "react";
 import { HiChevronRight } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "state";

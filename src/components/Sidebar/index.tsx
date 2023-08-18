@@ -13,8 +13,6 @@ import {
   HiFolderAdd,
   HiDocumentDownload,
   HiFolderDownload,
-  HiLockClosed,
-  HiLockOpen,
 } from "react-icons/hi";
 import { ProgressBar } from "components";
 import { Api } from "api";
