@@ -1,17 +1,17 @@
 interface Base {
-  ID: number;
-  CreatedAt: string;
-  DeletedAt: string | null;
-  UpdatedAt: string;
+  id: number;
+  created_at: string;
+  deleted_at: string | null;
+  updated_at: string;
 }
 
 export interface File extends Base {
   uid: string;
   name: string;
   root: string;
-  mimeType: string;
+  mime_type: string;
   size: number;
-  mediaType: string;
+  media_type: string;
 }
 
 export interface Folder extends Base {
