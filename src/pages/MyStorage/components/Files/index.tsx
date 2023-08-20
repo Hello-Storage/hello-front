@@ -29,6 +29,7 @@ const Files: React.FC<FilesProps> = ({
         navigate(`/folder/${folderUID}`);
     };
 
+
     useDropdown(dropdownRef, openDropdownIndex !== null, () => {
         dispatch(closeDropdown());
         setOpenDropdownIndex(null);
