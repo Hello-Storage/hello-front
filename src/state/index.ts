@@ -3,11 +3,13 @@ import type { TypedUseSelectorHook } from "react-redux";
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 
 import userReducer from "./user/reducer";
-import dashboardReducer from "./dashboard/reducer";
+import userdetailReducer from "./userdetail/reducer";
+import mystorageReducer from "./mystorage/reducer";
 
 const rootReducer = combineReducers({
   user: userReducer,
-  dashboard: dashboardReducer,
+  userdetail: userdetailReducer,
+  mystorage: mystorageReducer,
 });
 
 export const state = configureStore({

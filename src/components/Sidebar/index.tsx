@@ -17,10 +17,12 @@ import {
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
 import { Api } from "api";
-import { useRoot, useDropdown } from "hooks";
+import { useFetchData, useDropdown } from "hooks";
 
 import LogoHello from "@images/logo.png";
 import "react-toggle/style.css";
+import { useAppSelector } from "state";
+import { formatBytes, formatPercent } from "utils";
 
 const links1 = [
   {
@@ -73,7 +75,10 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ setSidebarOpen }: SidebarProps) {
-  const { fetchRootContent } = useRoot();
+  const { storageUsed, storageAvailable } = useAppSelector(
+    (state) => state.userdetail
+  );
+  const { fetchRootContent, fetchUserDetail } = useFetchData();
   const [isEncryptionOn, setEncryptionOn] = useState(false);
 
   const dropRef = useRef<HTMLDivElement>(null);
@@ -110,7 +115,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     formData.append("root", "/");
     for (const file of files) formData.append("files", file);
 
-    console.log(formData.getAll("files"));
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -119,6 +123,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .then((data) => {
         toast.success("upload Succeed!");
         fetchRootContent();
+        fetchUserDetail();
       })
       .catch((err) => {
         toast.error("upload failed!");
@@ -131,13 +136,10 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const files = event.target.files;
     if (!files) return;
 
-    console.log(files);
-
     const formData = new FormData();
     formData.append("root", "/");
     for (const file of files) formData.append("files", file);
 
-    console.log(formData.getAll("files"));
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -146,6 +148,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .then((data) => {
         toast.success("upload Succeed!");
         fetchRootContent();
+        fetchUserDetail();
       })
       .catch((err) => {
         toast.error("upload failed!");
@@ -289,12 +292,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       </div>
 
       <div className="">
-        <label>10 GB Used</label>
+        <label>{formatBytes(storageUsed)} Used</label>
 
-        <ProgressBar />
+        <ProgressBar percent={(storageUsed * 100) / storageAvailable} />
 
         <label className="text-xs text-neutral-800">
-          20% used - 40 GB available
+          {formatPercent(storageUsed, storageAvailable)} used -{" "}
+          {formatBytes(storageAvailable)} available
         </label>
         <div className="mt-4">
           <button className="text-white w-56 p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">

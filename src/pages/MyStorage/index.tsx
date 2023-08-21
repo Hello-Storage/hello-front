@@ -8,7 +8,7 @@ import { ContextMenu } from "components";
 import { formatUID } from "utils";
 import { useAppSelector } from "state";
 
-import { useRoot } from "hooks";
+import { useFetchData } from "hooks";
 import Files from "./components/Files";
 import Breadcrumb from "./components/Breadcrumb";
 
@@ -16,8 +16,13 @@ dayjs.extend(relativeTime);
 
 export default function Home() {
   const location = useLocation();
-  const response = useAppSelector((state) => state.dashboard);
-  const { fetchRootContent } = useRoot();
+
+  const mystorage = useAppSelector((state) => state.mystorage);
+  const { fetchRootContent, fetchUserDetail } = useFetchData();
+
+  useEffect(() => {
+    fetchUserDetail();
+  }, []);
 
   useEffect(() => {
     fetchRootContent();
@@ -49,7 +54,7 @@ export default function Home() {
                 <th scope="col" className=""></th>
               </tr>
             </thead>
-            <Files folders={response.folders} files={response.files} />
+            <Files folders={mystorage.folders} files={mystorage.files} />
           </table>
           <div className="flex-1" id="right">
             <ContextMenu targetId="right" />
@@ -58,7 +63,7 @@ export default function Home() {
 
         <div className="md:hidden grid grid-cols-2 gap-4 pb-16">
           {/* Card view for smaller screens */}
-          {response?.files.map((v, i) => (
+          {mystorage?.files.map((v, i) => (
             <div
               className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md"
               key={i}
