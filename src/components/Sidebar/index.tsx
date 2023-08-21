@@ -250,13 +250,17 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div className="flex items-center p-2 justify-between">
-                <div className="flex items-center gap-3">
+                <div className={`flex items-center gap-3 ${v.soon ? "text-gray-500" : ""}`}>
                   {v.icon}
-                  <label className="text-sm cursor-pointer">{v.content}</label>
+                  <label className={`text-sm cursor-pointer ${v.soon ? "text-gray-500" : ""}`}>
+                    {v.content}
+                  </label>
                 </div>
-                <label className="text-sm bg-gray-200 px-2 rounded-full">
-                  {v.soon}
-                </label>
+                {v.soon && (
+                  <label className="text-sm bg-gray-200 px-2 rounded-full">
+                    {v.soon}
+                  </label>
+                )}
               </div>
             </NavLink>
           ))}
@@ -275,14 +279,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div className="flex items-center p-2 justify-between">
-                <div className="flex items-center gap-3">
-                  {v.icon}
-                  <label className="text-sm cursor-pointer">{v.content}</label>
+                <div className={`flex items-center gap-3 ${v.soon ? "text-gray-500" : ""}`}>
+                    {v.icon}
+                    <label className={`text-sm cursor-pointer ${v.soon ? "text-gray-500" : ""}`}>
+                      {v.content}
+                    </label>
+                  </div>
+                  {v.soon && (
+                    <label className="text-sm bg-gray-200 px-2 rounded-full">
+                      {v.soon}
+                    </label>
+                  )}
                 </div>
-                <label className="text-sm bg-gray-200 px-2 rounded-full">
-                  {v.soon}
-                </label>
-              </div>
             </NavLink>
           ))}
         </div>
