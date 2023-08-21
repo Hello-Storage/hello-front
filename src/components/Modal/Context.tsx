@@ -7,7 +7,7 @@ import {
   useCallback,
 } from "react";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
-import { flip } from "utils/framerAnimations";
+import { opacity } from "utils/framerAnimations";
 
 interface ModalContext {
   isOpen: boolean;
@@ -98,7 +98,7 @@ const ModalProvider: FC<{ children: ReactNode }> = ({ children }) => {
               aria-hidden
               tabIndex={-1}
               role="dialog"
-              variants={flip}
+              variants={opacity}
               initial="hidden"
               animate="visible"
               exit="exit"

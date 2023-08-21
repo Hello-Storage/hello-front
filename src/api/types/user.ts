@@ -12,3 +12,7 @@ export interface LoadUserResponse {
   role: string;
   walletAddress: string;
 }
+
+export interface UserDetailResponse {
+  storage_used: number;
+}

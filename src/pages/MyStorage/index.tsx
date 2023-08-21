@@ -2,37 +2,35 @@ import { useEffect } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useLocation } from "react-router-dom";
-import {
-  HiDocumentDuplicate,
-  HiDocumentText,
-} from "react-icons/hi";
+import { HiDocumentDuplicate, HiDocumentText } from "react-icons/hi";
 import { ContextMenu } from "components";
 
 import { formatUID } from "utils";
 import { useAppSelector } from "state";
 
-import { useRoot } from "hooks";
-import Files from "./Files";
+import { useFetchData } from "hooks";
+import Files from "./components/Files";
+import Breadcrumb from "./components/Breadcrumb";
 
 dayjs.extend(relativeTime);
 
 export default function Home() {
   const location = useLocation();
-  const response = useAppSelector((state) => state.dashboard);
-  const { fetchRootContent } = useRoot();
 
+  const mystorage = useAppSelector((state) => state.mystorage);
+  const { fetchRootContent, fetchUserDetail } = useFetchData();
+
+  useEffect(() => {
+    fetchUserDetail();
+  }, []);
 
   useEffect(() => {
     fetchRootContent();
-  }, [location]);
-
-
-
+  }, [fetchRootContent, location]);
 
   return (
     <div className="flex flex-col flex-1">
-      <h1 className="text-xl">My Storage</h1>
-      <p>Dropdown index: {response.dropdownIndex}</p>
+      <Breadcrumb />
       <div className="flex flex-1 mt-3 overflow-hidden">
         <div className="hidden md:flex flex-col flex-1">
           <table className="w-full text-sm text-left text-gray-500">
@@ -56,10 +54,7 @@ export default function Home() {
                 <th scope="col" className=""></th>
               </tr>
             </thead>
-            <Files
-              folders={response.folders}
-              files={response.files}
-            />
+            <Files folders={mystorage.folders} files={mystorage.files} />
           </table>
           <div className="flex-1" id="right">
             <ContextMenu targetId="right" />
@@ -68,7 +63,7 @@ export default function Home() {
 
         <div className="md:hidden grid grid-cols-2 gap-4 pb-16">
           {/* Card view for smaller screens */}
-          {response?.files.map((v, i) => (
+          {mystorage?.files.map((v, i) => (
             <div
               className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md"
               key={i}

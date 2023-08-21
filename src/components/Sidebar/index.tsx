@@ -1,4 +1,5 @@
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { NavLink } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import {
@@ -13,17 +14,16 @@ import {
   HiFolderAdd,
   HiDocumentDownload,
   HiFolderDownload,
-  HiLockClosed,
-  HiLockOpen,
 } from "react-icons/hi";
-import { ProgressBar } from "components";
+import { CreateFolderModal, ProgressBar } from "components";
+import { useModal } from "components/Modal";
 import { Api } from "api";
-import { useRoot } from "hooks";
+import { useFetchData, useDropdown } from "hooks";
 
 import LogoHello from "@images/logo.png";
 import "react-toggle/style.css";
-import { NavLink } from "react-router-dom";
-import useDropdown from "hooks/useDropdown";
+import { useAppSelector } from "state";
+import { formatBytes, formatPercent } from "utils";
 
 const links1 = [
   {
@@ -51,16 +51,19 @@ const links1 = [
 const links2 = [
   {
     to: "/migration",
+    outRef: false,
     icon: <HiCloudUpload />,
     content: "Migration",
   },
   {
     to: "/api",
+    outRef: false,
     icon: <HiCog />,
     content: "Api key",
   },
   {
     to: "https://hello-decentralized.gitbook.io/hello-documentation/",
+    outRef: true,
     icon: <HiBookOpen />,
     content: "Documentation",
   },
@@ -71,7 +74,10 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ setSidebarOpen }: SidebarProps) {
-  const { fetchRootContent } = useRoot();
+  const { storageUsed, storageAvailable } = useAppSelector(
+    (state) => state.userdetail
+  );
+  const { fetchRootContent, fetchUserDetail } = useFetchData();
   const [isEncryptionOn, setEncryptionOn] = useState(false);
   const [isAutomaticOn, setAutomaticOn] = useState(false);
 
@@ -87,6 +93,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
+
+  const [onPresent] = useModal(<CreateFolderModal />);
   useEffect(() => {
     if (folderInput.current !== null) {
       folderInput.current.setAttribute("directory", "");
@@ -109,12 +117,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     if (!files) return;
 
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append("root", "/");
     for (const file of files) formData.append("files", file);
 
-    console.log(formData.getAll("files"));
-    Api.post("/upload", formData, {
+    Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -122,6 +129,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .then((data) => {
         toast.success("upload Succeed!");
         fetchRootContent();
+        fetchUserDetail();
       })
       .catch((err) => {
         toast.error("upload failed!");
@@ -134,14 +142,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const files = event.target.files;
     if (!files) return;
 
-    console.log(files);
-
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append("root", "/");
     for (const file of files) formData.append("files", file);
 
-    console.log(formData.getAll("files"));
-    Api.post("/upload", formData, {
+    Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -149,6 +154,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .then((data) => {
         toast.success("upload Succeed!");
         fetchRootContent();
+        fetchUserDetail();
       })
       .catch((err) => {
         toast.error("upload failed!");
@@ -164,6 +170,19 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             Hello.storage
           </label>
         </div>
+
+        {isEncryptionOn && (
+          <div className="flex items-center justify-between mt-3">
+            <label htmlFor="auto-signature" className="text-sm">
+              Automatic Signature
+            </label>
+            <input
+              type="checkbox"
+              id="auto-signature"
+              className="h-4 w-4 border border-gray-300 rounded-md"
+            />
+          </div>
+        )}
 
         <div className="flex items-center justify-between mt-5">
         <label className="text-sm">
@@ -195,7 +214,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           />
         </div>
       </div>
-        
+
         <hr className="my-4" />
 
         <div className="relative" ref={dropRef}>
@@ -212,10 +231,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               className="absolute mt-1 z-10 w-full bg-white shadow divide-y border text-sm text-gray-700"
             >
               <div className="py-2">
-                <a className="block cursor-pointer px-4 py-2 hover:bg-gray-100">
+                <div
+                  className="block cursor-pointer px-4 py-2 hover:bg-gray-100"
+                  onClick={onPresent}
+                >
                   <HiFolderAdd className="inline-flex mr-3" />
                   New Folder
-                </a>
+                </div>
               </div>
               <ul className="py-2" aria-labelledby="dropdownDefaultButton">
                 <li>
@@ -266,6 +288,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           {links2.map((v, i) => (
             <NavLink
               to={v.to}
+              target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>
                 `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
               }
@@ -281,12 +304,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       </div>
 
       <div className="">
-        <label>10 GB Used</label>
+        <label>{formatBytes(storageUsed)} Used</label>
 
-        <ProgressBar />
+        <ProgressBar percent={(storageUsed * 100) / storageAvailable} />
 
         <label className="text-xs text-neutral-800">
-          20% used - 40 GB available
+          {formatPercent(storageUsed, storageAvailable)} used -{" "}
+          {formatBytes(storageAvailable)} available
         </label>
         <div className="mt-4">
           <button className="text-white w-56 p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
