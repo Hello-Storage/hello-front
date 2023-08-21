@@ -19,7 +19,7 @@ interface FileAdapterProps {
 
 const handleDownload = (file: FileType) => {
     // Make a request to download the file with responseType 'blob'
-    Api.get(`/download/${file.uid}`, { responseType: 'blob' })
+    Api.get(`/file/download/${file.uid}`, { responseType: 'blob' })
         .then((res) => {
             // Create a blob from the response data
             const blob = new Blob([res.data], { type: file.mime_type });
@@ -41,7 +41,7 @@ const handleDownload = (file: FileType) => {
 
 const handleView = (file: FileType) => {
     // Make a request to download the file with responseType 'blob'
-    Api.get(`/download/${file.uid}`, { responseType: 'blob' })
+    Api.get(`/file/download/${file.uid}`, { responseType: 'blob' })
         .then((res) => {
             //Create a file object from the response data
             const downloadedFile = new File([res.data], file.name, { type: file.mime_type });
@@ -85,7 +85,7 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file, index, openDropdownInde
 
     const handleDelete = (file: FileType) => {
         // Make a request to delete the file with response code 200
-        Api.delete(`/delete/${file.uid}`)
+        Api.delete(`/file/delete/${file.uid}`)
             .then((res) => {
                 console.log(res);
                 toast.success("File deleted!");
