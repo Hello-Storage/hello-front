@@ -29,22 +29,25 @@ const links1 = [
     to: "/dashboard",
     icon: <HiFolderOpen />,
     content: "Dashboard",
+    available: true,
   },
   {
     to: "/my-storage",
     icon: <HiFolderOpen />,
     content: "My storage",
+    available: true,
   },
   {
     to: "/shared-with-me",
     icon: <HiGlobeAlt />,
     content: "Shared with me",
+    available: false,
   },
   {
     to: "/recent",
     icon: <HiCollection />,
     content: "Recent",
-    soon: "soon",
+    available: false,
   },
 ];
 
@@ -54,19 +57,21 @@ const links2 = [
     outRef: false,
     icon: <HiCog />,
     content: "Api key",
+    available: false,
   },
   {
     to: "/migration",
     outRef: false,
     icon: <HiCloudUpload />,
     content: "Migration",
-    soon: "soon",
+    available: false,
   },
   {
     to: "https://hello-decentralized.gitbook.io/hello-documentation/",
     outRef: true,
     icon: <HiBookOpen />,
     content: "Documentation",
+    available: true,
   },
 ];
 
@@ -256,23 +261,31 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex flex-col gap-1">
           {links1.map((v, i) => (
             <NavLink
-              to={v.to}
+              to={v.available ? v.to : "/#"}
               className={({ isActive }) =>
                 `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl
-                ${v.soon ? "cursor-not-allowed" : ""}`
+                ${v.available ? "" : "pointer-events-none"}`
               }
               key={i}
             >
-              <div className="flex items-center p-2 justify-between">
-                <div className={`flex items-center gap-3 ${v.soon ? "text-gray-500" : ""}`}>
+              <div
+                className={`flex items-center p-2 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
+              >
+                <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
-                  <label className={`text-sm cursor-pointer ${v.soon ? "text-gray-500 cursor-not-allowed" : ""}`}>
+                  <label
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
+                  >
                     {v.content}
                   </label>
                 </div>
-                {v.soon && (
+                {!v.available && (
                   <label className="text-sm bg-gray-200 px-2 rounded-full">
-                    {v.soon}
+                    soon
                   </label>
                 )}
               </div>
@@ -289,23 +302,31 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>
                 `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl
-                ${v.soon ? "cursor-not-allowed" : ""}`
+                ${v.available ? "" : "pointer-events-none"}`
               }
               key={i}
             >
-              <div className="flex items-center p-2 justify-between">
-                <div className={`flex items-center gap-3 ${v.soon ? "text-gray-500" : ""}`}>
-                    <span className="text-xl">{v.icon}</span>
-                    <label className={`text-sm cursor-pointer ${v.soon ? "text-gray-500 cursor-not-allowed" : ""}`}>
-                      {v.content}
-                    </label>
-                  </div>
-                  {v.soon && (
-                    <label className="text-sm bg-gray-200 px-2 rounded-full">
-                      {v.soon}
-                    </label>
-                  )}
+              <div
+                className={`flex items-center p-2 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
+              >
+                <div className={`flex items-center gap-3`}>
+                  <span className="text-xl">{v.icon}</span>
+                  <label
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
+                  >
+                    {v.content}
+                  </label>
                 </div>
+                {!v.available && (
+                  <label className="text-sm bg-gray-200 px-2 rounded-full">
+                    soon
+                  </label>
+                )}
+              </div>
             </NavLink>
           ))}
         </div>
