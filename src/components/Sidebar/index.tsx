@@ -171,19 +171,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           </label>
         </div>
 
-        {isEncryptionOn && (
-          <div className="flex items-center justify-between mt-3">
-            <label htmlFor="auto-signature" className="text-sm">
-              Automatic Signature
-            </label>
-            <input
-              type="checkbox"
-              id="auto-signature"
-              className="h-4 w-4 border border-gray-300 rounded-md"
-            />
-          </div>
-        )}
-
         <div className="flex items-center justify-between mt-5">
         <label className="text-sm">
           Encryption {isEncryptionOn ? "ON" : "OFF"}
