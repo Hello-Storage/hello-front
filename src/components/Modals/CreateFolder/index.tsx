@@ -3,7 +3,7 @@ import { Modal, useModal } from "components/Modal";
 import { ChangeEventHandler, useState } from "react";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "state";
-import { createFolder } from "state/dashboard/actions";
+import { createFolder } from "state/mystorage/actions";
 
 export default function CreateFolderModal() {
   const [, onDismiss] = useModal(<></>);

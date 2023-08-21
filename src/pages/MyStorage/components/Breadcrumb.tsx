@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "state";
 
 export default function Breadcrumb() {
-  const response = useAppSelector((state) => state.dashboard);
+  const mystorage = useAppSelector((state) => state.mystorage);
   const navigate = useNavigate();
   const onClick = (url: string) => {
     navigate(url);
@@ -19,7 +19,7 @@ export default function Breadcrumb() {
             My Storage
           </a>
         </li>
-        {response.path.map((v, i) => (
+        {mystorage.path.map((v, i) => (
           <li key={i}>
             <div className="flex items-center">
               <HiChevronRight />
