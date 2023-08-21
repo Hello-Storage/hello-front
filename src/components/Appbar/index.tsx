@@ -81,7 +81,7 @@ export default function Appbar() {
                 aria-label="dropdown-list"
                 className="absolute mt-1 z-10 w-[150px] bg-white shadow divide-y border text-sm text-gray-700"
               >
-                <ul className="py-2" aria-labelledby="dropdownDefaultButton">
+                <ul className="py-2">
                   <li>
                     <a href="#" className="block px-4 py-2 hover:bg-gray-100">
                       <HiOutlineUser className="inline-flex mr-3" />
