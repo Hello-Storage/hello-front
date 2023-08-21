@@ -1,22 +1,21 @@
 import { Api, File as FileType } from "api";
 import { PublicIcon } from "components";
 import dayjs from "dayjs";
-import {
-  HiDocumentDuplicate,
-  HiDotsVertical,
-  HiOutlineDownload,
-  HiOutlineShare,
-  HiOutlineEye,
-  HiOutlineTrash,
-} from "react-icons/hi";
+import { HiDocumentDuplicate, HiDotsVertical } from "react-icons/hi";
 import { formatBytes, formatUID } from "utils";
 import { fileIcons, getFileExtension, viewableExtensions } from "./utils";
 import { toast } from "react-toastify";
-import { useDropdown, useFetchData } from "hooks";
-import { useRef, useState } from "react";
+import { useFetchData } from "hooks";
 
 interface FileAdapterProps {
   file: FileType;
+  index: number;
+  openDropdownIndex: string | null;
+  handleDropdownClick: (
+    type: string,
+    index: number,
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => void;
 }
 
 // Function to handle file download
@@ -81,11 +80,13 @@ const handleView = (file: FileType) => {
     });
 };
 
-const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
+const FileAdapter: React.FC<FileAdapterProps> = ({
+  file,
+  index,
+  openDropdownIndex,
+  handleDropdownClick,
+}) => {
   const { fetchRootContent } = useFetchData();
-  const ref = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
-  useDropdown(ref, open, setOpen);
 
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
   const fileIcon =
@@ -140,53 +141,42 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
       <td className="py-1 px-3 text-right">
         <button
           className="rounded-full hover:bg-gray-300 p-3"
-          onClick={() => setOpen(!open)}
+          onClick={(e) => handleDropdownClick("file", index, e)}
         >
           <HiDotsVertical />
-          <div className="relative" ref={ref}>
-            {open && (
-              <div
-                id="dropdown"
-                className="absolute right-6 z-10 mt-2 bg-white shadow-lg text-left w-36 divide-y border"
+          {openDropdownIndex === `file-${index}` && (
+            <div
+              id="dropdown"
+              className="absolute right-0 z-10 mt-2 bg-white shadow-lg text-left"
+            >
+              <a
+                href="#"
+                className="block px-4 py-2 hover:bg-gray-100"
+                onClick={() => handleDownload(file)}
               >
-                <ul className="py-2">
-                  <a
-                    href="#"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                    onClick={() => handleDownload(file)}
-                  >
-                    <HiOutlineDownload className="inline-flex mr-3" />
-                    Download
-                  </a>
-                  <a href="#" className="block px-4 py-2 hover:bg-gray-100">
-                    <HiOutlineShare className="inline-flex mr-3" />
-                    Share
-                  </a>
-                  {viewableExtensions.has(fileExtension) && (
-                    <a
-                      href="#"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                      onClick={() => handleView(file)}
-                    >
-                      <HiOutlineEye className="inline-flex mr-3" />
-                      View
-                    </a>
-                  )}
-                </ul>
-
-                <div className="py-2">
-                  <a
-                    href="#"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                    onClick={() => handleDelete(file)}
-                  >
-                    <HiOutlineTrash className="inline-flex mr-3" />
-                    Delete
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
+                Download
+              </a>
+              <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                Share
+              </a>
+              {viewableExtensions.has(fileExtension) && (
+                <a
+                  href="#"
+                  className="block px-4 py-2 hover:bg-gray-100"
+                  onClick={() => handleView(file)}
+                >
+                  View
+                </a>
+              )}
+              <a
+                href="#"
+                className="block px-4 py-2 hover:bg-gray-100"
+                onClick={() => handleDelete(file)}
+              >
+                Delete
+              </a>
+            </div>
+          )}
         </button>
       </td>
     </tr>
