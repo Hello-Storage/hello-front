@@ -80,6 +80,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   );
   const { fetchRootContent, fetchUserDetail } = useFetchData();
   const [isEncryptionOn, setEncryptionOn] = useState(false);
+  const [isAutomaticOn, setAutomaticOn] = useState(false);
+
+  useEffect(() => {
+    if (!isEncryptionOn) {
+      setAutomaticOn(false);
+    }
+  }, [isEncryptionOn]);
 
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -165,33 +172,37 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           </label>
         </div>
 
-        {isEncryptionOn && (
-          <div className="flex items-center justify-between mt-3">
-            <label htmlFor="auto-signature" className="text-sm">
-              Automatic Signature
-            </label>
-            <input
-              type="checkbox"
-              id="auto-signature"
-              className="h-4 w-4 border border-gray-300 rounded-md"
-            />
-          </div>
-        )}
-
         <div className="flex items-center justify-between mt-5">
-          <label className="text-sm">
-            Encryption {isEncryptionOn ? "ON" : "OFF"}
-          </label>
-          <div className="flex items-center align-middle">
-            <Toggle
-              checked={isEncryptionOn}
-              onChange={() => setEncryptionOn(!isEncryptionOn)}
-              className={isEncryptionOn ? "encryption-on" : "encryption-off"}
-              icons={false}
-            />
-            <label className="text-sm ml-2"></label>
-          </div>
+        <label className="text-sm">
+          Encryption {isEncryptionOn ? "ON" : "OFF"}
+        </label>
+        <div className="flex items-center align-middle">
+          <Toggle
+            checked={isEncryptionOn}
+            onChange={() => setEncryptionOn(!isEncryptionOn)}
+            className={isEncryptionOn ? "encryption-on" : "encryption-off"}
+          />
+
         </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-3">
+        <label
+          htmlFor="auto-signature"
+          className={`text-sm ${isEncryptionOn ? '' : 'text-gray-400'}`}
+        >
+          Automatic
+        </label>
+        <div className="flex items-center align-middle">
+          <Toggle
+            id="auto-signature"
+            checked={isAutomaticOn}
+            onChange={() => setAutomaticOn(!isAutomaticOn)}
+            disabled={!isEncryptionOn}
+            className={isAutomaticOn ? "automatic-on" : "automatic-off"}
+          />
+        </div>
+      </div>
 
         <hr className="my-4" />
 
