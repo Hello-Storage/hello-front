@@ -3,6 +3,7 @@ import { Folder } from "api/types";
 import { PublicIcon } from "components";
 import dayjs from "dayjs";
 import { useRoot } from "hooks";
+import JSZip from "jszip";
 import { HiDocumentDuplicate, HiDotsVertical, HiFolder } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -20,20 +21,28 @@ interface FolderAdapterProps {
 
 const handleDownload = (folder: Folder) => {
     // Make a request to download the file with responseType 'blob'
-    Api.get(`/folder/download/${folder.uid}`, { responseType: 'blob' })
+    Api.get(`/folder/download/${folder.uid}`)
         .then((res) => {
-            // Create a blob from the response data
-            const blob = new Blob([res.data], { type: 'application/zip' });
+            const zip = new JSZip();
 
-            // Create a link element and set the blob as its href
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = folder.title; // Set the file name
-            a.click(); // Trigger the download
+            console.log(res)
+            // Iterate through the files and add them to the ZIP
+            res.data.files.forEach((file: any) => {
+                // TO-DO: Decrypt in case encrypted
+                const fileData = atob(file.data); // Decode the base64 string
+                zip.file(file.path, fileData, { binary: true });
+            });
 
-            // Clean up
-            window.URL.revokeObjectURL(url);
+            //Generate the ZIP file and trigger the download
+            zip.generateAsync({ type: "blob" }).then((content) => {
+                const url = window.URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${folder.title}.zip`; // Set the file name
+                a.click(); // Trigger the download
+                // Clean up
+                window.URL.revokeObjectURL(url);
+            })
         })
         .catch((err) => {
             console.error('Error downloading folder:', err);

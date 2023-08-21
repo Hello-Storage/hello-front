@@ -110,7 +110,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     for (const file of files) formData.append("files", file);
 
     console.log(formData.getAll("files"));
-    Api.post("/upload", formData, {
+    Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -137,7 +137,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     for (const file of files) formData.append("files", file);
 
     console.log(formData.getAll("files"));
-    Api.post("/upload", formData, {
+    Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
