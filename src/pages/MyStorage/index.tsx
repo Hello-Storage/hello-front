@@ -34,9 +34,9 @@ export default function Home() {
       <div className="flex flex-1 mt-3 overflow-hidden">
         <div className="hidden md:flex flex-col flex-1">
           <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 bg-gray-200">
+            <thead className="text-xs text-gray-700 bg-gray-100">
               <tr>
-                <th scope="col" className="p-3">
+                <th scope="col" className="p-3 rounded-tl-lg rounded-bl-lg">
                   Name
                 </th>
                 <th scope="col" className="p-1">
@@ -51,7 +51,7 @@ export default function Home() {
                 <th scope="col" className="p-1 whitespace-nowrap">
                   Last Modified
                 </th>
-                <th scope="col" className=""></th>
+                <th scope="col" className="rounded-tr-lg rounded-br-lg"></th>
               </tr>
             </thead>
             <Files folders={mystorage.folders} files={mystorage.files} />

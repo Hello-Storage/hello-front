@@ -50,17 +50,17 @@ const links1 = [
 
 const links2 = [
   {
+    to: "/api",
+    outRef: false,
+    icon: <HiCog />,
+    content: "Api key",
+  },
+  {
     to: "/migration",
     outRef: false,
     icon: <HiCloudUpload />,
     content: "Migration",
     soon: "soon",
-  },
-  {
-    to: "/api",
-    outRef: false,
-    icon: <HiCog />,
-    content: "Api key",
   },
   {
     to: "https://hello-decentralized.gitbook.io/hello-documentation/",
@@ -258,18 +258,23 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             <NavLink
               to={v.to}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
+                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl
+                ${v.soon ? "cursor-not-allowed" : ""}`
               }
               key={i}
             >
               <div className="flex items-center p-2 justify-between">
-                <div className="flex items-center gap-3">
-                  {v.icon}
-                  <label className="text-sm cursor-pointer">{v.content}</label>
+                <div className={`flex items-center gap-3 ${v.soon ? "text-gray-500" : ""}`}>
+                  <span className="text-xl">{v.icon}</span>
+                  <label className={`text-sm cursor-pointer ${v.soon ? "text-gray-500 cursor-not-allowed" : ""}`}>
+                    {v.content}
+                  </label>
                 </div>
-                <label className="text-sm bg-gray-200 px-2 rounded-full">
-                  {v.soon}
-                </label>
+                {v.soon && (
+                  <label className="text-sm bg-gray-200 px-2 rounded-full">
+                    {v.soon}
+                  </label>
+                )}
               </div>
             </NavLink>
           ))}
@@ -283,19 +288,24 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               to={v.to}
               target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
+                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl
+                ${v.soon ? "cursor-not-allowed" : ""}`
               }
               key={i}
             >
               <div className="flex items-center p-2 justify-between">
-                <div className="flex items-center gap-3">
-                  {v.icon}
-                  <label className="text-sm cursor-pointer">{v.content}</label>
+                <div className={`flex items-center gap-3 ${v.soon ? "text-gray-500" : ""}`}>
+                    <span className="text-xl">{v.icon}</span>
+                    <label className={`text-sm cursor-pointer ${v.soon ? "text-gray-500 cursor-not-allowed" : ""}`}>
+                      {v.content}
+                    </label>
+                  </div>
+                  {v.soon && (
+                    <label className="text-sm bg-gray-200 px-2 rounded-full">
+                      {v.soon}
+                    </label>
+                  )}
                 </div>
-                <label className="text-sm bg-gray-200 px-2 rounded-full">
-                  {v.soon}
-                </label>
-              </div>
             </NavLink>
           ))}
         </div>
