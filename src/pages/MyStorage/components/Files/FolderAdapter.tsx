@@ -2,22 +2,23 @@ import { Api } from "api";
 import { Folder } from "api/types";
 import { PublicIcon } from "components";
 import dayjs from "dayjs";
-import { useFetchData } from "hooks";
+import { useDropdown, useFetchData } from "hooks";
 import JSZip from "jszip";
-import { HiDocumentDuplicate, HiDotsVertical, HiFolder } from "react-icons/hi";
+import { useRef, useState } from "react";
+import {
+  HiDocumentDuplicate,
+  HiDotsVertical,
+  HiFolder,
+  HiOutlineDownload,
+  HiOutlineShare,
+  HiOutlineTrash,
+} from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { formatUID } from "utils";
 
 interface FolderAdapterProps {
   folder: Folder;
-  index: number;
-  openDropdownIndex: string | null;
-  handleDropdownClick: (
-    type: string,
-    index: number,
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => void;
 }
 
 const handleDownload = (folder: Folder) => {
@@ -50,14 +51,12 @@ const handleDownload = (folder: Folder) => {
     });
 };
 
-const FolderAdapter: React.FC<FolderAdapterProps> = ({
-  folder,
-  index,
-  openDropdownIndex,
-  handleDropdownClick,
-}) => {
+const FolderAdapter: React.FC<FolderAdapterProps> = ({ folder }) => {
   const { fetchRootContent } = useFetchData();
   const navigate = useNavigate();
+  const ref = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  useDropdown(ref, open, setOpen);
 
   const onFolderDoubleClick = (folderUID: string) => {
     navigate(`/folder/${folderUID}`);
@@ -115,33 +114,42 @@ const FolderAdapter: React.FC<FolderAdapterProps> = ({
       <td className="py-1 px-3 text-right">
         <button
           className="rounded-full hover:bg-gray-300 p-3"
-          onClick={(e) => handleDropdownClick("folder", index, e)}
+          onClick={() => setOpen(!open)}
         >
           <HiDotsVertical />
-          {openDropdownIndex === `folder-${index}` && (
-            <div
-              id="dropdown"
-              className="absolute right-0 z-10 mt-2 bg-white shadow-lg text-left"
-            >
-              <a
-                href="#"
-                className="block px-4 py-2 hover:bg-gray-100"
-                onClick={() => handleDownload(folder)}
+          <div className="relative" ref={ref}>
+            {open && (
+              <div
+                id="dropdown"
+                className="absolute right-6 z-10 mt-2 bg-white shadow text-left w-36 divide-y border"
               >
-                Download
-              </a>
-              <a href="#" className="block px-4 py-2 hover:bg-gray-100">
-                Share
-              </a>
-              <a
-                href="#"
-                className="block px-4 py-2 hover:bg-gray-100"
-                onClick={() => handleDelete(folder)}
-              >
-                Delete
-              </a>
-            </div>
-          )}
+                <ul className="py-2">
+                  <a
+                    href="#"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => handleDownload(folder)}
+                  >
+                    <HiOutlineDownload className="inline-flex mr-3" />
+                    Download
+                  </a>
+                  <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                    <HiOutlineShare className="inline-flex mr-3" />
+                    Share
+                  </a>
+                </ul>
+                <div className="py-2">
+                  <a
+                    href="#"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => handleDelete(folder)}
+                  >
+                    <HiOutlineTrash className="inline-flex mr-3" />
+                    Delete
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
         </button>
       </td>
     </tr>

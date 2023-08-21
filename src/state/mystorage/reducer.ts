@@ -13,7 +13,6 @@ const initialState: RootResponse = {
   path: [],
   files: [],
   folders: [],
-  dropdownIndex: null as string | null,
 };
 
 export default createReducer<RootResponse>(initialState, (builder) => {
@@ -25,13 +24,5 @@ export default createReducer<RootResponse>(initialState, (builder) => {
     .addCase(createFolder, (state, { payload }) => ({
       ...state,
       folders: [...state.folders, payload],
-    }))
-    .addCase(openDropdown, (state, { payload }) => ({
-      ...state,
-      dropdownIndex: payload,
-    }))
-    .addCase(closeDropdown, (state) => ({
-      ...state,
-      dropdownIndex: null,
     }));
 });

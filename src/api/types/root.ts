@@ -5,5 +5,4 @@ export interface RootResponse {
   path: Folder[];
   files: File[];
   folders: Folder[];
-  dropdownIndex: string | null;
 }
