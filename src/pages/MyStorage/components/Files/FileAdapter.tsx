@@ -6,6 +6,7 @@ import {
   HiDotsVertical,
   HiOutlineDownload,
   HiOutlineShare,
+  HiOutlineEye,
   HiOutlineTrash,
 } from "react-icons/hi";
 import { formatBytes, formatUID } from "utils";
@@ -167,6 +168,7 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
                       className="block px-4 py-2 hover:bg-gray-100"
                       onClick={() => handleView(file)}
                     >
+                      <HiOutlineEye className="inline-flex mr-3" />
                       View
                     </a>
                   )}
