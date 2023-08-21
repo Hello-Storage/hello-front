@@ -18,7 +18,7 @@ const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));
 const Api = lazy(() => import("pages/Api"));
 
-const Login = lazy(() => import("pages/auth/Login"));
+const Login = lazy(() => import("pages/Auth/Login"));
 
 function App() {
   const { load } = useAuth();
