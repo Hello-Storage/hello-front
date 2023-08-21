@@ -11,6 +11,7 @@ import state from "state";
 import { logoutUser } from "state/user/actions";
 
 const Home = lazy(() => import("pages/Home"));
+const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
 const Shared = lazy(() => import("pages/Shared"));
 const Recent = lazy(() => import("pages/Recent"));
@@ -18,7 +19,7 @@ const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));
 const Api = lazy(() => import("pages/Api"));
 
-const Login = lazy(() => import("pages/auth/Login"));
+const Login = lazy(() => import("pages/Auth/Login"));
 
 function App() {
   const { load } = useAuth();
@@ -41,6 +42,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/my-storage" element={<MyStorage />} />
             <Route path="/folder/*" element={<MyStorage />} />
             <Route path="/shared-with-me" element={<Shared />} />
