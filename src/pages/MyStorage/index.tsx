@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useLocation } from "react-router-dom";
@@ -11,6 +11,7 @@ import { useAppSelector } from "state";
 import { useFetchData } from "hooks";
 import Files from "./components/Files";
 import Breadcrumb from "./components/Breadcrumb";
+import "./index.css"
 
 dayjs.extend(relativeTime);
 
@@ -19,6 +20,22 @@ export default function Home() {
 
   const mystorage = useAppSelector((state) => state.mystorage);
   const { fetchRootContent, fetchUserDetail } = useFetchData();
+
+  //pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const totalItems = mystorage.folders.length + mystorage.files.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems - 1);
+
+  const currentFolders = mystorage.folders.slice(startIndex, endIndex + 1);
+  const remainingItems = itemsPerPage - currentFolders.length;
+  const currentFiles = mystorage.files.slice(0, remainingItems)
+  
+
 
   useEffect(() => {
     fetchUserDetail();
@@ -31,31 +48,33 @@ export default function Home() {
   return (
     <div className="flex flex-col flex-1">
       <Breadcrumb />
-      <div className="flex flex-1 mt-3 overflow-hidden">
-        <div className="hidden md:flex flex-col flex-1">
-          <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 bg-gray-100">
-              <tr>
-                <th scope="col" className="p-3 rounded-tl-lg rounded-bl-lg">
-                  Name
-                </th>
-                <th scope="col" className="p-1">
-                  CID
-                </th>
-                <th scope="col" className="p-1">
-                  Size
-                </th>
-                <th scope="col" className="py-1 px-3">
-                  Type
-                </th>
-                <th scope="col" className="p-1 whitespace-nowrap">
-                  Last Modified
-                </th>
-                <th scope="col" className="rounded-tr-lg rounded-br-lg"></th>
-              </tr>
-            </thead>
-            <Files folders={mystorage.folders} files={mystorage.files} />
-          </table>
+      <div className="flex flex-1 mt-3">
+        <div className="hidden md:flex flex-col flex-1 max-h-screen">
+          <div className=" overflow-auto max-h-[calc(100vh-6rem)] custom-scrollbar">
+            <table className="w-full text-sm text-left text-gray-500 table-with-lines">
+              <thead className="text-xs text-gray-700 bg-gray-100">
+                <tr>
+                  <th scope="col" className="p-3 rounded-tl-lg rounded-bl-lg">
+                    Name
+                  </th>
+                  <th scope="col" className="p-1">
+                    CID
+                  </th>
+                  <th scope="col" className="p-1">
+                    Size
+                  </th>
+                  <th scope="col" className="py-1 px-3">
+                    Type
+                  </th>
+                  <th scope="col" className="p-1 whitespace-nowrap">
+                    Last Modified
+                  </th>
+                  <th scope="col" className="rounded-tr-lg rounded-br-lg"></th>
+                </tr>
+              </thead>
+              <Files folders={currentFolders} files={currentFiles} />
+            </table>
+          </div>
           <div className="flex-1" id="right">
             <ContextMenu targetId="right" />
           </div>
@@ -79,6 +98,28 @@ export default function Home() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+      {/*Add buttons here */}
+      <div className="flex justify-between items-center mt-3">
+        <div>
+          Showing {startIndex + 1} to {Math.min(endIndex, totalItems) + 1} of {totalItems} results
+        </div>
+        <div className="fex space-x-2">
+          <button
+            className={`px-4 py-2 rounded ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-200'}`}
+            onClick={() => setCurrentPage(prevPage => Math.max(prevPage - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            {"< "}Previous
+          </button>
+          <button
+            className={`px-4 py-2 rounded ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-200'}`}
+            onClick={() => setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next {">"}
+          </button>
         </div>
       </div>
     </div>
