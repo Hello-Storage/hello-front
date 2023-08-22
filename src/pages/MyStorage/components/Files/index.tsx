@@ -13,11 +13,11 @@ const Files: React.FC<FilesProps> = ({ folders, files }) => {
     <tbody>
       {/* folders */}
       {folders.map((v, i) => (
-        <FolderAdapter folder={v} />
+        <FolderAdapter folder={v} key={i} />
       ))}
       {/* files */}
       {files.map((v, i) => (
-        <FileAdapter file={v} />
+        <FileAdapter file={v} key={i} />
       ))}
     </tbody>
   );
