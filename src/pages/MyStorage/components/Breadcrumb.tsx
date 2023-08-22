@@ -29,8 +29,8 @@ export default function Breadcrumb() {
                 className="ml-1 text-gray-700 hover:text-blue-600 md:ml-2 cursor-pointer"
               >
                 <FaFolder
-                  className="inline-flex mr-1"
-                  size={30}
+                  className="inline-flex mr-2"
+                  size={26}
                   color="#737373"
                 />
                 {v.title}
