@@ -2,7 +2,12 @@ import { useEffect } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useLocation } from "react-router-dom";
-import { HiDocumentDuplicate, HiDocumentText } from "react-icons/hi";
+import {
+  HiDocumentDuplicate,
+  HiDocumentText,
+  HiOutlineViewGrid,
+  HiOutlineViewList,
+} from "react-icons/hi";
 import { ContextMenu } from "components";
 import Files from "./components/Files";
 import Breadcrumb from "./components/Breadcrumb";
@@ -31,7 +36,31 @@ export default function Home() {
   return (
     <div className="flex flex-col flex-1">
       <Dropzone />
-      <Breadcrumb />
+      <div className="flex justify-between">
+        <Breadcrumb />
+
+        <div className="flex gap-3">
+          <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700">
+            Filter
+          </button>
+
+          <div className="inline-flex rounded-md shadow-sm" role="group">
+            <button
+              type="button"
+              className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+            >
+              <HiOutlineViewList size={20} />
+            </button>
+
+            <button
+              type="button"
+              className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+            >
+              <HiOutlineViewGrid size={20} />
+            </button>
+          </div>
+        </div>
+      </div>
       <div className="flex flex-1 mt-3 overflow-hidden">
         <div className="hidden md:flex flex-col flex-1">
           <table className="w-full text-sm text-left text-gray-500">
