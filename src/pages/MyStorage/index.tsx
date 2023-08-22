@@ -4,13 +4,13 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { useLocation } from "react-router-dom";
 import { HiDocumentDuplicate, HiDocumentText } from "react-icons/hi";
 import { ContextMenu } from "components";
-
+import Files from "./components/Files";
+import Breadcrumb from "./components/Breadcrumb";
+import Dropzone from "./components/Dropzone";
 import { formatUID } from "utils";
 import { useAppSelector } from "state";
 
 import { useFetchData } from "hooks";
-import Files from "./components/Files";
-import Breadcrumb from "./components/Breadcrumb";
 
 dayjs.extend(relativeTime);
 
@@ -30,6 +30,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1">
+      <Dropzone />
       <Breadcrumb />
       <div className="flex flex-1 mt-3 overflow-hidden">
         <div className="hidden md:flex flex-col flex-1">
