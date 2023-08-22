@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { useDropdown, useFetchData } from "hooks";
 import JSZip from "jszip";
 import { useRef, useState } from "react";
+import { FaFolder } from "react-icons/fa";
 import {
   HiDocumentDuplicate,
   HiDotsVertical,
@@ -94,7 +95,7 @@ const FolderAdapter: React.FC<FolderAdapterProps> = ({ folder }) => {
         className="px-3 py-1 font-medium text-gray-900 whitespace-nowrap"
       >
         <div className="flex items-center gap-3 select-none">
-          <HiFolder className="w-8 h-8" color="#737373" />
+          <FaFolder size={32} color="#737373" />
           {folder.title}
         </div>
       </th>
