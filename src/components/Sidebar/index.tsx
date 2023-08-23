@@ -185,6 +185,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               checked={isEncryptionOn}
               onChange={() => setEncryptionOn(!isEncryptionOn)}
               className={isEncryptionOn ? "encryption-on" : "encryption-off"}
+              icons={false}
             />
           </div>
         </div>
@@ -203,6 +204,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               onChange={() => setAutomaticOn(!isAutomaticOn)}
               disabled={!isEncryptionOn}
               className={isAutomaticOn ? "automatic-on" : "automatic-off"}
+              icons={false}
             />
           </div>
         </div>
