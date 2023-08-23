@@ -25,9 +25,9 @@ const Login = lazy(() => import("pages/Auth/Login"));
 function App() {
   const { load } = useAuth();
 
-  const [enable, setEnable] = useState(false);
+  // const [enable, setEnable] = useState(false);
   useEffect(() => {
-    setEnable(checkPassword());
+    checkPassword();
   }, []);
 
   useEffect(() => {
@@ -42,10 +42,6 @@ function App() {
       if (!localStorage.token) state.dispatch(logoutUser());
     });
   }, []);
-
-  if (!enable) {
-    return <></>;
-  }
 
   return (
     <Providers>
