@@ -1,7 +1,7 @@
 import { EthIcon } from "components";
 import { useAuth } from "hooks";
 import useDropdown from "hooks/useDropdown";
-import { useRef, useState } from "react";
+import { useRef, useState, ChangeEvent, FunctionComponent } from "react";
 import {
   HiChevronDown,
   HiCubeTransparent,
@@ -14,11 +14,16 @@ import {
 import { useAppSelector } from "state";
 import { formatName } from "utils";
 
-export default function Appbar() {
+interface AppbarProps {
+  onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}
+
+const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const { name, walletAddress } = useAppSelector((state) => state.user);
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+
   useDropdown(ref, open, setOpen);
 
   return (
@@ -55,6 +60,7 @@ export default function Appbar() {
               className="block w-full py-3 pl-10 pr-4 text-sm text-gray-900 border border-gray-200 rounded-2xl bg-white focus:border-gray-400 focus:outline-none md:w-3/4"
               placeholder="Search inside Hello storage"
               required
+              onChange={onSearchChange}
             />
           </div>
         </form>
@@ -125,4 +131,6 @@ export default function Appbar() {
       <hr className="my-4" />
     </div>
   );
-}
+};
+
+export default Appbar;

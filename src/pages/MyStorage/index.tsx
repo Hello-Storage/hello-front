@@ -16,6 +16,7 @@ import { formatUID } from "utils";
 import { useAppSelector } from "state";
 
 import { useDropdown, useFetchData } from "hooks";
+import Appbar from "components/Appbar";
 
 dayjs.extend(relativeTime);
 
@@ -44,6 +45,20 @@ export default function Home() {
 
   const [filter, setFilter] = useState("all");
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredFolders = currentFolders.filter(
+    (folder) =>
+      folder.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      folder.uid.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredFiles = currentFiles.filter(
+    (file) =>
+      file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      file.uid.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
   };
@@ -58,6 +73,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1">
+      <Appbar onSearchChange={(e) => setSearchTerm(e.target.value)} />
       <Dropzone />
       <div className="flex justify-between">
         <Breadcrumb />
@@ -177,7 +193,7 @@ export default function Home() {
                   <th scope="col" className="rounded-tr-lg rounded-br-lg"></th>
                 </tr>
               </thead>
-              <Files folders={currentFolders} files={currentFiles} />
+              <Files folders={filteredFolders} files={filteredFiles} />
             </table>
           </div>
           <div className="flex-1" id="right">

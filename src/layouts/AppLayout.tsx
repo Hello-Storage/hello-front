@@ -19,7 +19,6 @@ export default function AppLayout() {
             sidebarOpen ? "hidden" : "block"
           }`}
         >
-          <Appbar />
           <Suspense fallback={<></>}>
             <Outlet />
           </Suspense>
