@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useLocation } from "react-router-dom";
@@ -14,9 +14,9 @@ import Breadcrumb from "./components/Breadcrumb";
 import Dropzone from "./components/Dropzone";
 import { formatUID } from "utils";
 import { useAppSelector } from "state";
+import { useSearchContext } from "contexts/SearchContext";
 
 import { useDropdown, useFetchData } from "hooks";
-import Appbar from "components/Appbar";
 
 dayjs.extend(relativeTime);
 
@@ -45,7 +45,7 @@ export default function Home() {
 
   const [filter, setFilter] = useState("all");
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const { searchTerm } = useSearchContext();
 
   const filteredFolders = currentFolders.filter(
     (folder) =>
@@ -75,7 +75,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1">
-      <Appbar onSearchChange={(e) => setSearchTerm(e.target.value)} />
       <Dropzone />
       <div className="flex justify-between">
         <Breadcrumb />
