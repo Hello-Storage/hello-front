@@ -1,4 +1,4 @@
-import { lazy, useEffect } from "react";
+import { lazy, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Providers from "providers";
 import { AppLayout } from "layouts";
@@ -9,6 +9,7 @@ import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
 import state from "state";
 import { logoutUser } from "state/user/actions";
+import { checkPassword } from "utils/checkPassword";
 
 const Home = lazy(() => import("pages/Home"));
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -23,6 +24,12 @@ const Login = lazy(() => import("pages/Auth/Login"));
 
 function App() {
   const { load } = useAuth();
+
+  const [enable, setEnable] = useState(false);
+  useEffect(() => {
+    setEnable(checkPassword());
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
@@ -35,6 +42,10 @@ function App() {
       if (!localStorage.token) state.dispatch(logoutUser());
     });
   }, []);
+
+  if (!enable) {
+    return <></>;
+  }
 
   return (
     <Providers>
