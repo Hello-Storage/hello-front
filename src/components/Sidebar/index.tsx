@@ -173,7 +173,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <label className="text-2xl font-semibold font-[Outfit]">
             Hello.storage
           </label>
-          <img src={LogoHello} alt="beta" className="w-10 h-5 rounded-full" />
+          <img src={LogoHello} alt="beta" className="w-12 h-6" />
         </div>
 
         <div className="flex items-center justify-between mt-5">
