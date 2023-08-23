@@ -171,7 +171,7 @@ export default function Home() {
       </div>
       <div className="flex flex-1 mt-3">
         <div className="hidden md:flex flex-col flex-1 max-h-screen">
-          <div className=" overflow-auto max-h-[calc(100vh-6rem)] custom-scrollbar">
+          <div className="overflow-auto md:overflow-visible max-h-[calc(100vh-6rem)] custom-scrollbar">
             <table className="w-full text-sm text-left text-gray-500 table-with-lines">
               <thead className="text-xs text-gray-700 bg-gray-100">
                 <tr>
