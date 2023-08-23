@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import {
+  HiViewGrid,
   HiFolderOpen,
   HiPlus,
   HiCloudUpload,
@@ -27,7 +28,7 @@ import { formatBytes, formatPercent } from "utils";
 const links1 = [
   {
     to: "/dashboard",
-    icon: <HiFolderOpen />,
+    icon: <HiViewGrid />,
     content: "Dashboard",
     available: true,
   },
