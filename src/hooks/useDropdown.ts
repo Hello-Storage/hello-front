@@ -13,13 +13,14 @@ const useDropdown = (
       if (open && ref?.current && !ref.current.contains(e.target)) {
         setOpen(false);
       }
+      e.stopPropagation();
     };
 
-    document.addEventListener("mousedown", checkIfClickedOutside);
-
+    document.addEventListener("mouseup", checkIfClickedOutside);
+    
     return () => {
       // Cleanup the event listener
-      document.removeEventListener("mousedown", checkIfClickedOutside);
+      document.removeEventListener("mouseup", checkIfClickedOutside);
     };
   }, [open, onClose]);
 };
