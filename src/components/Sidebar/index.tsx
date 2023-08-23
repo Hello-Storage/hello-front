@@ -20,7 +20,7 @@ import { useModal } from "components/Modal";
 import { Api } from "api";
 import { useFetchData, useDropdown } from "hooks";
 
-import LogoHello from "@images/logo.png";
+import LogoHello from "@images/beta.png";
 import "react-toggle/style.css";
 import { useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
@@ -171,11 +171,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   return (
     <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-16 md:px-5 py-3 w-full">
       <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <img src={LogoHello} alt="alvaro" className="w-7 h-7 rounded-full" />
+        <div className="flex items-center gap-3">
           <label className="text-2xl font-semibold font-[Outfit]">
             Hello.storage
           </label>
+          <img src={LogoHello} alt="beta" className="w-10 h-5 rounded-full" />
         </div>
 
         <div className="flex items-center justify-between mt-5">
