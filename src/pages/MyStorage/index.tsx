@@ -16,7 +16,6 @@ import { formatUID } from "utils";
 import { useAppSelector } from "state";
 
 import { useDropdown, useFetchData } from "hooks";
-import "./index.css"
 
 dayjs.extend(relativeTime);
 
@@ -34,16 +33,14 @@ export default function Home() {
   const itemsPerPage = 10;
 
   const totalItems = mystorage.folders.length + mystorage.files.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems - 1);
 
   const currentFolders = mystorage.folders.slice(startIndex, endIndex + 1);
   const remainingItems = itemsPerPage - currentFolders.length;
-  const currentFiles = mystorage.files.slice(0, remainingItems)
-  
-
+  const currentFiles = mystorage.files.slice(0, remainingItems);
 
   const [filter, setFilter] = useState("all");
 
@@ -211,19 +208,32 @@ export default function Home() {
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
         <div>
-          Showing {startIndex + 1} to {Math.min(endIndex, totalItems) + 1} of {totalItems} results
+          Showing {startIndex + 1} to {Math.min(endIndex, totalItems) + 1} of{" "}
+          {totalItems} results
         </div>
         <div className="fex space-x-2">
           <button
-            className={`px-4 py-2 rounded ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-200'}`}
-            onClick={() => setCurrentPage(prevPage => Math.max(prevPage - 1, 1))}
+            className={`px-4 py-2 rounded ${
+              currentPage === 1
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
+            }`}
+            onClick={() =>
+              setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+            }
             disabled={currentPage === 1}
           >
             {"< "}Previous
           </button>
           <button
-            className={`px-4 py-2 rounded ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-200'}`}
-            onClick={() => setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages))}
+            className={`px-4 py-2 rounded ${
+              currentPage === totalPages
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
+            }`}
+            onClick={() =>
+              setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
           >
             Next {">"}
