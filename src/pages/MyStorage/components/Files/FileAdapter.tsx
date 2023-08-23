@@ -10,7 +10,12 @@ import {
   HiOutlineTrash,
 } from "react-icons/hi";
 import { formatBytes, formatUID } from "utils";
-import { getFileIcon, isViewable } from "./utils";
+import {
+  fileIcons,
+  getFileExtension,
+  getFileIcon,
+  viewableExtensions,
+} from "./utils";
 import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
 import { useRef, useState } from "react";
@@ -87,6 +92,11 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
   const [open, setOpen] = useState(false);
   useDropdown(ref, open, setOpen);
 
+  const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
+  const fileIcon =
+    (fileIcons as unknown as { [key: string]: string })[fileExtension] ||
+    "fa-file"; // default to 'fa-file' if the extension is not found in the map
+
   const handleDelete = (file: FileType) => {
     // Make a request to delete the file with response code 200
     Api.delete(`/file/delete/${file.uid}`)
@@ -140,7 +150,8 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
             {open && (
               <div
                 id="dropdown"
-                className="absolute right-6 z-10 mt-2 bg-white shadow-lg text-left w-36 divide-y border"
+                className="absolute right-6 z-50 mt-2 bg-white shadow-lg text-left w-36 divide-y border"
+                style={{ bottom: "100%" }}
               >
                 <ul className="py-2">
                   <a
@@ -155,7 +166,7 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
                     <HiOutlineShare className="inline-flex mr-3" />
                     Share
                   </a>
-                  {isViewable(file.name) && (
+                  {viewableExtensions.has(fileExtension) && (
                     <a
                       href="#"
                       className="block px-4 py-2 hover:bg-gray-100"

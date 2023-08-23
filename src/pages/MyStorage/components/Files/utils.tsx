@@ -17,61 +17,387 @@ import {
 
 // Map of file extensions with their corresponding icons
 export const fileIcons = {
-  pdf: <FaFilePdf size={32} color="#3b82f6" />, // "fa-file-pdf",
-  png: <FaFileImage size={32} color="#3b82f6" />,
-  jpg: <FaFileImage size={32} color="#3b82f6" />,
-  jpeg: <FaFileImage size={32} color="#3b82f6" />,
-  doc: <FaFileWord size={32} color="#3b82f6" />,
-  docx: <FaFileWord size={32} color="#3b82f6" />,
-  xls: <FaFileExcel size={32} color="#3b82f6" />,
-  xlsx: <FaFileExcel size={32} color="#3b82f6" />,
-  ppt: <FaFilePowerpoint size={32} color="#3b82f6" />,
-  pptx: <FaFilePowerpoint size={32} color="#3b82f6" />,
-  zip: <FaFileArchive size={32} color="#3b82f6" />,
-  rar: <FaFileArchive size={32} color="#3b82f6" />,
-  mp3: <FaFileAudio size={32} color="#3b82f6" />,
-  wav: <FaFileAudio size={32} color="#3b82f6" />,
-  mp4: <FaFileVideo size={32} color="#3b82f6" />,
-  avi: <FaFileVideo size={32} color="#3b82f6" />,
-  mov: <FaFileVideo size={32} color="#3b82f6" />,
-  txt: <FaFileAlt size={32} color="#3b82f6" />,
-  js: <FaFileCode size={32} color="#3b82f6" />,
-  ts: <FaFileCode size={32} color="#3b82f6" />,
-  py: <FaFileCode size={32} color="#3b82f6" />,
-  java: <FaFileCode size={32} color="#3b82f6" />,
-  c: <FaFileCode size={32} color="#3b82f6" />,
-  cpp: <FaFileCode size={32} color="#3b82f6" />,
-  cs: <FaFileCode size={32} color="#3b82f6" />,
-  go: <FaFileCode size={32} color="#3b82f6" />,
-  php: <FaFileCode size={32} color="#3b82f6" />,
-  html: <FaFileCode size={32} color="#3b82f6" />,
-  css: <FaFileCode size={32} color="#3b82f6" />,
-  key: <FaKey size={32} color="#3b82f6" />,
-  dll: <FaWrench size={32} color="#3b82f6" />,
-  apk: <FaFileCode size={32} color="#3b82f6" />,
-  exe: <FaFileCode size={32} color="#3b82f6" />,
-  iso: <FaFileCode size={32} color="#3b82f6" />,
-  dmg: <FaFileCode size={32} color="#3b82f6" />,
-  json: <FaFileCode size={32} color="#3b82f6" />,
-  csv: <FaFileCode size={32} color="#3b82f6" />,
-  xml: <FaFileCode size={32} color="#3b82f6" />,
-  svg: <FaFileCode size={32} color="#3b82f6" />,
-  ttf: <FaFileCode size={32} color="#3b82f6" />,
-  woff: <FaFileCode size={32} color="#3b82f6" />,
-  woff2: <FaFileCode size={32} color="#3b82f6" />,
-  eot: <FaFileCode size={32} color="#3b82f6" />,
-  otf: <FaFileCode size={32} color="#3b82f6" />,
-  md: <FaFileCode size={32} color="#3b82f6" />,
-  yml: <FaFileCode size={32} color="#3b82f6" />,
-  yaml: <FaFileCode size={32} color="#3b82f6" />,
-  sh: <FaFileCode size={32} color="#3b82f6" />,
-  bat: <FaFileCode size={32} color="#3b82f6" />,
-  bin: <FaFileCode size={32} color="#3b82f6" />,
-  ps1: <FaFileCode size={32} color="#3b82f6" />,
-  vbs: <FaFileCode size={32} color="#3b82f6" />,
-  cmd: <FaFileCode size={32} color="#3b82f6" />,
-  jar: <FaFileCode size={32} color="#3b82f6" />,
-  sql: <FaFileCode size={32} color="#3b82f6" />,
+  pdf: (
+    <FaFilePdf
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  png: (
+    <FaFileImage
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  jpg: (
+    <FaFileImage
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  jpeg: (
+    <FaFileImage
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  doc: (
+    <FaFileWord
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  docx: (
+    <FaFileWord
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  xls: (
+    <FaFileExcel
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  xlsx: (
+    <FaFileExcel
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  ppt: (
+    <FaFilePowerpoint
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  pptx: (
+    <FaFilePowerpoint
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  zip: (
+    <FaFileArchive
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  rar: (
+    <FaFileArchive
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  mp3: (
+    <FaFileAudio
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  wav: (
+    <FaFileAudio
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  mp4: (
+    <FaFileVideo
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  avi: (
+    <FaFileVideo
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  mov: (
+    <FaFileVideo
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  txt: (
+    <FaFileAlt
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  js: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  ts: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  py: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  java: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  c: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  cpp: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  cs: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  go: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  php: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  html: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  css: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  key: (
+    <FaKey size={32} color="#272727" className="bg-gray-200 p-2 rounded-lg" />
+  ),
+  dll: (
+    <FaWrench
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  apk: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  exe: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  iso: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  dmg: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  json: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  csv: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  xml: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  svg: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  ttf: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  woff: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  woff2: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  eot: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  otf: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  md: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  yml: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  yaml: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  sh: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  bat: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  bin: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  ps1: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  vbs: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  cmd: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  jar: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
+  sql: (
+    <FaFileCode
+      size={32}
+      color="#272727"
+      className="bg-gray-200 p-2 rounded-lg"
+    />
+  ),
 };
 
 // Set of viewable file extensions
@@ -117,7 +443,11 @@ export const getFileIcon = (fileName: string) => {
   const ext = getFileExtension(fileName);
   return (
     (fileIcons as { [key: string]: ReactNode })[ext] ?? (
-      <FaFile size={32} color="#3b82f6" />
+      <FaFile
+        size={32}
+        color="#272727"
+        className="bg-gray-200 p-2 rounded-lg"
+      />
     )
   );
 };
