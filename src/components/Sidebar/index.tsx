@@ -2,19 +2,17 @@ import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
-import {
-  HiViewGrid,
-  HiFolderOpen,
-  HiPlus,
-  HiCloudUpload,
-  HiCollection,
-  HiGlobeAlt,
-  HiBookOpen,
-  HiCog,
-  HiFolderAdd,
-  HiDocumentDownload,
-  HiFolderDownload,
-} from "react-icons/hi";
+import { HiPlus } from "react-icons/hi";
+import FileUpload from "@images/outline/File-upload.png";
+import FolderPlus from "@images/outline/Folder-plus.png";
+import Folder from "@images/outline/Folder.png";
+import FolderLock from "@images/outline/Folder-lock.png";
+import Layout from "@images/outline/Layout.png";
+import Send from "@images/outline/Send.png";
+import Book from "@images/outline/Book.png";
+import Box from "@images/outline/Box.png";
+import Key from "@images/outline/Key.png";
+import Cloud from "@images/outline/Cloud-upload.png";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
 import { Api } from "api";
@@ -28,25 +26,25 @@ import { formatBytes, formatPercent } from "utils";
 const links1 = [
   {
     to: "/dashboard",
-    icon: <HiViewGrid />,
+    icon: <img src={Layout} alt="custom icon" className="w-6 h-6" />,
     content: "Dashboard",
     available: true,
   },
   {
     to: "/my-storage",
-    icon: <HiFolderOpen />,
+    icon: <img src={FolderLock} alt="custom icon" className="w-6 h-6" />,
     content: "My storage",
     available: true,
   },
   {
     to: "/shared-with-me",
-    icon: <HiGlobeAlt />,
+    icon: <img src={Send} alt="custom icon" className="w-6 h-6" />,
     content: "Shared with me",
     available: false,
   },
   {
     to: "/recent",
-    icon: <HiCollection />,
+    icon: <img src={Box} alt="custom icon" className="w-6 h-6" />,
     content: "Recent",
     available: false,
   },
@@ -56,21 +54,21 @@ const links2 = [
   {
     to: "/api",
     outRef: false,
-    icon: <HiCog />,
+    icon: <img src={Key} alt="custom icon" className="w-6 h-6" />,
     content: "Api key",
     available: false,
   },
   {
     to: "/migration",
     outRef: false,
-    icon: <HiCloudUpload />,
+    icon: <img src={Cloud} alt="custom icon" className="w-6 h-6" />,
     content: "Migration",
     available: false,
   },
   {
     to: "https://hello-decentralized.gitbook.io/hello-documentation/",
     outRef: true,
-    icon: <HiBookOpen />,
+    icon: <img src={Book} alt="custom icon" className="w-6 h-6" />,
     content: "Documentation",
     available: true,
   },
@@ -229,7 +227,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                   className="block cursor-pointer px-4 py-2 hover:bg-gray-100"
                   onClick={onPresent}
                 >
-                  <HiFolderAdd className="inline-flex mr-3" />
+                  <img
+                    src={FolderPlus}
+                    alt="custom icon"
+                    className="inline-flex mr-2 w-4 h-4"
+                  />
                   New Folder
                 </div>
               </div>
@@ -239,7 +241,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                     className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
                     onClick={handleFileUpload}
                   >
-                    <HiDocumentDownload className="inline-flex mr-3" />
+                    <img
+                      src={FileUpload}
+                      alt="custom icon"
+                      className="inline-flex mr-2 w-4 h-4"
+                    />
                     File Upload
                   </div>
                 </li>
@@ -248,7 +254,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                     className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
                     onClick={handleFolderUpload}
                   >
-                    <HiFolderDownload className="inline-flex mr-3" />
+                    <img
+                      src={Folder}
+                      alt="custom icon"
+                      className="inline-flex mr-2 w-4 h-4"
+                    />
                     Folder Upload
                   </div>
                 </li>
