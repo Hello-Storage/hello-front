@@ -250,7 +250,7 @@ export default function Home() {
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
         <div>
-          Showing {startIndex + 1} to {Math.min(endIndex, totalItems) + 1} of{" "}
+          Showing {totalItems === 0 ? startIndex : startIndex + 1} to {Math.min(endIndex, totalItems) + 1} of{" "}
           {totalItems} results
         </div>
         <div className="fex space-x-2">
@@ -269,14 +269,14 @@ export default function Home() {
           </button>
           <button
             className={`px-4 py-2 rounded ${
-              currentPage === totalPages
+              totalPages === 0 || currentPage === totalPages
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
             }`}
             onClick={() =>
               setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
             }
-            disabled={currentPage === totalPages}
+            disabled={totalPages === 0 || currentPage === totalPages}
           >
             Next {">"}
           </button>
