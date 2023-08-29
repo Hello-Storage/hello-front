@@ -13,7 +13,7 @@ import Book from "assets/images/Outline/Book.png";
 import Box from "assets/images/Outline/Box.png";
 import Key from "assets/images/Outline/Key.png";
 import Cloud from "assets/images/Outline/Cloud-upload.png";
-import { CreateFolderModal, ProgressBar } from "components";
+import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
 import { Api } from "api";
 import { useFetchData, useDropdown } from "hooks";
@@ -22,6 +22,7 @@ import LogoHello from "@images/beta.png";
 import "react-toggle/style.css";
 import { useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
+import ProgressBar from "@ramonak/react-progress-bar";
 
 const links1 = [
   {
@@ -78,6 +79,17 @@ type SidebarProps = {
   setSidebarOpen: (open: boolean) => void;
 };
 
+type UploadProgressProps = {
+  progress: number;
+};
+
+const UploadProgress: React.FC<UploadProgressProps> = ({ progress }) => (
+  <div>
+    <h4 className="mb-4 text-gray-800">Upload Progress</h4>
+    <ProgressBar completed={progress} bgColor="#22c55e" />
+  </div>
+);
+
 export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const { storageUsed, storageAvailable } = useAppSelector(
     (state) => state.userdetail
@@ -85,6 +97,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const { fetchRootContent, fetchUserDetail } = useFetchData();
   const [isEncryptionOn, setEncryptionOn] = useState(false);
   const [isAutomaticOn, setAutomaticOn] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     if (!isEncryptionOn) {
@@ -123,30 +136,49 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     if (!files) return;
 
     const formData = new FormData();
-
-
-    let root = "/";
-
-    if (location.pathname.includes("/folder")) {
-      root = location.pathname.split("/")[2];
-    }
-
-
-    formData.append("root", root);
+    formData.append("root", "/");
     for (const file of files) formData.append("files", file);
+
+    let toastId: any = null;
 
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percentCompleted);
+
+          if (toastId === null) {
+            toastId = toast(<UploadProgress progress={percentCompleted} />, {
+              autoClose: false,
+            });
+          } else {
+            toast.update(toastId, {
+              render: <UploadProgress progress={percentCompleted} />,
+            });
+          }
+        }
+      },
     })
       .then((data) => {
-        toast.success("upload Succeed!");
+        toast.update(toastId, {
+          render: "Upload Succeed!",
+          type: toast.TYPE.SUCCESS,
+          autoClose: 5000,
+        });
         fetchRootContent();
         fetchUserDetail();
       })
       .catch((err) => {
-        toast.error("upload failed!");
+        toast.update(toastId, {
+          render: "Upload failed!",
+          type: toast.TYPE.ERROR,
+          autoClose: 5000,
+        });
       });
   };
 
@@ -157,29 +189,49 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     if (!files) return;
 
     const formData = new FormData();
-
-    let root = "/";
-
-    if (location.pathname.includes("/folder")) {
-      root = location.pathname.split("/")[2];
-    }
-
-    formData.append("root", root);
-
+    formData.append("root", "/");
     for (const file of files) formData.append("files", file);
+
+    let toastId: any = null;
 
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percentCompleted);
+
+          if (toastId === null) {
+            toastId = toast(<UploadProgress progress={percentCompleted} />, {
+              autoClose: false,
+            });
+          } else {
+            toast.update(toastId, {
+              render: <UploadProgress progress={percentCompleted} />,
+            });
+          }
+        }
+      },
     })
       .then((data) => {
-        toast.success("upload Succeed!");
+        toast.update(toastId, {
+          render: "Upload Succeed!",
+          type: toast.TYPE.SUCCESS,
+          autoClose: 5000,
+        });
         fetchRootContent();
         fetchUserDetail();
       })
       .catch((err) => {
-        toast.error("upload failed!");
+        toast.update(toastId, {
+          render: "Upload failed!",
+          type: toast.TYPE.ERROR,
+          autoClose: 5000,
+        });
       });
   };
 
@@ -299,14 +351,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center p-2 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -335,14 +389,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center p-2 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -361,7 +417,12 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       <div className="">
         <label>{formatBytes(storageUsed)} Used</label>
 
-        <ProgressBar percent={(storageUsed * 100) / storageAvailable} />
+        <ProgressBar
+          isLabelVisible={false}
+          height="14px"
+          bgColor="#9CA3AF"
+          completed={(storageUsed * 100) / storageAvailable}
+        />
 
         <label className="text-xs text-neutral-800">
           {formatPercent(storageUsed, storageAvailable)} used -{" "}
