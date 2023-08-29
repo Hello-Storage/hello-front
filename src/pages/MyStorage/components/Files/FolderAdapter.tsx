@@ -4,7 +4,8 @@ import { PublicIcon } from "components";
 import dayjs from "dayjs";
 import { useDropdown, useFetchData } from "hooks";
 import JSZip from "jszip";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { FaFolder } from "react-icons/fa";
 import {
   HiDocumentDuplicate,
   HiDotsVertical,
@@ -84,6 +85,10 @@ const FolderAdapter: React.FC<FolderAdapterProps> = ({ folder }) => {
     }
   };
 
+
+
+
+
   return (
     <tr
       className={`bg-white cursor-pointer border-b hover:bg-gray-100`}
@@ -94,7 +99,7 @@ const FolderAdapter: React.FC<FolderAdapterProps> = ({ folder }) => {
         className="px-3 py-1 font-medium text-gray-900 whitespace-nowrap"
       >
         <div className="flex items-center gap-3 select-none">
-          <HiFolder className="w-8 h-8" color="#737373" />
+          <FaFolder size={32} color="#737373" />
           {folder.title}
         </div>
       </th>
@@ -121,7 +126,7 @@ const FolderAdapter: React.FC<FolderAdapterProps> = ({ folder }) => {
             {open && (
               <div
                 id="dropdown"
-                className="absolute right-6 z-10 mt-2 bg-white shadow text-left w-36 divide-y border"
+                className="fixed right-6 z-10 mt-2 bg-white shadow text-left w-36 divide-y border"
               >
                 <ul className="py-2">
                   <a

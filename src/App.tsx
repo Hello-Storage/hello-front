@@ -1,4 +1,4 @@
-import { lazy, useEffect } from "react";
+import { lazy, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Providers from "providers";
 import { AppLayout } from "layouts";
@@ -23,6 +23,7 @@ const Login = lazy(() => import("pages/Auth/Login"));
 
 function App() {
   const { load } = useAuth();
+
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 

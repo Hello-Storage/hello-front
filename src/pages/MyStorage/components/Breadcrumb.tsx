@@ -1,4 +1,5 @@
-import { HiChevronRight } from "react-icons/hi";
+import { HiChevronRight, HiFolder } from "react-icons/hi";
+import { FaFolder } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "state";
 
@@ -27,6 +28,11 @@ export default function Breadcrumb() {
                 onClick={() => onClick(`/folder/${v.uid}`)}
                 className="ml-1 text-gray-700 hover:text-blue-600 md:ml-2 cursor-pointer"
               >
+                <FaFolder
+                  className="inline-flex mr-2"
+                  size={26}
+                  color="#737373"
+                />
                 {v.title}
               </a>
             </div>
