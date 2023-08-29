@@ -113,9 +113,24 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
   const onFileDoubleClick = (file: FileType) => {
     handleView(file);
   };
+
+  const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
+    const dragInfo = JSON.stringify({
+      id: event.currentTarget.id.toString(),
+      type: event.currentTarget.ariaLabel?.toString(),
+    });
+    console.log("Drag: " + dragInfo);
+    event.dataTransfer.setData("text/plain", dragInfo);
+  };
+
+  // console.log(file)
   return (
     <tr
+      id={file.uid}
+      aria-label="file"
       className="bg-white cursor-pointer border-b hover:bg-gray-100"
+      draggable
+      onDragStart={handleDragStart}
       onDoubleClick={() => onFileDoubleClick(file)}
     >
       <th
