@@ -123,7 +123,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     if (!files) return;
 
     const formData = new FormData();
-    formData.append("root", "/");
+
+
+    let root = "/";
+
+    if (location.pathname.includes("/folder")) {
+      root = location.pathname.split("/")[2];
+    }
+
+
+    formData.append("root", root);
     for (const file of files) formData.append("files", file);
 
     Api.post("/file/upload", formData, {
@@ -148,7 +157,15 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     if (!files) return;
 
     const formData = new FormData();
-    formData.append("root", "/");
+
+    let root = "/";
+
+    if (location.pathname.includes("/folder")) {
+      root = location.pathname.split("/")[2];
+    }
+
+    formData.append("root", root);
+
     for (const file of files) formData.append("files", file);
 
     Api.post("/file/upload", formData, {
@@ -282,16 +299,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${
-                  v.available ? "" : "text-gray-500"
-                }`}
+                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
+                  }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${
-                      v.available ? "" : "text-gray-500"
-                    }`}
+                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
+                      }`}
                   >
                     {v.content}
                   </label>
@@ -320,16 +335,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${
-                  v.available ? "" : "text-gray-500"
-                }`}
+                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
+                  }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${
-                      v.available ? "" : "text-gray-500"
-                    }`}
+                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
+                      }`}
                   >
                     {v.content}
                   </label>
