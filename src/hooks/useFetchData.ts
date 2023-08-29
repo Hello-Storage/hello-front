@@ -10,7 +10,7 @@ const useFetchData = () => {
   const location = useLocation();
 
   const fetchRootContent = useCallback(() => {
-    var root = "/folder";
+    let root = "/folder";
 
     if (location.pathname.includes("/folder")) {
       root = "/folder/" + location.pathname.split("/")[2];

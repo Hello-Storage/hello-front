@@ -8,6 +8,8 @@ import {
   loadingUser,
   logoutUser,
 } from "state/user/actions";
+import { getPersonalSignature } from "utils/cipherUtils";
+import setPersonalSignature from "api/setPersonalSignature";
 
 const useAuth = () => {
   const load = useCallback(async () => {
@@ -22,26 +24,27 @@ const useAuth = () => {
   }, []);
 
   const login = useCallback(async (wallet_address: string) => {
-    try {
-      const nonceResp = await Api.post<string>("/nonce", {
-        wallet_address,
-      });
+    const nonceResp = await Api.post<string>("/nonce", {
+      wallet_address,
+    });
 
-      const message = `Greetings from joinhello\nSign this message to log into joinhello\nnonce: ${nonceResp.data}`;
+    const message = `Greetings from joinhello\nSign this message to log into joinhello\nnonce: ${nonceResp.data}`;
 
-      const signature = await signMessage({ message });
+    const signature = await signMessage({ message });
 
-      const loginResp = await Api.post<LoginResponse>("/login", {
-        wallet_address,
-        signature,
-      });
+    const loginResp = await Api.post<LoginResponse>("/login", {
+      wallet_address,
+      signature,
+    });
 
-      setAuthToken(loginResp.data.access_token);
+    setAuthToken(loginResp.data.access_token);
 
-      load();
-    } catch (error) {
-      throw error;
-    }
+    const personalSignature = await getPersonalSignature(wallet_address);
+
+      console.log("setting personal 2")
+    setPersonalSignature(personalSignature);
+
+    load();
   }, []);
 
   const logout = useCallback(() => {
