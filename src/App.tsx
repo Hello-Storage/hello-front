@@ -9,7 +9,6 @@ import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
 import state from "state";
 import { logoutUser } from "state/user/actions";
-import { checkPassword } from "utils/checkPassword";
 
 const Home = lazy(() => import("pages/Home"));
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -24,11 +23,6 @@ const Login = lazy(() => import("pages/Auth/Login"));
 
 function App() {
   const { load } = useAuth();
-
-  // const [enable, setEnable] = useState(false);
-  useEffect(() => {
-    checkPassword();
-  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
