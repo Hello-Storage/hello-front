@@ -9,17 +9,14 @@ import {
   HiOutlineShare,
   HiOutlineEye,
   HiOutlineTrash,
+  HiX,
 } from "react-icons/hi";
 import { formatBytes, formatUID } from "utils";
-import {
-  fileIcons,
-  getFileExtension,
-  getFileIcon,
-  viewableExtensions,
-} from "./utils";
+import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
 import { useRef, useState } from "react";
+import { Spinner1 } from "components/Spinner";
 
 interface FileAdapterProps {
   file: FileType;
@@ -53,9 +50,13 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
   const [open, setOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [url, setUrl] = useState("");
+  const [width, setWidth] = useState("100%");
+  const [height, setHeight] = useState("100%");
+  const [isLoading, setIsLoading] = useState(false);
   useDropdown(ref, open, setOpen);
 
   const handleView = (file: FileType) => {
+    setIsLoading(true);
     // Make a request to download the file with responseType 'blob'
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then((res) => {
@@ -68,16 +69,23 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
         // Instead of opening the URL in a new tab, set the URL state and open the modal
         setUrl(url);
         setIsModalOpen(true);
+
+        if (file.mime_type.startsWith("image/")) {
+          setWidth("auto");
+          setHeight("auto");
+        } else {
+          setWidth("100%");
+          setHeight("100vh");
+        }
+        setIsLoading(false);
       })
       .catch((err) => {
         console.error("Error downloading file:", err);
+        setIsLoading(false);
       });
   };
 
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
-  const fileIcon =
-    (fileIcons as unknown as { [key: string]: string })[fileExtension] ||
-    "fa-file"; // default to 'fa-file' if the extension is not found in the map
 
   const handleDelete = (file: FileType) => {
     // Make a request to delete the file with response code 200
@@ -184,16 +192,27 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
         className="fixed z-10 inset-0 overflow-y-auto"
       >
         <div className="flex items-center justify-center min-h-screen">
-          <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-          <div className="bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <Dialog.Title className="text-lg leading-6 font-medium text-gray-900 p-6">
-              File Viewer
-            </Dialog.Title>
-            <div className="p-6">
-              <iframe src={url} width="100%" height="500px"></iframe>
+          <Dialog.Overlay className="fixed inset-0 bg-gray-700 bg-opacity-75 transition-opacity" />
+          <div className="overflow-hidden transform transition-all sm:align-middle sm:max-w-5xl sm:w-full">
+            <div className="flex items-center justify-center">
+              {isLoading ? (
+                <Spinner1 />
+              ) : (
+                <object
+                  data={url}
+                  type={file.mime_type}
+                  style={{ width, height }}
+                ></object>
+              )}
             </div>
           </div>
         </div>
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="absolute top-4 right-4"
+        >
+          <HiX className="h-6 w-6 text-white" />
+        </button>
       </Dialog>
     </>
   );
