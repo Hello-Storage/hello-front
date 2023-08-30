@@ -8,7 +8,6 @@ import {
   loadingUser,
   logoutUser,
 } from "state/user/actions";
-import { getPersonalSignature } from "utils/cipherUtils";
 import setPersonalSignature from "api/setPersonalSignature";
 
 const useAuth = () => {
@@ -39,11 +38,6 @@ const useAuth = () => {
 
     setAuthToken(loginResp.data.access_token);
 
-    const personalSignature = await getPersonalSignature(wallet_address);
-
-      console.log("setting personal 2")
-    setPersonalSignature(personalSignature);
-
     load();
   }, []);
 
@@ -51,6 +45,7 @@ const useAuth = () => {
     state.dispatch(logoutUser());
 
     setAuthToken(undefined);
+    setPersonalSignature(undefined);
 
     // disconnect when you sign with wallet
     disconnect();
