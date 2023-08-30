@@ -23,7 +23,7 @@ export default function UploadInfo() {
     <div className="absolute bg-white w-80 right-6 bottom-0 border rounded-t-xl">
       <div className="bg-gray-100 rounded-t-xl p-2">
         <div className="flex items-center justify-between">
-          <label>uploads complete</label>
+          <label>upload</label>
           <div>
             <button className="p-2 rounded-full hover:bg-gray-200">
               <HiChevronDown size={20} />
