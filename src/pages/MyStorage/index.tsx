@@ -17,6 +17,7 @@ import { useAppSelector } from "state";
 import { useSearchContext } from "contexts/SearchContext";
 
 import { useDropdown, useFetchData } from "hooks";
+import UploadInfo from "./components/UploadInfo";
 
 dayjs.extend(relativeTime);
 
@@ -250,8 +251,8 @@ export default function Home() {
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
         <div>
-          Showing {totalItems === 0 ? startIndex : startIndex + 1} to {Math.min(endIndex, totalItems) + 1} of{" "}
-          {totalItems} results
+          Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
+          {Math.min(endIndex, totalItems) + 1} of {totalItems} results
         </div>
         <div className="fex space-x-2">
           <button
@@ -282,6 +283,9 @@ export default function Home() {
           </button>
         </div>
       </div>
+
+      {/* Upload Info */}
+      <UploadInfo />
     </div>
   );
 }
