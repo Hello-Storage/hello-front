@@ -56,7 +56,7 @@ export default function UploadInfo() {
           </div>
         ))}
 
-        <div className="flex items-center justify-between p-2">
+        {/* <div className="flex items-center justify-between p-2">
           <div>
             <FaFile className="inline-block mr-3" />
             ape.jpg
@@ -65,7 +65,7 @@ export default function UploadInfo() {
           <div className="">
             <HiCheckCircle size={32} color="#34a853" />
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
