@@ -6,7 +6,7 @@ const SWRProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <SWRConfig
       value={{
-        refreshInterval: 1500,
+        refreshInterval: 3000,
         fetcher: (url) => Api.get(url).then((res) => res.data),
       }}
     >
