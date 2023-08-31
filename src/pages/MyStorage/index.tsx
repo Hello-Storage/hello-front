@@ -28,6 +28,7 @@ export default function Home() {
 
   const location = useLocation();
   const mystorage = useAppSelector((state) => state.mystorage);
+  const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { fetchRootContent, fetchUserDetail } = useFetchData();
 
   //pagination
@@ -285,7 +286,7 @@ export default function Home() {
       </div>
 
       {/* Upload Info */}
-      <UploadInfo />
+      {uploading && <UploadInfo />}
     </div>
   );
 }

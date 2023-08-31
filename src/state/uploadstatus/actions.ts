@@ -3,3 +3,6 @@ import { UploadStatus } from "api/types/upload";
 
 export const fetchUploadStatusAction =
   createAction<UploadStatus[]>("uploadstatus/fetch");
+
+export const setUploadingStatusAction =
+  createAction<boolean>("uploadstatus/set");
