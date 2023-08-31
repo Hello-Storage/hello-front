@@ -1,25 +1,21 @@
 import { createReducer } from "@reduxjs/toolkit";
-import { UploadStatus } from "api/types/upload";
-import { fetchUploadStatusAction, setUploadingStatusAction } from "./actions";
+import { setUploadStatusAction } from "./actions";
 
 interface UploadStatusProps {
-  info: UploadStatus[];
+  read: number;
+  size: number;
   uploading: boolean;
 }
 
 const initialState: UploadStatusProps = {
-  info: [],
+  read: 0,
+  size: 0,
   uploading: false,
 };
 
 export default createReducer<UploadStatusProps>(initialState, (builder) => {
-  builder
-    .addCase(fetchUploadStatusAction, (state, { payload }) => ({
-      ...state,
-      info: payload,
-    }))
-    .addCase(setUploadingStatusAction, (state, { payload }) => ({
-      ...state,
-      uploading: payload,
-    }));
+  builder.addCase(setUploadStatusAction, (state, { payload }) => ({
+    ...state,
+    info: payload,
+  }));
 });

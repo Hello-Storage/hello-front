@@ -1,8 +1,10 @@
 import { createAction } from "@reduxjs/toolkit";
-import { UploadStatus } from "api/types/upload";
 
-export const fetchUploadStatusAction =
-  createAction<UploadStatus[]>("uploadstatus/fetch");
+interface UploadStatus {
+  read?: number;
+  size?: number;
+  uploading?: boolean;
+}
 
-export const setUploadingStatusAction =
-  createAction<boolean>("uploadstatus/set");
+export const setUploadStatusAction =
+  createAction<UploadStatus>("uploadstatus/set");
