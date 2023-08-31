@@ -90,24 +90,27 @@ const FolderAdapter: React.FC<FolderAdapterProps> = ({ folder }) => {
     let dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
     let dropInfo = {
       id: event.currentTarget.id.toString(),
-      type: event.currentTarget.ariaLabel?.toString(),
+      uid: event.currentTarget.ariaLabel?.toString(),
     };
     console.log("DragReceived: " + JSON.stringify(dragInfoReceived));
     console.log("Drop: " + JSON.stringify(dropInfo));
     if (dropInfo.id != dragInfoReceived.id) {
       const payload = {
-        Uid: dragInfoReceived.id,
-        Root: dropInfo.id
+        Id: dragInfoReceived.id,
+        Uid: dragInfoReceived.uid,
+        Root: dropInfo.uid
       };
-    
+
       console.log("Sending payload:", payload);
-      Api.put(`/${dragInfoReceived.type}/update/root`, payload, {
+      const type=dragInfoReceived.type;
+      Api.put(`/${type}/update/root`, payload, {
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       })
         .then((res) => {
           console.log("Folder root updated:", res.data);
+          fetchRootContent();
         })
         .catch((err) => {
           console.log("Error updating folder root:", err);
@@ -121,8 +124,9 @@ const FolderAdapter: React.FC<FolderAdapterProps> = ({ folder }) => {
 
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
+      type:"folder",
       id: event.currentTarget.id.toString(),
-      type: event.currentTarget.ariaLabel?.toString(),
+      uid: event.currentTarget.ariaLabel?.toString(),
     });
     console.log("Drag: " + dragInfo);
     event.dataTransfer.setData("text/plain", dragInfo);
@@ -131,8 +135,8 @@ const FolderAdapter: React.FC<FolderAdapterProps> = ({ folder }) => {
   // console.log(folder)
   return (
     <tr
-      id={folder.uid}
-      aria-label="folder"
+      id={folder.id.toString()}
+      aria-label={folder.uid}
       className={`bg-white cursor-pointer border-b hover:bg-gray-100`}
       draggable
       onDrop={handleDrop}

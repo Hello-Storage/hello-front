@@ -117,7 +117,8 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
       id: event.currentTarget.id.toString(),
-      type: event.currentTarget.ariaLabel?.toString(),
+      uid: event.currentTarget.ariaLabel?.toString(),
+      type:"file"
     });
     console.log("Drag: " + dragInfo);
     event.dataTransfer.setData("text/plain", dragInfo);
@@ -126,8 +127,8 @@ const FileAdapter: React.FC<FileAdapterProps> = ({ file }) => {
   // console.log(file)
   return (
     <tr
-      id={file.uid}
-      aria-label="file"
+      id={file.id.toString()}
+      aria-label={file.uid}
       className="bg-white cursor-pointer border-b hover:bg-gray-100"
       draggable
       onDragStart={handleDragStart}
