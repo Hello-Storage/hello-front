@@ -21,7 +21,7 @@ export default function UploadInfo() {
   }, [data]);
 
   return (
-    <div className="absolute bg-white w-80 left-1/2 bottom-5 border shadow-md">
+    <div className="absolute bg-white w-80 left-1/2 bottom-5">
       {/* <div className="bg-gray-100 rounded-t-xl p-2">
         <div className="flex items-center justify-between">
           <label>upload</label>
@@ -39,7 +39,7 @@ export default function UploadInfo() {
       {/* upload files */}
       <div>
         {info.map((v, i) => (
-          <div className="p-2" key={i}>
+          <div className="p-2 border shadow-md" key={i}>
             <div className="flex items-center justify-between">
               <div className="">
                 <FaFile className="inline-block mr-3" />
