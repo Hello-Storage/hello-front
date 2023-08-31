@@ -22,7 +22,8 @@ import LogoHello from "@images/beta.png";
 import "react-toggle/style.css";
 import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
-import { setUploadingStatusAction } from "state/uploadstatus/actions";
+import { setUploadStatusAction } from "state/uploadstatus/actions";
+import { AxiosProgressEvent } from "axios";
 
 const links1 = [
   {
@@ -109,6 +110,15 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     }
   }, [folderInput]);
 
+  const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
+    dispatch(
+      setUploadStatusAction({
+        read: progressEvent.loaded,
+        size: progressEvent.total!,
+      })
+    );
+  };
+
   const handleFileUpload = () => {
     fileInput.current?.click();
   };
@@ -135,11 +145,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     formData.append("root", root);
     for (const file of files) formData.append("files", file);
 
-    dispatch(setUploadingStatusAction(true));
+    dispatch(setUploadStatusAction({ uploading: true }));
+
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress,
     })
       .then((data) => {
         toast.success("upload Succeed!");
@@ -149,7 +161,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .catch((err) => {
         toast.error("upload failed!");
       })
-      .finally(() => dispatch(setUploadingStatusAction(false)));
+      .finally(() => dispatch(setUploadStatusAction({ uploading: true })));
   };
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
@@ -166,6 +178,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       root = location.pathname.split("/")[2];
     }
 
+    console.log(files);
     formData.append("root", root);
 
     for (const file of files) formData.append("files", file);
@@ -389,7 +402,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           type="file"
           id="file"
           onChange={handleFileInputChange}
-          multiple={true}
+          multiple={false}
           accept="*/*"
           hidden
         />
