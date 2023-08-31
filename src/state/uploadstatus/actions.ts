@@ -1,6 +1,7 @@
 import { createAction } from "@reduxjs/toolkit";
 
 interface UploadStatus {
+  info?: string;
   read?: number;
   size?: number;
   uploading?: boolean;

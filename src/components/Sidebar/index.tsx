@@ -145,7 +145,15 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     formData.append("root", root);
     for (const file of files) formData.append("files", file);
 
-    dispatch(setUploadStatusAction({ uploading: true }));
+    if (files.length === 1)
+      dispatch(setUploadStatusAction({ info: files[0].name, uploading: true }));
+    else
+      dispatch(
+        setUploadStatusAction({
+          info: `uploading ${files.length} files`,
+          uploading: true,
+        })
+      );
 
     Api.post("/file/upload", formData, {
       headers: {
@@ -161,7 +169,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .catch((err) => {
         toast.error("upload failed!");
       })
-      .finally(() => dispatch(setUploadStatusAction({ uploading: true })));
+      .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
   };
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
@@ -170,6 +178,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const files = event.target.files;
     if (!files) return;
 
+    console.log(files);
+    const folder = files[0].webkitRelativePath.split("/")[0];
     const formData = new FormData();
 
     let root = "/";
@@ -182,11 +192,17 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     formData.append("root", root);
 
     for (const file of files) formData.append("files", file);
-
+    dispatch(
+      setUploadStatusAction({
+        info: `uploading ${folder} folder`,
+        uploading: true,
+      })
+    );
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress,
     })
       .then((data) => {
         toast.success("upload Succeed!");
@@ -195,7 +211,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       })
       .catch((err) => {
         toast.error("upload failed!");
-      });
+      })
+      .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
   };
 
   return (
@@ -402,7 +419,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           type="file"
           id="file"
           onChange={handleFileInputChange}
-          multiple={false}
+          multiple={true}
           accept="*/*"
           hidden
         />
