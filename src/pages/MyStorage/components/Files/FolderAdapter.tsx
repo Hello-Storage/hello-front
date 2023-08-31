@@ -85,13 +85,63 @@ const FolderAdapter: React.FC<FolderAdapterProps> = ({ folder }) => {
     }
   };
 
+  const handleDrop = (event: React.DragEvent<HTMLTableRowElement>) => {
+    event.preventDefault();
+    let dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
+    let dropInfo = {
+      id: event.currentTarget.id.toString(),
+      uid: event.currentTarget.ariaLabel?.toString(),
+    };
+    console.log("DragReceived: " + JSON.stringify(dragInfoReceived));
+    console.log("Drop: " + JSON.stringify(dropInfo));
+    if (dropInfo.id != dragInfoReceived.id) {
+      const payload = {
+        Id: dragInfoReceived.id,
+        Uid: dragInfoReceived.uid,
+        Root: dropInfo.uid
+      };
 
+      console.log("Sending payload:", payload);
+      const type=dragInfoReceived.type;
+      Api.put(`/${type}/update/root`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => {
+          console.log("Folder root updated:", res.data);
+          fetchRootContent();
+        })
+        .catch((err) => {
+          console.log("Error updating folder root:", err);
+        });
+    }
+  };
 
+  const handleDragOver = (event: React.DragEvent<HTMLTableRowElement>) => {
+    event.preventDefault();
+  };
 
+  const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
+    const dragInfo = JSON.stringify({
+      type:"folder",
+      id: event.currentTarget.id.toString(),
+      uid: event.currentTarget.ariaLabel?.toString(),
+    });
+    console.log("Drag: " + dragInfo);
+    event.dataTransfer.setData("text/plain", dragInfo);
+  };
 
+  // console.log(folder)
   return (
     <tr
+      id={folder.id.toString()}
+      aria-label={folder.uid}
       className={`bg-white cursor-pointer border-b hover:bg-gray-100`}
+      draggable
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragStart={handleDragStart}
       onDoubleClick={() => onFolderDoubleClick(folder.uid)}
     >
       <th
