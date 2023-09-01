@@ -24,8 +24,8 @@ export default function World() {
       const directionalLight = (globeRef.current as any)
         .scene()
         .children.find((obj3d: any) => obj3d.type === "DirectionalLight");
-      directionalLight.intensity = 0; // change light position to see the specularMap's effect
-    });
+      if (directionalLight) directionalLight.intensity = 0; // change light position to see the specularMap's effect
+    }, 500);
   }, []);
 
   return (
