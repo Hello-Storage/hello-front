@@ -18,6 +18,14 @@ export default function World() {
       lng: 0,
       altitude: 2.5,
     });
+
+    setTimeout(() => {
+      // wait for scene to be populated (asynchronously)
+      const directionalLight = (globeRef.current as any)
+        .scene()
+        .children.find((obj3d: any) => obj3d.type === "DirectionalLight");
+      directionalLight.intensity = 0; // change light position to see the specularMap's effect
+    });
   }, []);
 
   return (
