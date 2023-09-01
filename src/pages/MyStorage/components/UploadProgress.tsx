@@ -3,7 +3,7 @@ import { ProgressBar } from "components";
 import { useAppSelector } from "state";
 import { formatPercent } from "utils";
 
-export default function UploadInfo() {
+export default function UploadProgress() {
   const { read, size } = useAppSelector((state) => state.uploadstatus);
   return (
     <div className="absolute bg-white w-80 left-1/2 bottom-5 border shadow-md">
