@@ -16,7 +16,7 @@ export default function World() {
     (globeRef.current as any).pointOfView({
       lat: 23.5,
       lng: 0,
-      altitude: 2.5,
+      altitude: 1.8,
     });
 
     setTimeout(() => {
