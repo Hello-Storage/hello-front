@@ -12,7 +12,9 @@ export default function UploadProgress() {
           <div className="flex items-center justify-between">
             <div className="">
               <FaFile className="inline-block mr-3" />
-              <label>{info}</label>
+              <label className="w-52 text-ellipsis whitespace-nowrap overflow-hidden">
+                {info}
+              </label>
             </div>
             <div className="">{formatPercent(read, size, 1)}</div>
           </div>
