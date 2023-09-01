@@ -179,7 +179,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     if (!files) return;
 
     console.log(files);
-    const folder = files[0].webkitRelativePath.split("/")[0];
     const formData = new FormData();
 
     let root = "/";
