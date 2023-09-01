@@ -20,8 +20,10 @@ import { useFetchData, useDropdown } from "hooks";
 
 import LogoHello from "@images/beta.png";
 import "react-toggle/style.css";
-import { useAppSelector } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
+import { setUploadStatusAction } from "state/uploadstatus/actions";
+import { AxiosProgressEvent } from "axios";
 
 const links1 = [
   {
@@ -82,6 +84,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const { storageUsed, storageAvailable } = useAppSelector(
     (state) => state.userdetail
   );
+  const dispatch = useAppDispatch();
   const { fetchRootContent, fetchUserDetail } = useFetchData();
   const [isEncryptionOn, setEncryptionOn] = useState(false);
   const [isAutomaticOn, setAutomaticOn] = useState(false);
@@ -107,6 +110,15 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     }
   }, [folderInput]);
 
+  const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
+    dispatch(
+      setUploadStatusAction({
+        read: progressEvent.loaded,
+        size: progressEvent.total!,
+      })
+    );
+  };
+
   const handleFileUpload = () => {
     fileInput.current?.click();
   };
@@ -124,21 +136,30 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     const formData = new FormData();
 
-
     let root = "/";
 
     if (location.pathname.includes("/folder")) {
       root = location.pathname.split("/")[2];
     }
 
-
     formData.append("root", root);
     for (const file of files) formData.append("files", file);
+
+    if (files.length === 1)
+      dispatch(setUploadStatusAction({ info: files[0].name, uploading: true }));
+    else
+      dispatch(
+        setUploadStatusAction({
+          info: `uploading ${files.length} files`,
+          uploading: true,
+        })
+      );
 
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress,
     })
       .then((data) => {
         toast.success("upload Succeed!");
@@ -147,7 +168,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       })
       .catch((err) => {
         toast.error("upload failed!");
-      });
+      })
+      .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
   };
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
@@ -166,8 +188,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     formData.append("root", root);
 
+    const folder = files[0].webkitRelativePath.split("/")[0];
     for (const file of files) formData.append("files", file);
-
+    dispatch(
+      setUploadStatusAction({
+        info: `uploading ${folder} folder`,
+        uploading: true,
+      })
+    );
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -180,7 +208,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       })
       .catch((err) => {
         toast.error("upload failed!");
-      });
+      })
+      .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
   };
 
   return (
@@ -299,14 +328,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center p-2 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -335,14 +366,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center p-2 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -361,7 +394,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       <div className="">
         <label>{formatBytes(storageUsed)} Used</label>
 
-        <ProgressBar percent={(storageUsed * 100) / storageAvailable} />
+        <ProgressBar
+          percent={(storageUsed * 100) / storageAvailable}
+          className="bg-gray-200 h-2.5"
+          color="bg-gray-400"
+        />
 
         <label className="text-xs text-neutral-800">
           {formatPercent(storageUsed, storageAvailable)} used -{" "}
@@ -379,7 +416,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           type="file"
           id="file"
           onChange={handleFileInputChange}
-          multiple={true}
+          multiple={false}
           accept="*/*"
           hidden
         />

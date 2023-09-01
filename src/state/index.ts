@@ -5,11 +5,13 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import userReducer from "./user/reducer";
 import userdetailReducer from "./userdetail/reducer";
 import mystorageReducer from "./mystorage/reducer";
+import uploadstatusReducer from "./uploadstatus/reducer";
 
 const rootReducer = combineReducers({
   user: userReducer,
   userdetail: userdetailReducer,
   mystorage: mystorageReducer,
+  uploadstatus: uploadstatusReducer,
 });
 
 export const state = configureStore({

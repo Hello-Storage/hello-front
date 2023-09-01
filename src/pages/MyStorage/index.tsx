@@ -1,22 +1,16 @@
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useLocation } from "react-router-dom";
-import {
-  HiDocumentDuplicate,
-  HiDocumentText,
-  HiOutlineViewGrid,
-  HiOutlineViewList,
-} from "react-icons/hi";
-import { ContextMenu } from "components";
-import Files from "./components/Files";
+import { HiOutlineViewGrid, HiOutlineViewList } from "react-icons/hi";
+import Content from "./components/Content";
 import Breadcrumb from "./components/Breadcrumb";
 import Dropzone from "./components/Dropzone";
-import { formatUID } from "utils";
 import { useAppSelector } from "state";
 import { useSearchContext } from "contexts/SearchContext";
 
 import { useDropdown, useFetchData } from "hooks";
+import UploadProgress from "./components/UploadProgress";
 
 dayjs.extend(relativeTime);
 
@@ -27,6 +21,7 @@ export default function Home() {
 
   const location = useLocation();
   const mystorage = useAppSelector((state) => state.mystorage);
+  const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { fetchRootContent, fetchUserDetail } = useFetchData();
 
   //pagination
@@ -59,7 +54,7 @@ export default function Home() {
       file.uid.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const [view, setView] = useState("list");
+  const [view, setView] = useState<"list" | "grid">("list");
 
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
@@ -172,86 +167,14 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="flex flex-1 mt-3">
-        {view === "list" && (
-          <div className="flex flex-col flex-1 max-h-screen">
-            <div className="overflow-auto md:overflow-visible max-h-[calc(100vh-6rem)] custom-scrollbar">
-              <table className="w-full text-sm text-left text-gray-500 table-with-lines">
-                <thead className="text-xs text-gray-700 bg-gray-100">
-                  <tr>
-                    <th scope="col" className="p-3 rounded-tl-lg rounded-bl-lg">
-                      Name
-                    </th>
-                    <th scope="col" className="p-1">
-                      CID
-                    </th>
-                    <th scope="col" className="p-1">
-                      Size
-                    </th>
-                    <th scope="col" className="py-1 px-3">
-                      Type
-                    </th>
-                    <th scope="col" className="p-1 whitespace-nowrap">
-                      Last Modified
-                    </th>
-                    <th
-                      scope="col"
-                      className="rounded-tr-lg rounded-br-lg"
-                    ></th>
-                  </tr>
-                </thead>
-                <Files folders={filteredFolders} files={filteredFiles} />
-              </table>
-            </div>
-            <div className="flex-1" id="right">
-              <ContextMenu targetId="right" />
-            </div>
-          </div>
-        )}
-        {view === "grid" && (
-          <div className="flex flex-wrap justify-between pb-16">
-            {filteredFolders.map((v, i) => (
-              <div className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md w-64 flex flex-col justify-between h-[240px]">
-                <div>
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="p-1 bg-gray-100 rounded-md">
-                      <HiDocumentText className="w-7 h-7" />
-                    </div>
-                    <div className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
-                      {v.title}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center mt-auto text-xs gap-2">
-                  {formatUID(v.uid)} <HiDocumentDuplicate />
-                </div>
-              </div>
-            ))}
-            {filteredFiles.map((v, i) => (
-              <div className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md w-64 flex flex-col justify-between h-[240px]">
-                <div>
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="p-1 bg-gray-100 rounded-md">
-                      <HiDocumentText className="w-7 h-7" />
-                    </div>
-                    <div className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
-                      {v.name}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center mt-auto text-xs gap-2">
-                  {formatUID(v.uid)} <HiDocumentDuplicate />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="flex flex-1 flex-col mt-3">
+        <Content files={filteredFiles} folders={filteredFolders} view={view} />
       </div>
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
         <div>
-          Showing {totalItems === 0 ? startIndex : startIndex + 1} to {Math.min(endIndex, totalItems) + 1} of{" "}
-          {totalItems} results
+          Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
+          {Math.min(endIndex, totalItems) + 1} of {totalItems} results
         </div>
         <div className="fex space-x-2">
           <button
@@ -282,6 +205,9 @@ export default function Home() {
           </button>
         </div>
       </div>
+
+      {/* Upload Info */}
+      {uploading && <UploadProgress />}
     </div>
   );
 }

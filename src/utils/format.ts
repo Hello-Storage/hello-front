@@ -33,13 +33,13 @@ export const formatBytes = (bytes: number, decimals = 2) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const formatPercent = (child: number, parent: number, decimal = 0) => {
+export const formatPercent = (child: number, parent: number, decimal = 2) => {
   const num = child / parent;
 
   const numberFormater = new Intl.NumberFormat("en-US", {
     style: "percent",
-    minimumFractionDigits: decimal,
-    maximumFractionDigits: 5,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimal,
   });
   return numberFormater.format(Number(num));
 };
