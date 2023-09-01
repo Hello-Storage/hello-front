@@ -188,9 +188,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       root = location.pathname.split("/")[2];
     }
 
-    console.log(files);
     formData.append("root", root);
 
+    const folder = files[0].webkitRelativePath.split("/")[0];
     for (const file of files) formData.append("files", file);
     dispatch(
       setUploadStatusAction({
