@@ -145,7 +145,15 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     formData.append("root", root);
     for (const file of files) formData.append("files", file);
 
-    dispatch(setUploadStatusAction({ uploading: true }));
+    if (files.length === 1)
+      dispatch(setUploadStatusAction({ info: files[0].name, uploading: true }));
+    else
+      dispatch(
+        setUploadStatusAction({
+          info: `uploading ${files.length} files`,
+          uploading: true,
+        })
+      );
 
     Api.post("/file/upload", formData, {
       headers: {
@@ -161,7 +169,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .catch((err) => {
         toast.error("upload failed!");
       })
-      .finally(() => dispatch(setUploadStatusAction({ uploading: true })));
+      .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
   };
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
@@ -178,11 +186,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       root = location.pathname.split("/")[2];
     }
 
-    console.log(files);
     formData.append("root", root);
 
+    const folder = files[0].webkitRelativePath.split("/")[0];
     for (const file of files) formData.append("files", file);
-
+    dispatch(
+      setUploadStatusAction({
+        info: `uploading ${folder} folder`,
+        uploading: true,
+      })
+    );
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -195,7 +208,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       })
       .catch((err) => {
         toast.error("upload failed!");
-      });
+      })
+      .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
   };
 
   return (
