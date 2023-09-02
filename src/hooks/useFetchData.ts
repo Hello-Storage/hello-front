@@ -7,7 +7,7 @@ import { loadUserDetail } from "state/userdetail/actions";
 import { File, Folder } from "api/types/base";
 import getPersonalSignature from "api/getPersonalSignature";
 import { toast } from "react-toastify";
-import { bufferToBase64Url, decryptContent, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
+import { decryptContent, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
 
 const useFetchData = () => {
   const dispatch = useAppDispatch();

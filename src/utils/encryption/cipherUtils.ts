@@ -11,8 +11,8 @@ export const digestMessage = async (message: string) => {
 export const signPersonalSignature = async (address: string): Promise<string> => {
     const message = `https://hello.storage/\nPersonal signature\n\nWallet address:\n${address}`
 
-    
-    const signature = await signMessage({ message });
+    const signature = await signMessage({ message })
+
 
     //return personal signature
     return signature;

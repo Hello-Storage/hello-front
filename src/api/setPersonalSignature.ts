@@ -2,10 +2,8 @@
 
 const setPersonalSignature = (personalSignature?: string) => {
   if (personalSignature) {
-    console.log("Setting personal_signature");  // Logging for debugging
     sessionStorage.setItem("personal_signature", personalSignature);
   } else {
-    console.log("Removing personal_signature");  // Logging for debugging
     sessionStorage.removeItem("personal_signature");
   }
 };

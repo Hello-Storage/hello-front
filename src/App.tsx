@@ -34,7 +34,6 @@ function App() {
       setAuthToken(token);
     }
     if (personalSignature) {
-      console.log("setting personal 1")
       setPersonalSignature(personalSignature);
     }
     load();
