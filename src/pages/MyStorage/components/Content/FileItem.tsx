@@ -110,9 +110,23 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       });
   };
 
+  const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
+    const dragInfo = JSON.stringify({
+      id: event.currentTarget.id.toString(),
+      uid: event.currentTarget.ariaLabel?.toString(),
+      type: "file",
+    });
+    console.log("Drag: " + dragInfo);
+    event.dataTransfer.setData("text/plain", dragInfo);
+  };
+
   if (view === "list")
     return (
       <tr
+        id={file.id.toString()}
+        aria-label={file.uid}
+        draggable
+        onDragStart={handleDragStart}
         className="bg-white cursor-pointer border-b hover:bg-gray-100"
         onDoubleClick={handleView}
       >
