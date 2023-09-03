@@ -184,6 +184,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         const cidOriginalEncryptedBuffer = await encryptBuffer(cidOriginalBuffer, personalSignature);
 
         //transform encryptedCidSigned to string
+
         const cidOriginalEncryptedBase64Url = bufferToBase64Url(cidOriginalEncryptedBuffer);
 
         const encryptedFileBlob = new Blob([encryptedFileBuffer]);
