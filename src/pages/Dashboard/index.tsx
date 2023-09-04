@@ -1,6 +1,7 @@
 import World from "./components/World";
 import { FaCircle } from "react-icons/fa";
 import { StackedBar } from "components";
+import Chart from "./components/Chart";
 
 const data = [
   {
@@ -62,7 +63,7 @@ export default function Dashboard() {
 
       <hr className="my-3" />
       <div className="flex gap-3">
-        <div>
+        <div className="flex-1">
           <h3 className="text-xl font-medium">Storage distribution</h3>
           <World />
         </div>
@@ -109,6 +110,10 @@ export default function Dashboard() {
           </ul>
 
           <StackedBar data={data} />
+
+          <div className="mt-5">
+            <Chart />
+          </div>
         </div>
       </div>
     </div>
