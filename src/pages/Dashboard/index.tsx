@@ -1,5 +1,25 @@
 import World from "./components/World";
+import { FaCircle } from "react-icons/fa";
+import { StackedBar } from "components";
 
+const data = [
+  {
+    color: "#BEBFF5",
+    percent: 40,
+  },
+  {
+    color: "#FCB3FC",
+    percent: 40,
+  },
+  {
+    color: "#BFEED0",
+    percent: 10,
+  },
+  {
+    color: "#B5CFFD",
+    percent: 10,
+  },
+];
 export default function Dashboard() {
   return (
     <div>
@@ -41,8 +61,56 @@ export default function Dashboard() {
       </div>
 
       <hr className="my-3" />
-      <h3 className="text-xl font-medium">Storage distribution</h3>
-      <World />
+      <div className="flex gap-3">
+        <div>
+          <h3 className="text-xl font-medium">Storage distribution</h3>
+          <World />
+        </div>
+
+        <div className="flex-1">
+          <h5 className="text-xl font-semibold">Folders storage</h5>
+
+          <ul className="list-none mt-3">
+            <li className="inline mr-3">
+              <FaCircle
+                color="#BEBFF5"
+                size={10}
+                className="inline-block mr-2"
+              />
+              <span>Documents</span>
+            </li>
+
+            <li className="inline mr-3">
+              <FaCircle
+                color="#FCB3FC"
+                size={10}
+                className="inline-block mr-2"
+              />
+              <span>Archives</span>
+            </li>
+
+            <li className="inline mr-3">
+              <FaCircle
+                color="#BFEED0"
+                size={10}
+                className="inline-block mr-2"
+              />
+              <span>Images</span>
+            </li>
+
+            <li className="inline mr-3">
+              <FaCircle
+                color="#B5CFFD"
+                size={10}
+                className="inline-block mr-2"
+              />
+              <span>Images</span>
+            </li>
+          </ul>
+
+          <StackedBar data={data} />
+        </div>
+      </div>
     </div>
   );
 }
