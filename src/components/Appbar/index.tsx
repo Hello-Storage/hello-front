@@ -28,7 +28,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row md:gap-8 items-center">
+      <div className="flex flex-col items-start md:flex-row md:items-center md:gap-8">
         <form className="flex-1 order-last w-full mt-4 md:mt-0 md:order-first">
           <label
             htmlFor="default-search"
@@ -64,7 +64,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             />
           </div>
         </form>
-        <div className="flex items-center md:gap-8 justify-between w-full md:w-fit">
+        <div className="flex items-center md:gap-8 md:justify-between justify-start md:w-fit gap-1">
           <button className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-200 ">
             <HiCubeTransparent />
             <span className="text-sm">Chain</span>
