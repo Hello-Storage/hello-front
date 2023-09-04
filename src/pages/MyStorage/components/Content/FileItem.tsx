@@ -15,8 +15,9 @@ import { formatBytes, formatUID } from "utils";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import copy from "copy-to-clipboard";
+import { useModal } from "components/Modal";
 
 interface FileItemProps {
   file: FileType;
@@ -59,43 +60,46 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       });
   };
 
+  const [modalContent, setModalContent] = useState<React.ReactNode | null>(
+    null
+  );
+  const [onPresent, onDismiss] = useModal(modalContent);
+
   const handleView = () => {
-    // Make a request to download the file with responseType 'blob'
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then((res) => {
-        //Create a file object from the response data
-        const downloadedFile = new File([res.data], file.name, {
-          type: file.mime_type,
-        });
-
-        if (!downloadedFile) {
-          console.error("Error downloading file:", file);
-          return;
-        }
-
-        // Get blob from the file object
-        const blob = new Blob([downloadedFile], { type: file.mime_type });
-
-        if (!blob) {
-          console.error("Error downloading file:", file);
-          return;
-        }
-
-        // Create a blob URL from the blob
+        const blob = new Blob([res.data], { type: file.mime_type });
         const url = window.URL.createObjectURL(blob);
-
-        // Open the URL in a new tab
-        window.open(url, "_blank");
-
-        // Create a link and programmatically 'click' it to trigger the browser to download the file
-        const link = document.createElement("video");
-
-        link.setAttribute("download", file.name);
+        setModalContent(
+          <div className="modal-content">
+            <button className="mb-4" onClick={onDismiss}>
+              Close
+            </button>
+            <object
+              data={url}
+              width="100%"
+              style={
+                file.mime_type === "application/pdf"
+                  ? { width: "100vh", height: "80vh" }
+                  : {}
+              }
+              type={file.mime_type}
+            >
+              <embed src={url} type={file.mime_type} />
+            </object>
+          </div>
+        );
       })
       .catch((err) => {
         console.error("Error downloading file:", err);
       });
   };
+
+  useEffect(() => {
+    if (modalContent) {
+      onPresent();
+    }
+  }, [modalContent]);
 
   const handleDelete = () => {
     // Make a request to delete the file with response code 200
