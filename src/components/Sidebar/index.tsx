@@ -13,6 +13,7 @@ import Book from "assets/images/Outline/Book.png";
 import Box from "assets/images/Outline/Box.png";
 import Key from "assets/images/Outline/Key.png";
 import Cloud from "assets/images/Outline/Cloud-upload.png";
+import { FiX } from "react-icons/fi";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
 import { Api } from "api";
@@ -430,12 +431,12 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           hidden
         />
       </div>
-      <div className="mt-4 md:hidden">
+      <div className="mt-4 md:hidden absolute top-3 right-10">
         <button
-          className="w-56 py-2 border-y border-gray-300"
+          className="p-1 border rounded-xl bg-white"
           onClick={() => setSidebarOpen(false)}
         >
-          Close Sidebar
+          <FiX size={24} />
         </button>
       </div>
     </div>
