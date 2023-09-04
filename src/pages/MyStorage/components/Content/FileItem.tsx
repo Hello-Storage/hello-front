@@ -227,7 +227,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
             </div>
           </div>
         </div>
-        <div className="text-center text-xs">
+        <div
+          className="text-center text-xs flex items-center justify-center gap-1 select-none hover:text-blue-500 mt-4"
+          onClick={onCopy}
+        >
           <label>{formatUID(file.uid)}</label>
           <HiDocumentDuplicate className="inline-block" />
         </div>
