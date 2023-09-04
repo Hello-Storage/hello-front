@@ -429,7 +429,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           hidden
         />
       </div>
-      <div className="mt-4 md:hidden absolute top-2 right-10">
+      <div className="mt-4 md:hidden absolute top-2 right-20">
         <button
           className="p-1 border rounded-xl bg-white"
           onClick={() => setSidebarOpen(false)}

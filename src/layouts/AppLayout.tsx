@@ -28,9 +28,15 @@ export default function AppLayout() {
             </button>
           </div>
         )}
+        <div
+          className={`fixed inset-0 bg-black opacity-50 z-10 ${
+            sidebarOpen ? "block" : "hidden"
+          } md:hidden`}
+          onClick={() => setSidebarOpen(false)}
+        ></div>
         <div className="flex flex-grow">
           <div
-            className={`w-full md:w-72 ${
+            className={`w-5/6 md:w-72 z-20 bg-white ${
               sidebarOpen ? "block" : "hidden"
             } md:block`}
           >
@@ -38,7 +44,7 @@ export default function AppLayout() {
           </div>
           <div
             className={`flex flex-col flex-1 md:px-10 px-5 py-4 ${
-              sidebarOpen ? "hidden" : "block"
+              sidebarOpen ? "md:ml-72 overflow-hidden w-full blur-sm" : ""
             }`}
           >
             <Appbar onSearchChange={(e) => setSearchTerm(e.target.value)} />
