@@ -65,7 +65,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
           </div>
         </form>
         <div className="flex items-center md:gap-8 md:justify-between justify-start md:w-fit gap-1">
-          <button className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-200 ">
+          <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200">
             <HiCubeTransparent />
             <span className="text-sm">Chain</span>
             <HiChevronDown />
@@ -73,7 +73,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
 
           <div className="relative" ref={ref}>
             <button
-              className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-200 "
+              className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200"
               type="button"
               onClick={() => setOpen(!open)}
             >
