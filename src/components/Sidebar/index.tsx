@@ -216,7 +216,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   };
 
   return (
-    <div className="flex flex-col rounded-xl h-full bg-[#F3F4F6] px-16 md:px-5 py-3 w-full">
+    <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-16 md:px-6 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <label className="text-2xl font-semibold font-[Outfit]">
@@ -262,7 +262,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         <div className="relative" ref={dropRef}>
           <button
-            className="flex items-center gap-2 justify-center text-white w-56 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
             onClick={() => setOpen(!open)}
           >
             <HiPlus /> New
@@ -408,7 +408,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           {formatBytes(storageAvailable)} available
         </label>
         <div className="mt-4">
-          <button className="text-white w-56 p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
+          <button className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
             Buy storage
           </button>
         </div>
@@ -431,7 +431,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           hidden
         />
       </div>
-      <div className="mt-4 md:hidden absolute top-3 right-10">
+      <div className="mt-4 md:hidden absolute top-2 right-20">
         <button
           className="p-1 border rounded-xl bg-white"
           onClick={() => setSidebarOpen(false)}
