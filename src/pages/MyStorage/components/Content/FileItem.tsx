@@ -10,6 +10,9 @@ import {
   HiOutlineEye,
   HiOutlineTrash,
   HiDocumentText,
+  HiChevronLeft,
+  HiChevronRight,
+  HiX,
 } from "react-icons/hi";
 import { formatBytes, formatUID } from "utils";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
@@ -22,9 +25,11 @@ import { useModal } from "components/Modal";
 interface FileItemProps {
   file: FileType;
   view: "list" | "grid";
+  index: number;
+  files: FileType[];
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view, files, index }) => {
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -64,31 +69,63 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     null
   );
   const [onPresent, onDismiss] = useModal(modalContent);
+  const [currentIndex, setCurrentIndex] = useState(index);
 
-  const handleView = () => {
-    Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
+  const handleView = (fileToView: FileType, newIndex: number) => {
+    Api.get(`/file/download/${fileToView.uid}`, { responseType: "blob" })
       .then((res) => {
-        const blob = new Blob([res.data], { type: file.mime_type });
+        const blob = new Blob([res.data], { type: fileToView.mime_type });
         const url = window.URL.createObjectURL(blob);
         setModalContent(
-          <div className="modal-content">
-            <button className="mb-4" onClick={onDismiss}>
-              Close
+          <div className="modal-content max-w-5xl flex flex-col items-center justify-center">
+            <button className="absolute top-8 right-8" onClick={onDismiss}>
+              <HiX className="w-6 h-6" />
+              <span className="sr-only">Close</span>
             </button>
-            <object
-              data={url}
-              width="100%"
-              style={
-                file.mime_type === "application/pdf"
-                  ? { width: "100vh", height: "80vh" }
-                  : {}
-              }
-              type={file.mime_type}
-            >
-              <embed src={url} type={file.mime_type} />
-            </object>
+            <div className="flex justify-between items-center w-full gap-12">
+              <div className="navigation-buttons fixed left-8 md:left-64 top-50">
+                {newIndex > 0 && (
+                  <button
+                    onClick={() =>
+                      handleView(files[newIndex - 1], newIndex - 1)
+                    }
+                    className="flex items-center bg-white p-1 border border-gray-200 rounded-xl hover:bg-gray-100"
+                  >
+                    <HiChevronLeft className="w-6 h-6" />
+                    <span className="sr-only">Previous</span>
+                  </button>
+                )}
+              </div>
+              <object
+                key={fileToView.uid}
+                data={url}
+                width="100%"
+                style={
+                  fileToView.mime_type === "application/pdf"
+                    ? { width: "60vw", height: "80vh" }
+                    : {}
+                }
+                type={fileToView.mime_type}
+              >
+                <embed src={url} type={fileToView.mime_type} />
+              </object>
+              <div className="navigation-buttons fixed right-8 md:right-64 top-50">
+                {newIndex < files.length - 1 && (
+                  <button
+                    onClick={() =>
+                      handleView(files[newIndex + 1], newIndex + 1)
+                    }
+                    className="flex items-center bg-white p-1 border border-gray-200 rounded-xl hover:bg-gray-100"
+                  >
+                    <HiChevronRight className="w-6 h-6" />
+                    <span className="sr-only">Next</span>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         );
+        setCurrentIndex(newIndex);
       })
       .catch((err) => {
         console.error("Error downloading file:", err);
@@ -132,7 +169,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         draggable
         onDragStart={handleDragStart}
         className="bg-white cursor-pointer border-b hover:bg-gray-100"
-        onDoubleClick={handleView}
+        onDoubleClick={() => handleView(file, index)}
       >
         <th
           scope="row"
@@ -189,7 +226,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
                       <a
                         href="#"
                         className="block px-4 py-2 hover:bg-gray-100"
-                        onClick={handleView}
+                        onClick={() => handleView(file, index)}
                       >
                         <HiOutlineEye className="inline-flex mr-3" />
                         View
