@@ -91,18 +91,10 @@ const useFetchData = () => {
     }
 
     Api.get<RootResponse>(root)
-      .then(async (res) => {
-        const decryptedFiles = await handleEncryptedFiles(res.data.files);
-        const decryptedFolders = await handleEncryptedFolders(res.data.folders);
-        const decryptedPath = await handleEncryptedFolders(res.data.path);
-        if (!decryptedFiles || !decryptedFolders || !decryptedPath) {
-          toast.error("Failed to decrypt files");
-          dispatch(fetchContent(res.data));
-          return;
-        }
-        dispatch(fetchContent({ ...res.data, files: decryptedFiles, folders: decryptedFolders, path: decryptedPath }));
+      .then((res) => {
+        dispatch(fetchContent(res.data));
       })
-      .catch((err) => {console.log(err)});
+      .catch((err) => {});
   }, [location.pathname]);
 
   const fetchUserDetail = useCallback(() => {
