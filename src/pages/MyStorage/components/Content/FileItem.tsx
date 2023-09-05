@@ -1,6 +1,5 @@
 import { Api } from "api";
-import { File as FileType } from "api/types";
-import { PublicIcon } from "components";
+import { EncryptionStatus, File as FileType } from "api/types";
 import dayjs from "dayjs";
 import {
   HiDocumentDuplicate,
@@ -13,14 +12,21 @@ import {
   HiChevronLeft,
   HiChevronRight,
   HiX,
+  HiOutlineLockOpen,
+  HiLockClosed,
 } from "react-icons/hi";
+import {
+  getFileExtension,
+  getFileIcon,
+  viewableExtensions,
+} from "./utils";
 import { formatBytes, formatUID } from "utils";
-import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
 import { useRef, useState, useEffect } from "react";
 import copy from "copy-to-clipboard";
 import { useModal } from "components/Modal";
+import { blobToArrayBuffer, decryptFileBuffer } from "utils/encryption/filesCipher";
 
 interface FileItemProps {
   file: FileType;
@@ -43,27 +49,33 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, files, index }) => {
   };
 
   // Function to handle file download
-  const handleDownload = () => {
-    // Make a request to download the file with responseType 'blob'
-    Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
-      .then((res) => {
-        // Create a blob from the response data
-        const blob = new Blob([res.data], { type: file.mime_type });
+const handleDownload = () => {
+  // Make a request to download the file with responseType 'blob'
+  Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
+    .then(async (res) => {
+      // Create a blob from the response data
+      let binaryData = res.data;
+      if (file.status === EncryptionStatus.Encrypted) {
+        const originalCid = file.cid_original_encrypted;
+        binaryData = await blobToArrayBuffer(binaryData);
+        binaryData = await decryptFileBuffer(binaryData, originalCid)
+      }
+      const blob = new Blob([binaryData], { type: file.mime_type });
 
-        // Create a link element and set the blob as its href
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.name; // Set the file name
-        a.click(); // Trigger the download
+      // Create a link element and set the blob as its href
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name; // Set the file name
+      a.click(); // Trigger the download
 
-        // Clean up
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((err) => {
-        console.error("Error downloading file:", err);
-      });
-  };
+      // Clean up
+      window.URL.revokeObjectURL(url);
+    })
+    .catch((err) => {
+      console.error("Error downloading file:", err);
+    });
+};
 
   const [modalContent, setModalContent] = useState<React.ReactNode | null>(
     null
@@ -72,9 +84,26 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, files, index }) => {
   const [currentIndex, setCurrentIndex] = useState(index);
 
   const handleView = (fileToView: FileType, newIndex: number) => {
-    Api.get(`/file/download/${fileToView.uid}`, { responseType: "blob" })
-      .then((res) => {
-        const blob = new Blob([res.data], { type: fileToView.mime_type });
+    let fileUID = fileToView.uid;
+    let mimeType = fileToView.mime_type;
+    let status = fileToView.status;
+    let originalCid = fileToView.cid_original_encrypted;
+
+    Api.get(`/file/download/${fileUID}`, { responseType: "blob" })
+      .then(async (res) => {
+        let binaryData = res.data;
+
+        if (status === EncryptionStatus.Encrypted) {
+          binaryData = await blobToArrayBuffer(binaryData);
+          binaryData = await decryptFileBuffer(binaryData, originalCid);
+        }
+
+        const blob = new Blob([binaryData], { type: mimeType });
+        if (!blob) {
+          console.error("Error downloading file:", fileToView);
+          return;
+        }
+
         const url = window.URL.createObjectURL(blob);
         setModalContent(
           <div className="modal-content max-w-5xl flex flex-col items-center justify-center">
@@ -86,9 +115,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, files, index }) => {
               <div className="navigation-buttons fixed left-8 md:left-64 top-50">
                 {newIndex > 0 && (
                   <button
-                    onClick={() =>
-                      handleView(files[newIndex - 1], newIndex - 1)
-                    }
+                    onClick={() => handleView(files[newIndex - 1], newIndex - 1)}
                     className="flex items-center bg-white p-1 border border-gray-200 rounded-xl hover:bg-gray-100"
                   >
                     <HiChevronLeft className="w-6 h-6" />
@@ -112,9 +139,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, files, index }) => {
               <div className="navigation-buttons fixed right-8 md:right-64 top-50">
                 {newIndex < files.length - 1 && (
                   <button
-                    onClick={() =>
-                      handleView(files[newIndex + 1], newIndex + 1)
-                    }
+                    onClick={() => handleView(files[newIndex + 1], newIndex + 1)}
                     className="flex items-center bg-white p-1 border border-gray-200 rounded-xl hover:bg-gray-100"
                   >
                     <HiChevronRight className="w-6 h-6" />
@@ -161,6 +186,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, files, index }) => {
     event.dataTransfer.setData("text/plain", dragInfo);
   };
 
+  const onFileDoubleClick = () =>  {
+    handleView();
+  }
+
   if (view === "list")
     return (
       <tr
@@ -185,14 +214,14 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, files, index }) => {
             className="flex items-center gap-1 select-none hover:text-blue-500"
             onClick={onCopy}
           >
-            {formatUID(file.uid)}
+            {formatUID(file.cid)}
             <HiDocumentDuplicate />
           </div>
         </td>
         <td className="p-1">{formatBytes(file.size)}</td>
         <td className="p-1">
           <div className="flex items-center">
-            <PublicIcon /> Public
+            {file.status === "public" ? <><HiOutlineLockOpen /><>Public</></> : <HiLockClosed />} {file.status === "encrypted" && <>Encrypted</>}
           </div>
         </td>
         <td className="p-1">{dayjs(file.updated_at).fromNow()}</td>

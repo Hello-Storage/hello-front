@@ -23,7 +23,7 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
       </Provider>
 
       {/* toast */}
-      <ToastContainer position="bottom-right" theme="colored" closeOnClick />
+      <ToastContainer position="top-right" theme="colored" closeOnClick />
     </>
   );
 };
