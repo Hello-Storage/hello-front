@@ -1,5 +1,6 @@
-import World from "./components/World";
 import { FaCircle } from "react-icons/fa";
+import { useResizeDetector } from "react-resize-detector";
+import World from "./components/World";
 import { StackedBar } from "components";
 import Chart from "./components/Chart";
 
@@ -22,14 +23,15 @@ const data = [
   },
 ];
 export default function Dashboard() {
+  const { width, height, ref } = useResizeDetector();
   return (
     <div>
       <h1 className="text-xl font-medium">Dashboard</h1>
-      <div className="grid grid-cols-4 mt-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  mt-3 gap-5">
         <div className="border rounded-md p-3">
           <label>Used Storage</label>
           <div className="">
-            <label className="text-sm text-gray-300">
+            <label className="text-sm text-gray-500">
               <b className="text-2xl font-semibold text-black">10GB</b> / 40GB
             </label>
           </div>
@@ -45,7 +47,7 @@ export default function Dashboard() {
         <div className="border rounded-md p-3">
           <label>Public files</label>
           <div className="">
-            <label className="text-sm text-gray-300">
+            <label className="text-sm text-gray-500">
               <b className="text-2xl font-semibold text-black">132</b> / files
             </label>
           </div>
@@ -54,18 +56,18 @@ export default function Dashboard() {
         <div className="border rounded-md p-3">
           <label>Encrypted files</label>
           <div className="">
-            <label className="text-sm text-gray-300">
+            <label className="text-sm text-gray-500">
               <b className="text-2xl font-semibold text-black">50</b> / files
             </label>
           </div>
         </div>
       </div>
 
-      <hr className="my-3" />
-      <div className="flex gap-3">
-        <div className="flex-1">
+      <hr className="mt-5 mb-3" />
+      <div className="grid grid-cols-1 lg:grid-cols-2  gap-3">
+        <div className="flex-1" ref={ref}>
           <h3 className="text-xl font-medium">Storage distribution</h3>
-          <World />
+          <World size={width} />
         </div>
 
         <div className="flex-1">

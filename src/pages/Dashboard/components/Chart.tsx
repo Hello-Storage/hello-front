@@ -3,20 +3,19 @@ import {
   CategoryScale,
   LinearScale,
   PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
   Filler,
-  ChartOptions,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Line, Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -91,11 +90,11 @@ export const data = {
       ],
       tension: 0.3,
       borderColor: "#03BC47",
-      backgroundColor: "#03BC4740",
+      backgroundColor: "#49A0F7",
     },
   ],
 };
 
 export default function Chart() {
-  return <Line options={options} data={data} />;
+  return <Bar options={options} data={data} />;
 }
