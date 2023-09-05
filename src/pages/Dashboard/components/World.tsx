@@ -4,7 +4,7 @@ import GlobeImg from "@images/globe.jpg";
 import globeData from "./data.json";
 import populationData from "./population.json";
 
-export default function World() {
+export default function World({ size }: { size: number | undefined }) {
   const globeRef = useRef();
 
   useEffect(() => {
@@ -24,15 +24,15 @@ export default function World() {
       const directionalLight = (globeRef.current as any)
         .scene()
         .children.find((obj3d: any) => obj3d.type === "DirectionalLight");
-      if (directionalLight) directionalLight.intensity = 0; // change light position to see the specularMap's effect
+      // if (directionalLight) directionalLight.intensity = 0.2; // change light position to see the specularMap's effect
     }, 500);
   }, []);
 
   return (
     <Globe
       ref={globeRef}
-      width={500}
-      height={500}
+      width={size}
+      height={size}
       backgroundColor="white"
       globeImageUrl={GlobeImg}
       atmosphereColor="#27272a"

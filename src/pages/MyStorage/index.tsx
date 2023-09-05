@@ -26,7 +26,23 @@ export default function Home() {
 
   //pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Set itemsPerPage to 5 if window width is less than 768px (mobile), else set it to 10 (desktop)
+      setItemsPerPage(window.innerWidth < 768 ? 6 : 10);
+    };
+
+    // Attach event listener
+    window.addEventListener("resize", handleResize);
+
+    // Call handler right away so state gets updated with initial window size
+    handleResize();
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const totalItems = mystorage.folders.length + mystorage.files.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -176,9 +192,9 @@ export default function Home() {
           Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
           {Math.min(endIndex, totalItems) + 1} of {totalItems} results
         </div>
-        <div className="fex space-x-2">
+        <div className="flex items-center space-x-2">
           <button
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 rounded flex items-center ${
               currentPage === 1
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
@@ -188,10 +204,10 @@ export default function Home() {
             }
             disabled={currentPage === 1}
           >
-            {"< "}Previous
+            {"< "}Prev
           </button>
           <button
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 rounded flex items-center ${
               totalPages === 0 || currentPage === totalPages
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
