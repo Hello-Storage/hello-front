@@ -15,6 +15,7 @@ Api.interceptors.response.use(
   (res) => res,
   (err: AxiosError) => {
     if (err.response?.status === 401) {
+      console.error("Axios error: ", err);
       // dispatch logout
       state.dispatch(logoutUser());
     }

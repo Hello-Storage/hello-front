@@ -9,6 +9,8 @@ import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
 import state from "state";
 import { logoutUser } from "state/user/actions";
+import { checkPassword } from "utils/checkPassword";
+import setPersonalSignature from "api/setPersonalSignature";
 
 const Home = lazy(() => import("pages/Home"));
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -26,9 +28,13 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
+    const personalSignature = sessionStorage.getItem("personal_signature");
 
     if (token) {
       setAuthToken(token);
+    }
+    if (personalSignature) {
+      setPersonalSignature(personalSignature);
     }
     load();
     // log user out from all tabs if they log out in one tab
