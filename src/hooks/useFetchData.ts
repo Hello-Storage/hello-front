@@ -17,11 +17,22 @@ const useFetchData = () => {
     }
 
     Api.get<RootResponse>(root)
-      .then((res) => {
-        dispatch(fetchContent(res.data));
-      })
-      .catch((err) => {});
-  }, [location.pathname]);
+    .then((res) => {
+      const sortedFiles = res.data.files.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      const sortedFolders = res.data.folders.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      
+      dispatch(fetchContent({
+        ...res.data,
+        files: sortedFiles,
+        folders: sortedFolders
+      }));
+    })
+    .catch((err) => {});
+}, [location.pathname]);
 
   const fetchUserDetail = useCallback(() => {
     Api.get<UserDetailResponse>("/user/detail")

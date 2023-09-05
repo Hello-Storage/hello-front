@@ -27,6 +27,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [isDragging, setDragging] = useState(false);
   useDropdown(ref, open, setOpen);
 
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
@@ -110,6 +111,12 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       });
   };
 
+  const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
+
+  const handleFileClick = (clickedFile: FileType) => {
+    setSelectedFile(clickedFile);
+};
+  
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
       id: event.currentTarget.id.toString(),
@@ -118,6 +125,25 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     });
     console.log("Drag: " + dragInfo);
     event.dataTransfer.setData("text/plain", dragInfo);
+    setDragging(true);
+
+    console.log("Drag: " + dragInfo);
+    event.dataTransfer.setData("text/plain", dragInfo);
+  
+    setDragging(true);
+  };
+
+  const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
+    event.preventDefault();
+    event.dataTransfer.clearData();
+
+    const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
+
+   const handleFileClick = (clickedFile: FileType) => {
+    setSelectedFile(clickedFile);
+};
+
+    setDragging(false);
   };
 
   if (view === "list")
@@ -127,7 +153,13 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         aria-label={file.uid}
         draggable
         onDragStart={handleDragStart}
-        className="bg-white cursor-pointer border-b hover:bg-gray-100"
+        onDragEnd={handleDragEnd}
+        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${
+          isDragging
+            ? "active:bg-blue-300 active:text-white"
+            : ""
+        }`}
+        onClick={() => handleFileClick(file)}
         onDoubleClick={handleView}
       >
         <th

@@ -127,7 +127,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const handleDragOver = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
   };
-
+  const [elementosSeleccionados, setElementosSeleccionados] = useState([]);
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
       type: "folder",
@@ -138,6 +138,8 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
     event.dataTransfer.setData("text/plain", dragInfo);
   };
 
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+
   if (view === "list")
     return (
       <tr
@@ -147,12 +149,20 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
-        className={`bg-white cursor-pointer border-b hover:bg-gray-100`}
+        onDragEnter={() => setIsDraggingOver(true)}
+        onDragLeave={() => setIsDraggingOver(false)}
+        className="bg-white cursor-pointer border-b"
+        // className={`bg-white cursor-pointer border-b ${
+        //   isDraggingOver
+        //     ? "bg-blue-200 border-blue-500 border"
+        //     : "hover:bg-gray-100"
+        // }`}
         onDoubleClick={() => onFolderDoubleClick(folder.uid)}
       >
         <th
           scope="row"
           className="px-3 py-1 font-medium text-gray-900 whitespace-nowrap"
+          onDragEnter={() => setIsDraggingOver(true)}
         >
           <div className="flex items-center gap-3 select-none">
             <FaFolder size={32} color="#737373" />
