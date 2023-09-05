@@ -60,7 +60,9 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
           const fileData = atob(file.data);
           if (file.status === EncryptionStatus.Encrypted) {
+            console.log("Decrypting file:", file.name)
             const { decryptedFilename, decryptedFiletype, decryptedCidOriginal } = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
+            console.log("Decrypted file:", decryptedFilename, decryptedFiletype, decryptedCidOriginal)
             const stringToArrayBuffer = (str: string): ArrayBuffer => {
               const buf = new ArrayBuffer(str.length);
               const bufView = new Uint8Array(buf);
@@ -90,6 +92,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
               const decryptedComponentBuffer = await decryptContent(encryptedComponentUint8Array, personalSignature);
               const decryptedComponentStr = new TextDecoder().decode(decryptedComponentBuffer);
+              console.log("Decrypted component:", decryptedComponentStr)
               decryptedPathComponents.push(decryptedComponentStr);
             }
             decryptedPathComponents.push(decryptedFilename);
