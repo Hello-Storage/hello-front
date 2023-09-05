@@ -9,7 +9,6 @@ import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
 import state from "state";
 import { logoutUser } from "state/user/actions";
-import { checkPassword } from "utils/checkPassword";
 import setPersonalSignature from "api/setPersonalSignature";
 
 const Home = lazy(() => import("pages/Home"));
