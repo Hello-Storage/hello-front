@@ -3,7 +3,7 @@ import {
   CategoryScale,
   LinearScale,
   PointElement,
-  BarElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
@@ -15,7 +15,7 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
-  BarElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
@@ -90,11 +90,11 @@ export const data = {
       ],
       tension: 0.3,
       borderColor: "#03BC47",
-      backgroundColor: "#49A0F7",
+      backgroundColor: "#03BC4740",
     },
   ],
 };
 
 export default function Chart() {
-  return <Bar options={options} data={data} />;
+  return <Line options={options} data={data} />;
 }
