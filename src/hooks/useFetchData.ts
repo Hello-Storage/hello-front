@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { decryptContent, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
 import getAccountType from "api/getAccountType";
 import { logoutUser } from "state/user/actions";
+import useAuth from "./useAuth";
 
 const useFetchData = () => {
   const dispatch = useAppDispatch();
@@ -18,6 +19,7 @@ const useFetchData = () => {
   const { autoEncryptionEnabled } = useAppSelector(
     (state) => state.userdetail
   );
+  const { logout } = useAuth();
   const personalSignatureRef = useRef<string | undefined>();
 
   const accountType = getAccountType();
@@ -90,7 +92,7 @@ const useFetchData = () => {
         personalSignatureRef.current = await getPersonalSignature(name, autoEncryptionEnabled, accountType) //Promise<string | undefined>
         if (!personalSignatureRef.current) {
           toast.error("Failed to get personal signature");
-          logoutUser();
+          logout();
           return;
         }
         const decryptedFiles = await handleEncryptedFiles(res.data.files).catch((err) => { console.log(err) });

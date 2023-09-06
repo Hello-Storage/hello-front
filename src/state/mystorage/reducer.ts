@@ -5,6 +5,7 @@ import {
   openDropdown,
   closeDropdown,
   createFolder,
+  removeContent,
 } from "./actions";
 import { RootResponse } from "api";
 
@@ -24,5 +25,12 @@ export default createReducer<RootResponse>(initialState, (builder) => {
     .addCase(createFolder, (state, { payload }) => ({
       ...state,
       folders: [...state.folders, payload],
-    }));
+    }))
+    .addCase(removeContent, (state) => (
+      {
+        ...state,
+        files: [],
+        folders: [],
+      }
+      ));
 });

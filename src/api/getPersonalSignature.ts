@@ -2,9 +2,6 @@
 
 import { signPersonalSignature } from "utils/encryption/cipherUtils";
 import setPersonalSignature from "./setPersonalSignature";
-import { logoutUser } from "state/user/actions";
-import { useConnect } from "wagmi";
-
 
 
 
@@ -23,8 +20,7 @@ const getPersonalSignature = async (walletAddress: string, autoEncryption: boole
                 console.log(error)
                 //if error is ConnectorNotFoundError:
                 if (error.includes("ConnectorNotFoundError")) {
-                    console.log(error)
-                    logoutUser();
+                    //logoutUser();
                     return;
                 }
 
@@ -37,7 +33,7 @@ const getPersonalSignature = async (walletAddress: string, autoEncryption: boole
             setPersonalSignature(walletAddress);
             return walletAddress;
         } else {
-            logoutUser();
+           // logout();
             return;
         }
     }

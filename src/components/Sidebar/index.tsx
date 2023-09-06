@@ -17,7 +17,7 @@ import { FiX } from "react-icons/fi";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
 import { Api } from "api";
-import { useFetchData, useDropdown } from "hooks";
+import { useFetchData, useDropdown, useAuth } from "hooks";
 import { toggleEncryption, toggleAutoEncryption } from "state/userdetail/actions";
 
 import LogoHello from "@images/beta.png";
@@ -94,6 +94,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const { name } = useAppSelector((state) => state.user);
   const accountType = getAccountType();
 
+  const { logout } = useAuth();
 
   useEffect(() => {
     if (encryptionEnabled) {
@@ -227,6 +228,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType);
       if (!personalSignature) {
         toast.error("Failed to get personal signature");
+        logout();
         return;
       }
     }
@@ -258,14 +260,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       }
     }
     const infoText = isFolder
-        ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
-        : files.length === 1
-            ? files[0].name
-            : `uploading ${files.length} files`;
+      ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
+      : files.length === 1
+        ? files[0].name
+        : `uploading ${files.length} files`;
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
-    postData(formData); 
+    postData(formData);
   }
 
   const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (event) => {
