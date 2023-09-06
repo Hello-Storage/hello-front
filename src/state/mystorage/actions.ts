@@ -5,6 +5,8 @@ export const fetchContent = createAction<RootResponse>(
   "dashboard/fetch-content"
 );
 
+export const removeContent = createAction<string>("dashboard/remove-content");
+
 export const createFolder = createAction<Folder>("dashboard/create-folder");
 
 export const openDropdown = createAction<string>("dashboard/open-dropdown");
