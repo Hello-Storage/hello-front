@@ -9,6 +9,7 @@ import {
   logoutUser,
 } from "state/user/actions";
 import setPersonalSignature from "api/setPersonalSignature";
+import setAccountType from "api/setAccountType";
 
 const useAuth = () => {
   const load = useCallback(async () => {
@@ -25,6 +26,8 @@ const useAuth = () => {
   const login = useCallback(async (wallet_address: string) => {
     localStorage.removeItem("access_token");
     setAuthToken(undefined);
+    localStorage.removeItem("account_type")
+    setAccountType(undefined);
     sessionStorage.removeItem("personal_signature");
     setPersonalSignature(undefined);
 
@@ -42,6 +45,7 @@ const useAuth = () => {
     });
 
     setAuthToken(loginResp.data.access_token);
+    setAccountType("web3")
 
     load();
   }, []);
@@ -51,6 +55,7 @@ const useAuth = () => {
 
     setAuthToken(undefined);
     setPersonalSignature(undefined);
+    setAccountType(undefined);
 
     // disconnect when you sign with wallet
     disconnect();

@@ -28,6 +28,7 @@ import getPersonalSignature from "api/getPersonalSignature";
 import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, getCid } from "utils/encryption/filesCipher";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { AxiosProgressEvent } from "axios";
+import getAccountType from "api/getAccountType";
 
 const links1 = [
   {
@@ -95,6 +96,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   const { name } = useAppSelector((state) => state.user);
 
+  const accountType = getAccountType();
+
 
 
 
@@ -150,6 +153,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     if (location.pathname.includes("/folder")) {
       root = location.pathname.split("/")[2];
     }
+    let personalSignature;
+    if (encryptionEnabled) {
+      personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType);
+      if (!personalSignature) {
+        toast.error("Failed to get personal signature");
+        return;
+      }
+    }
 
 
     for (let i = 0; i < files.length; i++) {
@@ -159,15 +170,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
       if (encryptionEnabled) {
         // encrypt file metadata and blob
-        const personalSignature = await getPersonalSignature(name, autoEncryptionEnabled ?? false);
-        if (!personalSignature) {
-          toast.error("Failed to get personal signature");
-          return;
-        }
 
         //encrypt file's metadata
-        const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } = await encryptMetadata(file, personalSignature);
-
+        const encryptMetadataResult = await encryptMetadata(file, personalSignature);
+        if (!encryptMetadataResult) {
+          toast.error("Failed to encrypt metadata");
+          return;
+        }
+        const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } = encryptMetadataResult;
         //get the CID of the encrypted file, get the key used to encrypt the file (cidKey) and the encryptef file buffer
         //cidOriginalStr is the cid of the file's unencrypted buffer
         //cidOfEncryptedBufferStr is the cid of the encrypted file's buffer
@@ -186,6 +196,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         //transform encryptedCidSigned to string
 
+
+        if (!cidOriginalEncryptedBuffer) {
+          toast.error("Failed to encrypt buffer");
+          return;
+        }
         const cidOriginalEncryptedBase64Url = bufferToBase64Url(cidOriginalEncryptedBuffer);
 
         const encryptedFileBlob = new Blob([encryptedFileBuffer]);
@@ -268,6 +283,15 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
 
     const folder = files[0].webkitRelativePath.split("/")[0];
+    let personalSignature;
+    if (encryptionEnabled) {
+      // Encrypt file metadata and blob
+      personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType);
+      if (!personalSignature) {
+        toast.error("Failed to get personal signature");
+        return;
+      }
+    }
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
@@ -275,15 +299,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       const fileArrayBuffer = await file.arrayBuffer();
 
       if (encryptionEnabled) {
-        // Encrypt file metadata and blob
-        const personalSignature = await getPersonalSignature(name, autoEncryptionEnabled ?? false);
-        if (!personalSignature) {
-          toast.error("Failed to get personal signature");
+
+        const encryptMetadataResult = await encryptMetadata(file, personalSignature);
+        if (!encryptMetadataResult) {
+          toast.error("Failed to encrypt metadata");
           return;
         }
-
-        const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } = await encryptMetadata(file, personalSignature);
-
+        const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } = encryptMetadataResult; 
         const { cidOriginalStr, cidOfEncryptedBufferStr, encryptedFileBuffer, encryptionTimeParsed } = await encryptFileBuffer(fileArrayBuffer);
 
         toast.success(`${encryptionTimeParsed}`);
@@ -292,6 +314,10 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
         const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
         const cidOriginalEncryptedBuffer = await encryptBuffer(cidOriginalBuffer, personalSignature);
+        if (!cidOriginalEncryptedBuffer) {
+          toast.error("Failed to encrypt buffer");
+          return;
+        }
         const cidOriginalEncryptedBase64Url = bufferToBase64Url(cidOriginalEncryptedBuffer);
 
         // Encrypt the original webkitRelativePath but don't encerypt the "/"
@@ -305,6 +331,10 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             encryptedPathComponents.push(encryptedPathsMap[component]);
           } else {
             const encryptedComponentBuffer = await encryptBuffer(new TextEncoder().encode(component), personalSignature);
+            if (!encryptedComponentBuffer) {
+              toast.error("Failed to encrypt buffer");
+              return;
+            }
             const encryptedComponentHex = bufferToHex(encryptedComponentBuffer);
             encryptedPathsMap[component] = encryptedComponentHex;
             encryptedPathComponents.push(encryptedComponentHex);
