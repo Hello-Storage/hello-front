@@ -19,9 +19,11 @@ import { useNavigate } from "react-router-dom";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { formatUID } from "utils";
-import { blobToArrayBuffer, decryptContent, decryptFileBuffer, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
+import { decryptContent, decryptFileBuffer, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAppSelector } from "state";
+import getAccountType from "api/getAccountType";
+import { logoutUser } from "state/user/actions";
 
 interface FolderItemProps {
   folder: Folder;
@@ -39,6 +41,10 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const [isDragging, setDragging] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [dragEnterCount, setDragEnterCount] = useState(0);
+  const { autoEncryptionEnabled } = useAppSelector(
+    (state) => state.userdetail
+  );
+  const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
   const onCopy = () => {
@@ -50,7 +56,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
     navigate(`/folder/${folderUID}`);
   };
   const handleDownload = async () => {
-    const personalSignature = await getPersonalSignature(name, true);
+    const personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType);
     if (!personalSignature) {
       toast.error("Faialed ta get personal signature");
       return;
@@ -65,9 +71,12 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
           const fileData = atob(file.data);
           if (file.status === EncryptionStatus.Encrypted) {
-            console.log("Decrypting file:", file.name)
-            const { decryptedFilename, decryptedFiletype, decryptedCidOriginal } = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
-            console.log("Decrypted file:", decryptedFilename, decryptedFiletype, decryptedCidOriginal)
+            const decryptionResult = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
+            if (!decryptionResult) {
+              logoutUser();
+              return;
+            }
+            const { decryptedFilename, decryptedFiletype, decryptedCidOriginal } = decryptionResult;
             const stringToArrayBuffer = (str: string): ArrayBuffer => {
               const buf = new ArrayBuffer(str.length);
               const bufView = new Uint8Array(buf);
