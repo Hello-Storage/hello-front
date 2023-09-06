@@ -1,3 +1,5 @@
 export * from "./api";
 
-export * from "./types"
+export * from "./getPersonalSignature";
+
+export * from "./types";

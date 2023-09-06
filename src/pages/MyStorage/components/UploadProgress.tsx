@@ -8,7 +8,7 @@ export default function UploadProgress() {
   return (
     <div className="absolute bg-white w-80 left-1/2 bottom-5 border shadow-md">
       <div>
-        <div className="p-2">
+        <div className="p-3">
           <div className="flex items-center justify-between">
             <div className="">
               <FaFile className="inline-block mr-3" />

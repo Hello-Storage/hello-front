@@ -8,6 +8,7 @@ import {
   loadingUser,
   logoutUser,
 } from "state/user/actions";
+import setPersonalSignature from "api/setPersonalSignature";
 
 const useAuth = () => {
   const load = useCallback(async () => {
@@ -22,32 +23,34 @@ const useAuth = () => {
   }, []);
 
   const login = useCallback(async (wallet_address: string) => {
-    try {
-      const nonceResp = await Api.post<string>("/nonce", {
-        wallet_address,
-      });
+    localStorage.removeItem("access_token");
+    setAuthToken(undefined);
+    sessionStorage.removeItem("personal_signature");
+    setPersonalSignature(undefined);
 
-      const message = `Greetings from joinhello\nSign this message to log into joinhello\nnonce: ${nonceResp.data}`;
+    const nonceResp = await Api.post<string>("/nonce", {
+      wallet_address,
+    });
 
-      const signature = await signMessage({ message });
+    const message = `Greetings from joinhello\nSign this message to log into joinhello\nnonce: ${nonceResp.data}`;
 
-      const loginResp = await Api.post<LoginResponse>("/login", {
-        wallet_address,
-        signature,
-      });
+    const signature = await signMessage({ message });
 
-      setAuthToken(loginResp.data.access_token);
+    const loginResp = await Api.post<LoginResponse>("/login", {
+      wallet_address,
+      signature,
+    });
 
-      load();
-    } catch (error) {
-      throw error;
-    }
+    setAuthToken(loginResp.data.access_token);
+
+    load();
   }, []);
 
   const logout = useCallback(() => {
     state.dispatch(logoutUser());
 
     setAuthToken(undefined);
+    setPersonalSignature(undefined);
 
     // disconnect when you sign with wallet
     disconnect();

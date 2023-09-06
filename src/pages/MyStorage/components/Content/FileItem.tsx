@@ -1,6 +1,5 @@
 import { Api } from "api";
-import { File as FileType } from "api/types";
-import { PublicIcon } from "components";
+import { EncryptionStatus, File as FileType } from "api/types";
 import dayjs from "dayjs";
 import {
   HiDocumentDuplicate,
@@ -10,14 +9,20 @@ import {
   HiOutlineEye,
   HiOutlineTrash,
   HiDocumentText,
+  HiOutlineLockOpen,
+  HiLockClosed,
 } from "react-icons/hi";
-import { formatBytes, formatUID } from "utils";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
+import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, Fragment } from "react";
 import copy from "copy-to-clipboard";
 import { useModal } from "components/Modal";
+import {
+  blobToArrayBuffer,
+  decryptFileBuffer,
+} from "utils/encryption/filesCipher";
 
 interface FileItemProps {
   file: FileType;
@@ -28,6 +33,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [isDragging, setDragging] = useState(false);
   useDropdown(ref, open, setOpen);
 
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
@@ -41,9 +47,15 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const handleDownload = () => {
     // Make a request to download the file with responseType 'blob'
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
-      .then((res) => {
+      .then(async (res) => {
         // Create a blob from the response data
-        const blob = new Blob([res.data], { type: file.mime_type });
+        let binaryData = res.data;
+        if (file.status === EncryptionStatus.Encrypted) {
+          const originalCid = file.cid_original_encrypted;
+          binaryData = await blobToArrayBuffer(binaryData);
+          binaryData = await decryptFileBuffer(binaryData, originalCid);
+        }
+        const blob = new Blob([binaryData], { type: file.mime_type });
 
         // Create a link element and set the blob as its href
         const url = window.URL.createObjectURL(blob);
@@ -67,8 +79,18 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
 
   const handleView = () => {
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
-      .then((res) => {
-        const blob = new Blob([res.data], { type: file.mime_type });
+      .then(async (res) => {
+        let binaryData = res.data;
+        if (file.status === EncryptionStatus.Encrypted) {
+          const originalCid = file.cid_original_encrypted;
+          binaryData = await blobToArrayBuffer(binaryData);
+          binaryData = await decryptFileBuffer(binaryData, originalCid);
+        }
+        const blob = new Blob([binaryData], { type: file.mime_type });
+        if (!blob) {
+          console.error("Error downloading file:", file);
+          return;
+        }
         const url = window.URL.createObjectURL(blob);
         setModalContent(
           <div className="modal-content">
@@ -114,6 +136,12 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       });
   };
 
+  const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
+
+  const handleFileClick = (clickedFile: FileType) => {
+    setSelectedFile(clickedFile);
+  };
+
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
       id: event.currentTarget.id.toString(),
@@ -122,6 +150,13 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     });
     console.log("Drag: " + dragInfo);
     event.dataTransfer.setData("text/plain", dragInfo);
+    setDragging(true);
+  };
+
+  const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
+    event.preventDefault();
+    event.dataTransfer.clearData();
+    setDragging(false);
   };
 
   if (view === "list")
@@ -155,7 +190,17 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         <td className="p-1">{formatBytes(file.size)}</td>
         <td className="p-1">
           <div className="flex items-center">
-            <PublicIcon /> Public
+            {file.status === "public" ? (
+              <Fragment>
+                <HiOutlineLockOpen />
+                Public
+              </Fragment>
+            ) : (
+              <Fragment>
+                <HiLockClosed />
+                Encrypted
+              </Fragment>
+            )}
           </div>
         </td>
         <td className="p-1">{dayjs(file.updated_at).fromNow()}</td>
@@ -189,7 +234,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
                       <a
                         href="#"
                         className="block px-4 py-2 hover:bg-gray-100"
-                        onClick={handleView}
+                        onClick={() => handleView()}
                       >
                         <HiOutlineEye className="inline-flex mr-3" />
                         View
