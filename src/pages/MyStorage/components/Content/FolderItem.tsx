@@ -28,6 +28,11 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const cloneRef = useRef<HTMLDivElement | null>(null);
+  const initialCoords = useRef({ x: 0, y: 0 });
+  const [isDragging, setDragging] = useState(false);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [dragEnterCount, setDragEnterCount] = useState(0);
   useDropdown(ref, open, setOpen);
 
   const onCopy = () => {
@@ -93,6 +98,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
   const handleDrop = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
+    setDragEnterCount((prev) => prev - 1);
     let dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
     let dropInfo = {
       id: event.currentTarget.id.toString(),
@@ -127,18 +133,64 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const handleDragOver = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
   };
-  const [elementosSeleccionados, setElementosSeleccionados] = useState([]);
+
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
       type: "folder",
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
     });
+    event.dataTransfer.setData("text/plain", dragInfo);
+    event.dataTransfer.setDragImage(new Image(), 0, 0);
     console.log("Drag: " + dragInfo);
     event.dataTransfer.setData("text/plain", dragInfo);
+
+    const thElement = event.currentTarget.getElementsByTagName("th")[0];
+    const clone = thElement.cloneNode(true) as HTMLDivElement;
+    const rect = thElement.getBoundingClientRect();
+
+    clone.style.position = "fixed";
+    clone.style.top = rect.top + "px";
+    clone.style.left = rect.left + "px";
+    clone.style.width = rect.width + "px";
+    clone.style.height = rect.height + "px";
+    clone.style.zIndex = "100";
+    clone.style.pointerEvents = "none";
+    clone.style.opacity = "1.0";
+    clone.style.backgroundColor = "AliceBlue";
+    clone.style.borderRadius = "10px";
+    clone.style.border = "2px solid LightSkyBlue";
+    clone.style.boxSizing = "border-box";
+
+    document.body.appendChild(clone);
+
+    cloneRef.current = clone;
+    initialCoords.current = { x: event.clientX, y: event.clientY };
   };
 
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const handleDrag = (event: React.DragEvent<HTMLTableRowElement>) => {
+    if (cloneRef.current) {
+      const dx = event.clientX - initialCoords.current.x;
+      const dy = event.clientY - initialCoords.current.y;
+
+      cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+  };
+
+  const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
+    if (cloneRef.current) {
+      document.body.removeChild(cloneRef.current);
+      cloneRef.current = null;
+    }
+  };
+
+  const handleDragEnter = () => {
+    setDragEnterCount((prev) => prev + 1);
+  };
+
+  const handleDragLeave = () => {
+    setDragEnterCount((prev) => prev - 1);
+  };
 
   if (view === "list")
     return (
@@ -149,14 +201,13 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
-        onDragEnter={() => setIsDraggingOver(true)}
-        onDragLeave={() => setIsDraggingOver(false)}
-        className="bg-white cursor-pointer border-b"
-        // className={`bg-white cursor-pointer border-b ${
-        //   isDraggingOver
-        //     ? "bg-blue-200 border-blue-500 border"
-        //     : "hover:bg-gray-100"
-        // }`}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDrag={handleDrag}
+        onDragEnd={handleDragEnd}
+        className={`bg-white cursor-pointer hover:bg-gray-100 ${
+          dragEnterCount > 0 ? "bg-blue-200 border border-blue-500" : "border-0"
+        } ${isDragging ? "active:bg-blue-100 active:text-white" : ""}`}
         onDoubleClick={() => onFolderDoubleClick(folder.uid)}
       >
         <th
