@@ -34,9 +34,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [isDragging, setDragging] = useState(false);
-  useDropdown(ref, open, setOpen);
-
+  const cloneRef = useRef<HTMLDivElement | null>(null);
+  const initialCoords = useRef({ x: 0, y: 0 });
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
+  useDropdown(ref, open, setOpen);
 
   const onCopy = () => {
     copy(`https://staging.joinhello.app/file/${file.uid}`);
@@ -148,15 +149,50 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       uid: event.currentTarget.ariaLabel?.toString(),
       type: "file",
     });
-    console.log("Drag: " + dragInfo);
     event.dataTransfer.setData("text/plain", dragInfo);
+    event.dataTransfer.setDragImage(new Image(), 0, 0);
+
+    const thElement = event.currentTarget.getElementsByTagName("th")[0];
+    const clone = thElement.cloneNode(true) as HTMLDivElement;
+    const rect = thElement.getBoundingClientRect();
+
+    clone.style.position = "fixed";
+    clone.style.top = rect.top + "px";
+    clone.style.left = rect.left + "px";
+    clone.style.width = rect.width + "px";
+    clone.style.height = rect.height + "px";
+    clone.style.zIndex = "100";
+    clone.style.pointerEvents = "none";
+    clone.style.opacity = "1.0";
+    clone.style.backgroundColor = "AliceBlue";
+    clone.style.borderRadius = "10px";
+    clone.style.border = "2px solid LightSkyBlue";
+    clone.style.boxSizing = "border-box";
+
+    document.body.appendChild(clone);
+
+    cloneRef.current = clone;
+    initialCoords.current = { x: event.clientX, y: event.clientY };
     setDragging(true);
   };
 
   const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
+    if (cloneRef.current) {
+      document.body.removeChild(cloneRef.current);
+      cloneRef.current = null;
+    }
     event.dataTransfer.clearData();
     setDragging(false);
+  };
+
+  const handleDrag = (event: React.DragEvent<HTMLTableRowElement>) => {
+    if (cloneRef.current) {
+      const dx = event.clientX - initialCoords.current.x;
+      const dy = event.clientY - initialCoords.current.y;
+
+      cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
   };
 
   if (view === "list")
@@ -166,7 +202,12 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         aria-label={file.uid}
         draggable
         onDragStart={handleDragStart}
-        className="bg-white cursor-pointer border-b hover:bg-gray-100"
+        onDragEnd={handleDragEnd}
+        onDrag={handleDrag}
+        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${
+          isDragging ? "active:bg-blue-100" : ""
+        }`}
+        // onClick={handleClick}
         onDoubleClick={handleView}
       >
         <th
