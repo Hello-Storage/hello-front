@@ -258,7 +258,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         className={`bg-white cursor-pointer hover:bg-gray-100 ${
-          dragEnterCount > 0 ? "bg-blue-200 border border-blue-500" : "border-0"
+          dragEnterCount > 0 ? "bg-blue-100 border border-blue-500" : "border-0"
         } ${isDragging ? "active:bg-blue-100 active:text-white" : ""}`}
         onDoubleClick={() => onFolderDoubleClick(folder.uid)}
       >
