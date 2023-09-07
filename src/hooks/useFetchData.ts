@@ -128,11 +128,21 @@ const useFetchData = () => {
           dispatch(fetchContentAction(res.data));
           return;
         }
+
+        const sortedFiles = decryptedFiles.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        const sortedFolders = decryptedFolders.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
         dispatch(
           fetchContentAction({
             ...res.data,
-            files: decryptedFiles,
-            folders: decryptedFolders,
+            files: sortedFiles,
+            folders: sortedFolders,
             path: decryptedPath,
           })
         );

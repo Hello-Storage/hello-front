@@ -23,6 +23,7 @@ import {
   blobToArrayBuffer,
   decryptFileBuffer,
 } from "utils/encryption/filesCipher";
+import React from "react";
 import { useAppDispatch } from "state";
 import { setImageViewAction } from "state/mystorage/actions";
 
@@ -31,19 +32,22 @@ dayjs.extend(relativeTime);
 interface FileItemProps {
   file: FileType;
   view: "list" | "grid";
+  onButtonClick: (data: string) => void;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
   const dispatch = useAppDispatch();
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [isDragging, setDragging] = useState(false);
+  const cloneRef = useRef<HTMLDivElement | null>(null);
+  const initialCoords = useRef({ x: 0, y: 0 });
+  const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
   useDropdown(ref, open, setOpen);
 
-  const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
-
-  const onCopy = () => {
+  const onCopy = (event: React.MouseEvent) => {
+    if (event.shiftKey) return;
     copy(`https://staging.joinhello.app/file/${file.uid}`);
     toast.success("copied CID");
   };
@@ -116,27 +120,69 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       });
   };
 
-  const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
-
-  const handleFileClick = (clickedFile: FileType) => {
-    setSelectedFile(clickedFile);
-  };
-
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
       type: "file",
     });
-    console.log("Drag: " + dragInfo);
     event.dataTransfer.setData("text/plain", dragInfo);
+    event.dataTransfer.setDragImage(new Image(), 0, 0);
+
+    const thElement = event.currentTarget.getElementsByTagName("th")[0];
+    const clone = thElement.cloneNode(true) as HTMLDivElement;
+    const rect = thElement.getBoundingClientRect();
+
+    clone.style.position = "fixed";
+    clone.style.top = rect.top + "px";
+    clone.style.left = rect.left + "px";
+    clone.style.width = rect.width + "px";
+    clone.style.height = rect.height + "px";
+    clone.style.zIndex = "100";
+    clone.style.pointerEvents = "none";
+    clone.style.opacity = "1.0";
+    clone.style.backgroundColor = "AliceBlue";
+    clone.style.borderRadius = "10px";
+    clone.style.border = "2px solid LightSkyBlue";
+    clone.style.boxSizing = "border-box";
+
+    document.body.appendChild(clone);
+
+    cloneRef.current = clone;
+    initialCoords.current = { x: event.clientX, y: event.clientY };
     setDragging(true);
   };
 
   const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
+    if (cloneRef.current) {
+      document.body.removeChild(cloneRef.current);
+      cloneRef.current = null;
+    }
     event.dataTransfer.clearData();
     setDragging(false);
+  };
+
+  const handleDrag = (event: React.DragEvent<HTMLTableRowElement>) => {
+    if (cloneRef.current) {
+      const dx = event.clientX - initialCoords.current.x;
+      const dy = event.clientY - initialCoords.current.y;
+
+      cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+  };
+  const [selectedItem, setSelectedItem] = React.useState(false);
+  const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
+    if (event.ctrlKey) {
+      setSelectedItem(!selectedItem);
+      return onButtonClick(
+        JSON.stringify({
+          type: "file",
+          id: event.currentTarget.id.toString(),
+          uid: event.currentTarget.ariaLabel?.toString(),
+        })
+      );
+    }
   };
 
   if (view === "list")
@@ -146,8 +192,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         aria-label={file.uid}
         draggable
         onDragStart={handleDragStart}
-        className="bg-white cursor-pointer border-b hover:bg-gray-100"
+        onDragEnd={handleDragEnd}
+        onDrag={handleDrag}
+        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${
+          isDragging || selectedItem
+            ? "bg-blue-200 border border-blue-500"
+            : "border-0"
+        }`}
+        // onClick={handleClick}
         onDoubleClick={handleView}
+        onClick={handleOnClick}
       >
         <th
           scope="row"
