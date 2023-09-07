@@ -19,6 +19,7 @@ const Recent = lazy(() => import("pages/Recent"));
 const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));
 const Api = lazy(() => import("pages/Api"));
+const Statistics = lazy(() => import("pages/Statistics"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
 
@@ -56,6 +57,7 @@ function App() {
             <Route path="/deleted" element={<Deleted />} />
             <Route path="/migration" element={<Migration />} />
             <Route path="/api" element={<Api />} />
+            <Route path="/statistics" element={<Statistics />} />
           </Route>
 
           <Route path="/login" element={<Login />} />
