@@ -3,7 +3,7 @@ import { Modal, useModal } from "components/Modal";
 import { ChangeEventHandler, useState } from "react";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "state";
-import { createFolder } from "state/mystorage/actions";
+import { createFolderAction } from "state/mystorage/actions";
 
 export default function CreateFolderModal() {
   const [, onDismiss] = useModal(<></>);
@@ -26,7 +26,7 @@ export default function CreateFolderModal() {
       .then((resp) => {
         toast.success("folder created!");
 
-        dispatch(createFolder(resp.data));
+        dispatch(createFolderAction(resp.data));
       })
       .catch((err) => {
         toast.error("failed!");

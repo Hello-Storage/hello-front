@@ -1,6 +1,7 @@
 import { Api } from "api";
 import { EncryptionStatus, File as FileType } from "api/types";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import {
   HiDocumentDuplicate,
   HiDotsVertical,
@@ -18,11 +19,14 @@ import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
 import { useRef, useState, useEffect, Fragment } from "react";
 import copy from "copy-to-clipboard";
-import { useModal } from "components/Modal";
 import {
   blobToArrayBuffer,
   decryptFileBuffer,
 } from "utils/encryption/filesCipher";
+import { useAppDispatch } from "state";
+import { setImageViewAction } from "state/mystorage/actions";
+
+dayjs.extend(relativeTime);
 
 interface FileItemProps {
   file: FileType;
@@ -30,6 +34,7 @@ interface FileItemProps {
 }
 
 const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
+  const dispatch = useAppDispatch();
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -72,11 +77,6 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       });
   };
 
-  const [modalContent, setModalContent] = useState<React.ReactNode | null>(
-    null
-  );
-  const [onPresent, onDismiss] = useModal(modalContent);
-
   const handleView = () => {
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then(async (res) => {
@@ -92,36 +92,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           return;
         }
         const url = window.URL.createObjectURL(blob);
-        setModalContent(
-          <div className="modal-content">
-            <button className="mb-4" onClick={onDismiss}>
-              Close
-            </button>
-            <object
-              data={url}
-              width="100%"
-              style={
-                file.mime_type === "application/pdf"
-                  ? { width: "100vh", height: "80vh" }
-                  : {}
-              }
-              type={file.mime_type}
-            >
-              <embed src={url} type={file.mime_type} />
-            </object>
-          </div>
-        );
+        const img = {
+          src: url,
+          alt: file.name,
+        };
+        dispatch(setImageViewAction({ img, show: true }));
       })
       .catch((err) => {
         console.error("Error downloading file:", err);
       });
   };
-
-  useEffect(() => {
-    if (modalContent) {
-      onPresent();
-    }
-  }, [modalContent]);
 
   const handleDelete = () => {
     // Make a request to delete the file with response code 200

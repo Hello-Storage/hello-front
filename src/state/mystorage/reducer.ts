@@ -1,28 +1,39 @@
 import { createReducer } from "@reduxjs/toolkit";
 
 import {
-  fetchContent,
-  openDropdown,
-  closeDropdown,
-  createFolder,
+  fetchContentAction,
+  createFolderAction,
+  setImageViewAction,
+  PreviewImage,
 } from "./actions";
 import { RootResponse } from "api";
 
-const initialState: RootResponse = {
+interface MyStorageProps extends RootResponse {
+  preview: PreviewImage | undefined;
+  showPreview: boolean;
+}
+const initialState: MyStorageProps = {
   root: "/",
   path: [],
   files: [],
   folders: [],
+  preview: undefined,
+  showPreview: false,
 };
 
-export default createReducer<RootResponse>(initialState, (builder) => {
+export default createReducer<MyStorageProps>(initialState, (builder) => {
   builder
-    .addCase(fetchContent, (state, { payload }) => ({
+    .addCase(fetchContentAction, (state, { payload }) => ({
       ...state,
       ...payload,
     }))
-    .addCase(createFolder, (state, { payload }) => ({
+    .addCase(createFolderAction, (state, { payload }) => ({
       ...state,
       folders: [...state.folders, payload],
+    }))
+    .addCase(setImageViewAction, (state, { payload }) => ({
+      ...state,
+      preview: payload.img,
+      showPreview: payload.show == undefined ? false : payload.show,
     }));
 });

@@ -1,7 +1,7 @@
 import { Api } from "api";
 import { EncryptionStatus, File, Folder } from "api/types";
-import { PublicIcon } from "components";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { useDropdown, useFetchData } from "hooks";
 import JSZip from "jszip";
 import { useRef, useState } from "react";
@@ -19,9 +19,17 @@ import { useNavigate } from "react-router-dom";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { formatUID } from "utils";
-import { blobToArrayBuffer, decryptContent, decryptFileBuffer, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
+import {
+  blobToArrayBuffer,
+  decryptContent,
+  decryptFileBuffer,
+  decryptMetadata,
+  hexToBuffer,
+} from "utils/encryption/filesCipher";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAppSelector } from "state";
+
+dayjs.extend(relativeTime);
 
 interface FolderItemProps {
   folder: Folder;
@@ -57,12 +65,25 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
         // Iterate through the files and add them to the ZIP
         for (const file of res.data.files) {
-
           const fileData = atob(file.data);
           if (file.status === EncryptionStatus.Encrypted) {
-            console.log("Decrypting file:", file.name)
-            const { decryptedFilename, decryptedFiletype, decryptedCidOriginal } = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
-            console.log("Decrypted file:", decryptedFilename, decryptedFiletype, decryptedCidOriginal)
+            console.log("Decrypting file:", file.name);
+            const {
+              decryptedFilename,
+              decryptedFiletype,
+              decryptedCidOriginal,
+            } = await decryptMetadata(
+              file.name,
+              file.mime_type,
+              file.cid_original_encrypted,
+              personalSignature
+            );
+            console.log(
+              "Decrypted file:",
+              decryptedFilename,
+              decryptedFiletype,
+              decryptedCidOriginal
+            );
             const stringToArrayBuffer = (str: string): ArrayBuffer => {
               const buf = new ArrayBuffer(str.length);
               const bufView = new Uint8Array(buf);
@@ -70,34 +91,43 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                 bufView[i] = str.charCodeAt(i);
               }
               return buf;
-            }
+            };
 
             //transform fileData string to Array Buffer
             const fileDataBufferEncrypted = stringToArrayBuffer(fileData);
-            const fileDataBuffer = await decryptFileBuffer(fileDataBufferEncrypted, decryptedCidOriginal);
+            const fileDataBuffer = await decryptFileBuffer(
+              fileDataBufferEncrypted,
+              decryptedCidOriginal
+            );
             if (!fileDataBuffer) {
               toast.error("Failed to decrypt file");
               return;
             }
             //transform buffer to Blob
-            const fileDataBlob = new Blob([fileDataBuffer], { type: decryptedFiletype });
+            const fileDataBlob = new Blob([fileDataBuffer], {
+              type: decryptedFiletype,
+            });
 
-            const decryptedPathComponents = []
-            const pathComponents = file.path.split('/');
+            const decryptedPathComponents = [];
+            const pathComponents = file.path.split("/");
             // Decrypt the path components
             for (let i = 0; i < pathComponents.length - 1; i++) {
               const component = pathComponents[i];
               const encryptedComponentUint8Array = hexToBuffer(component);
 
-
-              const decryptedComponentBuffer = await decryptContent(encryptedComponentUint8Array, personalSignature);
-              const decryptedComponentStr = new TextDecoder().decode(decryptedComponentBuffer);
-              console.log("Decrypted component:", decryptedComponentStr)
+              const decryptedComponentBuffer = await decryptContent(
+                encryptedComponentUint8Array,
+                personalSignature
+              );
+              const decryptedComponentStr = new TextDecoder().decode(
+                decryptedComponentBuffer
+              );
+              console.log("Decrypted component:", decryptedComponentStr);
               decryptedPathComponents.push(decryptedComponentStr);
             }
             decryptedPathComponents.push(decryptedFilename);
 
-            const decryptedFilePath = decryptedPathComponents.join('/');
+            const decryptedFilePath = decryptedPathComponents.join("/");
             zip.file(decryptedFilePath, fileDataBlob, { binary: true });
           } else {
             zip.file(file.path, fileData, { binary: true });
@@ -119,7 +149,6 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         console.error("Error downloading folder:", err);
       });
   };
-
 
   const handleDelete = () => {
     if (
@@ -145,7 +174,9 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
   const handleDrop = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
-    const dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
+    const dragInfoReceived = JSON.parse(
+      event.dataTransfer.getData("text/plain")
+    );
     const dropInfo = {
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
@@ -233,8 +264,15 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         <td className="p-1">-</td>
         <td className="p-1">
           <div className="flex items-center select-none">
-            {folder.status === "public" ? <><HiOutlineLockOpen /><>Public</></> : <HiLockClosed />} {folder.status === "encrypted" && <>Encrypted</>}
-
+            {folder.status === "public" ? (
+              <>
+                <HiOutlineLockOpen />
+                <>Public</>
+              </>
+            ) : (
+              <HiLockClosed />
+            )}{" "}
+            {folder.status === "encrypted" && <>Encrypted</>}
           </div>
         </td>
         <td className="p-1 select-none">
