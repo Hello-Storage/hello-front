@@ -1,5 +1,6 @@
 import { CID } from "multiformats/cid"
 import { sha256 } from "multiformats/hashes/sha2"
+import { logoutUser } from "state/user/actions";
 
 const RAW_CODEC = 0x55
 
@@ -52,7 +53,11 @@ const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv
 // Main functions
 
 
-export const encryptMetadata = async (file: File, personalSignature: string): Promise<{ encryptedFilename: Uint8Array, encryptedFiletype: Uint8Array, fileSize: number, fileLastModified: number }> => {
+export const encryptMetadata = async (file: File, personalSignature: string | undefined): Promise<{ encryptedFilename: Uint8Array, encryptedFiletype: Uint8Array, fileSize: number, fileLastModified: number } | undefined> => {
+    if (!personalSignature) {
+        logoutUser();
+        return;
+    }
     const { aesKey, salt, iv } = await getAesKey(personalSignature, ['encrypt']);
 
 
@@ -71,7 +76,11 @@ export const encryptMetadata = async (file: File, personalSignature: string): Pr
 
 
 
-export const decryptContent = async (cipherBytes: Uint8Array | string, personalSignature: string): Promise<ArrayBuffer> => {
+export const decryptContent = async (cipherBytes: Uint8Array | string, personalSignature: string | undefined): Promise<ArrayBuffer | undefined> => {
+    if (!personalSignature) {
+        logoutUser();
+        return;
+    }
     if (typeof cipherBytes === 'string') {
         cipherBytes = Uint8Array.from(atob(cipherBytes), (c) => c.charCodeAt(0))
     }
@@ -84,7 +93,11 @@ export const decryptContent = async (cipherBytes: Uint8Array | string, personalS
 }
 
 
-export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryptedFiletypeBase64Url: string, cidOriginalEncrypted: string, personalSignature: string): Promise<{ decryptedFilename: string, decryptedFiletype: string, decryptedCidOriginal: string }> => {
+export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryptedFiletypeBase64Url: string, cidOriginalEncrypted: string, personalSignature: string | undefined): Promise<{ decryptedFilename: string, decryptedFiletype: string, decryptedCidOriginal: string } | undefined> => {
+    if (!personalSignature) {
+        logoutUser();
+        return;
+    }
     const encryptedFilenameBuffer = base64UrlToBuffer(encryptedFilenameBase64Url)
     const encryptedCidOriginalBuffer = base64UrlToBuffer(cidOriginalEncrypted)
     const encryptedFiletypeBuffer = hexToBuffer(encryptedFiletypeBase64Url)
@@ -101,7 +114,11 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
     return { decryptedFilename, decryptedFiletype, decryptedCidOriginal };
 }
 
-export const encryptBuffer = async (buffer: ArrayBuffer, personalSignature: string): Promise<Uint8Array> => {
+export const encryptBuffer = async (buffer: ArrayBuffer, personalSignature: string | undefined): Promise<Uint8Array | undefined> => {
+    if (!personalSignature) {
+        logoutUser();
+        return;
+    }
     const { aesKey, salt, iv } = await getAesKey(personalSignature, ['encrypt']);
 
     const cipherBytesArray = await getCipherBytes(buffer, aesKey, iv);
