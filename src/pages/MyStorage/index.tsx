@@ -254,6 +254,8 @@ export default function Home() {
           showThumbnailIcon={false}
           open={true}
           lightboxIdentifier="lbox1"
+          backgroundColor="#0f0f0fcc"
+          iconColor="#ffffff"
           // onClose={() =>{setIsOpen(false)}}
         >
           {/* <img src={preview?.src} alt={preview?.alt} /> */}
