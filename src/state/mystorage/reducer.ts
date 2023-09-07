@@ -5,6 +5,7 @@ import {
   createFolderAction,
   setImageViewAction,
   PreviewImage,
+  removeContent,
 } from "./actions";
 import { RootResponse } from "api";
 
@@ -35,5 +36,10 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
       ...state,
       preview: payload.img,
       showPreview: payload.show == undefined ? false : payload.show,
+    }))
+    .addCase(removeContent, (state) => ({
+      ...state,
+      files: [],
+      folders: [],
     }));
 });

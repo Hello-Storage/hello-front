@@ -1,35 +1,73 @@
-import { Api } from "api";
+import { Api, EncryptionStatus } from "api";
+import getAccountType from "api/getAccountType";
+import getPersonalSignature from "api/getPersonalSignature";
 import { Modal, useModal } from "components/Modal";
 import { ChangeEventHandler, useState } from "react";
 import { toast } from "react-toastify";
-import { useAppDispatch } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import { createFolderAction } from "state/mystorage/actions";
+import { bufferToHex, encryptBuffer } from "utils/encryption/filesCipher";
 
 export default function CreateFolderModal() {
   const [, onDismiss] = useModal(<></>);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const { name } = useAppSelector((state) => state.user);
+  const accountType = getAccountType();
+  const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
+    (state) => state.userdetail
+  );
+
+  const getRoot = () =>
+    window.location.pathname.includes("/folder")
+      ? window.location.pathname.split("/")[2]
+      : "/";
 
   const onChange: ChangeEventHandler = (e: any) => {
     setTitle(e.target.value);
   };
 
-  const handleCreateNewFolder = () => {
-    var root = "/";
+  const handleCreateNewFolder = async () => {
+    const root = getRoot();
+    let titleFinal = title;
 
-    if (window.location.pathname.includes("/folder")) {
-      root = window.location.pathname.split("/")[2];
-    }
+    let status = EncryptionStatus.Public;
+
     setLoading(true);
-    Api.post("/folder/create", { root, title })
+    if (encryptionEnabled) {
+      const personalSignature = await getPersonalSignature(
+        name,
+        autoEncryptionEnabled,
+        accountType
+      );
+      const encryptedTitleBuffer = await encryptBuffer(
+        new TextEncoder().encode(title),
+        personalSignature
+      );
+      if (!encryptedTitleBuffer) {
+        toast.error("Failed to encrypt buffer");
+        return null;
+      }
+      titleFinal = bufferToHex(encryptedTitleBuffer);
+      status = EncryptionStatus.Encrypted;
+    }
+    Api.post("/folder/create", {
+      root: root,
+      title: titleFinal,
+      status: status,
+    })
       .then((resp) => {
         toast.success("folder created!");
-
-        dispatch(createFolderAction(resp.data));
+        if (encryptionEnabled) {
+          dispatch(createFolder({ ...resp.data, title: title }));
+        } else {
+          dispatch(createFolderAction(resp.data));
+        }
       })
       .catch((err) => {
         toast.error("failed!");
+        console.log(err);
       })
       .finally(() => {
         setLoading(false);

@@ -7,9 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { setAuthToken } from "api";
 import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
-import state from "state";
+import state, { useAppSelector } from "state";
 import { logoutUser } from "state/user/actions";
-import setPersonalSignature from "api/setPersonalSignature";
 
 const Home = lazy(() => import("pages/Home"));
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -22,19 +21,17 @@ const Api = lazy(() => import("pages/Api"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
 
+
 function App() {
   const { load } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    const personalSignature = sessionStorage.getItem("personal_signature");
 
     if (token) {
       setAuthToken(token);
     }
-    if (personalSignature) {
-      setPersonalSignature(personalSignature);
-    }
+
     load();
     // log user out from all tabs if they log out in one tab
     window.addEventListener("storage", () => {
@@ -43,8 +40,8 @@ function App() {
   }, []);
 
   return (
-    <Providers>
-      <BrowserRouter>
+    <BrowserRouter>
+      <Providers>
         <Routes>
           <Route path="/" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Home />} />
@@ -60,8 +57,8 @@ function App() {
 
           <Route path="/login" element={<Login />} />
         </Routes>
-      </BrowserRouter>
-    </Providers>
+      </Providers>
+    </BrowserRouter>
   );
 }
 

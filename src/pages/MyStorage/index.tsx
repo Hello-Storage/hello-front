@@ -101,7 +101,8 @@ export default function Home() {
 
   useEffect(() => {
     fetchRootContent();
-  }, [fetchRootContent, location]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   return (
     <div className="flex flex-col flex-1">

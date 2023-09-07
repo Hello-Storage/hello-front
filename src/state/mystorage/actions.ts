@@ -13,6 +13,8 @@ export const createFolderAction = createAction<Folder>(
   "mystorage/create-folder"
 );
 
+export const removeContent = createAction<string>("dashboard/remove-content");
+
 export const setImageViewAction = createAction<{
   img?: PreviewImage;
   show?: boolean;

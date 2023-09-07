@@ -1,5 +1,6 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import { Api, setAuthToken } from "api";
+import setAccountType from "api/setAccountType";
 import { GoogleIcon } from "components";
 import { useAuth } from "hooks";
 import { useState } from "react";
@@ -19,6 +20,7 @@ export default function GoogleLoginButton() {
 
       load();
       setLoading(false);
+      setAccountType("google");
     },
     onError: () => {
       setLoading(false);
