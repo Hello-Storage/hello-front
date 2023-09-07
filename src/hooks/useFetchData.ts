@@ -125,11 +125,11 @@ const useFetchData = () => {
         );
         if (!decryptedFiles || !decryptedFolders || !decryptedPath) {
           toast.error("Failed to decrypt files");
-          dispatch(fetchContent(res.data));
+          dispatch(fetchContentAction(res.data));
           return;
         }
         dispatch(
-          fetchContent({
+          fetchContentAction({
             ...res.data,
             files: decryptedFiles,
             folders: decryptedFolders,
