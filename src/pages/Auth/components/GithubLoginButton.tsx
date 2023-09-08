@@ -4,6 +4,7 @@ import { GithubIcon } from "components";
 import { GITHUB_CLIENT_ID } from "config";
 import { useAuth } from "hooks";
 import OauthPopup from "react-oauth-popup";
+import setAccountType from "api/setAccountType";
 
 const root_url = "https://github.com/login/oauth/authorize?";
 
@@ -27,6 +28,7 @@ export default function GithubLoginButton() {
     setAuthToken(oauthResp.data.access_token);
     load();
     setLoading(false);
+    setAccountType("google");
   };
   const onClose = () => console.log("closed!");
 

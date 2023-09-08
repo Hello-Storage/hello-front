@@ -15,8 +15,8 @@ export default function Breadcrumb() {
 
   const handleDrop = (event: React.DragEvent<HTMLLIElement>) => {
     event.preventDefault();
-    let dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
-    let dropInfo = {
+    const dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
+    const dropInfo = {
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
     };
