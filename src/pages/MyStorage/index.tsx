@@ -5,31 +5,18 @@ import { SlideshowLightbox } from "lightbox.js-react";
 import Content from "./components/Content";
 import Breadcrumb from "./components/Breadcrumb";
 import Dropzone from "./components/Dropzone";
-import { useAppSelector } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import { useSearchContext } from "contexts/SearchContext";
 
 import { useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
+import { setImageViewAction } from "state/mystorage/actions";
 
 // import styles
 import "lightbox.js-react/dist/index.css";
 
-const images = [
-  {
-    src: "https://source.unsplash.com/sQZ_A17cufs/549x711",
-    alt: "Mechanical keyboard with white keycaps.",
-  },
-  {
-    src: "https://source.unsplash.com/rsAeSMzOX9Y/768x512",
-    alt: "Mechanical keyboard with white, pastel green and red keycaps.",
-  },
-  {
-    src: "https://source.unsplash.com/Z6SXt1v5tP8/768x512",
-    alt: "Mechanical keyboard with white, pastel pink, yellow and red keycaps.",
-  },
-];
-
 export default function Home() {
+  const dispatch = useAppDispatch();
   const { folders, files, showPreview, preview } = useAppSelector(
     (state) => state.mystorage
   );
@@ -101,7 +88,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchRootContent();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   return (
@@ -248,20 +235,18 @@ export default function Home() {
       {uploading && <UploadProgress />}
 
       {/* lightbox */}
-      {showPreview && (
-        <SlideshowLightbox
-          images={[preview]}
-          showThumbnails={false}
-          showThumbnailIcon={false}
-          open={true}
-          lightboxIdentifier="lbox1"
-          backgroundColor="#0f0f0fcc"
-          iconColor="#ffffff"
-          // onClose={() =>{setIsOpen(false)}}
-        >
-          {/* <img src={preview?.src} alt={preview?.alt} /> */}
-        </SlideshowLightbox>
-      )}
+      <SlideshowLightbox
+        images={preview == undefined ? [] : [preview]}
+        showThumbnails={false}
+        showThumbnailIcon={false}
+        open={showPreview}
+        lightboxIdentifier="lbox1"
+        backgroundColor="#0f0f0fcc"
+        iconColor="#ffffff"
+        onClose={() => {
+          dispatch(setImageViewAction({ show: false }));
+        }}
+      />
     </div>
   );
 }
