@@ -37,7 +37,7 @@ export default function Dropzone() {
         "flex flex-col items-center p-8 border-2 rounded-sm border-dashed bg-gray-50 outline-none mb-5",
         `${getColor(isFocused, isDragAccept, isDragReject)}`,
       ].join(" ")}
-      {...getRootProps({ isFocused, isDragAccept, isDragReject })}
+      {...getRootProps()}
     >
       <input {...getInputProps()} />
       {isDragActive ? (

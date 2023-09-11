@@ -2,17 +2,18 @@
 
 import { signPersonalSignature } from "utils/encryption/cipherUtils";
 import setPersonalSignature from "./setPersonalSignature";
+import { AccountType } from "./types";
 
 
 
-const getPersonalSignature = async (walletAddress: string, autoEncryption: boolean, accountType: string | undefined): Promise<string | undefined> => {
+const getPersonalSignature = async (walletAddress: string, autoEncryption: boolean, accountType: string | undefined, logout?: () => void): Promise<string | undefined> => {
     const personalSignature = sessionStorage.getItem("personal_signature");
     if (personalSignature !== null && autoEncryption) {
         return personalSignature;
     } else {
-        if (accountType === "web3") {
+        if (accountType === AccountType.Provider) {
             try {
-                const personalSignature = await signPersonalSignature(walletAddress);
+                const personalSignature = await signPersonalSignature(walletAddress, AccountType.Provider);
                 setPersonalSignature(personalSignature);
                 return personalSignature;
             } catch (error: any) {
@@ -26,14 +27,16 @@ const getPersonalSignature = async (walletAddress: string, autoEncryption: boole
 
             }
         } else if (accountType === "google" || accountType === "github" || accountType === "email") {
-            //get hash of wallet address using window crypto api
-            const walletHash = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(walletAddress));
-            walletAddress = btoa(String.fromCharCode(...new Uint8Array(walletHash)));
-
-            setPersonalSignature(walletAddress);
-            return walletAddress;
+            if (personalSignature !== null) {
+                return personalSignature;
+            } else {
+                if (logout)
+                logout();
+                return;
+            }
         } else {
-           // logout();
+            if (logout)
+            logout();
             return;
         }
     }

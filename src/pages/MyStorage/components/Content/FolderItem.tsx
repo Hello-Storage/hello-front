@@ -2,7 +2,7 @@ import { Api } from "api";
 import { EncryptionStatus, File, Folder } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useDropdown, useFetchData } from "hooks";
+import { useAuth, useDropdown, useFetchData } from "hooks";
 import JSZip from "jszip";
 import { useRef, useState } from "react";
 import { FaFolder } from "react-icons/fa";
@@ -46,6 +46,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const [open, setOpen] = useState(false);
   const { name } = useAppSelector((state) => state.user);
   const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
+  const {logout} = useAuth();
   const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
@@ -61,10 +62,11 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
     const personalSignature = await getPersonalSignature(
       name,
       autoEncryptionEnabled,
-      accountType
+      accountType,
+      logout
     );
     if (!personalSignature) {
-      toast.error("Faialed ta get personal signature");
+      toast.error("Failed ta get personal signature");
       return;
     }
     // Make a request to download the file with responseType 'blob'

@@ -16,7 +16,7 @@ import Cloud from "assets/images/Outline/Cloud-upload.png";
 import { FiX } from "react-icons/fi";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
-import { Api } from "api";
+import { AccountType, Api } from "api";
 import { useFetchData, useDropdown, useAuth } from "hooks";
 import { toggleEncryption, toggleAutoEncryption } from "state/userdetail/actions";
 
@@ -96,11 +96,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   const { logout } = useAuth();
 
-  useEffect(() => {
-    if (encryptionEnabled) {
-      dispatch(toggleAutoEncryption(true))
-    }
-  }, [dispatch, encryptionEnabled]);
 
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -225,7 +220,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     let personalSignature;
     if (encryptionEnabled) {
-      personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType);
+      personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType, logout);
       if (!personalSignature) {
         toast.error("Failed to get personal signature");
         logout();
@@ -305,16 +300,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex items-center justify-between mt-3">
           <label
             htmlFor="auto-signature"
-            className={`text-sm ${encryptionEnabled ? "" : "text-gray-400"}`}
+            className={`text-sm ${encryptionEnabled && accountType === AccountType.Provider ? "" : "text-gray-400"}`}
           >
             Automatic
           </label>
           <div className="flex items-center align-middle">
             <Toggle
               id="auto-signature"
-              checked={autoEncryptionEnabled}
-              onChange={() => dispatch(toggleAutoEncryption(!autoEncryptionEnabled))}
-              disabled={!encryptionEnabled}
+              checked={autoEncryptionEnabled || !(accountType === AccountType.Provider)}
+              onChange={() => accountType === AccountType.Provider && dispatch(toggleAutoEncryption(!autoEncryptionEnabled))}
+              disabled={!(accountType === AccountType.Provider) || !encryptionEnabled}
               className={autoEncryptionEnabled ? "automatic-on" : "automatic-off"}
               icons={false}
             />

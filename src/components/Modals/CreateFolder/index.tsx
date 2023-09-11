@@ -7,17 +7,19 @@ import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "state";
 import { createFolderAction } from "state/mystorage/actions";
 import { bufferToHex, encryptBuffer } from "utils/encryption/filesCipher";
+import { useAuth } from "hooks";
 
 export default function CreateFolderModal() {
   const [, onDismiss] = useModal(<></>);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const { name } = useAppSelector((state) => state.user);
+  const { walletAddress } = useAppSelector((state) => state.user);
   const accountType = getAccountType();
   const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
     (state) => state.userdetail
   );
+  const {logout} = useAuth();
 
   const getRoot = () =>
     window.location.pathname.includes("/folder")
@@ -37,9 +39,10 @@ export default function CreateFolderModal() {
     setLoading(true);
     if (encryptionEnabled) {
       const personalSignature = await getPersonalSignature(
-        name,
+        walletAddress,
         autoEncryptionEnabled,
-        accountType
+        accountType,
+        logout
       );
       const encryptedTitleBuffer = await encryptBuffer(
         new TextEncoder().encode(title),
@@ -60,7 +63,7 @@ export default function CreateFolderModal() {
       .then((resp) => {
         toast.success("folder created!");
         if (encryptionEnabled) {
-          dispatch(createFolder({ ...resp.data, title: title }));
+          dispatch(createFolderAction({ ...resp.data, title: title }));
         } else {
           dispatch(createFolderAction(resp.data));
         }
