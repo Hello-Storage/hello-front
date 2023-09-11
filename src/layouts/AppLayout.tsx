@@ -16,20 +16,16 @@ export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-
   const { name } = useAppSelector((state) => state.user);
-  const { autoEncryptionEnabled } = useAppSelector(
-    (state) => state.userdetail
-  );
+  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
 
   const accountType = getAccountType();
 
-  const { connector: activeConnector, isConnected } = useAccount()
+  const { connector: activeConnector, isConnected } = useAccount();
   const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect()
+    useConnect();
 
   useEffect(() => {
-
     // Automatically connect to the first connector (assuming it's MetaMask).
     // You might want to check if it's the desired connector before connecting.
     const connectToMetaMask = async () => {
@@ -69,7 +65,6 @@ export default function AppLayout() {
 */
   return (
     <SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
-
       <div className="flex h-screen flex-col justify-between">
         {!sidebarOpen && (
           <div className="flex items-center justify-between sticky px-5 py-2 w-full bg-gray-100 md:hidden">
@@ -87,20 +82,23 @@ export default function AppLayout() {
           </div>
         )}
         <div
-          className={`fixed inset-0 bg-black opacity-50 z-10 ${sidebarOpen ? "block" : "hidden"
-            } md:hidden`}
+          className={`fixed inset-0 bg-black opacity-50 z-10 ${
+            sidebarOpen ? "block" : "hidden"
+          } md:hidden`}
           onClick={() => setSidebarOpen(false)}
         ></div>
         <div className="flex flex-grow">
           <div
-            className={`w-5/6 md:w-72 z-20 bg-white ${sidebarOpen ? "block" : "hidden"
-              } md:block`}
+            className={`h-screen overflow-y-auto w-5/6 md:w-72 z-20 bg-white ${
+              sidebarOpen ? "block" : "hidden"
+            } md:block`}
           >
             <Sidebar setSidebarOpen={setSidebarOpen} />
           </div>
           <div
-            className={`flex flex-col flex-1 md:px-10 px-5 py-4 ${sidebarOpen ? "md:ml-72 overflow-hidden w-full blur-sm" : ""
-              }`}
+            className={`flex flex-col flex-1 md:px-10 px-5 py-4 h-screen overflow-y-auto ${
+              sidebarOpen ? "md:ml-72 overflow-hidden w-full blur-sm" : ""
+            }`}
           >
             <Appbar onSearchChange={(e) => setSearchTerm(e.target.value)} />
             <Suspense fallback={<></>}>

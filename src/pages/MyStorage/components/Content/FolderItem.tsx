@@ -25,12 +25,21 @@ import { useAppSelector } from "state";
 import getAccountType from "api/getAccountType";
 import { logoutUser } from "state/user/actions";
 
+dayjs.extend(relativeTime);
+
+import React from "react";
+
 interface FolderItemProps {
   folder: Folder;
   view: "list" | "grid";
+  onButtonClick: (data: string) => void;
 }
 
-const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
+const FolderItem: React.FC<FolderItemProps> = ({
+  folder,
+  view,
+  onButtonClick,
+}) => {
   const { fetchRootContent } = useFetchData();
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
@@ -48,7 +57,8 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
-  const onCopy = () => {
+  const onCopy = (event: React.MouseEvent) => {
+    if (!event.ctrlKey) return;
     copy(`https://staging.joinhello.app/folder/${folder.uid}`);
     toast.success("copied CID");
   };
@@ -269,6 +279,19 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const handleDragLeave = () => {
     setDragEnterCount((prev) => prev - 1);
   };
+  const [selectedItem, setSelectedItem] = React.useState(false);
+  const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
+    if (event.ctrlKey) {
+      setSelectedItem(!selectedItem);
+      return onButtonClick(
+        JSON.stringify({
+          type: "folder",
+          id: event.currentTarget.id.toString(),
+          uid: event.currentTarget.ariaLabel?.toString(),
+        })
+      );
+    }
+  };
 
   if (view === "list")
     return (
@@ -283,10 +306,13 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         onDragLeave={handleDragLeave}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        className={`bg-white cursor-pointer hover:bg-gray-100 ${
-          dragEnterCount > 0 ? "bg-blue-300 border border-blue-500" : "border-0"
+        className={` hover:bg-gray-100 ${
+          dragEnterCount > 0 || selectedItem
+            ? "bg-blue-100 border border-blue-500"
+            : "border-0"
         } ${isDragging ? "active:bg-blue-100 active:text-white" : ""}`}
         onDoubleClick={() => onFolderDoubleClick(folder.uid)}
+        onClick={handleOnClick}
       >
         <th
           scope="row"

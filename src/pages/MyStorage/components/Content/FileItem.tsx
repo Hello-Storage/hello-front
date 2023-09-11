@@ -17,12 +17,13 @@ import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
-import { useRef, useState, useEffect, Fragment } from "react";
+import { useRef, useState, Fragment } from "react";
 import copy from "copy-to-clipboard";
 import {
   blobToArrayBuffer,
   decryptFileBuffer,
 } from "utils/encryption/filesCipher";
+import React from "react";
 import { useAppDispatch } from "state";
 import { setImageViewAction } from "state/mystorage/actions";
 
@@ -31,9 +32,10 @@ dayjs.extend(relativeTime);
 interface FileItemProps {
   file: FileType;
   view: "list" | "grid";
+  onButtonClick: (data: string) => void;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
   const dispatch = useAppDispatch();
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
@@ -44,7 +46,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
   useDropdown(ref, open, setOpen);
 
-  const onCopy = () => {
+  const onCopy = (event: React.MouseEvent) => {
+    if (event.shiftKey) return;
     copy(`https://staging.joinhello.app/file/${file.uid}`);
     toast.success("copied CID");
   };
@@ -168,6 +171,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
     }
   };
+  const [selectedItem, setSelectedItem] = React.useState(false);
+  const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
+    if (event.ctrlKey) {
+      setSelectedItem(!selectedItem);
+      return onButtonClick(
+        JSON.stringify({
+          type: "file",
+          id: event.currentTarget.id.toString(),
+          uid: event.currentTarget.ariaLabel?.toString(),
+        })
+      );
+    }
+  };
 
   if (view === "list")
     return (
@@ -179,10 +195,13 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         onDragEnd={handleDragEnd}
         onDrag={handleDrag}
         className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${
-          isDragging ? "active:bg-blue-100" : ""
+          isDragging || selectedItem
+            ? "bg-blue-200 border border-blue-500"
+            : "border-0"
         }`}
         // onClick={handleClick}
         onDoubleClick={handleView}
+        onClick={handleOnClick}
       >
         <th
           scope="row"
