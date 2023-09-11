@@ -18,14 +18,24 @@ import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
 import { Api } from "api";
 import { useFetchData, useDropdown, useAuth } from "hooks";
-import { toggleEncryption, toggleAutoEncryption } from "state/userdetail/actions";
+import {
+  toggleEncryption,
+  toggleAutoEncryption,
+} from "state/userdetail/actions";
 
 import LogoHello from "@images/beta.png";
 import "react-toggle/style.css";
 import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
 import getPersonalSignature from "api/getPersonalSignature";
-import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, getCid } from "utils/encryption/filesCipher";
+import {
+  bufferToBase64Url,
+  bufferToHex,
+  encryptBuffer,
+  encryptFileBuffer,
+  encryptMetadata,
+  getCid,
+} from "utils/encryption/filesCipher";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { AxiosProgressEvent } from "axios";
 import getAccountType from "api/getAccountType";
@@ -86,9 +96,12 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ setSidebarOpen }: SidebarProps) {
-  const { storageUsed, storageAvailable, encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
-    (state) => state.userdetail
-  );
+  const {
+    storageUsed,
+    storageAvailable,
+    encryptionEnabled,
+    autoEncryptionEnabled,
+  } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
   const { fetchRootContent, fetchUserDetail } = useFetchData();
   const { name } = useAppSelector((state) => state.user);
@@ -98,7 +111,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   useEffect(() => {
     if (encryptionEnabled) {
-      dispatch(toggleAutoEncryption(true))
+      dispatch(toggleAutoEncryption(true));
     }
   }, [dispatch, encryptionEnabled]);
 
@@ -134,32 +147,63 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     folderInput.current?.click();
   };
 
-  const getRoot = () => (location.pathname.includes("/folder") ? location.pathname.split("/")[2] : "/");
+  const getRoot = () =>
+    location.pathname.includes("/folder")
+      ? location.pathname.split("/")[2]
+      : "/";
 
-
-  const handleEncryption = async (file: File, personalSignature: string | undefined, isFolder: boolean, encryptedPathsMapping: { [path: string]: string }): Promise<{ encryptedFile: File, cidOfEncryptedBufferStr: string, cidOriginalEncryptedBase64Url: string, encryptedWebkitRelativePath: string, encryptionTimeParsed: string } | null> => {
+  const handleEncryption = async (
+    file: File,
+    personalSignature: string | undefined,
+    isFolder: boolean,
+    encryptedPathsMapping: { [path: string]: string }
+  ): Promise<{
+    encryptedFile: File;
+    cidOfEncryptedBufferStr: string;
+    cidOriginalEncryptedBase64Url: string;
+    encryptedWebkitRelativePath: string;
+    encryptionTimeParsed: string;
+  } | null> => {
     const fileArrayBuffer = await file.arrayBuffer();
 
-    const encryptedMetadataResult = await encryptMetadata(file, personalSignature);
+    const encryptedMetadataResult = await encryptMetadata(
+      file,
+      personalSignature
+    );
     if (!encryptedMetadataResult) {
       toast.error("Failed to encrypt metadata");
       return null;
     }
-    const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } = encryptedMetadataResult;
-    const { cidOriginalStr, cidOfEncryptedBufferStr, encryptedFileBuffer, encryptionTimeParsed } = await encryptFileBuffer(fileArrayBuffer);
+    const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } =
+      encryptedMetadataResult;
+    const {
+      cidOriginalStr,
+      cidOfEncryptedBufferStr,
+      encryptedFileBuffer,
+      encryptionTimeParsed,
+    } = await encryptFileBuffer(fileArrayBuffer);
 
     const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
     const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
     const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
-    const cidOriginalEncryptedBuffer = await encryptBuffer(cidOriginalBuffer, personalSignature);
+    const cidOriginalEncryptedBuffer = await encryptBuffer(
+      cidOriginalBuffer,
+      personalSignature
+    );
 
     if (!cidOriginalEncryptedBuffer) {
       toast.error("Failed to encrypt buffer");
       return null;
     }
-    const cidOriginalEncryptedBase64Url = bufferToBase64Url(cidOriginalEncryptedBuffer);
+    const cidOriginalEncryptedBase64Url = bufferToBase64Url(
+      cidOriginalEncryptedBuffer
+    );
     const encryptedFileBlob = new Blob([encryptedFileBuffer]);
-    const encryptedFile = new File([encryptedFileBlob], encryptedFilenameBase64Url, { type: encryptedFiletypeHex, lastModified: fileLastModified });
+    const encryptedFile = new File(
+      [encryptedFileBlob],
+      encryptedFilenameBase64Url,
+      { type: encryptedFiletypeHex, lastModified: fileLastModified }
+    );
 
     let encryptedWebkitRelativePath = "";
     if (isFolder) {
@@ -170,7 +214,10 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         if (encryptedPathsMapping[component]) {
           encryptedPathComponents.push(encryptedPathsMapping[component]);
         } else {
-          const encryptedComponentBuffer = await encryptBuffer(new TextEncoder().encode(component), personalSignature);
+          const encryptedComponentBuffer = await encryptBuffer(
+            new TextEncoder().encode(component),
+            personalSignature
+          );
           if (!encryptedComponentBuffer) {
             toast.error("Failed to encrypt buffer");
             return null;
@@ -190,9 +237,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       cidOfEncryptedBufferStr,
       cidOriginalEncryptedBase64Url,
       encryptedWebkitRelativePath,
-      encryptionTimeParsed
-    }
-  }
+      encryptionTimeParsed,
+    };
+  };
 
   const postData = (formData: FormData) => {
     Api.post("/file/upload", formData, {
@@ -210,7 +257,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         toast.error("upload failed!");
       })
       .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
-  }
+  };
 
   const handleInputChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -225,7 +272,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     let personalSignature;
     if (encryptionEnabled) {
-      personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType);
+      personalSignature = await getPersonalSignature(
+        name,
+        autoEncryptionEnabled,
+        accountType
+      );
       if (!personalSignature) {
         toast.error("Failed to get personal signature");
         logout();
@@ -239,19 +290,36 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       const file = files[i];
 
       if (encryptionEnabled) {
-        const encryptedResult = await handleEncryption(file, personalSignature, isFolder, encryptedPathsMapping);
+        const encryptedResult = await handleEncryption(
+          file,
+          personalSignature,
+          isFolder,
+          encryptedPathsMapping
+        );
         if (!encryptedResult) {
           toast.error("Failed to encrypt file");
           return;
         }
-        const { encryptedFile, cidOfEncryptedBufferStr, cidOriginalEncryptedBase64Url, encryptedWebkitRelativePath, encryptionTimeParsed } = encryptedResult;
+        const {
+          encryptedFile,
+          cidOfEncryptedBufferStr,
+          cidOriginalEncryptedBase64Url,
+          encryptedWebkitRelativePath,
+          encryptionTimeParsed,
+        } = encryptedResult;
 
         toast.success(`${encryptionTimeParsed}`);
 
         formData.append("encryptedFiles", encryptedFile);
         formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
-        formData.append(`cidOriginalEncrypted[${i}]`, cidOriginalEncryptedBase64Url);
-        formData.append(`webkitRelativePath[${i}]`, encryptedWebkitRelativePath);
+        formData.append(
+          `cidOriginalEncrypted[${i}]`,
+          cidOriginalEncryptedBase64Url
+        );
+        formData.append(
+          `webkitRelativePath[${i}]`,
+          encryptedWebkitRelativePath
+        );
       } else {
         const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
         const cidStr = await getCid(uint8ArrayBuffer);
@@ -262,21 +330,25 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const infoText = isFolder
       ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
       : files.length === 1
-        ? files[0].name
-        : `uploading ${files.length} files`;
+      ? files[0].name
+      : `uploading ${files.length} files`;
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
     postData(formData);
-  }
+  };
 
-  const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+  const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
     handleInputChange(event, false);
-  }
+  };
 
-  const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+  const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
     handleInputChange(event, true);
-  }
+  };
 
   return (
     <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-16 md:px-6 w-full">
@@ -313,9 +385,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             <Toggle
               id="auto-signature"
               checked={autoEncryptionEnabled}
-              onChange={() => dispatch(toggleAutoEncryption(!autoEncryptionEnabled))}
+              onChange={() =>
+                dispatch(toggleAutoEncryption(!autoEncryptionEnabled))
+              }
               disabled={!encryptionEnabled}
-              className={autoEncryptionEnabled ? "automatic-on" : "automatic-off"}
+              className={
+                autoEncryptionEnabled ? "automatic-on" : "automatic-off"
+              }
               icons={false}
             />
           </div>
@@ -394,14 +470,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center p-2 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -430,14 +508,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center p-2 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -453,7 +533,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         </div>
       </div>
 
-      <div className="">
+      <div className="pt-4">
         <label>{formatBytes(storageUsed)} Used</label>
 
         <ProgressBar
