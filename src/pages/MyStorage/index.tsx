@@ -243,6 +243,7 @@ export default function Home() {
         lightboxIdentifier="lbox1"
         backgroundColor="#0f0f0fcc"
         iconColor="#ffffff"
+        modalClose="clickOutside"
         onClose={() => {
           dispatch(setImageViewAction({ show: false }));
         }}
