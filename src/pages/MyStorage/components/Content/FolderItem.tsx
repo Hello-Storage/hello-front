@@ -187,8 +187,8 @@ const FolderItem: React.FC<FolderItemProps> = ({
   const handleDrop = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
     setDragEnterCount((prev) => prev - 1);
-    let dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
-    let dropInfo = {
+    const dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
+    const dropInfo = {
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
     };

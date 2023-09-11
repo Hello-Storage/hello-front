@@ -10,7 +10,9 @@ import {
   HiOutlineUser,
   HiOutlineChartSquareBar,
   HiOutlineCalculator,
+  HiUsers,
 } from "react-icons/hi";
+import { useNavigate } from "react-router";
 import { useAppSelector } from "state";
 import { formatName } from "utils";
 
@@ -20,6 +22,7 @@ interface AppbarProps {
 
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const { name, walletAddress } = useAppSelector((state) => state.user);
+  const navigate = useNavigate();
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -65,9 +68,17 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
           </div>
         </form>
         <div className="flex items-center md:gap-8 w-full justify-between md:w-fit gap-1">
+          <button
+            className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+            type="button"
+            onClick={() => navigate(`/referrals`)}
+          >
+            <HiUsers />
+            Referrals
+          </button>
           <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200">
             <HiCubeTransparent />
-            <span className="text-sm">Chain</span>
+            <span className="text-sm">Ethereum</span>
             <HiChevronDown />
           </button>
 
