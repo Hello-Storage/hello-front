@@ -1,4 +1,6 @@
 import { signMessage } from "@wagmi/core";
+import { AccountType } from "api";
+import * as Web3 from "web3";
 
 export const digestMessage = async (message: string) => {
     const encoder = new TextEncoder();
@@ -8,11 +10,18 @@ export const digestMessage = async (message: string) => {
 }
 
 
-export const signPersonalSignature = async (address: string): Promise<string> => {
+
+
+export const signPersonalSignature = async (address: string, account_type: AccountType, privateKey?: string): Promise<string> => {
     const message = `https://hello.storage/\nPersonal signature\n\nWallet address:\n${address}`
 
-    const signature = await signMessage({ message })
-
+    let signature = "";
+    if (account_type === AccountType.Provider) {
+    signature = await signMessage({ message })
+    } else if (privateKey) {
+        const web3 = new Web3.default();
+        signature = web3.eth.accounts.sign(message, privateKey).signature;
+    }
 
     //return personal signature
     return signature;

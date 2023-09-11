@@ -15,6 +15,8 @@ export const createFolderAction = createAction<Folder>(
 
 export const removeContent = createAction<string>("dashboard/remove-content");
 
+export const createFolder = createAction<Folder>("dashboard/create-folder");
+
 export const setImageViewAction = createAction<{
   img?: PreviewImage;
   show?: boolean;

@@ -2,7 +2,7 @@ import { Api } from "api";
 import { EncryptionStatus, File, Folder } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useDropdown, useFetchData } from "hooks";
+import { useAuth, useDropdown, useFetchData } from "hooks";
 import JSZip from "jszip";
 import { useRef, useState } from "react";
 import { FaFolder } from "react-icons/fa";
@@ -19,12 +19,7 @@ import { useNavigate } from "react-router-dom";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { formatUID } from "utils";
-import {
-  decryptContent,
-  decryptFileBuffer,
-  decryptMetadata,
-  hexToBuffer,
-} from "utils/encryption/filesCipher";
+import { decryptContent, decryptFileBuffer, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAppSelector } from "state";
 import getAccountType from "api/getAccountType";
@@ -55,7 +50,10 @@ const FolderItem: React.FC<FolderItemProps> = ({
   const [isDragging, setDragging] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [dragEnterCount, setDragEnterCount] = useState(0);
-  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
+  const { autoEncryptionEnabled } = useAppSelector(
+    (state) => state.userdetail
+  );
+  const {logout} = useAuth();
   const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
@@ -72,10 +70,11 @@ const FolderItem: React.FC<FolderItemProps> = ({
     const personalSignature = await getPersonalSignature(
       name,
       autoEncryptionEnabled,
-      accountType
+      accountType,
+      logout
     );
     if (!personalSignature) {
-      toast.error("Faialed ta get personal signature");
+      toast.error("Failed ta get personal signature");
       return;
     }
     // Make a request to download the file with responseType 'blob'
@@ -87,12 +86,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
         for (const file of res.data.files) {
           const fileData = atob(file.data);
           if (file.status === EncryptionStatus.Encrypted) {
-            const decryptionResult = await decryptMetadata(
-              file.name,
-              file.mime_type,
-              file.cid_original_encrypted,
-              personalSignature
-            );
+            const decryptionResult = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
             if (!decryptionResult) {
               logoutUser();
               return;

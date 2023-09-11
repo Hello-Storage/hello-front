@@ -17,7 +17,7 @@ import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
-import { useRef, useState, useEffect, Fragment } from "react";
+import { useRef, useState, Fragment } from "react";
 import copy from "copy-to-clipboard";
 import {
   blobToArrayBuffer,

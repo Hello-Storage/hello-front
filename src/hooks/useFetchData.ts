@@ -63,6 +63,7 @@ const useFetchData = () => {
     return decryptedFiles;
   };
 
+
   const handleEncryptedFolders = async (folders: Folder[]) => {
     // Using map to create an array of promises
     const decrytpedFoldersPromises = folders.map(async (folder) => {
@@ -95,6 +96,7 @@ const useFetchData = () => {
     if (location.pathname.includes("/folder")) {
       root = "/folder/" + location.pathname.split("/")[2];
     }
+
 
     Api.get<RootResponse>(root)
       .then(async (res) => {
