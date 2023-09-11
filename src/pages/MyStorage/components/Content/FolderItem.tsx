@@ -1,8 +1,8 @@
 import { Api } from "api";
 import { EncryptionStatus, File, Folder } from "api/types";
-import { PublicIcon } from "components";
 import dayjs from "dayjs";
-import { useDropdown, useFetchData } from "hooks";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { useAuth, useDropdown, useFetchData } from "hooks";
 import JSZip from "jszip";
 import { useRef, useState } from "react";
 import { FaFolder } from "react-icons/fa";
@@ -44,6 +44,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const { autoEncryptionEnabled } = useAppSelector(
     (state) => state.userdetail
   );
+  const {logout} = useAuth();
   const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
@@ -56,9 +57,14 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
     navigate(`/folder/${folderUID}`);
   };
   const handleDownload = async () => {
-    const personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType);
+    const personalSignature = await getPersonalSignature(
+      name,
+      autoEncryptionEnabled,
+      accountType,
+      logout
+    );
     if (!personalSignature) {
-      toast.error("Faialed ta get personal signature");
+      toast.error("Failed ta get personal signature");
       return;
     }
     // Make a request to download the file with responseType 'blob'
@@ -68,7 +74,6 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
         // Iterate through the files and add them to the ZIP
         for (const file of res.data.files) {
-
           const fileData = atob(file.data);
           if (file.status === EncryptionStatus.Encrypted) {
             const decryptionResult = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
@@ -76,7 +81,11 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
               logoutUser();
               return;
             }
-            const { decryptedFilename, decryptedFiletype, decryptedCidOriginal } = decryptionResult;
+            const {
+              decryptedFilename,
+              decryptedFiletype,
+              decryptedCidOriginal,
+            } = decryptionResult;
             const stringToArrayBuffer = (str: string): ArrayBuffer => {
               const buf = new ArrayBuffer(str.length);
               const bufView = new Uint8Array(buf);
@@ -84,34 +93,43 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                 bufView[i] = str.charCodeAt(i);
               }
               return buf;
-            }
+            };
 
             //transform fileData string to Array Buffer
             const fileDataBufferEncrypted = stringToArrayBuffer(fileData);
-            const fileDataBuffer = await decryptFileBuffer(fileDataBufferEncrypted, decryptedCidOriginal);
+            const fileDataBuffer = await decryptFileBuffer(
+              fileDataBufferEncrypted,
+              decryptedCidOriginal
+            );
             if (!fileDataBuffer) {
               toast.error("Failed to decrypt file");
               return;
             }
             //transform buffer to Blob
-            const fileDataBlob = new Blob([fileDataBuffer], { type: decryptedFiletype });
+            const fileDataBlob = new Blob([fileDataBuffer], {
+              type: decryptedFiletype,
+            });
 
-            const decryptedPathComponents = []
-            const pathComponents = file.path.split('/');
+            const decryptedPathComponents = [];
+            const pathComponents = file.path.split("/");
             // Decrypt the path components
             for (let i = 0; i < pathComponents.length - 1; i++) {
               const component = pathComponents[i];
               const encryptedComponentUint8Array = hexToBuffer(component);
 
-
-              const decryptedComponentBuffer = await decryptContent(encryptedComponentUint8Array, personalSignature);
-              const decryptedComponentStr = new TextDecoder().decode(decryptedComponentBuffer);
-              console.log("Decrypted component:", decryptedComponentStr)
+              const decryptedComponentBuffer = await decryptContent(
+                encryptedComponentUint8Array,
+                personalSignature
+              );
+              const decryptedComponentStr = new TextDecoder().decode(
+                decryptedComponentBuffer
+              );
+              console.log("Decrypted component:", decryptedComponentStr);
               decryptedPathComponents.push(decryptedComponentStr);
             }
             decryptedPathComponents.push(decryptedFilename);
 
-            const decryptedFilePath = decryptedPathComponents.join('/');
+            const decryptedFilePath = decryptedPathComponents.join("/");
             zip.file(decryptedFilePath, fileDataBlob, { binary: true });
           } else {
             zip.file(file.path, fileData, { binary: true });
@@ -133,7 +151,6 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         console.error("Error downloading folder:", err);
       });
   };
-
 
   const handleDelete = () => {
     if (
@@ -293,8 +310,15 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         <td className="p-1">-</td>
         <td className="p-1">
           <div className="flex items-center select-none">
-            {folder.status === "public" ? <><HiOutlineLockOpen /><>Public</></> : <HiLockClosed />} {folder.status === "encrypted" && <>Encrypted</>}
-
+            {folder.status === "public" ? (
+              <>
+                <HiOutlineLockOpen />
+                <>Public</>
+              </>
+            ) : (
+              <HiLockClosed />
+            )}{" "}
+            {folder.status === "encrypted" && <>Encrypted</>}
           </div>
         </td>
         <td className="p-1 select-none">

@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useLocation } from "react-router-dom";
 import { HiOutlineViewGrid, HiOutlineViewList } from "react-icons/hi";
+import { SlideshowLightbox } from "lightbox.js-react";
 import Content from "./components/Content";
 import Breadcrumb from "./components/Breadcrumb";
 import Dropzone from "./components/Dropzone";
@@ -12,16 +11,36 @@ import { useSearchContext } from "contexts/SearchContext";
 import { useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
 
-dayjs.extend(relativeTime);
+// import styles
+import "lightbox.js-react/dist/index.css";
+
+const images = [
+  {
+    src: "https://source.unsplash.com/sQZ_A17cufs/549x711",
+    alt: "Mechanical keyboard with white keycaps.",
+  },
+  {
+    src: "https://source.unsplash.com/rsAeSMzOX9Y/768x512",
+    alt: "Mechanical keyboard with white, pastel green and red keycaps.",
+  },
+  {
+    src: "https://source.unsplash.com/Z6SXt1v5tP8/768x512",
+    alt: "Mechanical keyboard with white, pastel pink, yellow and red keycaps.",
+  },
+];
 
 export default function Home() {
+  const { folders, files, showPreview, preview } = useAppSelector(
+    (state) => state.mystorage
+  );
+  const { uploading } = useAppSelector((state) => state.uploadstatus);
+
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(ref, open, setOpen);
 
   const location = useLocation();
-  const mystorage = useAppSelector((state) => state.mystorage);
-  const { uploading } = useAppSelector((state) => state.uploadstatus);
+
   const { fetchRootContent, fetchUserDetail } = useFetchData();
 
   //pagination
@@ -44,15 +63,15 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const totalItems = mystorage.folders.length + mystorage.files.length;
+  const totalItems = folders.length + files.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems - 1);
 
-  const currentFolders = mystorage.folders.slice(startIndex, endIndex + 1);
+  const currentFolders = folders.slice(startIndex, endIndex + 1);
   const remainingItems = itemsPerPage - currentFolders.length;
-  const currentFiles = mystorage.files.slice(0, remainingItems);
+  const currentFiles = files.slice(0, remainingItems);
 
   const [filter, setFilter] = useState("all");
 
@@ -184,9 +203,11 @@ export default function Home() {
           </div>
         </div>
       </div>
+
       <div className="flex flex-1 flex-col mt-3">
         <Content files={filteredFiles} folders={filteredFolders} view={view} />
       </div>
+
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
         <div>
@@ -225,6 +246,22 @@ export default function Home() {
 
       {/* Upload Info */}
       {uploading && <UploadProgress />}
+
+      {/* lightbox */}
+      {showPreview && (
+        <SlideshowLightbox
+          images={[preview]}
+          showThumbnails={false}
+          showThumbnailIcon={false}
+          open={true}
+          lightboxIdentifier="lbox1"
+          backgroundColor="#0f0f0fcc"
+          iconColor="#ffffff"
+          // onClose={() =>{setIsOpen(false)}}
+        >
+          {/* <img src={preview?.src} alt={preview?.alt} /> */}
+        </SlideshowLightbox>
+      )}
     </div>
   );
 }

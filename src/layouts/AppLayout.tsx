@@ -10,6 +10,7 @@ import { useAppSelector } from "state";
 import setPersonalSignature from "api/setPersonalSignature";
 import { useAccount, useConnect } from "wagmi";
 import getAccountType from "api/getAccountType";
+import { AccountType } from "api";
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -39,7 +40,7 @@ export default function AppLayout() {
     };
 
 
-    if (accountType === "web3" && !isConnected) {
+    if (accountType === AccountType.Provider && !isConnected) {
       connectToMetaMask();
     } /*else {
       alert("no web3")
@@ -51,7 +52,7 @@ export default function AppLayout() {
         }
       });
     }*/
-  }, [connectors, connect, name, autoEncryptionEnabled]);
+  }, [connectors, isConnected, connect, name, autoEncryptionEnabled]);
 
   /*
   useEffect(() => {
