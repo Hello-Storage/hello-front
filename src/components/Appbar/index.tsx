@@ -14,6 +14,7 @@ import {
 } from "react-icons/hi";
 import { useAppSelector } from "state";
 import { formatName } from "utils";
+import { truncate } from "utils/format";
 
 interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -80,7 +81,9 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               onClick={() => setOpen(!open)}
             >
               <EthIcon />
-              <span className="text-sm">| {formatName(name)}</span>
+              <span className="text-sm">
+                | {truncate(formatName(name), 20)}
+              </span>
               <HiChevronDown />
             </button>
 
