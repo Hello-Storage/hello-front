@@ -69,8 +69,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
         <div className="flex items-center md:gap-8 w-full justify-between md:w-fit gap-1">
           <a href="https://linktr.ee/joinhelloapp" target="_blank">
             <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm">
-              <FaPhoneSquareAlt className="mr-2" size={20} />
-              Contact
+              Contribute
             </button>
           </a>
 
