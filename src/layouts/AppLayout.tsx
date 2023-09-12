@@ -35,7 +35,6 @@ export default function AppLayout() {
       }
     };
 
-
     if (accountType === AccountType.Provider && !isConnected) {
       connectToMetaMask();
     } /*else {

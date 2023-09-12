@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { HiOutlineViewGrid, HiOutlineViewList } from "react-icons/hi";
+import {
+  HiOutlineViewGrid,
+  HiOutlineViewList,
+  HiChevronRight,
+  HiChevronLeft,
+} from "react-icons/hi";
 import { SlideshowLightbox } from "lightbox.js-react";
 import Content from "./components/Content";
 import Breadcrumb from "./components/Breadcrumb";
@@ -203,7 +208,7 @@ export default function Home() {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            className={`px-4 py-2 rounded flex items-center ${
+            className={`p-2 rounded flex items-center gap-2 ${
               currentPage === 1
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
@@ -213,10 +218,11 @@ export default function Home() {
             }
             disabled={currentPage === 1}
           >
-            {"< "}Prev
+            <HiChevronLeft className="h-5 w-5" />
+            <span className="md:inline hidden">Prev</span>
           </button>
           <button
-            className={`px-4 py-2 rounded flex items-center ${
+            className={`p-2 rounded flex items-center gap-2 ${
               totalPages === 0 || currentPage === totalPages
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
@@ -226,7 +232,9 @@ export default function Home() {
             }
             disabled={totalPages === 0 || currentPage === totalPages}
           >
-            Next {">"}
+            <span className="md:inline hidden">Next</span>{" "}
+            <HiChevronRight className="h-5 w-5" />
+            {/* Add these classes */}
           </button>
         </div>
       </div>
