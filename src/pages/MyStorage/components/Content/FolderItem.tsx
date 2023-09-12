@@ -29,6 +29,7 @@ import getPersonalSignature from "api/getPersonalSignature";
 import { useAppSelector } from "state";
 import getAccountType from "api/getAccountType";
 import { logoutUser } from "state/user/actions";
+import { truncate } from "utils/format";
 
 dayjs.extend(relativeTime);
 
@@ -300,13 +301,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
       );
     }
   };
-
-  function truncate(str: string, num: number): string {
-    if (str.length <= num) {
-      return str;
-    }
-    return str.slice(0, num) + "...";
-  }
 
   if (view === "list")
     return (

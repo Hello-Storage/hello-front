@@ -26,6 +26,7 @@ import {
 import React from "react";
 import { useAppDispatch } from "state";
 import { setImageViewAction } from "state/mystorage/actions";
+import { truncate } from "utils/format";
 
 dayjs.extend(relativeTime);
 
@@ -184,13 +185,6 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
       );
     }
   };
-
-  function truncate(str: string, num: number): string {
-    if (str.length <= num) {
-      return str;
-    }
-    return str.slice(0, num) + "...";
-  }
 
   if (view === "list")
     return (

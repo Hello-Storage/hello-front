@@ -13,16 +13,10 @@ import {
 } from "react-icons/hi";
 import { useAppSelector } from "state";
 import { formatName } from "utils";
+import { truncate } from "utils/format";
 
 interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
-}
-
-function truncate(str: string, num: number): string {
-  if (str.length <= num) {
-    return str;
-  }
-  return str.slice(0, num) + "...";
 }
 
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
