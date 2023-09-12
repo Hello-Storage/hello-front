@@ -26,6 +26,7 @@ import {
 import React from "react";
 import { useAppDispatch } from "state";
 import { setImageViewAction } from "state/mystorage/actions";
+import { truncate } from "utils/format";
 
 dayjs.extend(relativeTime);
 
@@ -209,7 +210,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
         >
           <div className="flex items-center gap-3">
             {getFileIcon(file.name)}
-            {file.name}
+            <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
+            <span className="inline md:hidden"> {truncate(file.name, 24)}</span>
           </div>
         </th>
         <td className="p-1">
@@ -295,20 +297,31 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
     );
   else
     return (
-      <div className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md">
+      <div
+        className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md hover:cursor-pointer"
+        onClick={handleView}
+      >
         <div>
           <div className="flex flex-col items-center gap-3">
             <div className="p-1 bg-gray-100 rounded-md">
               <HiDocumentText className="w-7 h-7" />
             </div>
-            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap overflow-ellipsis">
-              {file.name}
+            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis">
+              <span className="hidden md:inline">
+                {truncate(file.name, 40)}
+              </span>
+              <span className="inline md:hidden">
+                {truncate(file.name, 24)}
+              </span>
             </div>
           </div>
         </div>
         <div
           className="text-center text-xs flex items-center justify-center gap-1 select-none hover:text-blue-500 mt-4"
-          onClick={onCopy}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the parent's onClick
+            onCopy(e);
+          }}
         >
           <label>{formatUID(file.uid)}</label>
           <HiDocumentDuplicate className="inline-block" />

@@ -2,6 +2,7 @@ import { EthIcon } from "components";
 import { useAuth } from "hooks";
 import useDropdown from "hooks/useDropdown";
 import { useRef, useState, ChangeEvent, FunctionComponent } from "react";
+import { FaPhoneSquareAlt } from "react-icons/fa";
 import {
   HiChevronDown,
   HiCubeTransparent,
@@ -13,6 +14,7 @@ import {
 } from "react-icons/hi";
 import { useAppSelector } from "state";
 import { formatName } from "utils";
+import { truncate } from "utils/format";
 
 interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -65,11 +67,12 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
           </div>
         </form>
         <div className="flex items-center md:gap-8 w-full justify-between md:w-fit gap-1">
-          <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-            <HiCubeTransparent />
-            <span className="text-sm">Chain</span>
-            <HiChevronDown />
-          </button>
+          <a href="https://linktr.ee/joinhelloapp" target="_blank">
+            <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm">
+              <FaPhoneSquareAlt className="mr-2" size={20} />
+              Contact
+            </button>
+          </a>
 
           <div className="relative" ref={ref}>
             <button
@@ -78,9 +81,12 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               onClick={() => setOpen(!open)}
             >
               <EthIcon />
-              <span className="text-sm">| {formatName(name)}</span>
+              <span className="text-sm">
+                | {truncate(formatName(name), 20)}
+              </span>
               <HiChevronDown />
             </button>
+
             {open && (
               <div
                 id="dropdown"

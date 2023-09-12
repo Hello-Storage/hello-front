@@ -9,7 +9,7 @@ export const formatName = (nameOrAddress: string) => {
 };
 
 export const formatUID = (uid: string) => {
-  return `${uid.slice(0, 5)}...${uid.slice(-4)}`;
+  return `${uid.slice(0, 2)}...${uid.slice(-4)}`;
 };
 
 const isValidAddress = (address: string) => {
@@ -42,4 +42,11 @@ export const formatPercent = (child: number, parent: number, decimal = 2) => {
     maximumFractionDigits: decimal,
   });
   return numberFormater.format(Number(num));
+};
+
+export const truncate = (str: string, num: number): string => {
+  if (str.length <= num) {
+    return str;
+  }
+  return str.slice(0, num) + "...";
 };
