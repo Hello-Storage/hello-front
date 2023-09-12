@@ -355,7 +355,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
         </div>
 
-        <div className="flex items-center justify-between mt-5">
+        <div className="flex items-center justify-between mt-4">
           <label className="text-sm">
             Encryption {encryptionEnabled ? "ON" : "OFF"}
           </label>
@@ -401,11 +401,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           </div>
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-3" />
 
         <div className="relative" ref={dropRef}>
           <button
-            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-4"
+            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
             onClick={handleFileUpload}
           >
             <HiPlus /> File Upload
@@ -426,7 +426,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           </div>
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-3" />
 
         <div className="flex flex-col gap-0.5">
           {links1.map((v, i) => (
@@ -463,7 +463,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           ))}
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-3" />
 
         <div className="flex flex-col gap-0.5">
           {links2.map((v, i) => (
