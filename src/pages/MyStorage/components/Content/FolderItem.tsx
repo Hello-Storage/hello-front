@@ -19,7 +19,12 @@ import { useNavigate } from "react-router-dom";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { formatUID } from "utils";
-import { decryptContent, decryptFileBuffer, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
+import {
+  decryptContent,
+  decryptFileBuffer,
+  decryptMetadata,
+  hexToBuffer,
+} from "utils/encryption/filesCipher";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAppSelector } from "state";
 import getAccountType from "api/getAccountType";
@@ -50,10 +55,8 @@ const FolderItem: React.FC<FolderItemProps> = ({
   const [isDragging, setDragging] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [dragEnterCount, setDragEnterCount] = useState(0);
-  const { autoEncryptionEnabled } = useAppSelector(
-    (state) => state.userdetail
-  );
-  const {logout} = useAuth();
+  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
+  const { logout } = useAuth();
   const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
@@ -86,7 +89,12 @@ const FolderItem: React.FC<FolderItemProps> = ({
         for (const file of res.data.files) {
           const fileData = atob(file.data);
           if (file.status === EncryptionStatus.Encrypted) {
-            const decryptionResult = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
+            const decryptionResult = await decryptMetadata(
+              file.name,
+              file.mime_type,
+              file.cid_original_encrypted,
+              personalSignature
+            );
             if (!decryptionResult) {
               logoutUser();
               return;
@@ -293,6 +301,13 @@ const FolderItem: React.FC<FolderItemProps> = ({
     }
   };
 
+  function truncate(str: string, num: number): string {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + "...";
+  }
+
   if (view === "list")
     return (
       <tr
@@ -321,7 +336,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
         >
           <div className="flex items-center gap-3 select-none">
             <FaFolder size={32} color="#737373" />
-            {folder.title}
+            {truncate(folder.title, 24)}
           </div>
         </th>
         <td className="p-1">
@@ -396,7 +411,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
   else
     return (
       <div className="bg-white p-3 rounded-md mb-3 border border-gray-200 shadow-md relative">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <div className="">
             <FaFolder
               className="inline-block mr-3 align-middle"
@@ -405,7 +420,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
             />
 
             <label className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
-              {folder.title}
+              {truncate(folder.title, 24)}
             </label>
           </div>
           <button

@@ -18,6 +18,13 @@ interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
+function truncate(str: string, num: number): string {
+  if (str.length <= num) {
+    return str;
+  }
+  return str.slice(0, num) + "...";
+}
+
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const { name, walletAddress } = useAppSelector((state) => state.user);
   const { logout } = useAuth();
@@ -78,7 +85,9 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               onClick={() => setOpen(!open)}
             >
               <EthIcon />
-              <span className="text-sm">| {formatName(name)}</span>
+              <span className="text-sm">
+                | {truncate(formatName(name), 20)}
+              </span>
               <HiChevronDown />
             </button>
             {open && (

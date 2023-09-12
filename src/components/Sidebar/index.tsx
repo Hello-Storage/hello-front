@@ -56,13 +56,13 @@ const links1 = [
   {
     to: "/shared-with-me",
     icon: <img src={Send} alt="custom icon" className="w-6 h-6" />,
-    content: "Shared with me",
+    content: "Shared",
     available: false,
   },
   {
-    to: "/recent",
+    to: "/referrals",
     icon: <img src={Box} alt="custom icon" className="w-6 h-6" />,
-    content: "Recent",
+    content: "Referrals",
     available: false,
   },
 ];
@@ -108,7 +108,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const accountType = getAccountType();
 
   const { logout } = useAuth();
-
 
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -267,7 +266,12 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     let personalSignature;
     if (encryptionEnabled) {
-      personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType, logout);
+      personalSignature = await getPersonalSignature(
+        name,
+        autoEncryptionEnabled,
+        accountType,
+        logout
+      );
       if (!personalSignature) {
         toast.error("Failed to get personal signature");
         logout();
@@ -342,7 +346,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   };
 
   return (
-    <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-16 md:px-6 w-full">
+    <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <label className="text-2xl font-semibold font-[Outfit]">
@@ -368,17 +372,30 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex items-center justify-between mt-3">
           <label
             htmlFor="auto-signature"
-            className={`text-sm ${encryptionEnabled && accountType === AccountType.Provider ? "" : "text-gray-400"}`}
+            className={`text-sm ${
+              encryptionEnabled && accountType === AccountType.Provider
+                ? ""
+                : "text-gray-400"
+            }`}
           >
             Automatic
           </label>
           <div className="flex items-center align-middle">
             <Toggle
               id="auto-signature"
-              checked={autoEncryptionEnabled || !(accountType === AccountType.Provider)}
-              onChange={() => accountType === AccountType.Provider && dispatch(toggleAutoEncryption(!autoEncryptionEnabled))}
-              disabled={!(accountType === AccountType.Provider) || !encryptionEnabled}
-              className={autoEncryptionEnabled ? "automatic-on" : "automatic-off"}
+              checked={
+                autoEncryptionEnabled || !(accountType === AccountType.Provider)
+              }
+              onChange={() =>
+                accountType === AccountType.Provider &&
+                dispatch(toggleAutoEncryption(!autoEncryptionEnabled))
+              }
+              disabled={
+                !(accountType === AccountType.Provider) || !encryptionEnabled
+              }
+              className={
+                autoEncryptionEnabled ? "automatic-on" : "automatic-off"
+              }
               icons={false}
             />
           </div>
@@ -388,65 +405,30 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         <div className="relative" ref={dropRef}>
           <button
-            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
-            onClick={() => setOpen(!open)}
+            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-4"
+            onClick={handleFileUpload}
           >
-            <HiPlus /> New
+            <HiPlus /> File Upload
           </button>
-          {open && (
-            <div
-              id="dropdown"
-              aria-label="dropdown-list"
-              className="absolute mt-1 z-10 w-full bg-white shadow divide-y border text-sm text-gray-700"
+          <div className="flex gap-2 items-center mt-4">
+            <button
+              className="flex items-center justify-center text-gray-800 w-full px-2 py-3 rounded-xl text-xs bg-white border border-gray-300 hover:bg-gray-100"
+              onClick={onPresent}
             >
-              <div className="py-2">
-                <div
-                  className="block cursor-pointer px-4 py-2 hover:bg-gray-100"
-                  onClick={onPresent}
-                >
-                  <img
-                    src={FolderPlus}
-                    alt="custom icon"
-                    className="inline-flex mr-2 w-4 h-4"
-                  />
-                  New Folder
-                </div>
-              </div>
-              <ul className="py-2" aria-labelledby="dropdownDefaultButton">
-                <li>
-                  <div
-                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={handleFileUpload}
-                  >
-                    <img
-                      src={FileUpload}
-                      alt="custom icon"
-                      className="inline-flex mr-2 w-4 h-4"
-                    />
-                    File Upload
-                  </div>
-                </li>
-                <li>
-                  <div
-                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={handleFolderUpload}
-                  >
-                    <img
-                      src={Folder}
-                      alt="custom icon"
-                      className="inline-flex mr-2 w-4 h-4"
-                    />
-                    Folder Upload
-                  </div>
-                </li>
-              </ul>
-            </div>
-          )}
+              New Folder
+            </button>
+            <button
+              className="flex items-center justify-center text-gray-800 w-full px-2 py-3 rounded-xl text-xs bg-white border border-gray-300 hover:bg-gray-100"
+              onClick={handleFolderUpload}
+            >
+              Folder upload
+            </button>
+          </div>
         </div>
 
         <hr className="my-4" />
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {links1.map((v, i) => (
             <NavLink
               to={v.available ? v.to : "/#"}
@@ -457,7 +439,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${
+                className={`flex items-center px-2 py-1.5 justify-between ${
                   v.available ? "" : "text-gray-500"
                 }`}
               >
@@ -483,7 +465,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         <hr className="my-4" />
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {links2.map((v, i) => (
             <NavLink
               to={v.to}
@@ -495,7 +477,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${
+                className={`flex items-center px-2 py-1.5 justify-between ${
                   v.available ? "" : "text-gray-500"
                 }`}
               >
@@ -557,7 +539,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           hidden
         />
       </div>
-      <div className="mt-4 md:hidden absolute top-2 right-20">
+      <div className="mt-4 md:hidden absolute top-2 right-24">
         <button
           className="p-1 border rounded-xl bg-white"
           onClick={() => setSidebarOpen(false)}

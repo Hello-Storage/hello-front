@@ -9,7 +9,7 @@ export const formatName = (nameOrAddress: string) => {
 };
 
 export const formatUID = (uid: string) => {
-  return `${uid.slice(0, 5)}...${uid.slice(-4)}`;
+  return `${uid.slice(0, 2)}...${uid.slice(-4)}`;
 };
 
 const isValidAddress = (address: string) => {
