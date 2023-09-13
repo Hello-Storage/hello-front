@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import OtpInput from "react-otp-input";
-import { FaRegEnvelopeOpen } from "react-icons/fa";
+import { FaRegEnvelopeOpen, FaSpinner } from "react-icons/fa";
 import { useAuth } from "hooks";
-import { Modal } from "components/Modal";
-import { Spinner1 } from "components/Spinner";
+import { Modal, useModal } from "components/Modal";
+import { toast } from "react-toastify";
 
 export default function OTPModal({ email }: { email: string }) {
   const { verifyOTP } = useAuth();
+  const [, onDismiss] = useModal(<></>);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +15,13 @@ export default function OTPModal({ email }: { email: string }) {
     setOtp(otp);
     if (otp.length === 6) {
       setLoading(true);
-      await verifyOTP(email, otp);
+
+      const success = await verifyOTP(email, otp);
+      if (success) onDismiss();
+      else {
+        toast.error("invalid code");
+        setOtp("");
+      }
       setLoading(false);
     }
   };
@@ -30,7 +37,12 @@ export default function OTPModal({ email }: { email: string }) {
       </div>
 
       {loading ? (
-        <Spinner1 />
+        <div className="text-center">
+          <FaSpinner
+            className="animate-spin text-blue-500 inline-block"
+            size={50}
+          />
+        </div>
       ) : (
         <OtpInput
           value={otp}

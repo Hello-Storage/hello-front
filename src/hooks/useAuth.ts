@@ -58,7 +58,10 @@ const useAuth = () => {
       });
       setAuthToken(result.data.access_token);
       load();
-    } catch (error) {}
+      return true;
+    } catch (error) {
+      return false;
+    }
   };
 
   const logout = () => {
