@@ -25,9 +25,7 @@ import {
   decryptMetadata,
   hexToBuffer,
 } from "utils/encryption/filesCipher";
-import getPersonalSignature from "api/getPersonalSignature";
 import { useAppSelector } from "state";
-import getAccountType from "api/getAccountType";
 import { logoutUser } from "state/user/actions";
 import { truncate } from "utils/format";
 
@@ -46,6 +44,8 @@ const FolderItem: React.FC<FolderItemProps> = ({
   view,
   onButtonClick,
 }) => {
+  const { signature } = useAppSelector((state) => state.user);
+  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
   const { fetchRootContent } = useFetchData();
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
@@ -56,9 +56,8 @@ const FolderItem: React.FC<FolderItemProps> = ({
   const [isDragging, setDragging] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [dragEnterCount, setDragEnterCount] = useState(0);
-  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
+
   const { logout } = useAuth();
-  const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
   const onCopy = (event: React.MouseEvent) => {
@@ -71,16 +70,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
     navigate(`/folder/${folderUID}`);
   };
   const handleDownload = async () => {
-    const personalSignature = await getPersonalSignature(
-      name,
-      autoEncryptionEnabled,
-      accountType,
-      logout
-    );
-    if (!personalSignature) {
-      toast.error("Failed ta get personal signature");
-      return;
-    }
     // Make a request to download the file with responseType 'blob'
     Api.get(`/folder/download/${folder.uid}`)
       .then(async (res) => {
@@ -94,7 +83,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
               file.name,
               file.mime_type,
               file.cid_original_encrypted,
-              personalSignature
+              signature
             );
             if (!decryptionResult) {
               logoutUser();
@@ -138,7 +127,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
 
               const decryptedComponentBuffer = await decryptContent(
                 encryptedComponentUint8Array,
-                personalSignature
+                signature
               );
               const decryptedComponentStr = new TextDecoder().decode(
                 decryptedComponentBuffer

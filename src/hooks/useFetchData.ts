@@ -5,15 +5,12 @@ import { useAppDispatch, useAppSelector } from "state";
 import { fetchContentAction } from "state/mystorage/actions";
 import { loadUserDetail } from "state/userdetail/actions";
 import { File, Folder } from "api/types/base";
-import getPersonalSignature from "api/getPersonalSignature";
 import { toast } from "react-toastify";
 import {
   decryptContent,
   decryptMetadata,
   hexToBuffer,
 } from "utils/encryption/filesCipher";
-import getAccountType from "api/getAccountType";
-import { logoutUser } from "state/user/actions";
 import useAuth from "./useAuth";
 
 const useFetchData = () => {
@@ -23,8 +20,6 @@ const useFetchData = () => {
   const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
   const { logout } = useAuth();
   const personalSignatureRef = useRef<string | undefined>();
-
-  const accountType = getAccountType();
 
   const handleEncryptedFiles = async (files: File[]) => {
     // Using map to create an array of promises
@@ -63,7 +58,6 @@ const useFetchData = () => {
     return decryptedFiles;
   };
 
-
   const handleEncryptedFolders = async (folders: Folder[]) => {
     // Using map to create an array of promises
     const decrytpedFoldersPromises = folders.map(async (folder) => {
@@ -97,19 +91,8 @@ const useFetchData = () => {
       root = "/folder/" + location.pathname.split("/")[2];
     }
 
-
     Api.get<RootResponse>(root)
       .then(async (res) => {
-        personalSignatureRef.current = await getPersonalSignature(
-          name,
-          autoEncryptionEnabled,
-          accountType
-        ); //Promise<string | undefined>
-        if (!personalSignatureRef.current) {
-          toast.error("Failed to get personal signature");
-          logout();
-          return;
-        }
         const decryptedFiles = await handleEncryptedFiles(res.data.files).catch(
           (err) => {
             console.log(err);
