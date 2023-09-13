@@ -10,16 +10,9 @@ export interface LoadUserResponse {
   uid: string;
   name: string;
   role: string;
-  walletAddress: string;
-  walletPrivateKey?: string;
+  signature: string;
 }
 
 export interface UserDetailResponse {
   storage_used: number;
-}
-
-export enum AccountType {
-  Github = "github",
-  Google = "google",
-  Provider = "provider",
 }

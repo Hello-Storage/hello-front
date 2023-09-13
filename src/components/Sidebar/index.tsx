@@ -16,7 +16,7 @@ import Cloud from "assets/images/Outline/Cloud-upload.png";
 import { FiX } from "react-icons/fi";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
-import { AccountType, Api } from "api";
+import { Api } from "api";
 import { useFetchData, useDropdown, useAuth } from "hooks";
 import {
   toggleEncryption,
@@ -27,7 +27,6 @@ import LogoHello from "@images/beta.png";
 import "react-toggle/style.css";
 import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
-import getPersonalSignature from "api/getPersonalSignature";
 import {
   bufferToBase64Url,
   bufferToHex,
@@ -38,7 +37,6 @@ import {
 } from "utils/encryption/filesCipher";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { AxiosProgressEvent } from "axios";
-import getAccountType from "api/getAccountType";
 
 const links1 = [
   {
@@ -104,8 +102,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
   const { fetchRootContent, fetchUserDetail } = useFetchData();
-  const { name } = useAppSelector((state) => state.user);
-  const accountType = getAccountType();
+  const { signature } = useAppSelector((state) => state.user);
 
   const { logout } = useAuth();
 
@@ -264,21 +261,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const formData = new FormData();
     formData.append("root", root);
 
-    let personalSignature;
-    if (encryptionEnabled) {
-      personalSignature = await getPersonalSignature(
-        name,
-        autoEncryptionEnabled,
-        accountType,
-        logout
-      );
-      if (!personalSignature) {
-        toast.error("Failed to get personal signature");
-        logout();
-        return;
-      }
-    }
-
     const encryptedPathsMapping: { [path: string]: string } = {};
 
     for (let i = 0; i < files.length; i++) {
@@ -287,7 +269,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       if (encryptionEnabled) {
         const encryptedResult = await handleEncryption(
           file,
-          personalSignature,
+          signature,
           isFolder,
           encryptedPathsMapping
         );
@@ -372,27 +354,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex items-center justify-between mt-3">
           <label
             htmlFor="auto-signature"
-            className={`text-sm ${
-              encryptionEnabled && accountType === AccountType.Provider
-                ? ""
-                : "text-gray-400"
-            }`}
+            className={`text-sm ${encryptionEnabled ? "" : "text-gray-400"}`}
           >
             Automatic
           </label>
           <div className="flex items-center align-middle">
             <Toggle
               id="auto-signature"
-              checked={
-                autoEncryptionEnabled || !(accountType === AccountType.Provider)
-              }
+              checked={autoEncryptionEnabled}
               onChange={() =>
-                accountType === AccountType.Provider &&
                 dispatch(toggleAutoEncryption(!autoEncryptionEnabled))
               }
-              disabled={
-                !(accountType === AccountType.Provider) || !encryptionEnabled
-              }
+              disabled={!encryptionEnabled}
               className={
                 autoEncryptionEnabled ? "automatic-on" : "automatic-off"
               }

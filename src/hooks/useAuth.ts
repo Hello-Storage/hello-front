@@ -1,10 +1,4 @@
-import {
-  AccountType,
-  Api,
-  LoadUserResponse,
-  LoginResponse,
-  setAuthToken,
-} from "api";
+import { Api, LoadUserResponse, LoginResponse, setAuthToken } from "api";
 import { signMessage, disconnect } from "@wagmi/core";
 import state from "state";
 import {
@@ -13,28 +7,13 @@ import {
   loadingUser,
   logoutUser,
 } from "state/user/actions";
-import setPersonalSignature from "api/setPersonalSignature";
-import setAccountType from "api/setAccountType";
 import { removeContent } from "state/mystorage/actions";
-import { signPersonalSignature } from "utils/encryption/cipherUtils";
 
 const useAuth = () => {
   const load = async () => {
     try {
       state.dispatch(loadingUser());
       const loadResp = await Api.get<LoadUserResponse>("/load");
-
-      const privateKey = loadResp.data.walletPrivateKey;
-
-      if (privateKey) {
-        //sign message with private key
-        const signature = await signPersonalSignature(
-          loadResp.data.walletAddress,
-          localStorage.getItem("account_type") as AccountType,
-          privateKey
-        );
-        setPersonalSignature(signature);
-      }
 
       state.dispatch(loadUser(loadResp.data));
     } catch (error) {
@@ -43,13 +22,6 @@ const useAuth = () => {
   };
 
   const login = async (wallet_address: string) => {
-    localStorage.removeItem("access_token");
-    setAuthToken(undefined);
-    localStorage.removeItem("account_type");
-    setAccountType(undefined);
-    sessionStorage.removeItem("personal_signature");
-    setPersonalSignature(undefined);
-
     const nonceResp = await Api.post<string>("/nonce", {
       wallet_address,
     });
@@ -64,8 +36,6 @@ const useAuth = () => {
     });
 
     setAuthToken(loginResp.data.access_token);
-    setAccountType("provider");
-
     load();
   };
 
@@ -88,15 +58,16 @@ const useAuth = () => {
       });
       setAuthToken(result.data.access_token);
       load();
-    } catch (error) {}
+      return true;
+    } catch (error) {
+      return false;
+    }
   };
 
   const logout = () => {
     state.dispatch(logoutUser());
 
     setAuthToken(undefined);
-    setPersonalSignature(undefined);
-    setAccountType(undefined);
     state.dispatch(removeContent(""));
 
     // disconnect when you sign with wallet
