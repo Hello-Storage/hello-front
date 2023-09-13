@@ -1,15 +1,34 @@
-import { GithubIcon, LogoIcon } from "components";
-
-import shows from "@images/auth/shows.png";
-import ConnectWalletButton from "./components/ConnectWalletButton";
-import { useAppSelector } from "state";
+import { useState } from "react";
 import { Navigate } from "react-router-dom";
+import { useAppSelector } from "state";
+import { useAuth } from "hooks";
+import { LogoIcon, OTPModal } from "components";
 import { Spinner3 } from "components/Spinner";
+import ConnectWalletButton from "./components/ConnectWalletButton";
 import GoogleLoginButton from "./components/GoogleLoginButton";
 import GithubLoginButton from "./components/GithubLoginButton";
 
+import shows from "@images/auth/shows.png";
+import { useModal } from "components/Modal";
+
 export default function Login() {
   const { authenticated, loading } = useAppSelector((state) => state.user);
+  const { startOTP } = useAuth();
+  const [email, setEmail] = useState("");
+  const [onPresent] = useModal(<OTPModal email={email} />);
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setEmail(e.target.value);
+  };
+
+  const onSubmit = async (e: any) => {
+    e.preventDefault();
+
+    const result = await startOTP(email);
+    console.log(result);
+    if (result) onPresent();
+  };
 
   if (loading) return <Spinner3 />;
   if (authenticated) {
@@ -40,7 +59,7 @@ export default function Login() {
             <hr className="my-5" />
 
             {/* login with email */}
-            <form>
+            <form onSubmit={onSubmit}>
               <div className="">
                 <label
                   htmlFor="email"
@@ -50,14 +69,18 @@ export default function Login() {
                 </label>
                 <input
                   type="email"
-                  id="email"
                   className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-4"
                   placeholder="example@email.com"
+                  value={email}
+                  onChange={onChange}
                   required
                 />
 
                 <div className="mt-6">
-                  <button className="w-full inline-flex items-center justify-center text-white px-3 py-4 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800">
+                  <button
+                    className="w-full inline-flex items-center justify-center text-white px-3 py-4 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+                    type="submit"
+                  >
                     Receive a magic link ✨
                   </button>
                 </div>

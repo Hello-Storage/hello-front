@@ -8838,6 +8838,11 @@ react-oauth-popup@^1.0.5:
   resolved "https://registry.npmjs.org/react-oauth-popup/-/react-oauth-popup-1.0.5.tgz"
   integrity sha512-UyJ3ohmpaXReUeir7mUZaADmUtpATEmJ9EBwGO/CfDQAGFsHZ+W1MrSVy2t0Hl8v+mgN6Ts/cnRhftSccGK3sg==
 
+react-otp-input@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/react-otp-input/-/react-otp-input-3.0.4.tgz#4867cc7e7e42a76d4757423aca03644cb96bba98"
+  integrity sha512-24GWRCguMmCatD3u9+mtxOcvoHZBJEtzzKQ/2cIOpr1yRn/umjxXw5d6mwRV8JnGhQqtIigD+k3Vt1ieuDBypg==
+
 react-portal@^4.2.2:
   version "4.2.2"
   resolved "https://registry.npmjs.org/react-portal/-/react-portal-4.2.2.tgz"
