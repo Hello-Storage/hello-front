@@ -153,13 +153,6 @@ export const decrypt = async (file: File, secret: string) => {
     "decrypt"
   );
 
-  // decrypt file metadata
-  const file_name = await crypto.subtle.decrypt(
-    { name: "AES-CBC", iv: iv },
-    key,
-    base642buff(file.name).slice(8)
-  );
-
   // decrypt file content
   buffer = buffer.slice(8);
   const planBytes = await window.crypto.subtle.decrypt(
@@ -170,6 +163,6 @@ export const decrypt = async (file: File, secret: string) => {
 
   const blob = new Blob([planBytes]);
 
-  const result = new File([blob], arrbuff2str(file_name));
+  const result = new File([blob], "decrypt");
   return result;
 };
