@@ -61,9 +61,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
         // Create a blob from the response data
         let binaryData = res.data;
         if (file.status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid);
+          // const originalCid = file.cid_original_encrypted;
+          // binaryData = await blobToArrayBuffer(binaryData);
+          // binaryData = await decryptFileBuffer(binaryData, originalCid);
         }
         const blob = new Blob([binaryData], { type: file.mime_type });
 
@@ -87,9 +87,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
       .then(async (res) => {
         let binaryData = res.data;
         if (file.status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid);
+          // const originalCid = file.cid_original_encrypted;
+          // binaryData = await blobToArrayBuffer(binaryData);
+          // binaryData = await decryptFileBuffer(binaryData, originalCid);
         }
         const blob = new Blob([binaryData], { type: file.mime_type });
         if (!blob) {
