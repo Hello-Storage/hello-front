@@ -352,12 +352,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         />
 
         <label className="text-xs text-neutral-800">
-          {formatPercent(storageUsed, storageAvailable)} used -{" "}
-          {formatBytes(storageAvailable)} available
+          {formatPercent(storageUsed, storageAvailable)} / 10 GB used -&nbsp;
+          <strong className="text-orange-500">
+            {formatBytes(storageAvailable).slice(
+              0,
+              formatBytes(storageAvailable).length - 2
+            )}{" "}
+            / 100 GB
+          </strong>
         </label>
         <div className="mt-4">
           <button className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
-            Buy storage
+            Get 90 GB Free ✨
           </button>
         </div>
       </div>

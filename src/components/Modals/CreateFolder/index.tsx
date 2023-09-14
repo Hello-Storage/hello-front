@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "state";
 import { createFolderAction } from "state/mystorage/actions";
 import { bufferToHex, encryptBuffer } from "utils/encryption/filesCipher";
-import { useAuth } from "hooks";
 
 export default function CreateFolderModal() {
   const [, onDismiss] = useModal(<></>);
@@ -16,7 +15,6 @@ export default function CreateFolderModal() {
   const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
     (state) => state.userdetail
   );
-  const { logout } = useAuth();
 
   const getRoot = () =>
     window.location.pathname.includes("/folder")

@@ -1,6 +1,6 @@
 import { lazy, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Providers from "providers";
+
 import { AppLayout } from "layouts";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -21,7 +21,6 @@ const Api = lazy(() => import("pages/Api"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
 
-
 function App() {
   const { load } = useAuth();
 
@@ -41,23 +40,21 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Providers>
-        <Routes>
-          <Route path="/" element={<PrivateRoute component={AppLayout} />}>
-            <Route index element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/my-storage" element={<MyStorage />} />
-            <Route path="/folder/*" element={<MyStorage />} />
-            <Route path="/shared-with-me" element={<Shared />} />
-            <Route path="/recent" element={<Recent />} />
-            <Route path="/deleted" element={<Deleted />} />
-            <Route path="/migration" element={<Migration />} />
-            <Route path="/api" element={<Api />} />
-          </Route>
+      <Routes>
+        <Route path="/" element={<PrivateRoute component={AppLayout} />}>
+          <Route index element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/my-storage" element={<MyStorage />} />
+          <Route path="/folder/*" element={<MyStorage />} />
+          <Route path="/shared-with-me" element={<Shared />} />
+          <Route path="/recent" element={<Recent />} />
+          <Route path="/deleted" element={<Deleted />} />
+          <Route path="/migration" element={<Migration />} />
+          <Route path="/api" element={<Api />} />
+        </Route>
 
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </Providers>
+        <Route path="/login" element={<Login />} />
+      </Routes>
     </BrowserRouter>
   );
 }
