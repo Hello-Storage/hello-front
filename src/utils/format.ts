@@ -34,13 +34,17 @@ export const formatBytes = (bytes: number, decimals = 2) => {
 };
 
 export const formatPercent = (child: number, parent: number, decimal = 2) => {
-  const num = child / parent;
-
   const numberFormater = new Intl.NumberFormat("en-US", {
     style: "percent",
     minimumFractionDigits: 0,
     maximumFractionDigits: decimal,
   });
+
+  if (child === 0 && parent === 0) {
+    return numberFormater.format(0);
+  }
+
+  const num = child / parent;
   return numberFormater.format(Number(num));
 };
 

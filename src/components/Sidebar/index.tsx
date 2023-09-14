@@ -3,9 +3,6 @@ import { NavLink } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import { HiPlus } from "react-icons/hi";
-import FileUpload from "assets/images/Outline/File-upload.png";
-import FolderPlus from "assets/images/Outline/Folder-plus.png";
-import Folder from "assets/images/Outline/Folder.png";
 import FolderLock from "assets/images/Outline/Folder-lock.png";
 import Layout from "assets/images/Outline/Layout.png";
 import Send from "assets/images/Outline/Send.png";
@@ -17,7 +14,7 @@ import { FiX } from "react-icons/fi";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
 import { Api } from "api";
-import { useFetchData, useDropdown, useAuth } from "hooks";
+import { useFetchData, useDropdown } from "hooks";
 import {
   toggleEncryption,
   toggleAutoEncryption,
@@ -27,16 +24,9 @@ import LogoHello from "@images/beta.png";
 import "react-toggle/style.css";
 import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
-import {
-  bufferToBase64Url,
-  bufferToHex,
-  encryptBuffer,
-  encryptFileBuffer,
-  encryptMetadata,
-  getCid,
-} from "utils/encryption/filesCipher";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { AxiosProgressEvent } from "axios";
+import { decrypt, encrypt } from "utils/encrypt";
 
 const links1 = [
   {
@@ -104,8 +94,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const { fetchRootContent, fetchUserDetail } = useFetchData();
   const { signature } = useAppSelector((state) => state.user);
 
-  const { logout } = useAuth();
-
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(dropRef, open, setOpen);
@@ -143,96 +131,40 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       ? location.pathname.split("/")[2]
       : "/";
 
-  const handleEncryption = async (
-    file: File,
-    personalSignature: string | undefined,
-    isFolder: boolean,
-    encryptedPathsMapping: { [path: string]: string }
-  ): Promise<{
-    encryptedFile: File;
-    cidOfEncryptedBufferStr: string;
-    cidOriginalEncryptedBase64Url: string;
-    encryptedWebkitRelativePath: string;
-    encryptionTimeParsed: string;
-  } | null> => {
-    const fileArrayBuffer = await file.arrayBuffer();
-
-    const encryptedMetadataResult = await encryptMetadata(
-      file,
-      personalSignature
-    );
-    if (!encryptedMetadataResult) {
-      toast.error("Failed to encrypt metadata");
-      return null;
-    }
-    const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } =
-      encryptedMetadataResult;
-    const {
-      cidOriginalStr,
-      cidOfEncryptedBufferStr,
-      encryptedFileBuffer,
-      encryptionTimeParsed,
-    } = await encryptFileBuffer(fileArrayBuffer);
-
-    const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-    const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
-    const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
-    const cidOriginalEncryptedBuffer = await encryptBuffer(
-      cidOriginalBuffer,
-      personalSignature
-    );
-
-    if (!cidOriginalEncryptedBuffer) {
-      toast.error("Failed to encrypt buffer");
-      return null;
-    }
-    const cidOriginalEncryptedBase64Url = bufferToBase64Url(
-      cidOriginalEncryptedBuffer
-    );
-    const encryptedFileBlob = new Blob([encryptedFileBuffer]);
-    const encryptedFile = new File(
-      [encryptedFileBlob],
-      encryptedFilenameBase64Url,
-      { type: encryptedFiletypeHex, lastModified: fileLastModified }
-    );
-
-    let encryptedWebkitRelativePath = "";
-    if (isFolder) {
-      const pathComponents = file.webkitRelativePath.split("/");
-      const encryptedPathComponents = [];
-      for (const component of pathComponents) {
-        // If this component has been encrypted before, use the cached value
-        if (encryptedPathsMapping[component]) {
-          encryptedPathComponents.push(encryptedPathsMapping[component]);
-        } else {
-          const encryptedComponentBuffer = await encryptBuffer(
-            new TextEncoder().encode(component),
-            personalSignature
-          );
-          if (!encryptedComponentBuffer) {
-            toast.error("Failed to encrypt buffer");
-            return null;
-          }
-          const encryptedComponentHex = bufferToHex(encryptedComponentBuffer);
-          encryptedPathsMapping[component] = encryptedComponentHex;
-          encryptedPathComponents.push(encryptedComponentHex);
-        }
-      }
-
-      // Reconstruct the encrypted webkitRelativePath
-      encryptedWebkitRelativePath = encryptedPathComponents.join("/");
+  const uploadFiles = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    isFolder: boolean
+  ) => {
+    if (encryptionEnabled && signature == "") {
+      toast.warning("didn't configure the signature");
+      return;
     }
 
-    return {
-      encryptedFile,
-      cidOfEncryptedBufferStr,
-      cidOriginalEncryptedBase64Url,
-      encryptedWebkitRelativePath,
-      encryptionTimeParsed,
-    };
-  };
+    const root = getRoot();
+    const files = event.target.files;
+    if (!files) return;
 
-  const postData = (formData: FormData) => {
+    const formData = new FormData();
+    formData.append("root", root);
+
+    if (encryptionEnabled) {
+      formData.append("status", "encrypted");
+    } else formData.append("status", "public");
+
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i];
+      if (encryptionEnabled) file = await encrypt(file, signature);
+      formData.append("files", file);
+    }
+
+    const info = isFolder
+      ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
+      : files.length === 1
+      ? files[0].name
+      : `uploading ${files.length} files`;
+
+    dispatch(setUploadStatusAction({ info, uploading: true }));
+
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -250,81 +182,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
   };
 
-  const handleInputChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    isFolder: boolean
-  ) => {
-    const root = getRoot();
-    const files = event.target.files;
-    if (!files) return;
-
-    const formData = new FormData();
-    formData.append("root", root);
-
-    const encryptedPathsMapping: { [path: string]: string } = {};
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      if (encryptionEnabled) {
-        const encryptedResult = await handleEncryption(
-          file,
-          signature,
-          isFolder,
-          encryptedPathsMapping
-        );
-        if (!encryptedResult) {
-          toast.error("Failed to encrypt file");
-          return;
-        }
-        const {
-          encryptedFile,
-          cidOfEncryptedBufferStr,
-          cidOriginalEncryptedBase64Url,
-          encryptedWebkitRelativePath,
-          encryptionTimeParsed,
-        } = encryptedResult;
-
-        toast.success(`${encryptionTimeParsed}`);
-
-        formData.append("encryptedFiles", encryptedFile);
-        formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
-        formData.append(
-          `cidOriginalEncrypted[${i}]`,
-          cidOriginalEncryptedBase64Url
-        );
-        formData.append(
-          `webkitRelativePath[${i}]`,
-          encryptedWebkitRelativePath
-        );
-      } else {
-        const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
-        const cidStr = await getCid(uint8ArrayBuffer);
-        formData.append(`cid[${i}]`, cidStr);
-        formData.append("files", file);
-      }
-    }
-    const infoText = isFolder
-      ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
-      : files.length === 1
-      ? files[0].name
-      : `uploading ${files.length} files`;
-
-    dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-
-    postData(formData);
-  };
-
   const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    handleInputChange(event, false);
+    uploadFiles(event, false);
   };
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    handleInputChange(event, true);
+    uploadFiles(event, true);
   };
 
   return (
