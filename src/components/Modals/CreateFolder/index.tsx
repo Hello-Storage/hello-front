@@ -1,41 +1,67 @@
-import { Api } from "api";
+import { Api, EncryptionStatus } from "api";
 import { Modal, useModal } from "components/Modal";
 import { ChangeEventHandler, useState } from "react";
 import { toast } from "react-toastify";
-import { useAppDispatch } from "state";
-import { createFolder } from "state/mystorage/actions";
+import { useAppDispatch, useAppSelector } from "state";
+import { createFolderAction } from "state/mystorage/actions";
+import { decrypt, decryptStr, encryptStr } from "utils";
 
 export default function CreateFolderModal() {
   const [, onDismiss] = useModal(<></>);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const { signature } = useAppSelector((state) => state.user);
+  const { encryptionEnabled } = useAppSelector((state) => state.userdetail);
+
+  const getRoot = () =>
+    window.location.pathname.includes("/folder")
+      ? window.location.pathname.split("/")[2]
+      : "/";
 
   const onChange: ChangeEventHandler = (e: any) => {
     setTitle(e.target.value);
   };
 
-  const handleCreateNewFolder = () => {
-    var root = "/";
-
-    if (window.location.pathname.includes("/folder")) {
-      root = window.location.pathname.split("/")[2];
+  const handleCreateNewFolder = async () => {
+    if (encryptionEnabled && signature === "") {
+      toast.warning("need to config signature");
+      return;
     }
+
+    const root = getRoot();
+    const titleForm = encryptionEnabled
+      ? await encryptStr(title, signature)
+      : title;
+    const status = encryptionEnabled
+      ? EncryptionStatus.Encrypted
+      : EncryptionStatus.Public;
+
     setLoading(true);
-    Api.post("/folder/create", { root, title })
+
+    Api.post("/folder/create", {
+      root: root,
+      title: titleForm,
+      status: status,
+    })
       .then((resp) => {
         toast.success("folder created!");
-
-        dispatch(createFolder(resp.data));
+        if (encryptionEnabled) {
+          dispatch(createFolderAction({ ...resp.data, title: title }));
+        } else {
+          dispatch(createFolderAction(resp.data));
+        }
       })
       .catch((err) => {
         toast.error("failed!");
+        console.log(err);
       })
       .finally(() => {
         setLoading(false);
         onDismiss();
       });
   };
+
   return (
     <Modal className="p-5 bg-white rounded-lg w-80">
       <label className="text-xl">New Folder</label>

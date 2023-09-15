@@ -1,6 +1,6 @@
-import { useCallback } from "react";
 import { Api, LoadUserResponse, LoginResponse, setAuthToken } from "api";
 import { signMessage, disconnect } from "@wagmi/core";
+import { useAccount } from "wagmi";
 import state from "state";
 import {
   loadUser,
@@ -8,26 +8,31 @@ import {
   loadingUser,
   logoutUser,
 } from "state/user/actions";
-import setPersonalSignature from "api/setPersonalSignature";
+import { removeContent } from "state/mystorage/actions";
+import { getSignature } from "utils";
 
 const useAuth = () => {
-  const load = useCallback(async () => {
+  const { address, isConnected } = useAccount();
+
+  const load = async () => {
     try {
       state.dispatch(loadingUser());
       const loadResp = await Api.get<LoadUserResponse>("/load");
 
+      // if signature not registered
+      if (loadResp.data.signature === "" && isConnected && address) {
+        const signature = await getSignature(address);
+        loadResp.data.signature = signature;
+
+        await Api.post("/user/signature", { signature });
+      }
       state.dispatch(loadUser(loadResp.data));
     } catch (error) {
       state.dispatch(loadUserFail());
     }
-  }, []);
+  };
 
-  const login = useCallback(async (wallet_address: string) => {
-    localStorage.removeItem("access_token");
-    setAuthToken(undefined);
-    sessionStorage.removeItem("personal_signature");
-    setPersonalSignature(undefined);
-
+  const login = async (wallet_address: string) => {
     const nonceResp = await Api.post<string>("/nonce", {
       wallet_address,
     });
@@ -42,22 +47,48 @@ const useAuth = () => {
     });
 
     setAuthToken(loginResp.data.access_token);
-
     load();
-  }, []);
+  };
 
-  const logout = useCallback(() => {
+  // otp (one-time-passcode login)
+  const startOTP = async (email: string) => {
+    try {
+      await Api.post("/otp/start", { email });
+    } catch (error) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const verifyOTP = async (email: string, code: string) => {
+    try {
+      const result = await Api.post<LoginResponse>("/otp/verify", {
+        email,
+        code,
+      });
+      setAuthToken(result.data.access_token);
+      load();
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const logout = () => {
     state.dispatch(logoutUser());
 
     setAuthToken(undefined);
-    setPersonalSignature(undefined);
+    state.dispatch(removeContent(""));
 
     // disconnect when you sign with wallet
     disconnect();
-  }, []);
+  };
 
   return {
     login,
+    startOTP,
+    verifyOTP,
     load,
     logout,
   };

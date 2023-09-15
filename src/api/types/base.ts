@@ -13,8 +13,6 @@ interface Base {
 
 export interface File extends Base {
   uid: string;
-  cid: string;
-  cid_original_encrypted: string;
   name: string;
   root: string;
   mime_type: string;

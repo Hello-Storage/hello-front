@@ -11,8 +11,10 @@ export interface LoadUserResponse {
   name: string;
   role: string;
   walletAddress: string;
+  signature: string;
 }
 
 export interface UserDetailResponse {
+  referral_storage: number;
   storage_used: number;
 }

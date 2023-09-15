@@ -36,14 +36,14 @@ export default function AppLayout() {
         ></div>
         <div className="flex flex-grow">
           <div
-            className={`w-5/6 md:w-72 z-20 bg-white ${
+            className={`h-screen overflow-y-auto w-5/6 md:w-72 z-20 bg-white ${
               sidebarOpen ? "block" : "hidden"
             } md:block`}
           >
             <Sidebar setSidebarOpen={setSidebarOpen} />
           </div>
           <div
-            className={`flex flex-col flex-1 md:px-10 px-5 py-4 ${
+            className={`flex flex-col flex-1 md:px-10 px-5 py-4 h-screen overflow-y-auto ${
               sidebarOpen ? "md:ml-72 overflow-hidden w-full blur-sm" : ""
             }`}
           >

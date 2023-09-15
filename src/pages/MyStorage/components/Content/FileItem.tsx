@@ -1,6 +1,6 @@
-import { Api } from "api";
-import { EncryptionStatus, File as FileType } from "api/types";
+import { useRef, useState, Fragment } from "react";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import {
   HiDocumentDuplicate,
   HiDotsVertical,
@@ -12,33 +12,40 @@ import {
   HiOutlineLockOpen,
   HiLockClosed,
 } from "react-icons/hi";
+import { toast } from "react-toastify";
+import copy from "copy-to-clipboard";
+import { Api } from "api";
+import { EncryptionStatus, File as FileType } from "api/types";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
-import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
-import { useRef, useState, useEffect, Fragment } from "react";
-import copy from "copy-to-clipboard";
-import { useModal } from "components/Modal";
-import {
-  blobToArrayBuffer,
-  decryptFileBuffer,
-} from "utils/encryption/filesCipher";
+import { useAppDispatch, useAppSelector } from "state";
+import { setImageViewAction } from "state/mystorage/actions";
+import { truncate } from "utils/format";
+import { decrypt } from "utils/encrypt";
+
+dayjs.extend(relativeTime);
 
 interface FileItemProps {
   file: FileType;
   view: "list" | "grid";
+  onButtonClick: (data: string) => void;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
+  const { signature } = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [isDragging, setDragging] = useState(false);
+  const cloneRef = useRef<HTMLDivElement | null>(null);
+  const initialCoords = useRef({ x: 0, y: 0 });
+  const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
   useDropdown(ref, open, setOpen);
 
-  const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
-
-  const onCopy = () => {
+  const onCopy = (event: React.MouseEvent) => {
+    if (event.shiftKey) return;
     copy(`https://staging.joinhello.app/file/${file.uid}`);
     toast.success("copied CID");
   };
@@ -49,16 +56,14 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then(async (res) => {
         // Create a blob from the response data
-        let binaryData = res.data;
+        const blob = new Blob([res.data]);
+        let f = new File([blob], file.name);
         if (file.status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid);
+          f = await decrypt(f, signature);
         }
-        const blob = new Blob([binaryData], { type: file.mime_type });
 
         // Create a link element and set the blob as its href
-        const url = window.URL.createObjectURL(blob);
+        const url = URL.createObjectURL(f);
         const a = document.createElement("a");
         a.href = url;
         a.download = file.name; // Set the file name
@@ -72,56 +77,26 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       });
   };
 
-  const [modalContent, setModalContent] = useState<React.ReactNode | null>(
-    null
-  );
-  const [onPresent, onDismiss] = useModal(modalContent);
-
   const handleView = () => {
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then(async (res) => {
-        let binaryData = res.data;
+        const blob = new Blob([res.data]);
+        let f = new File([blob], file.name);
         if (file.status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid);
+          f = await decrypt(f, signature);
         }
-        const blob = new Blob([binaryData], { type: file.mime_type });
-        if (!blob) {
-          console.error("Error downloading file:", file);
-          return;
-        }
-        const url = window.URL.createObjectURL(blob);
-        setModalContent(
-          <div className="modal-content">
-            <button className="mb-4" onClick={onDismiss}>
-              Close
-            </button>
-            <object
-              data={url}
-              width="100%"
-              style={
-                file.mime_type === "application/pdf"
-                  ? { width: "100vh", height: "80vh" }
-                  : {}
-              }
-              type={file.mime_type}
-            >
-              <embed src={url} type={file.mime_type} />
-            </object>
-          </div>
-        );
+
+        const url = window.URL.createObjectURL(f);
+        const img = {
+          src: url,
+          alt: file.name,
+        };
+        dispatch(setImageViewAction({ img, show: true }));
       })
       .catch((err) => {
         console.error("Error downloading file:", err);
       });
   };
-
-  useEffect(() => {
-    if (modalContent) {
-      onPresent();
-    }
-  }, [modalContent]);
 
   const handleDelete = () => {
     // Make a request to delete the file with response code 200
@@ -136,27 +111,69 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       });
   };
 
-  const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
-
-  const handleFileClick = (clickedFile: FileType) => {
-    setSelectedFile(clickedFile);
-  };
-
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
       type: "file",
     });
-    console.log("Drag: " + dragInfo);
     event.dataTransfer.setData("text/plain", dragInfo);
+    event.dataTransfer.setDragImage(new Image(), 0, 0);
+
+    const thElement = event.currentTarget.getElementsByTagName("th")[0];
+    const clone = thElement.cloneNode(true) as HTMLDivElement;
+    const rect = thElement.getBoundingClientRect();
+
+    clone.style.position = "fixed";
+    clone.style.top = rect.top + "px";
+    clone.style.left = rect.left + "px";
+    clone.style.width = rect.width + "px";
+    clone.style.height = rect.height + "px";
+    clone.style.zIndex = "100";
+    clone.style.pointerEvents = "none";
+    clone.style.opacity = "1.0";
+    clone.style.backgroundColor = "AliceBlue";
+    clone.style.borderRadius = "10px";
+    clone.style.border = "2px solid LightSkyBlue";
+    clone.style.boxSizing = "border-box";
+
+    document.body.appendChild(clone);
+
+    cloneRef.current = clone;
+    initialCoords.current = { x: event.clientX, y: event.clientY };
     setDragging(true);
   };
 
   const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
+    if (cloneRef.current) {
+      document.body.removeChild(cloneRef.current);
+      cloneRef.current = null;
+    }
     event.dataTransfer.clearData();
     setDragging(false);
+  };
+
+  const handleDrag = (event: React.DragEvent<HTMLTableRowElement>) => {
+    if (cloneRef.current) {
+      const dx = event.clientX - initialCoords.current.x;
+      const dy = event.clientY - initialCoords.current.y;
+
+      cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+  };
+  const [selectedItem, setSelectedItem] = useState(false);
+  const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
+    if (event.ctrlKey) {
+      setSelectedItem(!selectedItem);
+      return onButtonClick(
+        JSON.stringify({
+          type: "file",
+          id: event.currentTarget.id.toString(),
+          uid: event.currentTarget.ariaLabel?.toString(),
+        })
+      );
+    }
   };
 
   if (view === "list")
@@ -166,8 +183,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         aria-label={file.uid}
         draggable
         onDragStart={handleDragStart}
-        className="bg-white cursor-pointer border-b hover:bg-gray-100"
+        onDragEnd={handleDragEnd}
+        onDrag={handleDrag}
+        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${
+          isDragging || selectedItem
+            ? "bg-blue-200 border border-blue-500"
+            : "border-0"
+        }`}
+        // onClick={handleClick}
         onDoubleClick={handleView}
+        onClick={handleOnClick}
       >
         <th
           scope="row"
@@ -175,7 +200,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         >
           <div className="flex items-center gap-3">
             {getFileIcon(file.name)}
-            {file.name}
+            <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
+            <span className="inline md:hidden"> {truncate(file.name, 24)}</span>
           </div>
         </th>
         <td className="p-1">
@@ -261,20 +287,31 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     );
   else
     return (
-      <div className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md">
+      <div
+        className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md hover:cursor-pointer"
+        onClick={handleView}
+      >
         <div>
           <div className="flex flex-col items-center gap-3">
             <div className="p-1 bg-gray-100 rounded-md">
               <HiDocumentText className="w-7 h-7" />
             </div>
-            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap overflow-ellipsis">
-              {file.name}
+            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis">
+              <span className="hidden md:inline">
+                {truncate(file.name, 40)}
+              </span>
+              <span className="inline md:hidden">
+                {truncate(file.name, 24)}
+              </span>
             </div>
           </div>
         </div>
         <div
           className="text-center text-xs flex items-center justify-center gap-1 select-none hover:text-blue-500 mt-4"
-          onClick={onCopy}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the parent's onClick
+            onCopy(e);
+          }}
         >
           <label>{formatUID(file.uid)}</label>
           <HiDocumentDuplicate className="inline-block" />

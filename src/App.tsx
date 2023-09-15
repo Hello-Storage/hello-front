@@ -1,19 +1,19 @@
 import { lazy, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Providers from "providers";
+
 import { AppLayout } from "layouts";
 
 import "react-toastify/dist/ReactToastify.css";
 import { setAuthToken } from "api";
 import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
-import state from "state";
+import state, { useAppSelector } from "state";
 import { logoutUser } from "state/user/actions";
-import setPersonalSignature from "api/setPersonalSignature";
 
 const Home = lazy(() => import("pages/Home"));
 const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
+const Referrals = lazy(() => import("pages/Referrals"));
 const Shared = lazy(() => import("pages/Shared"));
 const Recent = lazy(() => import("pages/Recent"));
 const Deleted = lazy(() => import("pages/Deleted"));
@@ -28,14 +28,11 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    const personalSignature = sessionStorage.getItem("personal_signature");
 
     if (token) {
       setAuthToken(token);
     }
-    if (personalSignature) {
-      setPersonalSignature(personalSignature);
-    }
+
     load();
     // log user out from all tabs if they log out in one tab
     window.addEventListener("storage", () => {
@@ -59,11 +56,9 @@ function App() {
             <Route path="/migration" element={<Migration />} />
             <Route path="/api" element={<Api />} />
           </Route>
-
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </BrowserRouter>
-    </Providers>
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

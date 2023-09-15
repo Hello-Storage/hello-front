@@ -1,27 +1,38 @@
 import { useEffect, useRef, useState } from "react";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useLocation } from "react-router-dom";
-import { HiOutlineViewGrid, HiOutlineViewList } from "react-icons/hi";
+import {
+  HiOutlineViewGrid,
+  HiOutlineViewList,
+  HiChevronRight,
+  HiChevronLeft,
+} from "react-icons/hi";
+import { SlideshowLightbox } from "lightbox.js-react";
 import Content from "./components/Content";
 import Breadcrumb from "./components/Breadcrumb";
 import Dropzone from "./components/Dropzone";
-import { useAppSelector } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import { useSearchContext } from "contexts/SearchContext";
 
 import { useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
+import { setImageViewAction } from "state/mystorage/actions";
 
-dayjs.extend(relativeTime);
+// import styles
+import "lightbox.js-react/dist/index.css";
 
 export default function Home() {
+  const dispatch = useAppDispatch();
+  const { folders, files, showPreview, preview } = useAppSelector(
+    (state) => state.mystorage
+  );
+  const { uploading } = useAppSelector((state) => state.uploadstatus);
+
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(ref, open, setOpen);
 
   const location = useLocation();
-  const mystorage = useAppSelector((state) => state.mystorage);
-  const { uploading } = useAppSelector((state) => state.uploadstatus);
+
   const { fetchRootContent, fetchUserDetail } = useFetchData();
 
   //pagination
@@ -44,15 +55,15 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const totalItems = mystorage.folders.length + mystorage.files.length;
+  const totalItems = folders.length + files.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems - 1);
 
-  const currentFolders = mystorage.folders.slice(startIndex, endIndex + 1);
+  const currentFolders = folders.slice(startIndex, endIndex + 1);
   const remainingItems = itemsPerPage - currentFolders.length;
-  const currentFiles = mystorage.files.slice(0, remainingItems);
+  const currentFiles = files.slice(0, remainingItems);
 
   const [filter, setFilter] = useState("all");
 
@@ -82,7 +93,8 @@ export default function Home() {
 
   useEffect(() => {
     fetchRootContent();
-  }, [fetchRootContent, location]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   return (
     <div className="flex flex-col flex-1">
@@ -183,9 +195,11 @@ export default function Home() {
           </div>
         </div>
       </div>
+
       <div className="flex flex-1 flex-col mt-3">
         <Content files={filteredFiles} folders={filteredFolders} view={view} />
       </div>
+
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
         <div>
@@ -194,7 +208,7 @@ export default function Home() {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            className={`px-4 py-2 rounded flex items-center ${
+            className={`p-2 rounded flex items-center gap-2 ${
               currentPage === 1
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
@@ -204,10 +218,11 @@ export default function Home() {
             }
             disabled={currentPage === 1}
           >
-            {"< "}Prev
+            <HiChevronLeft className="h-5 w-5" />
+            <span className="md:inline hidden">Prev</span>
           </button>
           <button
-            className={`px-4 py-2 rounded flex items-center ${
+            className={`p-2 rounded flex items-center gap-2 ${
               totalPages === 0 || currentPage === totalPages
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
@@ -217,13 +232,30 @@ export default function Home() {
             }
             disabled={totalPages === 0 || currentPage === totalPages}
           >
-            Next {">"}
+            <span className="md:inline hidden">Next</span>{" "}
+            <HiChevronRight className="h-5 w-5" />
+            {/* Add these classes */}
           </button>
         </div>
       </div>
 
       {/* Upload Info */}
       {uploading && <UploadProgress />}
+
+      {/* lightbox */}
+      <SlideshowLightbox
+        images={preview == undefined ? [] : [preview]}
+        showThumbnails={false}
+        showThumbnailIcon={false}
+        open={showPreview}
+        lightboxIdentifier="lbox1"
+        backgroundColor="#0f0f0fcc"
+        iconColor="#ffffff"
+        modalClose="clickOutside"
+        onClose={() => {
+          dispatch(setImageViewAction({ show: false }));
+        }}
+      />
     </div>
   );
 }

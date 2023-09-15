@@ -1,8 +1,8 @@
 import { Api } from "api";
 import { EncryptionStatus, File, Folder } from "api/types";
-import { PublicIcon } from "components";
 import dayjs from "dayjs";
-import { useDropdown, useFetchData } from "hooks";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { useAuth, useDropdown, useFetchData } from "hooks";
 import JSZip from "jszip";
 import { useRef, useState } from "react";
 import { FaFolder } from "react-icons/fa";
@@ -19,24 +19,49 @@ import { useNavigate } from "react-router-dom";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { formatUID } from "utils";
-import { blobToArrayBuffer, decryptContent, decryptFileBuffer, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
-import getPersonalSignature from "api/getPersonalSignature";
+import {
+  decryptContent,
+  decryptFileBuffer,
+  decryptMetadata,
+  hexToBuffer,
+} from "utils/encryption/filesCipher";
 import { useAppSelector } from "state";
+import { logoutUser } from "state/user/actions";
+import { truncate } from "utils/format";
+
+dayjs.extend(relativeTime);
+
+import React from "react";
 
 interface FolderItemProps {
   folder: Folder;
   view: "list" | "grid";
+  onButtonClick: (data: string) => void;
 }
 
-const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
+const FolderItem: React.FC<FolderItemProps> = ({
+  folder,
+  view,
+  onButtonClick,
+}) => {
+  const { signature } = useAppSelector((state) => state.user);
+  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
   const { fetchRootContent } = useFetchData();
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const { name } = useAppSelector((state) => state.user);
+  const cloneRef = useRef<HTMLDivElement | null>(null);
+  const initialCoords = useRef({ x: 0, y: 0 });
+  const [isDragging, setDragging] = useState(false);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [dragEnterCount, setDragEnterCount] = useState(0);
+
+  const { logout } = useAuth();
   useDropdown(ref, open, setOpen);
 
-  const onCopy = () => {
+  const onCopy = (event: React.MouseEvent) => {
+    if (!event.ctrlKey) return;
     copy(`https://staging.joinhello.app/folder/${folder.uid}`);
     toast.success("copied CID");
   };
@@ -45,11 +70,6 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
     navigate(`/folder/${folderUID}`);
   };
   const handleDownload = async () => {
-    const personalSignature = await getPersonalSignature(name, true);
-    if (!personalSignature) {
-      toast.error("Faialed ta get personal signature");
-      return;
-    }
     // Make a request to download the file with responseType 'blob'
     Api.get(`/folder/download/${folder.uid}`)
       .then(async (res) => {
@@ -57,12 +77,23 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
         // Iterate through the files and add them to the ZIP
         for (const file of res.data.files) {
-
           const fileData = atob(file.data);
           if (file.status === EncryptionStatus.Encrypted) {
-            console.log("Decrypting file:", file.name)
-            const { decryptedFilename, decryptedFiletype, decryptedCidOriginal } = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
-            console.log("Decrypted file:", decryptedFilename, decryptedFiletype, decryptedCidOriginal)
+            const decryptionResult = await decryptMetadata(
+              file.name,
+              file.mime_type,
+              file.cid_original_encrypted,
+              signature
+            );
+            if (!decryptionResult) {
+              logoutUser();
+              return;
+            }
+            const {
+              decryptedFilename,
+              decryptedFiletype,
+              decryptedCidOriginal,
+            } = decryptionResult;
             const stringToArrayBuffer = (str: string): ArrayBuffer => {
               const buf = new ArrayBuffer(str.length);
               const bufView = new Uint8Array(buf);
@@ -70,34 +101,43 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                 bufView[i] = str.charCodeAt(i);
               }
               return buf;
-            }
+            };
 
             //transform fileData string to Array Buffer
             const fileDataBufferEncrypted = stringToArrayBuffer(fileData);
-            const fileDataBuffer = await decryptFileBuffer(fileDataBufferEncrypted, decryptedCidOriginal);
+            const fileDataBuffer = await decryptFileBuffer(
+              fileDataBufferEncrypted,
+              decryptedCidOriginal
+            );
             if (!fileDataBuffer) {
               toast.error("Failed to decrypt file");
               return;
             }
             //transform buffer to Blob
-            const fileDataBlob = new Blob([fileDataBuffer], { type: decryptedFiletype });
+            const fileDataBlob = new Blob([fileDataBuffer], {
+              type: decryptedFiletype,
+            });
 
-            const decryptedPathComponents = []
-            const pathComponents = file.path.split('/');
+            const decryptedPathComponents = [];
+            const pathComponents = file.path.split("/");
             // Decrypt the path components
             for (let i = 0; i < pathComponents.length - 1; i++) {
               const component = pathComponents[i];
               const encryptedComponentUint8Array = hexToBuffer(component);
 
-
-              const decryptedComponentBuffer = await decryptContent(encryptedComponentUint8Array, personalSignature);
-              const decryptedComponentStr = new TextDecoder().decode(decryptedComponentBuffer);
-              console.log("Decrypted component:", decryptedComponentStr)
+              const decryptedComponentBuffer = await decryptContent(
+                encryptedComponentUint8Array,
+                signature
+              );
+              const decryptedComponentStr = new TextDecoder().decode(
+                decryptedComponentBuffer
+              );
+              console.log("Decrypted component:", decryptedComponentStr);
               decryptedPathComponents.push(decryptedComponentStr);
             }
             decryptedPathComponents.push(decryptedFilename);
 
-            const decryptedFilePath = decryptedPathComponents.join('/');
+            const decryptedFilePath = decryptedPathComponents.join("/");
             zip.file(decryptedFilePath, fileDataBlob, { binary: true });
           } else {
             zip.file(file.path, fileData, { binary: true });
@@ -119,7 +159,6 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         console.error("Error downloading folder:", err);
       });
   };
-
 
   const handleDelete = () => {
     if (
@@ -145,6 +184,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
   const handleDrop = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
+    setDragEnterCount((prev) => prev - 1);
     const dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
     const dropInfo = {
       id: event.currentTarget.id.toString(),
@@ -179,18 +219,77 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const handleDragOver = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
   };
-  const [elementosSeleccionados, setElementosSeleccionados] = useState([]);
+
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
       type: "folder",
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
     });
+    event.dataTransfer.setData("text/plain", dragInfo);
+    event.dataTransfer.setDragImage(new Image(), 0, 0);
     console.log("Drag: " + dragInfo);
     event.dataTransfer.setData("text/plain", dragInfo);
+
+    const thElement = event.currentTarget.getElementsByTagName("th")[0];
+    const clone = thElement.cloneNode(true) as HTMLDivElement;
+    const rect = thElement.getBoundingClientRect();
+
+    clone.style.position = "fixed";
+    clone.style.top = rect.top + "px";
+    clone.style.left = rect.left + "px";
+    clone.style.width = rect.width + "px";
+    clone.style.height = rect.height + "px";
+    clone.style.zIndex = "100";
+    clone.style.pointerEvents = "none";
+    clone.style.opacity = "1.0";
+    clone.style.backgroundColor = "AliceBlue";
+    clone.style.borderRadius = "10px";
+    clone.style.border = "2px solid LightSkyBlue";
+    clone.style.boxSizing = "border-box";
+
+    document.body.appendChild(clone);
+
+    cloneRef.current = clone;
+    initialCoords.current = { x: event.clientX, y: event.clientY };
   };
 
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const handleDrag = (event: React.DragEvent<HTMLTableRowElement>) => {
+    if (cloneRef.current) {
+      const dx = event.clientX - initialCoords.current.x;
+      const dy = event.clientY - initialCoords.current.y;
+
+      cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+  };
+
+  const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
+    if (cloneRef.current) {
+      document.body.removeChild(cloneRef.current);
+      cloneRef.current = null;
+    }
+  };
+
+  const handleDragEnter = () => {
+    setDragEnterCount((prev) => prev + 1);
+  };
+
+  const handleDragLeave = () => {
+    setDragEnterCount((prev) => prev - 1);
+  };
+  const [selectedItem, setSelectedItem] = React.useState(false);
+  const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
+    if (event.ctrlKey) {
+      setSelectedItem(!selectedItem);
+      return onButtonClick(
+        JSON.stringify({
+          type: "folder",
+          id: event.currentTarget.id.toString(),
+          uid: event.currentTarget.ariaLabel?.toString(),
+        })
+      );
+    }
+  };
 
   if (view === "list")
     return (
@@ -201,15 +300,17 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
-        onDragEnter={() => setIsDraggingOver(true)}
-        onDragLeave={() => setIsDraggingOver(false)}
-        className="bg-white cursor-pointer border-b"
-        // className={`bg-white cursor-pointer border-b ${
-        //   isDraggingOver
-        //     ? "bg-blue-200 border-blue-500 border"
-        //     : "hover:bg-gray-100"
-        // }`}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDrag={handleDrag}
+        onDragEnd={handleDragEnd}
+        className={` hover:bg-gray-100 ${
+          dragEnterCount > 0 || selectedItem
+            ? "bg-blue-100 border border-blue-500"
+            : "border-0"
+        } ${isDragging ? "active:bg-blue-100 active:text-white" : ""}`}
         onDoubleClick={() => onFolderDoubleClick(folder.uid)}
+        onClick={handleOnClick}
       >
         <th
           scope="row"
@@ -218,7 +319,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         >
           <div className="flex items-center gap-3 select-none">
             <FaFolder size={32} color="#737373" />
-            {folder.title}
+            {truncate(folder.title, 24)}
           </div>
         </th>
         <td className="p-1">
@@ -233,8 +334,15 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         <td className="p-1">-</td>
         <td className="p-1">
           <div className="flex items-center select-none">
-            {folder.status === "public" ? <><HiOutlineLockOpen /><>Public</></> : <HiLockClosed />} {folder.status === "encrypted" && <>Encrypted</>}
-
+            {folder.status === "public" ? (
+              <>
+                <HiOutlineLockOpen />
+                <>Public</>
+              </>
+            ) : (
+              <HiLockClosed />
+            )}{" "}
+            {folder.status === "encrypted" && <>Encrypted</>}
           </div>
         </td>
         <td className="p-1 select-none">
@@ -286,7 +394,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   else
     return (
       <div className="bg-white p-3 rounded-md mb-3 border border-gray-200 shadow-md relative">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <div className="">
             <FaFolder
               className="inline-block mr-3 align-middle"
@@ -295,7 +403,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
             />
 
             <label className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
-              {folder.title}
+              {truncate(folder.title, 24)}
             </label>
           </div>
           <button

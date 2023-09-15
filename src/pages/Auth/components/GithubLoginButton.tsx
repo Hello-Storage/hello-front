@@ -4,6 +4,7 @@ import { GithubIcon } from "components";
 import { GITHUB_CLIENT_ID } from "config";
 import { useAuth } from "hooks";
 import OauthPopup from "react-oauth-popup";
+import * as Web3 from "web3";
 
 const root_url = "https://github.com/login/oauth/authorize?";
 
@@ -19,9 +20,21 @@ export default function GithubLoginButton() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const onCode = async (code: string, params: any) => {
+    const account = Web3.eth.accounts.create();
+    const referral = new URLSearchParams(window.location.search).get("ref");
+
+    const baseParams = {
+      code: code,
+      wallet_address: account.address,
+      private_key: account.privateKey,
+    };
+
+    const referrerParams = { referral: referral ?? "" };
+
     const oauthResp = await Api.get("/oauth/github", {
       params: {
-        code: code,
+        ...baseParams,
+        ...referrerParams,
       },
     });
     setAuthToken(oauthResp.data.access_token);
@@ -35,7 +48,7 @@ export default function GithubLoginButton() {
       url={root_url + new URLSearchParams(options)}
       onCode={onCode}
       onClose={onClose}
-      title={"Login With Github"}
+      title={"Login With Githuba"}
       width={600}
       height={700}
     >

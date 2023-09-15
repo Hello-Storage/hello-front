@@ -1,11 +1,8 @@
-import { ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import { HiPlus } from "react-icons/hi";
-import FileUpload from "assets/images/Outline/File-upload.png";
-import FolderPlus from "assets/images/Outline/Folder-plus.png";
-import Folder from "assets/images/Outline/Folder.png";
 import FolderLock from "assets/images/Outline/Folder-lock.png";
 import Layout from "assets/images/Outline/Layout.png";
 import Send from "assets/images/Outline/Send.png";
@@ -18,16 +15,18 @@ import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
 import { Api } from "api";
 import { useFetchData, useDropdown } from "hooks";
-import { toggleEncryption, toggleAutoEncryption } from "state/userdetail/actions";
+import {
+  toggleEncryption,
+  toggleAutoEncryption,
+} from "state/userdetail/actions";
 
 import LogoHello from "@images/beta.png";
 import "react-toggle/style.css";
 import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
-import getPersonalSignature from "api/getPersonalSignature";
-import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, getCid } from "utils/encryption/filesCipher";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { AxiosProgressEvent } from "axios";
+import { decrypt, encrypt } from "utils/encrypt";
 
 const links1 = [
   {
@@ -45,14 +44,14 @@ const links1 = [
   {
     to: "/shared-with-me",
     icon: <img src={Send} alt="custom icon" className="w-6 h-6" />,
-    content: "Shared with me",
+    content: "Shared",
     available: false,
   },
   {
-    to: "/recent",
+    to: "/referrals",
     icon: <img src={Box} alt="custom icon" className="w-6 h-6" />,
-    content: "Recent",
-    available: false,
+    content: "Referrals",
+    available: true,
   },
 ];
 
@@ -85,24 +84,16 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ setSidebarOpen }: SidebarProps) {
-  const { storageUsed, storageAvailable, encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
-    (state) => state.userdetail
-  );
+  const {
+    storageUsed,
+    storageAvailable,
+    encryptionEnabled,
+    autoEncryptionEnabled,
+  } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
-
+  const navigate = useNavigate();
   const { fetchRootContent, fetchUserDetail } = useFetchData();
-
-
-  const { name } = useAppSelector((state) => state.user);
-
-
-
-
-  useEffect(() => {
-    if (encryptionEnabled) {
-      dispatch(toggleAutoEncryption(true))
-    }
-  }, [dispatch, encryptionEnabled]);
+  const { signature } = useAppSelector((state) => state.user);
 
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -110,8 +101,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
-
   const [onPresent] = useModal(<CreateFolderModal />);
+
   useEffect(() => {
     if (folderInput.current !== null) {
       folderInput.current.setAttribute("directory", "");
@@ -123,7 +114,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     dispatch(
       setUploadStatusAction({
         read: progressEvent.loaded,
-        size: progressEvent.total!,
+        size: progressEvent.total,
       })
     );
   };
@@ -136,99 +127,47 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     folderInput.current?.click();
   };
 
-  const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = async (
-    event
-  ) => {
-    const files = event.target.files;
+  const getRoot = () =>
+    location.pathname.includes("/folder")
+      ? location.pathname.split("/")[2]
+      : "/";
 
+  const uploadFiles = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    isFolder: boolean
+  ) => {
+    if (encryptionEnabled && signature == "") {
+      toast.warning("didn't configure the signature");
+      return;
+    }
+
+    const root = getRoot();
+    const files = event.target.files;
     if (!files) return;
 
     const formData = new FormData();
+    formData.append("root", root);
 
-    let root = "/";
+    if (encryptionEnabled) {
+      formData.append("status", "encrypted");
+    } else formData.append("status", "public");
 
-    if (location.pathname.includes("/folder")) {
-      root = location.pathname.split("/")[2];
-    }
-
-
+    const salt = crypto.getRandomValues(new Uint8Array(8));
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+      let file = files[i];
 
-      const fileArrayBuffer = await file.arrayBuffer();
+      if (encryptionEnabled) file = await encrypt(file, signature, salt);
 
-      if (encryptionEnabled) {
-        // encrypt file metadata and blob
-        const personalSignature = await getPersonalSignature(name, autoEncryptionEnabled ?? false);
-        if (!personalSignature) {
-          toast.error("Failed to get personal signature");
-          return;
-        }
-
-        //encrypt file's metadata
-        const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } = await encryptMetadata(file, personalSignature);
-
-        //get the CID of the encrypted file, get the key used to encrypt the file (cidKey) and the encryptef file buffer
-        //cidOriginalStr is the cid of the file's unencrypted buffer
-        //cidOfEncryptedBufferStr is the cid of the encrypted file's buffer
-        const { cidOriginalStr, cidOfEncryptedBufferStr, encryptedFileBuffer, encryptionTimeParsed } = await encryptFileBuffer(fileArrayBuffer);
-        toast.success(`${encryptionTimeParsed}`);
-
-
-        // transform cidOfEncryptedBufferStr to Uint8Array
-        const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
-        //transform encryptedMetadataBuffer string
-        const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-        const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
-
-        //encrypt cidOfEncryptedBufferStr and cidStr with key
-        const cidOriginalEncryptedBuffer = await encryptBuffer(cidOriginalBuffer, personalSignature);
-
-        //transform encryptedCidSigned to string
-
-        const cidOriginalEncryptedBase64Url = bufferToBase64Url(cidOriginalEncryptedBuffer);
-
-        const encryptedFileBlob = new Blob([encryptedFileBuffer]);
-
-        //to add size and last modified date to the encrypted file
-        const encryptedFile = new File([encryptedFileBlob], encryptedFilenameBase64Url, { type: encryptedFiletypeHex, lastModified: fileLastModified });
-
-        formData.append("encryptedFiles", encryptedFile);
-        formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
-        formData.append(`cidOriginalEncrypted[${i}]`, cidOriginalEncryptedBase64Url);
-        formData.append(`webkitRelativePath[${i}]`, "")
-
-
-      } else {
-        const uint8ArrayBuffer = new Uint8Array(fileArrayBuffer);
-        const cidStr = await getCid(uint8ArrayBuffer);
-        formData.append(`cid[${i}]`, cidStr);
-        formData.append("files", file);
-      }
-
-
-      formData.append("root", root);
+      formData.append("files", file);
     }
 
-    if (files.length === 1)
-      dispatch(setUploadStatusAction({ info: files[0].name, uploading: true }));
-    else
-      dispatch(
-        setUploadStatusAction({
-          info: `uploading ${files.length} files`,
-          uploading: true,
-        })
-      );
+    const info = isFolder
+      ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
+      : files.length === 1
+      ? files[0].name
+      : `uploading ${files.length} files`;
 
-    if (files.length === 1)
-      dispatch(setUploadStatusAction({ info: files[0].name, uploading: true }));
-    else
-      dispatch(
-        setUploadStatusAction({
-          info: `uploading ${files.length} files`,
-          uploading: true,
-        })
-      );
+    dispatch(setUploadStatusAction({ info, uploading: true }));
 
     Api.post("/file/upload", formData, {
       headers: {
@@ -247,115 +186,20 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
   };
 
-  const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = async (
+  const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    const files = event.target.files;
-    if (!files) return;
+    uploadFiles(event, false);
+  };
 
-    console.log(files);
-    const formData = new FormData();
-
-    let root = "/";
-
-    if (location.pathname.includes("/folder")) {
-      root = location.pathname.split("/")[2];
-    }
-
-    formData.append("root", root);
-
-    const encryptedPathsMap: { [path: string]: string } = {};
-
-
-    const folder = files[0].webkitRelativePath.split("/")[0];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-
-      const fileArrayBuffer = await file.arrayBuffer();
-
-      if (encryptionEnabled) {
-        // Encrypt file metadata and blob
-        const personalSignature = await getPersonalSignature(name, autoEncryptionEnabled ?? false);
-        if (!personalSignature) {
-          toast.error("Failed to get personal signature");
-          return;
-        }
-
-        const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } = await encryptMetadata(file, personalSignature);
-
-        const { cidOriginalStr, cidOfEncryptedBufferStr, encryptedFileBuffer, encryptionTimeParsed } = await encryptFileBuffer(fileArrayBuffer);
-
-        toast.success(`${encryptionTimeParsed}`);
-
-        const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
-        const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-        const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
-        const cidOriginalEncryptedBuffer = await encryptBuffer(cidOriginalBuffer, personalSignature);
-        const cidOriginalEncryptedBase64Url = bufferToBase64Url(cidOriginalEncryptedBuffer);
-
-        // Encrypt the original webkitRelativePath but don't encerypt the "/"
-        const pathComponents = file.webkitRelativePath.split("/");
-
-        // Encrypt the path components
-        const encryptedPathComponents = [];
-        for (const component of pathComponents) {
-          // If this component has been encrypted before, use the cached value
-          if (encryptedPathsMap[component]) {
-            encryptedPathComponents.push(encryptedPathsMap[component]);
-          } else {
-            const encryptedComponentBuffer = await encryptBuffer(new TextEncoder().encode(component), personalSignature);
-            const encryptedComponentHex = bufferToHex(encryptedComponentBuffer);
-            encryptedPathsMap[component] = encryptedComponentHex;
-            encryptedPathComponents.push(encryptedComponentHex);
-          }
-        }
-
-        // Reconstruct the encrypted webkitRelativePath
-        const encryptedWebkitRelativePath = encryptedPathComponents.join("/");
-
-
-        const encryptedFileBlob = new Blob([encryptedFileBuffer]);
-        const encryptedFile = new File([encryptedFileBlob], encryptedFilenameBase64Url, { type: encryptedFiletypeHex, lastModified: fileLastModified });
-
-
-        formData.append("encryptedFiles", encryptedFile);
-        formData.append(`webkitRelativePath[${i}]`, encryptedWebkitRelativePath);
-        formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
-        formData.append(`cidOriginalEncrypted[${i}]`, cidOriginalEncryptedBase64Url);
-      } else {
-        const uint8ArrayBuffer = new Uint8Array(fileArrayBuffer);
-        const cidStr = await getCid(uint8ArrayBuffer);
-        formData.append("files", file)
-        formData.append(`cid[${i}]`, cidStr);
-      }
-      dispatch(
-        setUploadStatusAction({
-          info: `uploading ${folder} folder`,
-          uploading: true,
-        })
-      );
-    }
-
-    Api.post("/file/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress,
-    })
-      .then((data) => {
-        toast.success("upload Succeed!");
-        fetchRootContent();
-        fetchUserDetail();
-      })
-      .catch((err) => {
-        toast.error("upload failed!");
-      })
-      .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
+  const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    uploadFiles(event, true);
   };
 
   return (
-    <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-16 md:px-6 w-full">
+    <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <label className="text-2xl font-semibold font-[Outfit]">
@@ -364,7 +208,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
         </div>
 
-        <div className="flex items-center justify-between mt-5">
+        <div className="flex items-center justify-between mt-4">
           <label className="text-sm">
             Encryption {encryptionEnabled ? "ON" : "OFF"}
           </label>
@@ -389,77 +233,46 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             <Toggle
               id="auto-signature"
               checked={autoEncryptionEnabled}
-              onChange={() => dispatch(toggleAutoEncryption(!autoEncryptionEnabled))}
+              onChange={() =>
+                dispatch(toggleAutoEncryption(!autoEncryptionEnabled))
+              }
               disabled={!encryptionEnabled}
-              className={autoEncryptionEnabled ? "automatic-on" : "automatic-off"}
+              className={
+                autoEncryptionEnabled ? "automatic-on" : "automatic-off"
+              }
               icons={false}
             />
           </div>
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-3" />
 
         <div className="relative" ref={dropRef}>
           <button
-            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
-            onClick={() => setOpen(!open)}
+            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
+            onClick={handleFileUpload}
           >
-            <HiPlus /> New
+            <HiPlus /> File Upload
           </button>
-          {open && (
-            <div
-              id="dropdown"
-              aria-label="dropdown-list"
-              className="absolute mt-1 z-10 w-full bg-white shadow divide-y border text-sm text-gray-700"
+          <div className="flex gap-2 items-center mt-4">
+            <button
+              className="flex items-center justify-center text-gray-800 w-full px-2 py-3 rounded-xl text-xs bg-white border border-gray-300 hover:bg-gray-100"
+              onClick={onPresent}
             >
-              <div className="py-2">
-                <div
-                  className="block cursor-pointer px-4 py-2 hover:bg-gray-100"
-                  onClick={onPresent}
-                >
-                  <img
-                    src={FolderPlus}
-                    alt="custom icon"
-                    className="inline-flex mr-2 w-4 h-4"
-                  />
-                  New Folder
-                </div>
-              </div>
-              <ul className="py-2" aria-labelledby="dropdownDefaultButton">
-                <li>
-                  <div
-                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={handleFileUpload}
-                  >
-                    <img
-                      src={FileUpload}
-                      alt="custom icon"
-                      className="inline-flex mr-2 w-4 h-4"
-                    />
-                    File Upload
-                  </div>
-                </li>
-                <li>
-                  <div
-                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={handleFolderUpload}
-                  >
-                    <img
-                      src={Folder}
-                      alt="custom icon"
-                      className="inline-flex mr-2 w-4 h-4"
-                    />
-                    Folder Upload
-                  </div>
-                </li>
-              </ul>
-            </div>
-          )}
+              New Folder
+            </button>
+            <button
+              className="flex items-center justify-center text-gray-800 w-full px-2 py-3 rounded-xl text-xs bg-white border border-gray-300 hover:bg-gray-100"
+              onClick={handleFolderUpload}
+            >
+              Folder upload
+            </button>
+          </div>
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-3" />
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {links1.map((v, i) => (
             <NavLink
               to={v.available ? v.to : "/#"}
@@ -470,14 +283,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center px-2 py-1.5 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -492,9 +307,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           ))}
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-3" />
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {links2.map((v, i) => (
             <NavLink
               to={v.to}
@@ -506,14 +321,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center px-2 py-1.5 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -529,7 +346,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         </div>
       </div>
 
-      <div className="">
+      <div className="pt-4">
         <label>{formatBytes(storageUsed)} Used</label>
 
         <ProgressBar
@@ -539,12 +356,20 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         />
 
         <label className="text-xs text-neutral-800">
-          {formatPercent(storageUsed, storageAvailable)} used -{" "}
-          {formatBytes(storageAvailable)} available
+          {formatPercent(storageUsed, storageAvailable)} /{" "}
+          {formatBytes(storageAvailable)} used -&nbsp;
+          <strong className="text-orange-500">
+            {formatBytes(storageAvailable, 2, false)} / 100 GB
+          </strong>
         </label>
         <div className="mt-4">
-          <button className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
-            Buy storage
+          <button
+            className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
+            onClick={() => navigate("/referrals")}
+            disabled={storageAvailable >= Math.pow(1024, 3) * 100}
+          >
+            Get {formatBytes(100 * Math.pow(1024, 3) - storageAvailable)} Free
+            ✨
           </button>
         </div>
       </div>
@@ -566,7 +391,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           hidden
         />
       </div>
-      <div className="mt-4 md:hidden absolute top-2 right-20">
+      <div className="mt-4 md:hidden absolute top-2 right-24">
         <button
           className="p-1 border rounded-xl bg-white"
           onClick={() => setSidebarOpen(false)}

@@ -2,86 +2,45 @@ import { useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { Api, EncryptionStatus, RootResponse, UserDetailResponse } from "api";
 import { useAppDispatch, useAppSelector } from "state";
-import { fetchContent } from "state/mystorage/actions";
+import { fetchContentAction } from "state/mystorage/actions";
 import { loadUserDetail } from "state/userdetail/actions";
 import { File, Folder } from "api/types/base";
-import getPersonalSignature from "api/getPersonalSignature";
 import { toast } from "react-toastify";
-import { decryptContent, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
+import { decryptMeta, decryptStr } from "utils/encrypt";
 
 const useFetchData = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const { name } = useAppSelector((state) => state.user);
+  const { signature } = useAppSelector((state) => state.user);
 
-  const handleEncryptedFiles = async (files: File[]) => {
-
-    const personalSignature = await getPersonalSignature(name, true);
-    if (!personalSignature) {
-      toast.error("Failed to get personal signature");
-      return;
-    }
-
-
+  const decryptFilesMeta = async (files: File[]) => {
     // Using map to create an array of promises
-    const decrytpedFilesPromises = files.map(async (file) => {
+    const promises = files.map(async (file) => {
       if (file.status === EncryptionStatus.Encrypted) {
-        try {
-          // encrypt file metadata and blob
-          const { decryptedFilename, decryptedFiletype, decryptedCidOriginal } = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
-          return {
-            ...file,
-            name: decryptedFilename,
-            mime_type: decryptedFiletype,
-            cid_original_encrypted: decryptedCidOriginal,
-          }
-        } catch (error) {
-          console.log(error)
-          return file;
-        }
-      }
-      return file;
+        return await decryptMeta(file, signature);
+      } else return file;
     });
 
     // Wait for all promises to resolve
-    const decryptedFiles = await Promise.all(decrytpedFilesPromises);
+    const decryptedFiles = await Promise.all(promises);
     return decryptedFiles;
-  }
+  };
 
-  const handleEncryptedFolders = async (folders: Folder[]) => {
-    const personalSignature = await getPersonalSignature(name, true);
-    if (!personalSignature) {
-      toast.error("Failed to get personal signature");
-      return;
-    }
-
+  const decryptFolders = async (folders: Folder[]) => {
     // Using map to create an array of promises
-    const decrytpedFoldersPromises = folders.map(async (folder) => {
+    const promises = folders.map(async (folder) => {
       if (folder.status === EncryptionStatus.Encrypted) {
-        try {
-          // encrypt file metadata and blob
-          const folderTitleBuffer =  hexToBuffer(folder.title)
-          const decryptedTitleBuffer = await decryptContent(folderTitleBuffer, personalSignature)
-          //transform buffer to Uint8Array
-          const decryptedTitle = new TextDecoder().decode(decryptedTitleBuffer)
+        const title = await decryptStr(folder.title, signature);
+        folder.title = title;
 
-          return {
-            ...folder,
-            title: decryptedTitle,
-          }
-        } catch (error) {
-          console.log(error)
-          return folder;
-        }
-      }
-      return folder;
+        return folder;
+      } else return folder;
     });
 
     // Wait for all promises to resolve
-    const decryptedFolders = await Promise.all(decrytpedFoldersPromises);
-    return decryptedFolders;
-  }
-  
+    const decryptedFiles = await Promise.all(promises);
+    return decryptedFiles;
+  };
 
   const fetchRootContent = useCallback(() => {
     let root = "/folder";
@@ -91,10 +50,52 @@ const useFetchData = () => {
     }
 
     Api.get<RootResponse>(root)
-      .then((res) => {
-        dispatch(fetchContent(res.data));
+      .then(async (res) => {
+        const decryptedFiles = await decryptFilesMeta(res.data.files).catch(
+          (err) => {
+            console.log(err);
+          }
+        );
+
+        const decryptedFolders = await decryptFolders(res.data.folders).catch(
+          (err) => {
+            console.log(err);
+          }
+        );
+
+        const decrypedPath = await decryptFolders(res.data.path).catch(
+          (err) => {
+            console.log(err);
+          }
+        );
+
+        if (!decryptedFiles || !decryptedFolders || !decrypedPath) {
+          toast.error("Failed to decrypt files");
+          dispatch(fetchContentAction(res.data));
+          return;
+        }
+
+        const sortedFiles = decryptedFiles.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        const sortedFolders = decryptedFolders.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
+        dispatch(
+          fetchContentAction({
+            ...res.data,
+            files: sortedFiles,
+            folders: sortedFolders,
+            path: res.data.path,
+          })
+        );
       })
-      .catch((err) => {});
+      .catch((err) => {
+        console.log(err);
+      });
   }, [location.pathname]);
 
   const fetchUserDetail = useCallback(() => {
@@ -102,7 +103,9 @@ const useFetchData = () => {
       .then((res) => {
         dispatch(loadUserDetail(res.data));
       })
-      .catch((err) => { console.log(err)});
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
   return {
