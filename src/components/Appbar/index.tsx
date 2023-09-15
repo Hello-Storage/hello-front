@@ -11,7 +11,9 @@ import {
   HiOutlineUser,
   HiOutlineChartSquareBar,
   HiOutlineCalculator,
+  HiUsers,
 } from "react-icons/hi";
+import { useNavigate } from "react-router";
 import { useAppSelector } from "state";
 import { formatName } from "utils";
 import { truncate } from "utils/format";
@@ -22,6 +24,7 @@ interface AppbarProps {
 
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const { name, walletAddress } = useAppSelector((state) => state.user);
+  const navigate = useNavigate();
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -109,6 +112,15 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                     <a href="#" className="block px-4 py-2 hover:bg-gray-100">
                       <HiOutlineCalculator className="inline-flex mr-3" />
                       Settings
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/referrals"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      <HiUsers className="inline-flex mr-3" />
+                      Referrals
                     </a>
                   </li>
                 </ul>

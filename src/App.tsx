@@ -13,6 +13,7 @@ import { logoutUser } from "state/user/actions";
 const Home = lazy(() => import("pages/Home"));
 const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
+const Referrals = lazy(() => import("pages/Referrals"));
 const Shared = lazy(() => import("pages/Shared"));
 const Recent = lazy(() => import("pages/Recent"));
 const Deleted = lazy(() => import("pages/Deleted"));
@@ -48,6 +49,7 @@ function App() {
           <Route path="/folder/*" element={<MyStorage />} />
           <Route path="/shared-with-me" element={<Shared />} />
           <Route path="/recent" element={<Recent />} />
+          <Route path="/referrals" element={<Referrals />} />
           <Route path="/deleted" element={<Deleted />} />
           <Route path="/migration" element={<Migration />} />
           <Route path="/api" element={<Api />} />
