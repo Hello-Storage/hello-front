@@ -20,8 +20,12 @@ const useAuth = () => {
       const loadResp = await Api.get<LoadUserResponse>("/load");
 
       // if signature not registered
-      if (loadResp.data.signature === "" && isConnected && address)
-        loadResp.data.signature = await getSignature(address);
+      if (loadResp.data.signature === "" && isConnected && address) {
+        const signature = await getSignature(address);
+        loadResp.data.signature = signature;
+
+        await Api.post("/user/signature", { signature });
+      }
       state.dispatch(loadUser(loadResp.data));
     } catch (error) {
       state.dispatch(loadUserFail());

@@ -6,7 +6,7 @@ import { fetchContentAction } from "state/mystorage/actions";
 import { loadUserDetail } from "state/userdetail/actions";
 import { File, Folder } from "api/types/base";
 import { toast } from "react-toastify";
-import { decryptMeta } from "utils/encrypt";
+import { decryptMeta, decryptStr } from "utils/encrypt";
 
 const useFetchData = () => {
   const dispatch = useAppDispatch();
@@ -15,14 +15,30 @@ const useFetchData = () => {
 
   const decryptFilesMeta = async (files: File[]) => {
     // Using map to create an array of promises
-    const decrytpedFilesPromises = files.map(async (file) => {
+    const promises = files.map(async (file) => {
       if (file.status === EncryptionStatus.Encrypted) {
         return await decryptMeta(file, signature);
       } else return file;
     });
 
     // Wait for all promises to resolve
-    const decryptedFiles = await Promise.all(decrytpedFilesPromises);
+    const decryptedFiles = await Promise.all(promises);
+    return decryptedFiles;
+  };
+
+  const decryptFolders = async (folders: Folder[]) => {
+    // Using map to create an array of promises
+    const promises = folders.map(async (folder) => {
+      if (folder.status === EncryptionStatus.Encrypted) {
+        const title = await decryptStr(folder.title, signature);
+        folder.title = title;
+
+        return folder;
+      } else return folder;
+    });
+
+    // Wait for all promises to resolve
+    const decryptedFiles = await Promise.all(promises);
     return decryptedFiles;
   };
 
@@ -41,7 +57,19 @@ const useFetchData = () => {
           }
         );
 
-        if (!decryptedFiles) {
+        const decryptedFolders = await decryptFolders(res.data.folders).catch(
+          (err) => {
+            console.log(err);
+          }
+        );
+
+        const decrypedPath = await decryptFolders(res.data.path).catch(
+          (err) => {
+            console.log(err);
+          }
+        );
+
+        if (!decryptedFiles || !decryptedFolders || !decrypedPath) {
           toast.error("Failed to decrypt files");
           dispatch(fetchContentAction(res.data));
           return;
@@ -51,7 +79,7 @@ const useFetchData = () => {
           (a, b) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
-        const sortedFolders = res.data.folders.sort(
+        const sortedFolders = decryptedFolders.sort(
           (a, b) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
