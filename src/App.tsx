@@ -19,6 +19,7 @@ const Recent = lazy(() => import("pages/Recent"));
 const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));
 const Api = lazy(() => import("pages/Api"));
+const Statistics = lazy(() => import("pages/Statistics"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
 
@@ -42,6 +43,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/stats" element={<Statistics />} />
         <Route path="/" element={<PrivateRoute component={AppLayout} />}>
           <Route index element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />

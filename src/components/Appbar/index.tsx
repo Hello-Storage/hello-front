@@ -24,10 +24,10 @@ interface AppbarProps {
 
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const { name, walletAddress } = useAppSelector((state) => state.user);
-  const navigate = useNavigate();
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   useDropdown(ref, open, setOpen);
 
