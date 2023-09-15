@@ -51,7 +51,7 @@ const links1 = [
     to: "/referrals",
     icon: <img src={Box} alt="custom icon" className="w-6 h-6" />,
     content: "Referrals",
-    available: false,
+    available: true,
   },
 ];
 
