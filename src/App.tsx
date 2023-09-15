@@ -47,6 +47,7 @@ function App() {
     <Providers>
       <BrowserRouter>
         <Routes>
+          <Route path="/stats" element={<Statistics />} />
           <Route path="/" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -57,7 +58,6 @@ function App() {
             <Route path="/deleted" element={<Deleted />} />
             <Route path="/migration" element={<Migration />} />
             <Route path="/api" element={<Api />} />
-            <Route path="/statistics" element={<Statistics />} />
           </Route>
 
           <Route path="/login" element={<Login />} />

@@ -56,9 +56,9 @@ export const options = {
             "Used Storage: " + item[0].dataset.data[item[0].dataIndex],
             "Total Files: " + item[0].dataset.addition[item[0].dataIndex].total,
             "Public Files: " +
-              item[0].dataset.addition[item[0].dataIndex].public,
+            item[0].dataset.addition[item[0].dataIndex].public,
             "Encrypted Files: " +
-              item[0].dataset.addition[item[0].dataIndex].encrypted,
+            item[0].dataset.addition[item[0].dataIndex].encrypted,
           ];
         },
       },
@@ -89,8 +89,8 @@ export const data = {
         { total: 90, public: 1, encrypted: 89 },
       ],
       tension: 0.3,
-      borderColor: "#03BC47",
-      backgroundColor: "#03BC4740",
+      borderColor: "darkcyan", //03BC47
+      backgroundColor: "cyan", //03BC4740
     },
   ],
 };
