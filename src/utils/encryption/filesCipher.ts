@@ -252,7 +252,16 @@ export const encryptFileBuffer = async (fileArrayBuffer: ArrayBuffer) => {
 
     const cidOriginalStr = await getCid(uint8FileBuffer);
 
-    const { aesKey, salt, iv } = await getAesKey(cidOriginalStr, ["encrypt"]);
+    const emptySalt = new Uint8Array(16);
+
+    const emptyIv = new Uint8Array(12);
+
+    const { aesKey, salt, iv } = await getAesKey(
+      cidOriginalStr,
+      ["encrypt"],
+      emptySalt,
+      emptyIv
+    );
 
     const start = performance.now();
 

@@ -1,5 +1,6 @@
 import { Api, LoadUserResponse, LoginResponse, setAuthToken } from "api";
 import { signMessage, disconnect } from "@wagmi/core";
+import { useAccount } from "wagmi";
 import state from "state";
 import {
   loadUser,
@@ -8,13 +9,23 @@ import {
   logoutUser,
 } from "state/user/actions";
 import { removeContent } from "state/mystorage/actions";
+import { getSignature } from "utils";
 
 const useAuth = () => {
+  const { address, isConnected } = useAccount();
+
   const load = async () => {
     try {
       state.dispatch(loadingUser());
       const loadResp = await Api.get<LoadUserResponse>("/load");
 
+      // if signature not registered
+      if (loadResp.data.signature === "" && isConnected && address) {
+        const signature = await getSignature(address);
+        loadResp.data.signature = signature;
+
+        await Api.post("/user/signature", { signature });
+      }
       state.dispatch(loadUser(loadResp.data));
     } catch (error) {
       state.dispatch(loadUserFail());

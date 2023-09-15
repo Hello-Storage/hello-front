@@ -88,23 +88,37 @@ const createAES = async (
   return { key, iv };
 };
 
-export const encrypt = async (file: File, secret: string) => {
+export const encrypt = async (
+  file: File,
+  secret: string,
+  salt?: Uint8Array
+) => {
   var buffer = await readFile(file);
   buffer = new Uint8Array(buffer);
 
   // Generate a 16 byte long initialization vector
-  var pbkdf2salt = crypto.getRandomValues(new Uint8Array(8));
+  var pbkdf2salt = salt ?? crypto.getRandomValues(new Uint8Array(8));
   const { key, iv } = await createAES(pbkdf2salt, secret, "encrypt");
 
   //   encrypt file metadata
-  const encrypt_file_name = await crypto.subtle.encrypt(
-    { name: "AES-CBC", iv: iv },
-    key,
-    str2arrbuff(file.name)
-  );
-  const file_name = new Uint8Array(encrypt_file_name.byteLength + 8);
-  file_name.set(pbkdf2salt);
-  file_name.set(new Uint8Array(encrypt_file_name), 8);
+  const splits =
+    file.webkitRelativePath === ""
+      ? file.name.split("/")
+      : file.webkitRelativePath.split("/");
+  const promises = splits.map(async (value) => {
+    const enc = await crypto.subtle.encrypt(
+      { name: "AES-CBC", iv: iv },
+      key,
+      str2arrbuff(value)
+    );
+    var name = new Uint8Array(enc.byteLength + 8);
+    name.set(pbkdf2salt);
+    name.set(new Uint8Array(enc), 8);
+
+    return buff2base64(name);
+  });
+
+  const name = (await Promise.all(promises)).join("/");
 
   //   encrypt file content
   const cipherBytes = await window.crypto.subtle.encrypt(
@@ -118,7 +132,7 @@ export const encrypt = async (file: File, secret: string) => {
   resultbytes.set(cipher, 8);
 
   const cipherBlob = new Blob([resultbytes]);
-  const encryptedFile = new File([cipherBlob], buff2base64(file_name));
+  const encryptedFile = new File([cipherBlob], name);
 
   return encryptedFile;
 };
@@ -153,13 +167,6 @@ export const decrypt = async (file: File, secret: string) => {
     "decrypt"
   );
 
-  // decrypt file metadata
-  const file_name = await crypto.subtle.decrypt(
-    { name: "AES-CBC", iv: iv },
-    key,
-    base642buff(file.name).slice(8)
-  );
-
   // decrypt file content
   buffer = buffer.slice(8);
   const planBytes = await window.crypto.subtle.decrypt(
@@ -170,6 +177,38 @@ export const decrypt = async (file: File, secret: string) => {
 
   const blob = new Blob([planBytes]);
 
-  const result = new File([blob], arrbuff2str(file_name));
+  const result = new File([blob], "decrypt");
   return result;
+};
+
+export const encryptStr = async (str: string, secret: string) => {
+  var pbkdf2salt = crypto.getRandomValues(new Uint8Array(8));
+  const { key, iv } = await createAES(pbkdf2salt, secret, "encrypt");
+
+  //   encrypt file metadata
+  const enc = await crypto.subtle.encrypt(
+    { name: "AES-CBC", iv: iv },
+    key,
+    str2arrbuff(str)
+  );
+
+  const result = new Uint8Array(enc.byteLength + 8);
+  result.set(pbkdf2salt);
+  result.set(new Uint8Array(enc), 8);
+
+  return buff2base64(result);
+};
+
+export const decryptStr = async (str: string, secret: string) => {
+  const pbkdf2salt = base642buff(str).slice(0, 8);
+  const { key, iv } = await createAES(pbkdf2salt, secret, "decrypt");
+
+  //   encrypt file metadata
+  const dec = await crypto.subtle.decrypt(
+    { name: "AES-CBC", iv: iv },
+    key,
+    base642buff(str).slice(8)
+  );
+
+  return arrbuff2str(dec);
 };

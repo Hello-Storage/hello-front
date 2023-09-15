@@ -10,17 +10,14 @@ export default function GoogleLoginButton() {
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      const referrerCode = new URLSearchParams(window.location.search).get(
-        "ref"
-      );
+      const referral = new URLSearchParams(window.location.search).get("ref");
 
       const baseParams = {
         code: tokenResponse.access_token,
       };
 
-      const referrerParams = referrerCode
-        ? { referrer_code: referrerCode }
-        : {};
+      const referrerParams = { referral: referral ?? "" };
+
       const oauthResp = await Api.get("/oauth/google", {
         params: {
           ...baseParams,
