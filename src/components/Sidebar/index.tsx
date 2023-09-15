@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import { HiPlus } from "react-icons/hi";
@@ -91,6 +91,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     autoEncryptionEnabled,
   } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { fetchRootContent, fetchUserDetail } = useFetchData();
   const { signature } = useAppSelector((state) => state.user);
 
@@ -355,18 +356,20 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         />
 
         <label className="text-xs text-neutral-800">
-          {formatPercent(storageUsed, storageAvailable)} / 10 GB used -&nbsp;
+          {formatPercent(storageUsed, storageAvailable)} /{" "}
+          {formatBytes(storageAvailable)} used -&nbsp;
           <strong className="text-orange-500">
-            {formatBytes(storageAvailable).slice(
-              0,
-              formatBytes(storageAvailable).length - 2
-            )}{" "}
-            / 100 GB
+            {formatBytes(storageAvailable, 2, false)} / 100 GB
           </strong>
         </label>
         <div className="mt-4">
-          <button className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
-            Get 90 GB Free ✨
+          <button
+            className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
+            onClick={() => navigate("/referrals")}
+            disabled={storageAvailable >= Math.pow(1024, 3) * 100}
+          >
+            Get {formatBytes(100 * Math.pow(1024, 3) - storageAvailable)} Free
+            ✨
           </button>
         </div>
       </div>

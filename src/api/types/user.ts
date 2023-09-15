@@ -15,5 +15,6 @@ export interface LoadUserResponse {
 }
 
 export interface UserDetailResponse {
+  referral_storage: number;
   storage_used: number;
 }
