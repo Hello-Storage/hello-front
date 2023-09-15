@@ -66,7 +66,7 @@ export default function Statistics() {
     const apiUrl = API_ENDPOINT;
 
     axios
-      .get(apiUrl + "statistics")
+      .get(apiUrl + "/statistics")
       .then((response) => {
         setupfile(response.data.UploadedFile);
         setmsize(response.data.CountMediumSizeFiles / 10 ** 6);
