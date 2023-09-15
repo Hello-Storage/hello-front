@@ -82,7 +82,7 @@ const Referrals = () => {
       <div className="h-full p-8 flex flex-col justify-center items-center border rounded-xl">
         <div className="mb-4 flex items-center justify-center text-center w-full space-x-2">
           <HiOutlineUsers className="text-blue-600 w-9 h-9" />
-          <h1 className="text-3xl select-none text-center text-violet-700 hover:text-violet-600">
+          <h1 className="md:text-3xl text-lg select-none text-center text-violet-700 hover:text-violet-600">
             Get +10GB free for each referred user!
           </h1>
         </div>
@@ -123,7 +123,7 @@ const Referrals = () => {
                       type="email"
                       name="email"
                       placeholder="email@example.com"
-                      className="w-full z-10 pr-16 text-xl p-2 focus:ring-indigo-500 focus:border-indigo-500 block rounded-md border-gray-300 border-2"
+                      className="w-full z-10 pr-16 text-lg p-2 focus:ring-indigo-500 focus:border-indigo-500 block rounded-md border-gray-300 border-2"
                     />
                     <button
                       type="submit"
@@ -151,7 +151,7 @@ const Referrals = () => {
             </div>
           </div>
           <div>
-            <p className="pt-10 w-full text-lg text-left">
+            <p className="pt-10 w-full md:text-xl text-left">
               You got {totalUsers * 10}GB/{maxUsers * 10}GB from {totalUsers}{" "}
               invited users
             </p>
@@ -159,16 +159,16 @@ const Referrals = () => {
               {Array.from({ length: maxUsers }).map((_, index) => (
                 <div
                   key={index}
-                  className={`h-8 w-20 p-2 rounded ${
-                    index < totalUsers ? "bg-green-500" : "bg-red-500"
-                  } hover:bg-blue-500 fex items-center`}
+                  className={`h-8 w-10 sm:w-20 p-2 rounded ${index < totalUsers ? "bg-green-500" : "bg-red-500"
+                    } hover:bg-blue-500 fex items-center`}
                   title={
                     index < totalUsers
                       ? `Invited user wallet address: ${referredAddresses[index]}`
                       : ""
                   }
                 >
-                  <p className="text-white leading-none select-none">
+                  <p style={{ marginLeft: "-5px" }} className="text-white text-xs sm:text-sm leading-none select-none">
+                    
                     {index < totalUsers ? `+10GB` : ""}
                   </p>
                 </div>
