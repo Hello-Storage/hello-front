@@ -61,7 +61,18 @@ export default function Statistics() {
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  function formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 Byte';
+
+    const k = 1000;
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  const fetchData = () => {
     // Esta URL debe ser la ruta de tu backend
     const apiUrl = API_ENDPOINT;
 
@@ -69,11 +80,11 @@ export default function Statistics() {
       .get(apiUrl + "/statistics")
       .then((response) => {
         setupfile(response.data.UploadedFile);
-        setmsize(response.data.CountMediumSizeFiles / 10 ** 6);
+        setmsize(response.data.CountMediumSizeFiles);
         settotalusers(response.data.TotalUsers);
         setencryptedfiles(response.data.EncryptedFiles);
         setpublicfiles(response.data.PublicFiles);
-        settotalusedstorage(response.data.TotalUsedStorage / 2 ** 30);
+        settotalusedstorage(response.data.TotalUsedStorage);
         console.log(response.data);
         setLoading(false);
       })
@@ -81,6 +92,15 @@ export default function Statistics() {
         console.error("There was an error loading data", error);
         setLoading(false);
       });
+  }
+
+  useEffect(() => {
+    fetchData();
+
+    // 15 seconds update interval
+    const intervalId = setInterval(fetchData, 15000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -103,11 +123,11 @@ export default function Statistics() {
             <label className="block mr-2">Total Used Storage</label>
             <IconWithTooltip
               IconComponent={GrCircleInformation}
-              tooltipText="Total data pinned on IPFS"
+              tooltipText="Total data stored by all users"
             />
           </div>
           <label className="text-1x8 font-semibold text-black block">
-            {totalusedstorage.toFixed(2)} GiB
+            {formatBytes(totalusedstorage)}
           </label>
         </div>
 
@@ -146,47 +166,17 @@ export default function Statistics() {
         </div>
 
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img
-            src={Processor_m}
-            className="mb-2"
-          />
-          <div className="flex items-center mb-2">
-            <label className="block mr-2">Total CIDS</label>
-            <IconWithTooltip
-              IconComponent={GrCircleInformation}
-              tooltipText="The total amount of pinned IPFS CIDs"
-            />
-          </div>
-          <label className="text-1x8 font-semibold text-black block">-</label>
-        </div>
-
-        <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
           <img src={File_m} className="mb-2" />
           <div className="flex items-center mb-2">
-            <label className="block mr-2">Medium File Size</label>
+            <label className="block mr-2">Average File Size</label>
             <IconWithTooltip
               IconComponent={GrCircleInformation}
               tooltipText="The total media of the files"
             />
           </div>
           <label className="text-1x8 font-semibold text-black block">
-            {msize.toFixed(2)} MiB
+            {formatBytes(msize)}
           </label>
-        </div>
-
-        <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img
-            src={ShareBox_m}
-            className="mb-2"
-          />
-          <div className="flex items-center mb-2">
-            <label className="block mr-2">Files shared</label>
-            <IconWithTooltip
-              IconComponent={GrCircleInformation}
-              tooltipText="The total number of times the files have been shared"
-            />
-          </div>
-          <label className="text-1x8 font-semibold text-black block">-</label>
         </div>
 
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
