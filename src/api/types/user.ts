@@ -10,6 +10,7 @@ export interface LoadUserResponse {
   uid: string;
   name: string;
   role: string;
+  walletAddress: string;
   signature: string;
 }
 
