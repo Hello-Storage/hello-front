@@ -154,9 +154,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const salt = crypto.getRandomValues(new Uint8Array(8));
     for (let i = 0; i < files.length; i++) {
       let file = files[i];
-      console.log(file);
+
       if (encryptionEnabled) file = await encrypt(file, signature, salt);
-      console.log(file);
+
       formData.append("files", file);
     }
 
