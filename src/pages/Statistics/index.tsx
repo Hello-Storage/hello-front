@@ -1,6 +1,16 @@
 import { useResizeDetector } from "react-resize-detector";
 import { GrCircleInformation } from "react-icons/gr";
 import { useEffect, useState } from "react";
+import { API_ENDPOINT } from "config";
+
+import Server_m from "assets/images/Outline/Server_m.png";
+import FileUpload_m from "assets/images/Outline/File-upload_m.png";
+import UserPlus_m from "assets/images/Outline/User-plus_m.png";
+import Processor_m from "assets/images/Outline/Processor_m.png";
+import File_m from "assets/images/Outline/File_m.png";
+import ShareBox_m from "assets/images/Outline/Share-box_m.png";
+import Shield_m from "assets/images/Outline/Shield_m.png";
+import Hotspot_m from "assets/images/Outline/Hotspot_m.png";
 /*import Chart from "./Components/Chart";*/
 import axios from "axios";
 
@@ -53,7 +63,7 @@ export default function Statistics() {
 
   useEffect(() => {
     // Esta URL debe ser la ruta de tu backend
-    const apiUrl = "http://172.28.250.215:8080/api/";
+    const apiUrl = API_ENDPOINT;
 
     axios
       .get(apiUrl + "statistics")
@@ -88,7 +98,7 @@ export default function Statistics() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-8 mx-auto max-w-screen-xl">
         <div className="border bg-blue-100 rounded-lg p-2.5 flex flex-col items-center justify-center">
-          <img src="src\assets\images\Outline\Server_m.png" className="mb-2" />
+          <img src={Server_m} className="mb-2" />
           <div className="flex items-center mb-2">
             <label className="block mr-2">Total Used Storage</label>
             <IconWithTooltip
@@ -103,7 +113,7 @@ export default function Statistics() {
 
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
           <img
-            src="src\assets\images\Outline\File-upload_m.png"
+            src={FileUpload_m}
             className="mb-2"
           />
           <div className="flex items-center mb-2">
@@ -120,7 +130,7 @@ export default function Statistics() {
 
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
           <img
-            src="src\assets\images\Outline\User-plus_m.png"
+            src={UserPlus_m}
             className="mb-2"
           />
           <div className="flex items-center mb-2">
@@ -137,7 +147,7 @@ export default function Statistics() {
 
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
           <img
-            src="src\assets\images\Outline\Processor_m.png"
+            src={Processor_m}
             className="mb-2"
           />
           <div className="flex items-center mb-2">
@@ -151,7 +161,7 @@ export default function Statistics() {
         </div>
 
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src="src\assets\images\Outline\File_m.png" className="mb-2" />
+          <img src={File_m} className="mb-2" />
           <div className="flex items-center mb-2">
             <label className="block mr-2">Medium File Size</label>
             <IconWithTooltip
@@ -166,7 +176,7 @@ export default function Statistics() {
 
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
           <img
-            src="src\assets\images\Outline\Share-box_m.png"
+            src={ShareBox_m}
             className="mb-2"
           />
           <div className="flex items-center mb-2">
@@ -180,7 +190,7 @@ export default function Statistics() {
         </div>
 
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src="src\assets\images\Outline\Shield_m.png" className="mb-2" />
+          <img src={Shield_m} className="mb-2" />
           <div className="flex items-center mb-2">
             <label className="block mr-2">Encrypted Files </label>
             <IconWithTooltip
@@ -194,7 +204,7 @@ export default function Statistics() {
         </div>
 
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src="src\assets\images\Outline\Hotspot_m.png" className="mb-2" />
+          <img src={Hotspot_m} className="mb-2" />
           <div className="flex items-center mb-2">
             <label className="block mr-2">Public Files</label>
             <IconWithTooltip
