@@ -173,6 +173,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+
       onUploadProgress,
     })
       .then((data) => {
