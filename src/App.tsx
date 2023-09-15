@@ -41,21 +41,22 @@ function App() {
   }, []);
 
   return (
-    <Providers>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/stats" element={<Statistics />} />
-          <Route path="/" element={<PrivateRoute component={AppLayout} />}>
-            <Route index element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/my-storage" element={<MyStorage />} />
-            <Route path="/folder/*" element={<MyStorage />} />
-            <Route path="/shared-with-me" element={<Shared />} />
-            <Route path="/recent" element={<Recent />} />
-            <Route path="/deleted" element={<Deleted />} />
-            <Route path="/migration" element={<Migration />} />
-            <Route path="/api" element={<Api />} />
-          </Route>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/stats" element={<Statistics />} />
+        <Route path="/" element={<PrivateRoute component={AppLayout} />}>
+          <Route index element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/my-storage" element={<MyStorage />} />
+          <Route path="/folder/*" element={<MyStorage />} />
+          <Route path="/shared-with-me" element={<Shared />} />
+          <Route path="/recent" element={<Recent />} />
+          <Route path="/referrals" element={<Referrals />} />
+          <Route path="/deleted" element={<Deleted />} />
+          <Route path="/migration" element={<Migration />} />
+          <Route path="/api" element={<Api />} />
+        </Route>
+
         <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>

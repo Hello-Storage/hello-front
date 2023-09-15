@@ -41,9 +41,12 @@ const useAuth = () => {
 
     const signature = await signMessage({ message });
 
+    const referral = new URLSearchParams(window.location.search).get("ref");
+
     const loginResp = await Api.post<LoginResponse>("/login", {
       wallet_address,
       signature,
+      referral: referral ?? "",
     });
 
     setAuthToken(loginResp.data.access_token);
@@ -63,9 +66,11 @@ const useAuth = () => {
 
   const verifyOTP = async (email: string, code: string) => {
     try {
+      const referral = new URLSearchParams(window.location.search).get("ref");
       const result = await Api.post<LoginResponse>("/otp/verify", {
         email,
         code,
+        referral: referral ?? "",
       });
       setAuthToken(result.data.access_token);
       load();
