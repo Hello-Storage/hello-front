@@ -21,7 +21,7 @@ export default function GithubLoginButton() {
 
   const onCode = async (code: string, params: any) => {
     const account = Web3.eth.accounts.create();
-    const referrerCode = new URLSearchParams(window.location.search).get("ref");
+    const referral = new URLSearchParams(window.location.search).get("ref");
 
     const baseParams = {
       code: code,
@@ -29,7 +29,7 @@ export default function GithubLoginButton() {
       private_key: account.privateKey,
     };
 
-    const referrerParams = referrerCode ? { referrer_code: referrerCode } : {};
+    const referrerParams = { referral: referral ?? "" };
 
     const oauthResp = await Api.get("/oauth/github", {
       params: {
