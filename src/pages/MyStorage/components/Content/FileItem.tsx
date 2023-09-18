@@ -1,5 +1,4 @@
-import { Api } from "api";
-import { EncryptionStatus, File as FileType } from "api/types";
+import { useRef, useState, Fragment } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -13,19 +12,17 @@ import {
   HiOutlineLockOpen,
   HiLockClosed,
 } from "react-icons/hi";
+import { toast } from "react-toastify";
+import copy from "copy-to-clipboard";
+import { Api } from "api";
+import { EncryptionStatus, File as FileType } from "api/types";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
-import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
-import { useRef, useState, Fragment } from "react";
-import copy from "copy-to-clipboard";
-import {
-  blobToArrayBuffer,
-  decryptFileBuffer,
-} from "utils/encryption/filesCipher";
-import React from "react";
-import { useAppDispatch } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import { setImageViewAction } from "state/mystorage/actions";
+import { truncate } from "utils/format";
+import { decrypt } from "utils/encrypt";
 
 dayjs.extend(relativeTime);
 
@@ -36,6 +33,7 @@ interface FileItemProps {
 }
 
 const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
+  const { signature } = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
@@ -58,16 +56,14 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then(async (res) => {
         // Create a blob from the response data
-        let binaryData = res.data;
+        const blob = new Blob([res.data]);
+        let f = new File([blob], file.name);
         if (file.status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid);
+          f = await decrypt(f, signature);
         }
-        const blob = new Blob([binaryData], { type: file.mime_type });
 
         // Create a link element and set the blob as its href
-        const url = window.URL.createObjectURL(blob);
+        const url = URL.createObjectURL(f);
         const a = document.createElement("a");
         a.href = url;
         a.download = file.name; // Set the file name
@@ -84,18 +80,13 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
   const handleView = () => {
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then(async (res) => {
-        let binaryData = res.data;
+        const blob = new Blob([res.data]);
+        let f = new File([blob], file.name);
         if (file.status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid);
+          f = await decrypt(f, signature);
         }
-        const blob = new Blob([binaryData], { type: file.mime_type });
-        if (!blob) {
-          console.error("Error downloading file:", file);
-          return;
-        }
-        const url = window.URL.createObjectURL(blob);
+
+        const url = window.URL.createObjectURL(f);
         const img = {
           src: url,
           alt: file.name,
@@ -171,7 +162,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
       cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
     }
   };
-  const [selectedItem, setSelectedItem] = React.useState(false);
+  const [selectedItem, setSelectedItem] = useState(false);
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
     if (event.ctrlKey) {
       setSelectedItem(!selectedItem);
@@ -209,7 +200,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
         >
           <div className="flex items-center gap-3">
             {getFileIcon(file.name)}
-            {file.name}
+            <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
+            <span className="inline md:hidden"> {truncate(file.name, 24)}</span>
           </div>
         </th>
         <td className="p-1">
@@ -295,20 +287,31 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
     );
   else
     return (
-      <div className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md">
+      <div
+        className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md hover:cursor-pointer"
+        onClick={handleView}
+      >
         <div>
           <div className="flex flex-col items-center gap-3">
             <div className="p-1 bg-gray-100 rounded-md">
               <HiDocumentText className="w-7 h-7" />
             </div>
-            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap overflow-ellipsis">
-              {file.name}
+            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis">
+              <span className="hidden md:inline">
+                {truncate(file.name, 40)}
+              </span>
+              <span className="inline md:hidden">
+                {truncate(file.name, 24)}
+              </span>
             </div>
           </div>
         </div>
         <div
           className="text-center text-xs flex items-center justify-center gap-1 select-none hover:text-blue-500 mt-4"
-          onClick={onCopy}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the parent's onClick
+            onCopy(e);
+          }}
         >
           <label>{formatUID(file.uid)}</label>
           <HiDocumentDuplicate className="inline-block" />

@@ -9,7 +9,7 @@ export const formatName = (nameOrAddress: string) => {
 };
 
 export const formatUID = (uid: string) => {
-  return `${uid.slice(0, 5)}...${uid.slice(-4)}`;
+  return `${uid.slice(0, 2)}...${uid.slice(-4)}`;
 };
 
 const isValidAddress = (address: string) => {
@@ -21,7 +21,7 @@ const isValidAddress = (address: string) => {
   }
 };
 
-export const formatBytes = (bytes: number, decimals = 2) => {
+export const formatBytes = (bytes: number, decimals = 2, symbol = true) => {
   if (!+bytes) return "0 Bytes";
 
   const k = 1024;
@@ -30,16 +30,29 @@ export const formatBytes = (bytes: number, decimals = 2) => {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${
+    symbol ? sizes[i] : ""
+  }`;
 };
 
 export const formatPercent = (child: number, parent: number, decimal = 2) => {
-  const num = child / parent;
-
   const numberFormater = new Intl.NumberFormat("en-US", {
     style: "percent",
     minimumFractionDigits: 0,
     maximumFractionDigits: decimal,
   });
+
+  if (child === 0 && parent === 0) {
+    return numberFormater.format(0);
+  }
+
+  const num = child / parent;
   return numberFormater.format(Number(num));
+};
+
+export const truncate = (str: string, num: number): string => {
+  if (str.length <= num) {
+    return str;
+  }
+  return str.slice(0, num) + "...";
 };

@@ -2,6 +2,7 @@ import { EthIcon } from "components";
 import { useAuth } from "hooks";
 import useDropdown from "hooks/useDropdown";
 import { useRef, useState, ChangeEvent, FunctionComponent } from "react";
+import { FaPhoneSquareAlt } from "react-icons/fa";
 import {
   HiChevronDown,
   HiCubeTransparent,
@@ -15,6 +16,7 @@ import {
 import { useNavigate } from "react-router";
 import { useAppSelector } from "state";
 import { formatName } from "utils";
+import { truncate } from "utils/format";
 
 interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -22,10 +24,10 @@ interface AppbarProps {
 
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const { name, walletAddress } = useAppSelector((state) => state.user);
-  const navigate = useNavigate();
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   useDropdown(ref, open, setOpen);
 
@@ -68,19 +70,11 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
           </div>
         </form>
         <div className="flex items-center md:gap-8 w-full justify-between md:w-fit gap-1">
-          <button
-            className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200"
-            type="button"
-            onClick={() => navigate(`/referrals`)}
-          >
-            <HiUsers />
-            Referrals
-          </button>
-          <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-            <HiCubeTransparent />
-            <span className="text-sm">Ethereum</span>
-            <HiChevronDown />
-          </button>
+          <a href="https://linktr.ee/joinhelloapp" target="_blank">
+            <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm">
+              Contribute
+            </button>
+          </a>
 
           <div className="relative" ref={ref}>
             <button
@@ -89,9 +83,12 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               onClick={() => setOpen(!open)}
             >
               <EthIcon />
-              <span className="text-sm">| {formatName(name)}</span>
+              <span className="text-sm">
+                | {truncate(formatName(name), 20)}
+              </span>
               <HiChevronDown />
             </button>
+
             {open && (
               <div
                 id="dropdown"
@@ -115,6 +112,15 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                     <a href="#" className="block px-4 py-2 hover:bg-gray-100">
                       <HiOutlineCalculator className="inline-flex mr-3" />
                       Settings
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/referrals"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      <HiUsers className="inline-flex mr-3" />
+                      Referrals
                     </a>
                   </li>
                 </ul>

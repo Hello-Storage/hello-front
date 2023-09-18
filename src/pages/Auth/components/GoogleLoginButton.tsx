@@ -1,27 +1,23 @@
 import { useGoogleLogin } from "@react-oauth/google";
-import { AccountType, Api, setAuthToken } from "api";
-import setAccountType from "api/setAccountType";
+import { Api, setAuthToken } from "api";
 import { GoogleIcon } from "components";
 import { useAuth } from "hooks";
 import { useState } from "react";
-import { toast } from "react-toastify";
-import * as Web3 from "web3";
+
 export default function GoogleLoginButton() {
   const { load } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      const account = Web3.eth.accounts.create();
-      const referrerCode = new URLSearchParams(window.location.search).get("ref");
+      const referral = new URLSearchParams(window.location.search).get("ref");
 
       const baseParams = {
         code: tokenResponse.access_token,
-        wallet_address: account.address,
-        private_key: account.privateKey,
       };
 
-      const referrerParams = referrerCode ? { referrer_code: referrerCode } : {};
+      const referrerParams = { referral: referral ?? "" };
+
       const oauthResp = await Api.get("/oauth/google", {
         params: {
           ...baseParams,
@@ -29,10 +25,8 @@ export default function GoogleLoginButton() {
         },
       });
       setAuthToken(oauthResp.data.access_token);
-      setAccountType(AccountType.Google);
       load();
       setLoading(false);
-      setAccountType("google");
     },
     onError: () => {
       setLoading(false);

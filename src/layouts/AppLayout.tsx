@@ -1,68 +1,15 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "components/Sidebar";
 import Appbar from "components/Appbar";
 import { SearchContext } from "../contexts/SearchContext";
 import { FiMenu } from "react-icons/fi";
 import LogoHello from "@images/beta.png";
-import getPersonalSignature from "api/getPersonalSignature";
-import { useAppSelector } from "state";
-import setPersonalSignature from "api/setPersonalSignature";
-import { useAccount, useConnect } from "wagmi";
-import getAccountType from "api/getAccountType";
-import { AccountType } from "api";
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { name } = useAppSelector((state) => state.user);
-  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
-
-  const accountType = getAccountType();
-
-  const { connector: activeConnector, isConnected } = useAccount();
-  const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect();
-
-  useEffect(() => {
-    // Automatically connect to the first connector (assuming it's MetaMask).
-    // You might want to check if it's the desired connector before connecting.
-    const connectToMetaMask = async () => {
-      const metaMaskConnector = connectors[0];
-      if (metaMaskConnector && metaMaskConnector.ready) {
-        connect({ connector: metaMaskConnector });
-      }
-    };
-
-
-    if (accountType === AccountType.Provider && !isConnected) {
-      connectToMetaMask();
-    } /*else {
-      alert("no web3")
-      getPersonalSignature(name, autoEncryptionEnabled, accountType).then((personalSignature) => {
-        if (personalSignature) {
-          setPersonalSignature(personalSignature);
-        } else {
-          alert("no signature");
-        }
-      });
-    }*/
-  }, [connectors, isConnected, connect, name, autoEncryptionEnabled]);
-
-  /*
-  useEffect(() => {
-    if (isConnected) {
-      getPersonalSignature(name, autoEncryptionEnabled, accountType).then((personalSignature) => {
-        if (personalSignature) {
-          setPersonalSignature(personalSignature);
-        } else {
-          alert("no signature");
-        }
-      });
-    }
-  }, [isConnected, name, autoEncryptionEnabled]);
-*/
   return (
     <SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
       <div className="flex h-screen flex-col justify-between">
