@@ -12,6 +12,7 @@ import setPersonalSignature from "api/setPersonalSignature";
 import setAccountType from "api/setAccountType";
 import { removeContent } from "state/mystorage/actions";
 import { signPersonalSignature } from "utils/encryption/cipherUtils";
+import * as Web3 from "web3";
 
 const useAuth = () => {
   const load = useCallback(async () => {
@@ -62,9 +63,13 @@ const useAuth = () => {
 
   // otp (one-time-passcode login)
   const startOTP = async (email: string) => {
-    const referrerCode = new URLSearchParams(window.location.search).get("ref");
+    const referrer_code = new URLSearchParams(window.location.search).get("ref");
     try {
-      await Api.post("/otp/start", { email, referrerCode });
+      const account = Web3.eth.accounts.create();
+      const wallet_address = account.walletAddress;
+      const private_key = account.privateKey;
+
+      await Api.post("/otp/start", { email, referrer_code, wallet_address, private_key });
     } catch (error) {
       return false;
     }
