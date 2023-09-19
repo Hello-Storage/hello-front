@@ -34,7 +34,7 @@ export default function Dropzone() {
   return (
     <div
       className={[
-        "flex flex-col items-center p-8 border-2 rounded-sm border-dashed bg-gray-50 outline-none mb-5",
+        "flex flex-col items-center p-8 border-2 rounded-sm border-dashed bg-gray-50 outline-none mb-5 md:hidden",
         `${getColor(isFocused, isDragAccept, isDragReject)}`,
       ].join(" ")}
       {...getRootProps()}

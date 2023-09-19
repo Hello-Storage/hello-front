@@ -1,0 +1,21 @@
+.otp-input {
+  padding: 0.75rem;
+  font-weight: 500;
+  border-width: 2px;
+  border-radius: 0.5rem;
+
+  caret-color: transparent;
+
+  &:focus {
+    border-color: #3b82f6;
+  }
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

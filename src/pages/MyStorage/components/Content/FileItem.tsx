@@ -26,6 +26,8 @@ import {
 import React from "react";
 import { useAppDispatch } from "state";
 import { setImageViewAction } from "state/mystorage/actions";
+import { truncate } from "utils/format";
+
 
 dayjs.extend(relativeTime);
 
@@ -59,7 +61,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
       .then(async (res) => {
         // Create a blob from the response data
         let binaryData = res.data;
-        if (file.status === EncryptionStatus.Encrypted) {
+        if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);
           binaryData = await decryptFileBuffer(binaryData, originalCid);
@@ -85,7 +87,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then(async (res) => {
         let binaryData = res.data;
-        if (file.status === EncryptionStatus.Encrypted) {
+        if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);
           binaryData = await decryptFileBuffer(binaryData, originalCid);
@@ -171,7 +173,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
       cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
     }
   };
-  const [selectedItem, setSelectedItem] = React.useState(false);
+  const [selectedItem, setSelectedItem] = useState(false);
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
     if (event.ctrlKey) {
       setSelectedItem(!selectedItem);
@@ -194,11 +196,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDrag={handleDrag}
-        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${
-          isDragging || selectedItem
-            ? "bg-blue-200 border border-blue-500"
-            : "border-0"
-        }`}
+        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${isDragging || selectedItem
+          ? "bg-blue-200 border border-blue-500"
+          : "border-0"
+          }`}
         // onClick={handleClick}
         onDoubleClick={handleView}
         onClick={handleOnClick}
@@ -209,7 +210,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
         >
           <div className="flex items-center gap-3">
             {getFileIcon(file.name)}
-            {file.name}
+            <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
+            <span className="inline md:hidden"> {truncate(file.name, 24)}</span>
           </div>
         </th>
         <td className="p-1">
@@ -224,7 +226,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
         <td className="p-1">{formatBytes(file.size)}</td>
         <td className="p-1">
           <div className="flex items-center">
-            {file.status === "public" ? (
+            {file.encryption_status === "public" ? (
               <Fragment>
                 <HiOutlineLockOpen />
                 Public
@@ -295,20 +297,31 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
     );
   else
     return (
-      <div className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md">
+      <div
+        className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md hover:cursor-pointer"
+        onClick={handleView}
+      >
         <div>
           <div className="flex flex-col items-center gap-3">
             <div className="p-1 bg-gray-100 rounded-md">
               <HiDocumentText className="w-7 h-7" />
             </div>
-            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap overflow-ellipsis">
-              {file.name}
+            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis">
+              <span className="hidden md:inline">
+                {truncate(file.name, 40)}
+              </span>
+              <span className="inline md:hidden">
+                {truncate(file.name, 24)}
+              </span>
             </div>
           </div>
         </div>
         <div
           className="text-center text-xs flex items-center justify-center gap-1 select-none hover:text-blue-500 mt-4"
-          onClick={onCopy}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the parent's onClick
+            onCopy(e);
+          }}
         >
           <label>{formatUID(file.uid)}</label>
           <HiDocumentDuplicate className="inline-block" />

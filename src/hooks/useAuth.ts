@@ -12,7 +12,6 @@ import setPersonalSignature from "api/setPersonalSignature";
 import setAccountType from "api/setAccountType";
 import { removeContent } from "state/mystorage/actions";
 import { signPersonalSignature } from "utils/encryption/cipherUtils";
-import { toast } from "react-toastify";
 
 const useAuth = () => {
   const load = useCallback(async () => {
@@ -61,6 +60,32 @@ const useAuth = () => {
     load();
   }, []);
 
+  // otp (one-time-passcode login)
+  const startOTP = async (email: string) => {
+    const referrerCode = new URLSearchParams(window.location.search).get("ref");
+    try {
+      await Api.post("/otp/start", { email, referrerCode });
+    } catch (error) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const verifyOTP = async (email: string, code: string) => {
+    try {
+      const result = await Api.post<LoginResponse>("/otp/verify", {
+        email,
+        code,
+      })
+      setAuthToken(result.data.access_token);
+      load()
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   const logout = useCallback(() => {
     state.dispatch(logoutUser());
 
@@ -75,6 +100,8 @@ const useAuth = () => {
 
   return {
     login,
+    startOTP,
+    verifyOTP,
     load,
     logout,
   };

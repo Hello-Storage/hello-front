@@ -1,6 +1,5 @@
 import { lazy, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Providers from "providers";
 import { AppLayout } from "layouts";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -18,6 +17,7 @@ const Shared = lazy(() => import("pages/Shared"));
 const Recent = lazy(() => import("pages/Recent"));
 const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));
+const Statistics = lazy(() => import("pages/Statistics"));
 const Api = lazy(() => import("pages/Api"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
@@ -42,8 +42,8 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Providers>
         <Routes>
+          <Route path="/stats" element={<Statistics />} />
           <Route path="/" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -59,7 +59,6 @@ function App() {
 
           <Route path="/login" element={<Login />} />
         </Routes>
-      </Providers>
     </BrowserRouter>
   );
 }
