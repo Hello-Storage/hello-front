@@ -66,7 +66,7 @@ const useAuth = () => {
     const referrer_code = new URLSearchParams(window.location.search).get("ref");
     try {
       const account = Web3.eth.accounts.create();
-      const wallet_address = account.walletAddress;
+      const wallet_address = account.address;
       const private_key = account.privateKey;
 
       await Api.post("/otp/start", { email, referrer_code, wallet_address, private_key });
