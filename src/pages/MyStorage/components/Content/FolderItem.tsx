@@ -1,5 +1,5 @@
 import { Api } from "api";
-import { EncryptionStatus, File, Folder } from "api/types";
+import { EncryptionStatus, Folder } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useAuth, useDropdown, useFetchData } from "hooks";
@@ -19,13 +19,10 @@ import { useNavigate } from "react-router-dom";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { formatUID } from "utils";
-import {
-  decryptContent,
-  decryptFileBuffer,
-  decryptMetadata,
-  hexToBuffer,
-} from "utils/encryption/filesCipher";
+import { decryptContent, decryptFileBuffer, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
+import getPersonalSignature from "api/getPersonalSignature";
 import { useAppSelector } from "state";
+import getAccountType from "api/getAccountType";
 import { logoutUser } from "state/user/actions";
 import { truncate } from "utils/format";
 
@@ -44,8 +41,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
   view,
   onButtonClick,
 }) => {
-  const { signature } = useAppSelector((state) => state.user);
-  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
   const { fetchRootContent } = useFetchData();
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
@@ -56,8 +51,11 @@ const FolderItem: React.FC<FolderItemProps> = ({
   const [isDragging, setDragging] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [dragEnterCount, setDragEnterCount] = useState(0);
-
+  const { autoEncryptionEnabled } = useAppSelector(
+    (state) => state.userdetail
+  );
   const { logout } = useAuth();
+  const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
   const onCopy = (event: React.MouseEvent) => {
@@ -70,6 +68,16 @@ const FolderItem: React.FC<FolderItemProps> = ({
     navigate(`/folder/${folderUID}`);
   };
   const handleDownload = async () => {
+    const personalSignature = await getPersonalSignature(
+      name,
+      autoEncryptionEnabled,
+      accountType,
+      logout
+    );
+    if (!personalSignature) {
+      toast.error("Failed ta get personal signature");
+      return;
+    }
     // Make a request to download the file with responseType 'blob'
     Api.get(`/folder/download/${folder.uid}`)
       .then(async (res) => {
@@ -78,13 +86,8 @@ const FolderItem: React.FC<FolderItemProps> = ({
         // Iterate through the files and add them to the ZIP
         for (const file of res.data.files) {
           const fileData = atob(file.data);
-          if (file.status === EncryptionStatus.Encrypted) {
-            const decryptionResult = await decryptMetadata(
-              file.name,
-              file.mime_type,
-              file.cid_original_encrypted,
-              signature
-            );
+          if (file.encryption_status === EncryptionStatus.Encrypted) {
+            const decryptionResult = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
             if (!decryptionResult) {
               logoutUser();
               return;
@@ -127,12 +130,11 @@ const FolderItem: React.FC<FolderItemProps> = ({
 
               const decryptedComponentBuffer = await decryptContent(
                 encryptedComponentUint8Array,
-                signature
+                personalSignature
               );
               const decryptedComponentStr = new TextDecoder().decode(
                 decryptedComponentBuffer
               );
-              console.log("Decrypted component:", decryptedComponentStr);
               decryptedPathComponents.push(decryptedComponentStr);
             }
             decryptedPathComponents.push(decryptedFilename);
@@ -304,11 +306,10 @@ const FolderItem: React.FC<FolderItemProps> = ({
         onDragLeave={handleDragLeave}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        className={` hover:bg-gray-100 ${
-          dragEnterCount > 0 || selectedItem
+        className={` hover:bg-gray-100 ${dragEnterCount > 0 || selectedItem
             ? "bg-blue-100 border border-blue-500"
             : "border-0"
-        } ${isDragging ? "active:bg-blue-100 active:text-white" : ""}`}
+          } ${isDragging ? "active:bg-blue-100 active:text-white" : ""}`}
         onDoubleClick={() => onFolderDoubleClick(folder.uid)}
         onClick={handleOnClick}
       >
@@ -334,7 +335,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
         <td className="p-1">-</td>
         <td className="p-1">
           <div className="flex items-center select-none">
-            {folder.status === "public" ? (
+            {folder.encryption_status === "public" ? (
               <>
                 <HiOutlineLockOpen />
                 <>Public</>
@@ -342,7 +343,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
             ) : (
               <HiLockClosed />
             )}{" "}
-            {folder.status === "encrypted" && <>Encrypted</>}
+            {folder.encryption_status === "encrypted" && <>Encrypted</>}
           </div>
         </td>
         <td className="p-1 select-none">

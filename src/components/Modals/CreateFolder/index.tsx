@@ -1,18 +1,25 @@
 import { Api, EncryptionStatus } from "api";
+import getAccountType from "api/getAccountType";
+import getPersonalSignature from "api/getPersonalSignature";
 import { Modal, useModal } from "components/Modal";
 import { ChangeEventHandler, useState } from "react";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "state";
 import { createFolderAction } from "state/mystorage/actions";
-import { decrypt, decryptStr, encryptStr } from "utils";
+import { bufferToHex, encryptBuffer } from "utils/encryption/filesCipher";
+import { useAuth } from "hooks";
 
 export default function CreateFolderModal() {
   const [, onDismiss] = useModal(<></>);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const { signature } = useAppSelector((state) => state.user);
-  const { encryptionEnabled } = useAppSelector((state) => state.userdetail);
+  const { walletAddress } = useAppSelector((state) => state.user);
+  const accountType = getAccountType();
+  const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
+    (state) => state.userdetail
+  );
+  const {logout} = useAuth();
 
   const getRoot = () =>
     window.location.pathname.includes("/folder")
@@ -24,25 +31,34 @@ export default function CreateFolderModal() {
   };
 
   const handleCreateNewFolder = async () => {
-    if (encryptionEnabled && signature === "") {
-      toast.warning("need to config signature");
-      return;
-    }
-
     const root = getRoot();
-    const titleForm = encryptionEnabled
-      ? await encryptStr(title, signature)
-      : title;
-    const status = encryptionEnabled
-      ? EncryptionStatus.Encrypted
-      : EncryptionStatus.Public;
+    let titleFinal = title;
+
+    let encryption_status = EncryptionStatus.Public;
 
     setLoading(true);
-
+    if (encryptionEnabled) {
+      const personalSignature = await getPersonalSignature(
+        walletAddress,
+        autoEncryptionEnabled,
+        accountType,
+        logout
+      );
+      const encryptedTitleBuffer = await encryptBuffer(
+        new TextEncoder().encode(title),
+        personalSignature
+      );
+      if (!encryptedTitleBuffer) {
+        toast.error("Failed to encrypt buffer");
+        return null;
+      }
+      titleFinal = bufferToHex(encryptedTitleBuffer);
+      encryption_status = EncryptionStatus.Encrypted;
+    }
     Api.post("/folder/create", {
       root: root,
-      title: titleForm,
-      status: status,
+      title: titleFinal,
+      encryption_status: encryption_status,
     })
       .then((resp) => {
         toast.success("folder created!");
@@ -61,7 +77,6 @@ export default function CreateFolderModal() {
         onDismiss();
       });
   };
-
   return (
     <Modal className="p-5 bg-white rounded-lg w-80">
       <label className="text-xl">New Folder</label>

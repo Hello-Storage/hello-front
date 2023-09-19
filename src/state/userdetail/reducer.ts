@@ -12,22 +12,19 @@ interface UserDetail {
   autoEncryptionEnabled: boolean;
 }
 
-const getLocalStorageOrDefault = (
-  key: string,
-  defaultValue: boolean
-): boolean => {
+const getLocalStorageOrDefault = (key: string, defaultValue: boolean): boolean => {
   const storedValue = localStorage.getItem(key);
   if (storedValue === null) {
     return defaultValue;
   }
   return storedValue === "true";
-};
+}
 
 const initialState: UserDetail = {
   storageUsed: 0,
   storageAvailable: 10 * 1024 * 1024 * 1024, // 100 GB
   encryptionEnabled: getLocalStorageOrDefault("encryptionEnabled", true),
-  autoEncryptionEnabled: getLocalStorageOrDefault("autoEncryption", true),
+  autoEncryptionEnabled: getLocalStorageOrDefault("autoEncryption", true)
 };
 
 export default createReducer<UserDetail>(initialState, (builder) => {
@@ -35,7 +32,7 @@ export default createReducer<UserDetail>(initialState, (builder) => {
     .addCase(loadUserDetail, (state, { payload }) => ({
       ...state,
       storageUsed: payload.storage_used,
-      storageAvailable: 10 * 1024 * 1024 * 1024 + payload.referral_storage,
+      storageAvailable: 10 * 1024 * 1024 * 1024 + payload.referral_storage - payload.storage_used,
     }))
     .addCase(toggleEncryption, (state, { payload }) => {
       // If encryption is disabled, don't enable autoEncryption

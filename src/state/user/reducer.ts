@@ -7,7 +7,6 @@ interface User {
   name: string;
   role: string;
   walletAddress: string;
-  signature: string;
   authenticated: boolean;
   loading: boolean;
 }
@@ -17,7 +16,6 @@ const initialState: User = {
   name: "",
   role: "",
   walletAddress: "",
-  signature: "",
   authenticated: false,
   loading: true,
 };

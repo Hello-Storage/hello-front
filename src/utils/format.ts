@@ -30,12 +30,11 @@ export const formatBytes = (bytes: number, decimals = 2, symbol = true) => {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${
-    symbol ? sizes[i] : ""
-  }`;
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${symbol ? sizes[i] : ""}`;
 };
 
 export const formatPercent = (child: number, parent: number, decimal = 2) => {
+
   const numberFormater = new Intl.NumberFormat("en-US", {
     style: "percent",
     minimumFractionDigits: 0,
@@ -45,7 +44,6 @@ export const formatPercent = (child: number, parent: number, decimal = 2) => {
   if (child === 0 && parent === 0) {
     return numberFormater.format(0);
   }
-
   const num = child / parent;
   return numberFormater.format(Number(num));
 };

@@ -1,4 +1,5 @@
-import { useRef, useState, Fragment } from "react";
+import { Api } from "api";
+import { EncryptionStatus, File as FileType } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -12,17 +13,21 @@ import {
   HiOutlineLockOpen,
   HiLockClosed,
 } from "react-icons/hi";
-import { toast } from "react-toastify";
-import copy from "copy-to-clipboard";
-import { Api } from "api";
-import { EncryptionStatus, File as FileType } from "api/types";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
+import { toast } from "react-toastify";
 import { useDropdown, useFetchData } from "hooks";
-import { useAppDispatch, useAppSelector } from "state";
+import { useRef, useState, Fragment } from "react";
+import copy from "copy-to-clipboard";
+import {
+  blobToArrayBuffer,
+  decryptFileBuffer,
+} from "utils/encryption/filesCipher";
+import React from "react";
+import { useAppDispatch } from "state";
 import { setImageViewAction } from "state/mystorage/actions";
 import { truncate } from "utils/format";
-import { decrypt } from "utils/encrypt";
+
 
 dayjs.extend(relativeTime);
 
@@ -33,7 +38,6 @@ interface FileItemProps {
 }
 
 const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
-  const { signature } = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
@@ -56,14 +60,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then(async (res) => {
         // Create a blob from the response data
-        const blob = new Blob([res.data]);
-        let f = new File([blob], file.name);
-        if (file.status === EncryptionStatus.Encrypted) {
-          f = await decrypt(f, signature);
+        let binaryData = res.data;
+        if (file.encryption_status === EncryptionStatus.Encrypted) {
+          const originalCid = file.cid_original_encrypted;
+          binaryData = await blobToArrayBuffer(binaryData);
+          binaryData = await decryptFileBuffer(binaryData, originalCid);
         }
+        const blob = new Blob([binaryData], { type: file.mime_type });
 
         // Create a link element and set the blob as its href
-        const url = URL.createObjectURL(f);
+        const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
         a.download = file.name; // Set the file name
@@ -80,13 +86,18 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
   const handleView = () => {
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then(async (res) => {
-        const blob = new Blob([res.data]);
-        let f = new File([blob], file.name);
-        if (file.status === EncryptionStatus.Encrypted) {
-          f = await decrypt(f, signature);
+        let binaryData = res.data;
+        if (file.encryption_status === EncryptionStatus.Encrypted) {
+          const originalCid = file.cid_original_encrypted;
+          binaryData = await blobToArrayBuffer(binaryData);
+          binaryData = await decryptFileBuffer(binaryData, originalCid);
         }
-
-        const url = window.URL.createObjectURL(f);
+        const blob = new Blob([binaryData], { type: file.mime_type });
+        if (!blob) {
+          console.error("Error downloading file:", file);
+          return;
+        }
+        const url = window.URL.createObjectURL(blob);
         const img = {
           src: url,
           alt: file.name,
@@ -185,11 +196,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDrag={handleDrag}
-        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${
-          isDragging || selectedItem
-            ? "bg-blue-200 border border-blue-500"
-            : "border-0"
-        }`}
+        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${isDragging || selectedItem
+          ? "bg-blue-200 border border-blue-500"
+          : "border-0"
+          }`}
         // onClick={handleClick}
         onDoubleClick={handleView}
         onClick={handleOnClick}
@@ -216,7 +226,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
         <td className="p-1">{formatBytes(file.size)}</td>
         <td className="p-1">
           <div className="flex items-center">
-            {file.status === "public" ? (
+            {file.encryption_status === "public" ? (
               <Fragment>
                 <HiOutlineLockOpen />
                 Public

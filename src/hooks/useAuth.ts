@@ -1,6 +1,6 @@
-import { Api, LoadUserResponse, LoginResponse, setAuthToken } from "api";
+import { useCallback } from "react";
+import { AccountType, Api, LoadUserResponse, LoginResponse, setAuthToken } from "api";
 import { signMessage, disconnect } from "@wagmi/core";
-import { useAccount } from "wagmi";
 import state from "state";
 import {
   loadUser,
@@ -8,31 +8,39 @@ import {
   loadingUser,
   logoutUser,
 } from "state/user/actions";
+import setPersonalSignature from "api/setPersonalSignature";
+import setAccountType from "api/setAccountType";
 import { removeContent } from "state/mystorage/actions";
-import { getSignature } from "utils";
+import { signPersonalSignature } from "utils/encryption/cipherUtils";
 
 const useAuth = () => {
-  const { address, isConnected } = useAccount();
-
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       state.dispatch(loadingUser());
       const loadResp = await Api.get<LoadUserResponse>("/load");
 
-      // if signature not registered
-      if (loadResp.data.signature === "" && isConnected && address) {
-        const signature = await getSignature(address);
-        loadResp.data.signature = signature;
+      const privateKey = loadResp.data.walletPrivateKey;
 
-        await Api.post("/user/signature", { signature });
+      if (privateKey) {
+        //sign message with private key
+        const signature = await signPersonalSignature(loadResp.data.walletAddress, localStorage.getItem("account_type") as AccountType, privateKey);
+        setPersonalSignature(signature);
       }
+
       state.dispatch(loadUser(loadResp.data));
     } catch (error) {
       state.dispatch(loadUserFail());
     }
-  };
+  }, []);
 
-  const login = async (wallet_address: string) => {
+  const login = useCallback(async (wallet_address: string) => {
+    localStorage.removeItem("access_token");
+    setAuthToken(undefined);
+    localStorage.removeItem("account_type")
+    setAccountType(undefined);
+    sessionStorage.removeItem("personal_signature");
+    setPersonalSignature(undefined);
+
     const nonceResp = await Api.post<string>("/nonce", {
       wallet_address,
     });
@@ -41,22 +49,22 @@ const useAuth = () => {
 
     const signature = await signMessage({ message });
 
-    const referral = new URLSearchParams(window.location.search).get("ref");
-
     const loginResp = await Api.post<LoginResponse>("/login", {
       wallet_address,
       signature,
-      referral: referral ?? "",
     });
 
     setAuthToken(loginResp.data.access_token);
+    setAccountType("provider")
+
     load();
-  };
+  }, []);
 
   // otp (one-time-passcode login)
   const startOTP = async (email: string) => {
+    const referrerCode = new URLSearchParams(window.location.search).get("ref");
     try {
-      await Api.post("/otp/start", { email });
+      await Api.post("/otp/start", { email, referrerCode });
     } catch (error) {
       return false;
     }
@@ -66,29 +74,29 @@ const useAuth = () => {
 
   const verifyOTP = async (email: string, code: string) => {
     try {
-      const referral = new URLSearchParams(window.location.search).get("ref");
       const result = await Api.post<LoginResponse>("/otp/verify", {
         email,
         code,
-        referral: referral ?? "",
-      });
+      })
       setAuthToken(result.data.access_token);
-      load();
+      load()
       return true;
     } catch (error) {
       return false;
     }
-  };
+  }
 
-  const logout = () => {
+  const logout = useCallback(() => {
     state.dispatch(logoutUser());
 
     setAuthToken(undefined);
+    setPersonalSignature(undefined);
+    setAccountType(undefined);
     state.dispatch(removeContent(""));
 
     // disconnect when you sign with wallet
     disconnect();
-  };
+  }, []);
 
   return {
     login,
@@ -100,3 +108,4 @@ const useAuth = () => {
 };
 
 export default useAuth;
+

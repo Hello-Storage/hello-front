@@ -1,34 +1,36 @@
-import { useState } from "react";
-import { Navigate } from "react-router-dom";
-import { useAppSelector } from "state";
-import { useAuth } from "hooks";
-import { LogoIcon, OTPModal } from "components";
-import { Spinner3 } from "components/Spinner";
-import ConnectWalletButton from "./components/ConnectWalletButton";
-import GoogleLoginButton from "./components/GoogleLoginButton";
-import GithubLoginButton from "./components/GithubLoginButton";
+import { GithubIcon, LogoIcon, OTPModal } from "components";
 
 import shows from "@images/auth/shows.png";
+import ConnectWalletButton from "./components/ConnectWalletButton";
+import { useAppSelector } from "state";
+import { Navigate } from "react-router-dom";
+import { Spinner3 } from "components/Spinner";
+import GoogleLoginButton from "./components/GoogleLoginButton";
+import GithubLoginButton from "./components/GithubLoginButton";
+import { useAuth } from "hooks";
+import React, { useState } from "react";
 import { useModal } from "components/Modal";
 
 export default function Login() {
   const { authenticated, loading } = useAppSelector((state) => state.user);
   const { startOTP } = useAuth();
   const [email, setEmail] = useState("");
-  const [onPresent] = useModal(<OTPModal email={email} />);
+  const [onPresent] = useModal(<OTPModal email={email}/>);
+
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setEmail(e.target.value);
-  };
+  }
 
   const onSubmit = async (e: any) => {
     e.preventDefault();
 
     const result = await startOTP(email);
-    console.log(result);
+    console.log(result)
+
     if (result) onPresent();
-  };
+  }
 
   if (loading) return <Spinner3 />;
   if (authenticated) {

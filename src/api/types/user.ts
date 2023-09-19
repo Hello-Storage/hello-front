@@ -11,10 +11,17 @@ export interface LoadUserResponse {
   name: string;
   role: string;
   walletAddress: string;
-  signature: string;
+  walletPrivateKey?: string;
 }
 
 export interface UserDetailResponse {
-  referral_storage: number;
   storage_used: number;
+  referral_storage: number;
+}
+
+export enum AccountType {
+  Github = "github",
+  Google = "google",
+  Provider = "provider",
+  Mail = "mail",
 }
