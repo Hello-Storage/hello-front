@@ -80,6 +80,9 @@ export default function Home() {
 
   const [view, setView] = useState<"list" | "grid">("list");
 
+
+  const [loading, setLoading] = useState(false);
+
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
   };
@@ -89,7 +92,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetchRootContent();
+    fetchRootContent(setLoading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
@@ -194,9 +197,8 @@ export default function Home() {
       </div>
 
       <div className="flex flex-1 flex-col mt-3">
-        <Content files={filteredFiles} folders={filteredFolders} view={view} />
+          <Content loading={loading} files={filteredFiles} folders={filteredFolders} view={view} />
       </div>
-
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
         <div>
@@ -206,8 +208,8 @@ export default function Home() {
         <div className="flex items-center space-x-2">
           <button
             className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-gray-200"
               }`}
             onClick={() =>
               setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
@@ -219,8 +221,8 @@ export default function Home() {
           </button>
           <button
             className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-gray-200"
               }`}
             onClick={() =>
               setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))

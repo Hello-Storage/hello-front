@@ -90,7 +90,9 @@ const useFetchData = () => {
     return decryptedFolders;
   };
 
-  const fetchRootContent = useCallback(() => {
+  const fetchRootContent = useCallback((setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
+    if (setLoading)
+      setLoading(true);
     let root = "/folder";
 
     if (location.pathname.includes("/folder")) {
@@ -151,6 +153,10 @@ const useFetchData = () => {
       })
       .catch((err) => {
         console.log(err);
+      })
+      .finally(() => {
+        if (setLoading)
+          setLoading(false);
       });
   }, [location.pathname]);
 
