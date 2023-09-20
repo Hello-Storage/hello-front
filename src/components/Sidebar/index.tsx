@@ -494,9 +494,15 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <label className="text-xs text-neutral-800">
           {formatPercent(storageUsed, storageAvailable)} /{" "}
           {formatBytes(storageAvailable)} used -&nbsp;
-          <strong className="text-orange-500">
-            {formatBytes(storageAvailable, 2, false)} / 100GB
-          </strong>
+          <a
+            href="/referrals"
+            onClick={(e) => {
+              e.preventDefault()
+              navigate("/referrals");
+            }}
+            className="text-orange-500 cursor-pointer hover:underline">
+            {formatBytes(storageAvailable, 2, false)} / 100 GB
+          </a>
         </label>
         <div className="mt-4">
           <button
