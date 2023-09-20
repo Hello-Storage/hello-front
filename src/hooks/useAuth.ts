@@ -58,7 +58,7 @@ const useAuth = () => {
     setAuthToken(loginResp.data.access_token);
     setAccountType("provider")
 
-    load();
+    await load();
   }, []);
 
   // otp (one-time-passcode login)
@@ -84,7 +84,7 @@ const useAuth = () => {
       })
       setAuthToken(result.data.access_token);
       setAccountType("email")
-      load()
+      await load()
       return true;
     } catch (error) {
       return false;
