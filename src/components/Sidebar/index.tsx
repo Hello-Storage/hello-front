@@ -158,7 +158,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     cidOfEncryptedBufferStr: string;
     cidOriginalEncryptedBase64Url: string;
     encryptedWebkitRelativePath: string;
-    encryptionTimeParsed: string;
+    encryptionTime: number;
   } | null> => {
     const fileArrayBuffer = await file.arrayBuffer();
 
@@ -176,7 +176,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       cidOriginalStr,
       cidOfEncryptedBufferStr,
       encryptedFileBuffer,
-      encryptionTimeParsed,
+      encryptionTime,
     } = await encryptFileBuffer(fileArrayBuffer);
 
     const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
@@ -233,7 +233,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       cidOfEncryptedBufferStr,
       cidOriginalEncryptedBase64Url,
       encryptedWebkitRelativePath,
-      encryptionTimeParsed,
+      encryptionTime,
     };
   };
 
@@ -246,10 +246,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     })
       .then((data) => {
         toast.success("upload Succeed!");
+        console.log(data)
+        dispatch(setUploadStatusAction({ info: "Finished uploading data", uploading: false }));
         fetchRootContent();
         fetchUserDetail();
       })
       .catch((err) => {
+        console.log(err)
         toast.error("upload failed!");
       })
       .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
@@ -278,10 +281,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     const encryptedPathsMapping: { [path: string]: string } = {};
 
+
+
+
+
+    let encryptionTimeTotal = 0;
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
       if (encryptionEnabled) {
+
+        const infoText = `Encrypting file ${i + 1} of ${files.length}`;
+        dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
         const encryptedResult = await handleEncryption(
           file,
           personalSignature,
@@ -297,10 +308,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           cidOfEncryptedBufferStr,
           cidOriginalEncryptedBase64Url,
           encryptedWebkitRelativePath,
-          encryptionTimeParsed,
+          encryptionTime,
         } = encryptedResult;
 
-        toast.success(`${encryptionTimeParsed}`);
+        encryptionTimeTotal += encryptionTime;
+
 
         formData.append("encryptedFiles", encryptedFile);
         formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
@@ -319,6 +331,21 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         formData.append("files", file);
       }
     }
+
+    //parse encryption total of all files with encrypted option
+    if (encryptionTimeTotal > 0) {
+      let encryptionSuffix = "milliseconds"
+      if (encryptionTimeTotal >= 1000 && encryptionTimeTotal < 60000) {
+        encryptionTimeTotal /= 1000;
+        encryptionSuffix = "seconds"
+      } else if (encryptionTimeTotal >= 60000) {
+        encryptionTimeTotal /= 60000;
+        encryptionSuffix = "minutes"
+      }
+      const encryptionTimeParsed = "Encrypting the data took " + encryptionTimeTotal.toFixed(2).toString() + " " + encryptionSuffix;
+      toast.success(`${encryptionTimeParsed}`);
+    }
+
     const infoText = isFolder
       ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
       : files.length === 1

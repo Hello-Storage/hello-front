@@ -191,7 +191,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
     return (
       <tr
         id={file.id.toString()}
-        aria-label={file.uid}
+        aria-label={file.cid}
         draggable
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -219,7 +219,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             className="flex items-center gap-1 select-none hover:text-blue-500"
             onClick={onCopy}
           >
-            {formatUID(file.uid)}
+            {formatUID(file.cid)}
             <HiDocumentDuplicate />
           </div>
         </td>
@@ -323,7 +323,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             onCopy(e);
           }}
         >
-          <label>{formatUID(file.uid)}</label>
+          <label>{formatUID(file.cid)}</label>
           <HiDocumentDuplicate className="inline-block" />
         </div>
       </div>

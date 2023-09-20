@@ -75,7 +75,7 @@ export default function Home() {
   const filteredFiles = currentFiles.filter(
     (file) =>
       file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file.uid.toLowerCase().includes(searchTerm.toLowerCase())
+      file.cid.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const [view, setView] = useState<"list" | "grid">("list");

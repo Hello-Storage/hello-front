@@ -199,23 +199,13 @@ export const encryptFileBuffer = async (fileArrayBuffer: ArrayBuffer) => {
         const cipherBytes = await getCipherBytes(uint8FileBuffer, aesKey, iv)
 
         const end = performance.now();
-        let encryptionTime = end - start || 0;
-        let encryptionSuffix = "milliseconds"
-
-        if (encryptionTime >= 1000 && encryptionTime < 60000) {
-            encryptionTime /= 1000;
-            encryptionSuffix = "seconds"
-        } else if (encryptionTime >= 60000) {
-            encryptionTime /= 60000;
-            encryptionSuffix = "minutes"
-        }
-
-
-        const encryptionTimeParsed = "Encrypting the data took " + encryptionTime.toFixed(2).toString() + " " + encryptionSuffix;
+        const encryptionTime = end - start || 0;
 
 
 
-    const resultBytes = getResultBytes(cipherBytes, salt, iv)
+
+
+        const resultBytes = getResultBytes(cipherBytes, salt, iv)
 
         const encryptedHash = await sha256.digest(resultBytes)
         const cidOfEncryptedBuffer = CID.create(1, RAW_CODEC, encryptedHash)
@@ -223,7 +213,7 @@ export const encryptFileBuffer = async (fileArrayBuffer: ArrayBuffer) => {
         const cidOfEncryptedBufferStr = cidOfEncryptedBuffer.toString()
 
 
-        return { cidOriginalStr, cidOfEncryptedBufferStr, encryptedFileBuffer: resultBytes, encryptionTimeParsed }
+        return { cidOriginalStr, cidOfEncryptedBufferStr, encryptedFileBuffer: resultBytes, encryptionTime }
     } catch (error) {
         console.error('Error encrypting file')
         console.error(error)
