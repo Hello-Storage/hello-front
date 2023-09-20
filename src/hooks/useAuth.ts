@@ -83,6 +83,7 @@ const useAuth = () => {
         code,
       })
       setAuthToken(result.data.access_token);
+      setAccountType(AccountType.Mail)
       load()
       return true;
     } catch (error) {
