@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import { HiPlus } from "react-icons/hi";
@@ -15,8 +15,8 @@ import Cloud from "assets/images/Outline/Cloud-upload.png";
 import { FiX } from "react-icons/fi";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
-import { AccountType, Api } from "api";
-import { useFetchData, useDropdown, useAuth } from "hooks";
+import { Api } from "api";
+import { useFetchData, useDropdown } from "hooks";
 import {
   toggleEncryption,
   toggleAutoEncryption,
@@ -27,20 +27,12 @@ import HotReferral from "@images/hotreferral.png";
 import "react-toggle/style.css";
 import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
-import getPersonalSignature from "api/getPersonalSignature";
-import {
-  bufferToBase64Url,
-  bufferToHex,
-  encryptBuffer,
-  encryptFileBuffer,
-  encryptMetadata,
-  getCid,
-} from "utils/encryption/filesCipher";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { AxiosProgressEvent } from "axios";
 import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
+import { decrypt, encrypt } from "utils/encrypt";
 
 const links1 = [
   {
@@ -66,6 +58,7 @@ const links1 = [
     icon: <GoPeople className="w-5 h-5" />,
     content: "Referrals",
     img: <img src={HotReferral} alt="beta" className="w-12 h-5" />,
+    available: true,
   },
 ];
 
@@ -105,11 +98,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     autoEncryptionEnabled,
   } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { fetchRootContent, fetchUserDetail } = useFetchData();
-  const { name } = useAppSelector((state) => state.user);
-  const accountType = getAccountType();
-
-  const { logout } = useAuth();
+  const { signature } = useAppSelector((state) => state.user);
 
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -148,100 +139,48 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       ? location.pathname.split("/")[2]
       : "/";
 
-  const handleEncryption = async (
-    file: File,
-    personalSignature: string | undefined,
-    isFolder: boolean,
-    encryptedPathsMapping: { [path: string]: string }
-  ): Promise<{
-    encryptedFile: File;
-    cidOfEncryptedBufferStr: string;
-    cidOriginalEncryptedBase64Url: string;
-    encryptedWebkitRelativePath: string;
-    encryptionTimeParsed: string;
-  } | null> => {
-    const fileArrayBuffer = await file.arrayBuffer();
-
-    const encryptedMetadataResult = await encryptMetadata(
-      file,
-      personalSignature
-    );
-    if (!encryptedMetadataResult) {
-      toast.error("Failed to encrypt metadata");
-      return null;
-    }
-    const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } =
-      encryptedMetadataResult;
-    const {
-      cidOriginalStr,
-      cidOfEncryptedBufferStr,
-      encryptedFileBuffer,
-      encryptionTimeParsed,
-    } = await encryptFileBuffer(fileArrayBuffer);
-
-    const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-    const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
-    const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
-    const cidOriginalEncryptedBuffer = await encryptBuffer(
-      cidOriginalBuffer,
-      personalSignature
-    );
-
-    if (!cidOriginalEncryptedBuffer) {
-      toast.error("Failed to encrypt buffer");
-      return null;
-    }
-    const cidOriginalEncryptedBase64Url = bufferToBase64Url(
-      cidOriginalEncryptedBuffer
-    );
-    const encryptedFileBlob = new Blob([encryptedFileBuffer]);
-    const encryptedFile = new File(
-      [encryptedFileBlob],
-      encryptedFilenameBase64Url,
-      { type: encryptedFiletypeHex, lastModified: fileLastModified }
-    );
-
-    let encryptedWebkitRelativePath = "";
-    if (isFolder) {
-      const pathComponents = file.webkitRelativePath.split("/");
-      const encryptedPathComponents = [];
-      for (const component of pathComponents) {
-        // If this component has been encrypted before, use the cached value
-        if (encryptedPathsMapping[component]) {
-          encryptedPathComponents.push(encryptedPathsMapping[component]);
-        } else {
-          const encryptedComponentBuffer = await encryptBuffer(
-            new TextEncoder().encode(component),
-            personalSignature
-          );
-          if (!encryptedComponentBuffer) {
-            toast.error("Failed to encrypt buffer");
-            return null;
-          }
-          const encryptedComponentHex = bufferToHex(encryptedComponentBuffer);
-          encryptedPathsMapping[component] = encryptedComponentHex;
-          encryptedPathComponents.push(encryptedComponentHex);
-        }
-      }
-
-      // Reconstruct the encrypted webkitRelativePath
-      encryptedWebkitRelativePath = encryptedPathComponents.join("/");
+  const uploadFiles = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    isFolder: boolean
+  ) => {
+    if (encryptionEnabled && signature == "") {
+      toast.warning("didn't configure the signature");
+      return;
     }
 
-    return {
-      encryptedFile,
-      cidOfEncryptedBufferStr,
-      cidOriginalEncryptedBase64Url,
-      encryptedWebkitRelativePath,
-      encryptionTimeParsed,
-    };
-  };
+    const root = getRoot();
+    const files = event.target.files;
+    if (!files) return;
 
-  const postData = (formData: FormData) => {
+    const formData = new FormData();
+    formData.append("root", root);
+
+    if (encryptionEnabled) {
+      formData.append("status", "encrypted");
+    } else formData.append("status", "public");
+
+    const salt = crypto.getRandomValues(new Uint8Array(8));
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i];
+
+      if (encryptionEnabled) file = await encrypt(file, signature, salt);
+
+      formData.append("files", file);
+    }
+
+    const info = isFolder
+      ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
+      : files.length === 1
+      ? files[0].name
+      : `uploading ${files.length} files`;
+
+    dispatch(setUploadStatusAction({ info, uploading: true }));
+
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+
       onUploadProgress,
     })
       .then((data) => {
@@ -255,96 +194,16 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
   };
 
-  const handleInputChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    isFolder: boolean
-  ) => {
-    const root = getRoot();
-    const files = event.target.files;
-    if (!files) return;
-
-    const formData = new FormData();
-    formData.append("root", root);
-
-    let personalSignature;
-    if (encryptionEnabled) {
-      personalSignature = await getPersonalSignature(
-        name,
-        autoEncryptionEnabled,
-        accountType,
-        logout
-      );
-      if (!personalSignature) {
-        toast.error("Failed to get personal signature");
-        logout();
-        return;
-      }
-    }
-
-    const encryptedPathsMapping: { [path: string]: string } = {};
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      if (encryptionEnabled) {
-        const encryptedResult = await handleEncryption(
-          file,
-          personalSignature,
-          isFolder,
-          encryptedPathsMapping
-        );
-        if (!encryptedResult) {
-          toast.error("Failed to encrypt file");
-          return;
-        }
-        const {
-          encryptedFile,
-          cidOfEncryptedBufferStr,
-          cidOriginalEncryptedBase64Url,
-          encryptedWebkitRelativePath,
-          encryptionTimeParsed,
-        } = encryptedResult;
-
-        toast.success(`${encryptionTimeParsed}`);
-
-        formData.append("encryptedFiles", encryptedFile);
-        formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
-        formData.append(
-          `cidOriginalEncrypted[${i}]`,
-          cidOriginalEncryptedBase64Url
-        );
-        formData.append(
-          `webkitRelativePath[${i}]`,
-          encryptedWebkitRelativePath
-        );
-      } else {
-        const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
-        const cidStr = await getCid(uint8ArrayBuffer);
-        formData.append(`cid[${i}]`, cidStr);
-        formData.append("files", file);
-      }
-    }
-    const infoText = isFolder
-      ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
-      : files.length === 1
-      ? files[0].name
-      : `uploading ${files.length} files`;
-
-    dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-
-    postData(formData);
-  };
-
   const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    handleInputChange(event, false);
+    uploadFiles(event, false);
   };
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    handleInputChange(event, true);
+    uploadFiles(event, true);
   };
 
   return (
@@ -374,27 +233,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex items-center justify-between mt-3">
           <label
             htmlFor="auto-signature"
-            className={`text-sm ${
-              encryptionEnabled && accountType === AccountType.Provider
-                ? ""
-                : "text-gray-400"
-            }`}
+            className={`text-sm ${encryptionEnabled ? "" : "text-gray-400"}`}
           >
             Automatic
           </label>
           <div className="flex items-center align-middle">
             <Toggle
               id="auto-signature"
-              checked={
-                autoEncryptionEnabled || !(accountType === AccountType.Provider)
-              }
+              checked={autoEncryptionEnabled}
               onChange={() =>
-                accountType === AccountType.Provider &&
                 dispatch(toggleAutoEncryption(!autoEncryptionEnabled))
               }
-              disabled={
-                !(accountType === AccountType.Provider) || !encryptionEnabled
-              }
+              disabled={!encryptionEnabled}
               className={
                 autoEncryptionEnabled ? "automatic-on" : "automatic-off"
               }
@@ -521,12 +371,20 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         />
 
         <label className="text-xs text-neutral-800">
-          {formatPercent(storageUsed, storageAvailable)} used -{" "}
-          {formatBytes(storageAvailable)} available
+          {formatPercent(storageUsed, storageAvailable)} /{" "}
+          {formatBytes(storageAvailable)} used -&nbsp;
+          <strong className="text-orange-500">
+            {formatBytes(storageAvailable, 2, false)} / 100 GB
+          </strong>
         </label>
         <div className="mt-4 pb-1">
-          <button className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
-            Buy storage
+          <button
+            className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
+            onClick={() => navigate("/referrals")}
+            disabled={storageAvailable >= Math.pow(1024, 3) * 100}
+          >
+            Get {formatBytes(100 * Math.pow(1024, 3) - storageAvailable)} Free
+            ✨
           </button>
         </div>
       </div>

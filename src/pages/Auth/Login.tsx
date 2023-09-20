@@ -1,13 +1,34 @@
 import shows from "@images/auth/shows.png";
 import ConnectWalletButton from "./components/ConnectWalletButton";
 import { useAppSelector } from "state";
+import { useState } from "react";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "hooks";
+import { OTPModal } from "components";
 import { Spinner3 } from "components/Spinner";
 import GoogleLoginButton from "./components/GoogleLoginButton";
 import LogoHello from "@images/beta.png";
 
+import { useModal } from "components/Modal";
+
 export default function Login() {
   const { authenticated, loading } = useAppSelector((state) => state.user);
+  const { startOTP } = useAuth();
+  const [email, setEmail] = useState("");
+  const [onPresent] = useModal(<OTPModal email={email} />);
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setEmail(e.target.value);
+  };
+
+  const onSubmit = async (e: any) => {
+    e.preventDefault();
+
+    const result = await startOTP(email);
+    console.log(result);
+    if (result) onPresent();
+  };
 
   if (loading) return <Spinner3 />;
   if (authenticated) {
@@ -48,7 +69,7 @@ export default function Login() {
             </div>
 
             {/* login with email */}
-            <form>
+            <form onSubmit={onSubmit}>
               <div className="">
                 <label
                   htmlFor="email"
@@ -58,9 +79,10 @@ export default function Login() {
                 </label>
                 <input
                   type="email"
-                  id="email"
                   className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-4"
                   placeholder="example@email.com"
+                  value={email}
+                  onChange={onChange}
                   required
                 />
 

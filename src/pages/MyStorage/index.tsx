@@ -61,9 +61,11 @@ export default function Home() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems - 1);
 
-  const currentFolders = folders.slice(startIndex, endIndex + 1);
-  const remainingItems = itemsPerPage - currentFolders.length;
-  const currentFiles = files.slice(0, remainingItems);
+  const currentFolders = folders.slice(startIndex, Math.min(endIndex + 1, folders.length));
+  const folderItemsCount = currentFolders.length;
+  const filesStartIndex = Math.max(0, startIndex - folders.length);
+  const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount;
+  const currentFiles = files.slice(filesStartIndex, filesEndIndex);
 
   const [filter, setFilter] = useState("all");
 

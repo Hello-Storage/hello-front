@@ -9,6 +9,7 @@ export const Api = axios.create({
     "Content-Type": "application/json",
     // "Cross-Origin-Opener-Policy": "same-origin",
   },
+  maxBodyLength: 5 * 1024 * 1024 * 1024,
 });
 
 Api.interceptors.response.use(
