@@ -10,27 +10,14 @@ export default function GoogleLoginButton() {
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-<<<<<<< HEAD
-      const account = Web3.eth.accounts.create();
-      const referrerCode = new URLSearchParams(window.location.search).get(
-        "ref"
-      );
-=======
       const referral = new URLSearchParams(window.location.search).get("ref");
->>>>>>> origin/staging
 
       const baseParams = {
         code: tokenResponse.access_token,
       };
 
-<<<<<<< HEAD
-      const referrerParams = referrerCode
-        ? { referrer_code: referrerCode }
-        : {};
-=======
       const referrerParams = { referral: referral ?? "" };
 
->>>>>>> origin/staging
       const oauthResp = await Api.get("/oauth/google", {
         params: {
           ...baseParams,
