@@ -3,9 +3,8 @@ import { NavLink } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import { HiPlus } from "react-icons/hi";
-import FileUpload from "assets/images/Outline/File-upload.png";
-import FolderPlus from "assets/images/Outline/Folder-plus.png";
-import Folder from "assets/images/Outline/Folder.png";
+import { RiFolderUploadLine, RiFolderAddLine } from "react-icons/ri";
+import { GoPeople } from "react-icons/go";
 import FolderLock from "assets/images/Outline/Folder-lock.png";
 import Layout from "assets/images/Outline/Layout.png";
 import Send from "assets/images/Outline/Send.png";
@@ -24,6 +23,7 @@ import {
 } from "state/userdetail/actions";
 
 import LogoHello from "@images/beta.png";
+import HotReferral from "@images/hotreferral.png";
 import "react-toggle/style.css";
 import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
@@ -39,6 +39,8 @@ import {
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { AxiosProgressEvent } from "axios";
 import getAccountType from "api/getAccountType";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 const links1 = [
   {
@@ -61,9 +63,9 @@ const links1 = [
   },
   {
     to: "/referrals",
-    icon: <img src={Box} alt="custom icon" className="w-6 h-6" />,
+    icon: <GoPeople className="w-5 h-5" />,
     content: "Referrals",
-    available: false,
+    img: <img src={HotReferral} alt="beta" className="w-12 h-5" />,
   },
 ];
 
@@ -408,21 +410,27 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
             onClick={handleFileUpload}
           >
-            <HiPlus /> File Upload
+            <HiPlus /> Upload files
           </button>
-          <div className="flex gap-2 items-center mt-4">
-            <button
-              className="flex items-center justify-center text-gray-800 w-full px-2 py-3 rounded-xl text-xs bg-white border border-gray-300 hover:bg-gray-100"
-              onClick={onPresent}
-            >
-              New Folder
-            </button>
-            <button
-              className="flex items-center justify-center text-gray-800 w-full px-2 py-3 rounded-xl text-xs bg-white border border-gray-300 hover:bg-gray-100"
-              onClick={handleFolderUpload}
-            >
-              Folder upload
-            </button>
+          <div className="flex gap-4 items-center mt-4">
+            <Tippy content="Create Folder">
+              <button
+                className="flex items-center justify-center text-gray-800 p-3 rounded-xl text-xs bg-white border border-gray-300 hover:bg-gray-100"
+                onClick={onPresent}
+              >
+                <div title="Upload folder">
+                  <RiFolderAddLine className="h-6 w-6" />
+                </div>
+              </button>
+            </Tippy>
+            <Tippy content="Upload Folder">
+              <button
+                className="flex items-center justify-center text-gray-800 p-3 rounded-xl text-xs bg-white border border-gray-300 hover:bg-gray-100"
+                onClick={handleFolderUpload}
+              >
+                <RiFolderUploadLine className="h-6 w-6" />
+              </button>
+            </Tippy>
           </div>
         </div>
 
@@ -431,10 +439,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex flex-col gap-0.5">
           {links1.map((v, i) => (
             <NavLink
-              to={v.available ? v.to : "/#"}
+              to={v.to}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl
-                ${v.available ? "" : "pointer-events-none"}`
+                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
               }
               key={i}
             >
@@ -453,10 +460,12 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                     {v.content}
                   </label>
                 </div>
-                {!v.available && (
+                {!v.available && !v.img ? (
                   <label className="text-sm bg-gray-200 px-2 rounded-full">
                     soon
                   </label>
+                ) : (
+                  <span>{v.img}</span>
                 )}
               </div>
             </NavLink>
@@ -515,7 +524,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           {formatPercent(storageUsed, storageAvailable)} used -{" "}
           {formatBytes(storageAvailable)} available
         </label>
-        <div className="mt-4">
+        <div className="mt-4 pb-1">
           <button className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
             Buy storage
           </button>

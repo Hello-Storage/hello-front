@@ -34,16 +34,16 @@ export default function Dropzone() {
   return (
     <div
       className={[
-        "flex flex-col items-center p-8 border-2 rounded-sm border-dashed bg-gray-50 outline-none mb-5 md:block hidden",
+        "flex flex-col items-center justify-center p-8 border-2 rounded-sm border-dashed bg-gray-50 outline-none mb-5 md:block hidden",
         `${getColor(isFocused, isDragAccept, isDragReject)}`,
       ].join(" ")}
       {...getRootProps()}
     >
       <input {...getInputProps()} />
       {isDragActive ? (
-        <p>Drop the files here ...</p>
+        <p className="text-center">Drop the files here ...</p>
       ) : (
-        <p>Drag'n drop to upload, or click to here</p>
+        <p className="text-center">Drag'n drop to upload, or click to here</p>
       )}
     </div>
   );

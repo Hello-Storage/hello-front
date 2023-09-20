@@ -66,7 +66,7 @@ export default function AppLayout() {
     <SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
       <div className="flex h-screen flex-col justify-between">
         {!sidebarOpen && (
-          <div className="flex items-center justify-between sticky px-5 py-2 w-full bg-gray-100 md:hidden">
+          <div className="flex items-center justify-between sticky px-5 py-2 w-full bg-gray-100 lg:hidden">
             <div className="flex items-center gap-3">
               <label className="text-xl font-semibold font-[Outfit]">
                 Hello.storage
@@ -83,14 +83,14 @@ export default function AppLayout() {
         <div
           className={`fixed inset-0 bg-black opacity-50 z-10 ${
             sidebarOpen ? "block" : "hidden"
-          } md:hidden`}
+          } lg:hidden`}
           onClick={() => setSidebarOpen(false)}
         ></div>
         <div className="flex flex-grow">
           <div
             className={`h-screen overflow-y-auto w-5/6 md:w-72 z-20 bg-white ${
               sidebarOpen ? "block" : "hidden"
-            } md:block`}
+            } lg:block`}
           >
             <Sidebar setSidebarOpen={setSidebarOpen} />
           </div>
