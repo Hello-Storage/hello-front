@@ -32,7 +32,6 @@ export default function GoogleLoginButton() {
       setAccountType(AccountType.Google);
       load();
       setLoading(false);
-      setAccountType("google");
     },
     onError: () => {
       setLoading(false);

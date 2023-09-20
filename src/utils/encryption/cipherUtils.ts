@@ -17,7 +17,7 @@ export const signPersonalSignature = async (address: string, account_type: Accou
 
     let signature = "";
     if (account_type === AccountType.Provider) {
-    signature = await signMessage({ message })
+        signature = await signMessage({ message })
     } else if (privateKey) {
         const web3 = new Web3.default();
         signature = web3.eth.accounts.sign(message, privateKey).signature;
