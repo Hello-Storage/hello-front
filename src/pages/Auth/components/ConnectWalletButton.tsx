@@ -32,7 +32,7 @@ export default function ConnectWalletButton() {
         return (
           <button
             onClick={isConnected ? undefined : () => onClick(show!)}
-            className="w-full inline-flex items-center justify-center text-white p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
+            className="w-full inline-flex items-center justify-center text-white p-4 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
             disabled={loading ? true : false}
           >
             {/* {isConnected ? truncatedAddress : "Connect with Wallet"} */}

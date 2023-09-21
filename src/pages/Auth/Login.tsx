@@ -1,4 +1,4 @@
-import { GithubIcon, LogoIcon, OTPModal } from "components";
+import { LogoIcon, OTPModal } from "components";
 
 import shows from "@images/auth/shows.png";
 import ConnectWalletButton from "./components/ConnectWalletButton";
@@ -10,12 +10,13 @@ import GithubLoginButton from "./components/GithubLoginButton";
 import { useAuth } from "hooks";
 import React, { useState } from "react";
 import { useModal } from "components/Modal";
+import LogoHello from "assets/images/beta.png"
 
 export default function Login() {
   const { authenticated, loading } = useAppSelector((state) => state.user);
   const { startOTP } = useAuth();
   const [email, setEmail] = useState("");
-  const [onPresent] = useModal(<OTPModal email={email}/>);
+  const [onPresent] = useModal(<OTPModal email={email} />);
 
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,8 +41,10 @@ export default function Login() {
   return (
     <div className="p-8 md:h-screen">
       <div className="md:absolute flex items-center gap-2">
-        <LogoIcon />
-        <label className="text-3xl font-semibold">Hello</label>
+        <div className="flex items-center gap-3">
+          <label className="text-2xl font-semibold font-[Outfit]">Hello.storage</label>
+          <img src={LogoHello} alt="logo" className="w-12 h-6" />
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 md:gap-0 h-full">
@@ -54,18 +57,24 @@ export default function Login() {
               Select your favorite login option
             </h3>
 
-            <div className="mt-12">
+            <div className="mt-12 flex gap-4 flex-col">
+              <GoogleLoginButton />
               <ConnectWalletButton />
             </div>
 
-            <hr className="my-5" />
+            <div className="inline-flex items-center justify-center w-full relative">
+              <hr className="w-full h-px my-8 bg-gray-200 border-0" />
+              <span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2">
+                Or
+              </span>
+            </div>
 
             {/* login with email */}
             <form onSubmit={onSubmit}>
               <div className="">
                 <label
                   htmlFor="email"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  className="block mb-2 text-sm font-medium text-gray-600"
                 >
                   Email address
                 </label>
@@ -83,23 +92,11 @@ export default function Login() {
                     className="w-full inline-flex items-center justify-center text-white px-3 py-4 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
                     type="submit"
                   >
-                    Receive a magic link ✨
+                    Send a magic link ✨
                   </button>
                 </div>
               </div>
             </form>
-
-            <div className="inline-flex items-center justify-center w-full relative">
-              <hr className="w-full h-px my-8 bg-gray-200 border-0" />
-              <span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2">
-                Or
-              </span>
-            </div>
-
-            {/* connect with google */}
-            <div className="mt-6">
-              <GoogleLoginButton />
-            </div>
 
             {/* connect with github */}
             <div className="mt-6">

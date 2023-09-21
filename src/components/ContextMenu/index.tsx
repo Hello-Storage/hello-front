@@ -38,7 +38,6 @@ export default function ContextMenu({ targetId }: ContextMenuProps) {
     const offClickHandler = (event: any) => {
       if (contextRef.current && !contextRef.current.contains(event.target)) {
         setContextData({ ...contextData, visible: false });
-        
       }
     };
 
@@ -93,7 +92,7 @@ export default function ContextMenu({ targetId }: ContextMenuProps) {
             // onClick={handleFileUpload}
           >
             <HiDocumentDownload className="inline-flex mr-3" />
-            File Upload
+            Upload files
           </div>
         </li>
         <li>

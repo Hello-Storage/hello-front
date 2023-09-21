@@ -2,10 +2,8 @@ import { EthIcon } from "components";
 import { useAuth } from "hooks";
 import useDropdown from "hooks/useDropdown";
 import { useRef, useState, ChangeEvent, FunctionComponent } from "react";
-import { FaPhoneSquareAlt } from "react-icons/fa";
 import {
   HiChevronDown,
-  HiCubeTransparent,
   HiOutlineMoon,
   HiOutlineLogout,
   HiOutlineUser,
@@ -13,7 +11,6 @@ import {
   HiOutlineCalculator,
   HiUsers,
 } from "react-icons/hi";
-import { useNavigate } from "react-router";
 import { useAppSelector } from "state";
 import { formatName } from "utils";
 import { truncate } from "utils/format";
@@ -24,7 +21,6 @@ interface AppbarProps {
 
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const { name, walletAddress } = useAppSelector((state) => state.user);
-  const navigate = useNavigate();
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -62,7 +58,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             <input
               type="search"
               id="default-search"
-              className="block w-full py-3 pl-10 pr-4 text-sm text-gray-900 border border-gray-200 rounded-2xl bg-white focus:border-gray-400 focus:outline-none md:w-3/4"
+              className="block w-full py-2.5 pl-10 pr-4 text-sm text-gray-900 border border-gray-200 rounded-2xl bg-white focus:border-gray-400 focus:outline-none"
               placeholder="Search inside Hello storage"
               required
               onChange={onSearchChange}
@@ -83,8 +79,11 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               onClick={() => setOpen(!open)}
             >
               <EthIcon />
-              <span className="text-sm">
-                | {truncate(formatName(name), 20)}
+              <span className="md:hidden txt-sm">
+                | {(name !== "") ? formatName(name, 6) : formatName(walletAddress)}
+              </span>
+              <span className="hidden md:inline txt-sm">
+                | {(name !== "") ? formatName(name, 12) : formatName(walletAddress)}
               </span>
               <HiChevronDown />
             </button>
@@ -96,7 +95,9 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               >
                 <ul className="py-2">
                   <li>
-                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                    <a
+                      href="#"
+                      className="block px-4 py-2 hover:bg-gray-100 text-gray-500 pointer-events-none">
                       <HiOutlineUser className="inline-flex mr-3" />
                       Profile
                     </a>
@@ -108,7 +109,9 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                    <a
+                      href="#"
+                      className="block px-4 py-2 hover:bg-gray-100 text-gray-500 pinter-events-none">
                       <HiOutlineCalculator className="inline-flex mr-3" />
                       Settings
                     </a>

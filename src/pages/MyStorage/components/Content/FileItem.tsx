@@ -214,7 +214,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             <span className="inline md:hidden"> {truncate(file.name, 24)}</span>
           </div>
         </th>
-        <td className="p-1">
+        <td className="py-1 pr-8">
           <div
             className="flex items-center gap-1 select-none hover:text-blue-500"
             onClick={onCopy}
@@ -223,8 +223,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             <HiDocumentDuplicate />
           </div>
         </td>
-        <td className="p-1">{formatBytes(file.size)}</td>
-        <td className="p-1">
+        <td className="py-1 pr-8 whitespace-nowrap">{formatBytes(file.size)}</td>
+        <td className="py-1 pr-8">
           <div className="flex items-center">
             {file.encryption_status === "public" ? (
               <Fragment>
@@ -239,8 +239,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             )}
           </div>
         </td>
-        <td className="p-1">{dayjs(file.updated_at).fromNow()}</td>
-        <td className="py-1 px-3 text-right">
+        <td className="py-1 pr-8 whitespace-nowrap">{dayjs(file.updated_at).fromNow()}</td>
+        <td className="py-1 pr-8 text-right">
           <button
             className="rounded-full hover:bg-gray-300 p-3"
             onClick={() => setOpen(!open)}

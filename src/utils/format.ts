@@ -1,10 +1,12 @@
 import { toChecksumAddress } from "web3-utils";
 
-export const formatName = (nameOrAddress: string) => {
+export const formatName = (nameOrAddress: string, trunc?: number) => {
   if (isValidAddress(nameOrAddress)) {
     return `${nameOrAddress.slice(0, 5)}...${nameOrAddress.slice(-4)}`;
   }
-
+  if (trunc) {
+    return truncate(nameOrAddress, trunc);
+  }
   return nameOrAddress;
 };
 

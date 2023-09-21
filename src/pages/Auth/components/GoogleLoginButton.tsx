@@ -43,7 +43,7 @@ export default function GoogleLoginButton() {
 
   return (
     <button
-      className="w-full inline-flex items-center justify-center gap-4 rounded-xl p-3 bg-gray-100 hover:bg-gray-200"
+      className="w-full inline-flex items-center justify-center gap-4 rounded-xl p-4 bg-gray-100 hover:bg-gray-200"
       onClick={() => {
         login();
         setLoading(true);

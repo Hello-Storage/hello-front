@@ -14,6 +14,7 @@
   "dependencies": {
     "@react-oauth/google": "^0.11.1",
     "@reduxjs/toolkit": "^1.9.5",
+    "@tippyjs/react": "^4.2.6",
     "add": "^2.0.6",
     "axios": "^1.4.0",
     "chart.js": "^4.4.0",
