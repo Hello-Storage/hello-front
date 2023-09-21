@@ -453,7 +453,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             <NavLink
               to={v.to}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 runded-xl`
+                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
               }
               key={i}
             >
@@ -496,7 +496,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${v.available ? "" : "text-gray-500"
+                className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
                   }`}
               >
                 <div className={`flex items-center gap-3`}>
