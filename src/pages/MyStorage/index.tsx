@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { HiOutlineViewGrid, HiOutlineViewList } from "react-icons/hi";
+import { HiChevronLeft, HiChevronRight, HiOutlineViewGrid, HiOutlineViewList } from "react-icons/hi";
 import { SlideshowLightbox } from "lightbox.js-react";
 import Content from "./components/Content";
 import Breadcrumb from "./components/Breadcrumb";
@@ -56,9 +56,11 @@ export default function Home() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems - 1);
 
-  const currentFolders = folders.slice(startIndex, endIndex + 1);
-  const remainingItems = itemsPerPage - currentFolders.length;
-  const currentFiles = files.slice(0, remainingItems);
+  const currentFolders = folders.slice(startIndex, Math.min(endIndex + 1, folders.length));
+  const folderItemsCount = currentFolders.length;
+  const filesStartIndex = Math.max(0, startIndex - folders.length);
+  const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount;
+  const currentFiles = files.slice(filesStartIndex, filesEndIndex);
 
   const [filter, setFilter] = useState("all");
 
@@ -73,10 +75,13 @@ export default function Home() {
   const filteredFiles = currentFiles.filter(
     (file) =>
       file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file.uid.toLowerCase().includes(searchTerm.toLowerCase())
+      file.cid.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const [view, setView] = useState<"list" | "grid">("list");
+
+
+  const [loading, setLoading] = useState(false);
 
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
@@ -87,7 +92,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetchRootContent();
+    fetchRootContent(setLoading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
@@ -192,9 +197,8 @@ export default function Home() {
       </div>
 
       <div className="flex flex-1 flex-col mt-3">
-        <Content files={filteredFiles} folders={filteredFolders} view={view} />
+          <Content loading={loading} files={filteredFiles} folders={filteredFolders} view={view} />
       </div>
-
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
         <div>
@@ -203,30 +207,30 @@ export default function Home() {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            className={`px-4 py-2 rounded flex items-center ${
-              currentPage === 1
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-            }`}
+            className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-gray-200"
+              }`}
             onClick={() =>
               setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
             }
             disabled={currentPage === 1}
           >
-            {"< "}Prev
+            <HiChevronLeft className="h-5 w-5" />
+            <span className="md:inline hidden">Prev</span>
           </button>
           <button
-            className={`px-4 py-2 rounded flex items-center ${
-              totalPages === 0 || currentPage === totalPages
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-            }`}
+            className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-gray-200"
+              }`}
             onClick={() =>
               setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
             }
             disabled={totalPages === 0 || currentPage === totalPages}
           >
-            Next {">"}
+            <span className="md:inline hidden">Next</span>{" "}
+            <HiChevronRight className="h-5 w-5" />
           </button>
         </div>
       </div>

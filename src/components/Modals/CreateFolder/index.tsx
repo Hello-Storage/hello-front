@@ -34,7 +34,7 @@ export default function CreateFolderModal() {
     const root = getRoot();
     let titleFinal = title;
 
-    let status = EncryptionStatus.Public;
+    let encryption_status = EncryptionStatus.Public;
 
     setLoading(true);
     if (encryptionEnabled) {
@@ -53,12 +53,12 @@ export default function CreateFolderModal() {
         return null;
       }
       titleFinal = bufferToHex(encryptedTitleBuffer);
-      status = EncryptionStatus.Encrypted;
+      encryption_status = EncryptionStatus.Encrypted;
     }
     Api.post("/folder/create", {
       root: root,
       title: titleFinal,
-      status: status,
+      encryption_status: encryption_status,
     })
       .then((resp) => {
         toast.success("folder created!");

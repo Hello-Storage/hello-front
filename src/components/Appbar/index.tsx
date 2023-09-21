@@ -4,15 +4,16 @@ import useDropdown from "hooks/useDropdown";
 import { useRef, useState, ChangeEvent, FunctionComponent } from "react";
 import {
   HiChevronDown,
-  HiCubeTransparent,
   HiOutlineMoon,
   HiOutlineLogout,
   HiOutlineUser,
   HiOutlineChartSquareBar,
   HiOutlineCalculator,
+  HiUsers,
 } from "react-icons/hi";
 import { useAppSelector } from "state";
 import { formatName } from "utils";
+import { truncate } from "utils/format";
 
 interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -57,7 +58,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             <input
               type="search"
               id="default-search"
-              className="block w-full py-3 pl-10 pr-4 text-sm text-gray-900 border border-gray-200 rounded-2xl bg-white focus:border-gray-400 focus:outline-none md:w-3/4"
+              className="block w-full py-2.5 pl-10 pr-4 text-sm text-gray-900 border border-gray-200 rounded-2xl bg-white focus:border-gray-400 focus:outline-none"
               placeholder="Search inside Hello storage"
               required
               onChange={onSearchChange}
@@ -65,11 +66,11 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
           </div>
         </form>
         <div className="flex items-center md:gap-8 w-full justify-between md:w-fit gap-1">
-          <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-            <HiCubeTransparent />
-            <span className="text-sm">Chain</span>
-            <HiChevronDown />
-          </button>
+          <a href="https://linktr.ee/joinhelloapp" target="_blank">
+            <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm">
+              Contribute
+            </button>
+          </a>
 
           <div className="relative" ref={ref}>
             <button
@@ -78,7 +79,12 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               onClick={() => setOpen(!open)}
             >
               <EthIcon />
-              <span className="text-sm">| {formatName(name)}</span>
+              <span className="md:hidden txt-sm">
+                | {(name !== "") ? formatName(name, 6) : formatName(walletAddress)}
+              </span>
+              <span className="hidden md:inline txt-sm">
+                | {(name !== "") ? formatName(name, 12) : formatName(walletAddress)}
+              </span>
               <HiChevronDown />
             </button>
             {open && (
@@ -89,7 +95,9 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               >
                 <ul className="py-2">
                   <li>
-                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                    <a
+                      href="#"
+                      className="block px-4 py-2 hover:bg-gray-100 text-gray-500 pointer-events-none">
                       <HiOutlineUser className="inline-flex mr-3" />
                       Profile
                     </a>
@@ -101,9 +109,20 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                    <a
+                      href="#"
+                      className="block px-4 py-2 hover:bg-gray-100 text-gray-500 pinter-events-none">
                       <HiOutlineCalculator className="inline-flex mr-3" />
                       Settings
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/referrals"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      <HiUsers className="inline-flex mr-3" />
+                      Referrals
                     </a>
                   </li>
                 </ul>

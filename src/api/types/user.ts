@@ -16,10 +16,12 @@ export interface LoadUserResponse {
 
 export interface UserDetailResponse {
   storage_used: number;
+  referral_storage: number;
 }
 
 export enum AccountType {
   Github = "github",
   Google = "google",
   Provider = "provider",
+  Mail = "mail",
 }

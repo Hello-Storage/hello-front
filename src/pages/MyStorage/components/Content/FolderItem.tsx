@@ -1,5 +1,5 @@
 import { Api } from "api";
-import { EncryptionStatus, File, Folder } from "api/types";
+import { EncryptionStatus, Folder } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useAuth, useDropdown, useFetchData } from "hooks";
@@ -24,6 +24,7 @@ import getPersonalSignature from "api/getPersonalSignature";
 import { useAppSelector } from "state";
 import getAccountType from "api/getAccountType";
 import { logoutUser } from "state/user/actions";
+import { truncate } from "utils/format";
 
 dayjs.extend(relativeTime);
 
@@ -53,7 +54,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
   const { autoEncryptionEnabled } = useAppSelector(
     (state) => state.userdetail
   );
-  const {logout} = useAuth();
+  const { logout } = useAuth();
   const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
@@ -85,7 +86,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
         // Iterate through the files and add them to the ZIP
         for (const file of res.data.files) {
           const fileData = atob(file.data);
-          if (file.status === EncryptionStatus.Encrypted) {
+          if (file.encryption_status === EncryptionStatus.Encrypted) {
             const decryptionResult = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
             if (!decryptionResult) {
               logoutUser();
@@ -134,7 +135,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
               const decryptedComponentStr = new TextDecoder().decode(
                 decryptedComponentBuffer
               );
-              console.log("Decrypted component:", decryptedComponentStr);
               decryptedPathComponents.push(decryptedComponentStr);
             }
             decryptedPathComponents.push(decryptedFilename);
@@ -187,8 +187,8 @@ const FolderItem: React.FC<FolderItemProps> = ({
   const handleDrop = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
     setDragEnterCount((prev) => prev - 1);
-    let dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
-    let dropInfo = {
+    const dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
+    const dropInfo = {
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
     };
@@ -306,11 +306,10 @@ const FolderItem: React.FC<FolderItemProps> = ({
         onDragLeave={handleDragLeave}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        className={` hover:bg-gray-100 ${
-          dragEnterCount > 0 || selectedItem
+        className={` hover:bg-gray-100 ${dragEnterCount > 0 || selectedItem
             ? "bg-blue-100 border border-blue-500"
             : "border-0"
-        } ${isDragging ? "active:bg-blue-100 active:text-white" : ""}`}
+          } ${isDragging ? "active:bg-blue-100 active:text-white" : ""}`}
         onDoubleClick={() => onFolderDoubleClick(folder.uid)}
         onClick={handleOnClick}
       >
@@ -321,7 +320,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
         >
           <div className="flex items-center gap-3 select-none">
             <FaFolder size={32} color="#737373" />
-            {folder.title}
+            {truncate(folder.title, 24)}
           </div>
         </th>
         <td className="p-1">
@@ -336,7 +335,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
         <td className="p-1">-</td>
         <td className="p-1">
           <div className="flex items-center select-none">
-            {folder.status === "public" ? (
+            {folder.encryption_status === "public" ? (
               <>
                 <HiOutlineLockOpen />
                 <>Public</>
@@ -344,7 +343,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
             ) : (
               <HiLockClosed />
             )}{" "}
-            {folder.status === "encrypted" && <>Encrypted</>}
+            {folder.encryption_status === "encrypted" && <>Encrypted</>}
           </div>
         </td>
         <td className="p-1 select-none">
@@ -396,7 +395,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
   else
     return (
       <div className="bg-white p-3 rounded-md mb-3 border border-gray-200 shadow-md relative">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <div className="">
             <FaFolder
               className="inline-block mr-3 align-middle"
@@ -405,7 +404,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
             />
 
             <label className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
-              {folder.title}
+              {truncate(folder.title, 24)}
             </label>
           </div>
           <button

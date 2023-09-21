@@ -8,7 +8,7 @@ interface Base {
   created_at: string;
   deleted_at: string | null;
   updated_at: string;
-  status: EncryptionStatus;
+  encryption_status: EncryptionStatus;
 }
 
 export interface File extends Base {

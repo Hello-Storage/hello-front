@@ -29,7 +29,7 @@ const useFetchData = () => {
   const handleEncryptedFiles = async (files: File[]) => {
     // Using map to create an array of promises
     const decrytpedFilesPromises = files.map(async (file) => {
-      if (file.status === EncryptionStatus.Encrypted) {
+      if (file.encryption_status === EncryptionStatus.Encrypted) {
         try {
           const decryptionResult = await decryptMetadata(
             file.name,
@@ -67,7 +67,7 @@ const useFetchData = () => {
   const handleEncryptedFolders = async (folders: Folder[]) => {
     // Using map to create an array of promises
     const decrytpedFoldersPromises = folders.map(async (folder) => {
-      if (folder.status === EncryptionStatus.Encrypted) {
+      if (folder.encryption_status === EncryptionStatus.Encrypted) {
         // encrypt file metadata and blob
         const folderTitleBuffer = hexToBuffer(folder.title);
         const decryptedTitleBuffer = await decryptContent(
@@ -90,7 +90,9 @@ const useFetchData = () => {
     return decryptedFolders;
   };
 
-  const fetchRootContent = useCallback(() => {
+  const fetchRootContent = useCallback((setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
+    if (setLoading)
+      setLoading(true);
     let root = "/folder";
 
     if (location.pathname.includes("/folder")) {
@@ -118,7 +120,7 @@ const useFetchData = () => {
         const decryptedFolders = await handleEncryptedFolders(
           res.data.folders
         ).catch((err) => {
-          console.log(err);
+          console.log("Failed decrypting folders: " + err);
         });
         const decryptedPath = await handleEncryptedFolders(res.data.path).catch(
           (err) => {
@@ -151,6 +153,10 @@ const useFetchData = () => {
       })
       .catch((err) => {
         console.log(err);
+      })
+      .finally(() => {
+        if (setLoading)
+          setLoading(false);
       });
   }, [location.pathname]);
 

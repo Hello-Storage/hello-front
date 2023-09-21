@@ -1,11 +1,10 @@
 import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import { HiPlus } from "react-icons/hi";
-import FileUpload from "assets/images/Outline/File-upload.png";
-import FolderPlus from "assets/images/Outline/Folder-plus.png";
-import Folder from "assets/images/Outline/Folder.png";
+import { RiFolderUploadLine, RiFolderAddLine } from "react-icons/ri";
+import { GoPeople } from "react-icons/go";
 import FolderLock from "assets/images/Outline/Folder-lock.png";
 import Layout from "assets/images/Outline/Layout.png";
 import Send from "assets/images/Outline/Send.png";
@@ -24,6 +23,7 @@ import {
 } from "state/userdetail/actions";
 
 import LogoHello from "@images/beta.png";
+import HotReferral from "@images/hotreferral.png";
 import "react-toggle/style.css";
 import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
@@ -39,6 +39,8 @@ import {
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { AxiosProgressEvent } from "axios";
 import getAccountType from "api/getAccountType";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 const links1 = [
   {
@@ -54,20 +56,21 @@ const links1 = [
     available: true,
   },
   {
-    to: "/shared-with-me",
-    icon: <img src={Send} alt="custom icon" className="w-6 h-6" />,
-    content: "Shared with me",
-    available: false,
-  },
-  {
-    to: "/recent",
-    icon: <img src={Box} alt="custom icon" className="w-6 h-6" />,
-    content: "Recent",
-    available: false,
+    to: "/referrals",
+    icon: <GoPeople className="w-5 h-5" />,
+    content: "Referrals",
+    available: true,
+    img: <img src={HotReferral} alt="beta" className="w-12 h-5" />,
   },
 ];
 
 const links2 = [
+  {
+    to: "/shared-with-me",
+    icon: <img src={Send} alt="custom icon" className="w-6 h-6" />,
+    content: "Shared",
+    available: false,
+  },
   {
     to: "/api",
     outRef: false,
@@ -106,6 +109,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const { fetchRootContent, fetchUserDetail } = useFetchData();
   const { name } = useAppSelector((state) => state.user);
   const accountType = getAccountType();
+  const navigate = useNavigate();
 
   const { logout } = useAuth();
 
@@ -157,7 +161,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     cidOfEncryptedBufferStr: string;
     cidOriginalEncryptedBase64Url: string;
     encryptedWebkitRelativePath: string;
-    encryptionTimeParsed: string;
+    encryptionTime: number;
   } | null> => {
     const fileArrayBuffer = await file.arrayBuffer();
 
@@ -175,7 +179,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       cidOriginalStr,
       cidOfEncryptedBufferStr,
       encryptedFileBuffer,
-      encryptionTimeParsed,
+      encryptionTime,
     } = await encryptFileBuffer(fileArrayBuffer);
 
     const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
@@ -232,7 +236,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       cidOfEncryptedBufferStr,
       cidOriginalEncryptedBase64Url,
       encryptedWebkitRelativePath,
-      encryptionTimeParsed,
+      encryptionTime,
     };
   };
 
@@ -245,10 +249,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     })
       .then((data) => {
         toast.success("upload Succeed!");
+        console.log(data)
+        dispatch(setUploadStatusAction({ info: "Finished uploading data", uploading: false }));
         fetchRootContent();
         fetchUserDetail();
       })
       .catch((err) => {
+        console.log(err)
         toast.error("upload failed!");
       })
       .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
@@ -277,10 +284,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     const encryptedPathsMapping: { [path: string]: string } = {};
 
+
+
+
+
+    let encryptionTimeTotal = 0;
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
       if (encryptionEnabled) {
+
+        const infoText = `Encrypting file ${i + 1} of ${files.length}`;
+        dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
         const encryptedResult = await handleEncryption(
           file,
           personalSignature,
@@ -296,10 +311,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           cidOfEncryptedBufferStr,
           cidOriginalEncryptedBase64Url,
           encryptedWebkitRelativePath,
-          encryptionTimeParsed,
+          encryptionTime,
         } = encryptedResult;
 
-        toast.success(`${encryptionTimeParsed}`);
+        encryptionTimeTotal += encryptionTime;
+
 
         formData.append("encryptedFiles", encryptedFile);
         formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
@@ -318,11 +334,26 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         formData.append("files", file);
       }
     }
+
+    //parse encryption total of all files with encrypted option
+    if (encryptionTimeTotal > 0) {
+      let encryptionSuffix = "milliseconds"
+      if (encryptionTimeTotal >= 1000 && encryptionTimeTotal < 60000) {
+        encryptionTimeTotal /= 1000;
+        encryptionSuffix = "seconds"
+      } else if (encryptionTimeTotal >= 60000) {
+        encryptionTimeTotal /= 60000;
+        encryptionSuffix = "minutes"
+      }
+      const encryptionTimeParsed = "Encrypting the data took " + encryptionTimeTotal.toFixed(2).toString() + " " + encryptionSuffix;
+      toast.success(`${encryptionTimeParsed}`);
+    }
+
     const infoText = isFolder
       ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
       : files.length === 1
-      ? files[0].name
-      : `uploading ${files.length} files`;
+        ? files[0].name
+        : `uploading ${files.length} files`;
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
@@ -342,7 +373,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   };
 
   return (
-    <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-16 md:px-6 w-full">
+    <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <label className="text-2xl font-semibold font-[Outfit]">
@@ -351,7 +382,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
         </div>
 
-        <div className="flex items-center justify-between mt-5">
+        <div className="flex items-center justify-between mt-4">
           <label className="text-sm">
             Encryption {encryptionEnabled ? "ON" : "OFF"}
           </label>
@@ -384,106 +415,76 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           </div>
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-3" />
 
         <div className="relative" ref={dropRef}>
           <button
-            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
-            onClick={() => setOpen(!open)}
+            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
+            onClick={handleFileUpload}
           >
-            <HiPlus /> New
+            <HiPlus /> Upload files
           </button>
-          {open && (
-            <div
-              id="dropdown"
-              aria-label="dropdown-list"
-              className="absolute mt-1 z-10 w-full bg-white shadow divide-y border text-sm text-gray-700"
-            >
-              <div className="py-2">
-                <div
-                  className="block cursor-pointer px-4 py-2 hover:bg-gray-100"
-                  onClick={onPresent}
-                >
-                  <img
-                    src={FolderPlus}
-                    alt="custom icon"
-                    className="inline-flex mr-2 w-4 h-4"
-                  />
-                  New Folder
+          <div className="flex gap-4 items-center mt-4">
+            <Tippy content="Create Folder">
+              <button
+                className="flex items-center justify-center p-2 w-full rounded-xl text-xs bg-gradient-to-br from-green-500 to-blue-500 border text-white hover:from-green-600 hover:to-blue-600"
+                onClick={onPresent}
+              >
+                <div title="Upload folder">
+                  <RiFolderAddLine className="h-6 w-6" />
                 </div>
-              </div>
-              <ul className="py-2" aria-labelledby="dropdownDefaultButton">
-                <li>
-                  <div
-                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={handleFileUpload}
-                  >
-                    <img
-                      src={FileUpload}
-                      alt="custom icon"
-                      className="inline-flex mr-2 w-4 h-4"
-                    />
-                    File Upload
-                  </div>
-                </li>
-                <li>
-                  <div
-                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={handleFolderUpload}
-                  >
-                    <img
-                      src={Folder}
-                      alt="custom icon"
-                      className="inline-flex mr-2 w-4 h-4"
-                    />
-                    Folder Upload
-                  </div>
-                </li>
-              </ul>
-            </div>
-          )}
+              </button>
+            </Tippy>
+            <Tippy content="Upload Folder">
+              <button
+                className="flex items-center justify-center txt-gray-800 p-2 w-full rounded-xl text-xs bg-gradient-to-br from-green-500 to-blue-500 border text-white hover:from-green-600 hover:to-blue-600"
+                onClick={handleFolderUpload}
+              >
+                <RiFolderUploadLine className="h-6 w-6" />
+              </button>
+            </Tippy>
+          </div>
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-3" />
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {links1.map((v, i) => (
             <NavLink
-              to={v.available ? v.to : "/#"}
+              to={v.to}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl
-                ${v.available ? "" : "pointer-events-none"}`
+                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
               }
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${
-                  v.available ? "" : "text-gray-500"
-                }`}
+                className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
+                  }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${
-                      v.available ? "" : "text-gray-500"
-                    }`}
+                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
+                      }`}
                   >
                     {v.content}
                   </label>
                 </div>
-                {!v.available && (
+                {!v.available && !v.img ? (
                   <label className="text-sm bg-gray-200 px-2 rounded-full">
                     soon
                   </label>
+                ) : (
+                  <span>{v.img}</span>
                 )}
               </div>
             </NavLink>
           ))}
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-3" />
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {links2.map((v, i) => (
             <NavLink
               to={v.to}
@@ -495,16 +496,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center p-2 justify-between ${
-                  v.available ? "" : "text-gray-500"
-                }`}
+                className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
+                  }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${
-                      v.available ? "" : "text-gray-500"
-                    }`}
+                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
+                      }`}
                   >
                     {v.content}
                   </label>
@@ -530,12 +529,26 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         />
 
         <label className="text-xs text-neutral-800">
-          {formatPercent(storageUsed, storageAvailable)} used -{" "}
-          {formatBytes(storageAvailable)} available
+          {formatPercent(storageUsed, storageAvailable)} /{" "}
+          {formatBytes(storageAvailable)} used -&nbsp;
+          <a
+            href="/referrals"
+            onClick={(e) => {
+              e.preventDefault()
+              navigate("/referrals");
+            }}
+            className="text-orange-500 cursor-pointer hover:underline">
+            {formatBytes(storageAvailable, 2, false)} / 100 GB
+          </a>
         </label>
-        <div className="mt-4">
-          <button className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800">
-            Buy storage
+        <div className="mt-4 pb-1">
+          <button
+            className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
+            onClick={() => navigate("/referrals")}
+            disabled={storageAvailable >= Math.pow(1024, 3) * 100}
+          >
+            Get {formatBytes(100 * Math.pow(1024, 3) - storageAvailable)} Free
+            ✨
           </button>
         </div>
       </div>
@@ -557,7 +570,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           hidden
         />
       </div>
-      <div className="mt-4 md:hidden absolute top-2 right-20">
+      <div className="mt-4 md:hidden absolute top-2 right-24">
         <button
           className="p-1 border rounded-xl bg-white"
           onClick={() => setSidebarOpen(false)}

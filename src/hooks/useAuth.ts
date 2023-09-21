@@ -12,7 +12,7 @@ import setPersonalSignature from "api/setPersonalSignature";
 import setAccountType from "api/setAccountType";
 import { removeContent } from "state/mystorage/actions";
 import { signPersonalSignature } from "utils/encryption/cipherUtils";
-import { toast } from "react-toastify";
+import * as Web3 from "web3";
 
 const useAuth = () => {
   const load = useCallback(async () => {
@@ -58,8 +58,38 @@ const useAuth = () => {
     setAuthToken(loginResp.data.access_token);
     setAccountType("provider")
 
-    load();
+    await load();
   }, []);
+
+  // otp (one-time-passcode login)
+  const startOTP = async (email: string) => {
+    const referrer_code = new URLSearchParams(window.location.search).get("ref");
+    try {
+      const account = Web3.eth.accounts.create();
+      const wallet_address = account.address;
+      const private_key = account.privateKey;
+      await Api.post("/otp/start", { email, referrer_code, wallet_address, private_key });
+    } catch (error) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const verifyOTP = async (email: string, code: string) => {
+    try {
+      const result = await Api.post<LoginResponse>("/otp/verify", {
+        email,
+        code,
+      })
+      setAuthToken(result.data.access_token);
+      setAccountType("email")
+      await load()
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 
   const logout = useCallback(() => {
     state.dispatch(logoutUser());
@@ -75,6 +105,8 @@ const useAuth = () => {
 
   return {
     login,
+    startOTP,
+    verifyOTP,
     load,
     logout,
   };
