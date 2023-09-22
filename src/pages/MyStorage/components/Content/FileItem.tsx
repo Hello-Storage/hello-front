@@ -25,9 +25,8 @@ import {
 } from "utils/encryption/filesCipher";
 import React from "react";
 import { useAppDispatch } from "state";
-import { setImageViewAction } from "state/mystorage/actions";
+import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
 import { truncate } from "utils/format";
-
 
 dayjs.extend(relativeTime);
 
@@ -98,11 +97,28 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
           return;
         }
         const url = window.URL.createObjectURL(blob);
-        const img = {
-          src: url,
-          alt: file.name,
-        };
-        dispatch(setImageViewAction({ img, show: true }));
+
+        let mediaItem: PreviewImage;
+        if (file.mime_type.startsWith("video/")) {
+          mediaItem = {
+            type: "htmlVideo",
+            videoSrc: url,
+            alt: file.name,
+          };
+        } else if (
+          file.mime_type === "application/pdf" ||
+          file.mime_type === "text/plain"
+        ) {
+          window.open(url, "_blank"); // PDF or TXT in a new tab
+          return;
+        } else {
+          mediaItem = {
+            src: url,
+            alt: file.name,
+          };
+        }
+
+        dispatch(setImageViewAction({ img: mediaItem, show: true }));
       })
       .catch((err) => {
         console.error("Error downloading file:", err);
@@ -196,10 +212,11 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDrag={handleDrag}
-        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${isDragging || selectedItem
-          ? "bg-blue-200 border border-blue-500"
-          : "border-0"
-          }`}
+        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${
+          isDragging || selectedItem
+            ? "bg-blue-200 border border-blue-500"
+            : "border-0"
+        }`}
         // onClick={handleClick}
         onDoubleClick={handleView}
         onClick={handleOnClick}
@@ -223,7 +240,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             <HiDocumentDuplicate />
           </div>
         </td>
-        <td className="py-1 pr-8 whitespace-nowrap">{formatBytes(file.size)}</td>
+        <td className="py-1 pr-8 whitespace-nowrap">
+          {formatBytes(file.size)}
+        </td>
         <td className="py-1 pr-8">
           <div className="flex items-center">
             {file.encryption_status === "public" ? (
@@ -239,7 +258,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             )}
           </div>
         </td>
-        <td className="py-1 pr-8 whitespace-nowrap">{dayjs(file.updated_at).fromNow()}</td>
+        <td className="py-1 pr-8 whitespace-nowrap">
+          {dayjs(file.updated_at).fromNow()}
+        </td>
         <td className="py-1 pr-8 text-right">
           <button
             className="rounded-full hover:bg-gray-300 p-3"

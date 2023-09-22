@@ -10,7 +10,7 @@ import GithubLoginButton from "./components/GithubLoginButton";
 import { useAuth } from "hooks";
 import React, { useState } from "react";
 import { useModal } from "components/Modal";
-import LogoHello from "assets/images/beta.png"
+import LogoHello from "assets/images/beta.png";
 
 export default function Login() {
   const { authenticated, loading } = useAppSelector((state) => state.user);
@@ -18,20 +18,19 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [onPresent] = useModal(<OTPModal email={email} />);
 
-
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setEmail(e.target.value);
-  }
+  };
 
   const onSubmit = async (e: any) => {
     e.preventDefault();
 
     const result = await startOTP(email);
-    console.log(result)
+    console.log(result);
 
     if (result) onPresent();
-  }
+  };
 
   if (loading) return <Spinner3 />;
   if (authenticated) {
@@ -42,7 +41,9 @@ export default function Login() {
     <div className="p-8 md:h-screen">
       <div className="md:absolute flex items-center gap-2">
         <div className="flex items-center gap-3">
-          <label className="text-2xl font-semibold font-[Outfit]">Hello.storage</label>
+          <label className="text-2xl font-semibold font-[Outfit]">
+            Hello.storage
+          </label>
           <img src={LogoHello} alt="logo" className="w-12 h-6" />
         </div>
       </div>
@@ -97,11 +98,6 @@ export default function Login() {
                 </div>
               </div>
             </form>
-
-            {/* connect with github */}
-            <div className="mt-6">
-              <GithubLoginButton />
-            </div>
           </div>
         </div>
 

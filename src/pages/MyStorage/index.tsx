@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { HiChevronLeft, HiChevronRight, HiOutlineViewGrid, HiOutlineViewList } from "react-icons/hi";
+import {
+  HiChevronLeft,
+  HiChevronRight,
+  HiOutlineViewGrid,
+  HiOutlineViewList,
+} from "react-icons/hi";
 import { SlideshowLightbox } from "lightbox.js-react";
 import Content from "./components/Content";
 import Breadcrumb from "./components/Breadcrumb";
@@ -56,7 +61,10 @@ export default function Home() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems - 1);
 
-  const currentFolders = folders.slice(startIndex, Math.min(endIndex + 1, folders.length));
+  const currentFolders = folders.slice(
+    startIndex,
+    Math.min(endIndex + 1, folders.length)
+  );
   const folderItemsCount = currentFolders.length;
   const filesStartIndex = Math.max(0, startIndex - folders.length);
   const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount;
@@ -79,7 +87,6 @@ export default function Home() {
   );
 
   const [view, setView] = useState<"list" | "grid">("list");
-
 
   const [loading, setLoading] = useState(false);
 
@@ -197,7 +204,12 @@ export default function Home() {
       </div>
 
       <div className="flex flex-1 flex-col mt-3">
-          <Content loading={loading} files={filteredFiles} folders={filteredFolders} view={view} />
+        <Content
+          loading={loading}
+          files={filteredFiles}
+          folders={filteredFolders}
+          view={view}
+        />
       </div>
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
@@ -207,10 +219,11 @@ export default function Home() {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-              ? "cursor-not-allowed opacity-50"
-              : "hover:bg-gray-200"
-              }`}
+            className={`p-2 rounded flex items-center gap-2 ${
+              currentPage === 1
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
+            }`}
             onClick={() =>
               setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
             }
@@ -220,10 +233,11 @@ export default function Home() {
             <span className="md:inline hidden">Prev</span>
           </button>
           <button
-            className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
-              ? "cursor-not-allowed opacity-50"
-              : "hover:bg-gray-200"
-              }`}
+            className={`p-2 rounded flex items-center gap-2 ${
+              totalPages === 0 || currentPage === totalPages
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
+            }`}
             onClick={() =>
               setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
             }
