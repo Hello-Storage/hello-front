@@ -65,7 +65,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             />
           </div>
         </form>
-        <div className="flex items-center md:gap-8 w-full justify-between md:w-fit gap-1">
+        <div className="flex items-center md:gap-4 w-full justify-between md:w-fit gap-1">
           <a href="https://linktr.ee/joinhelloapp" target="_blank">
             <button className="flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm">
               Contribute
@@ -80,10 +80,12 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             >
               <EthIcon />
               <span className="md:hidden txt-sm">
-                | {(name !== "") ? formatName(name, 6) : formatName(walletAddress)}
+                |{" "}
+                {name !== "" ? formatName(name, 6) : formatName(walletAddress)}
               </span>
               <span className="hidden md:inline txt-sm">
-                | {(name !== "") ? formatName(name, 12) : formatName(walletAddress)}
+                |{" "}
+                {name !== "" ? formatName(name, 12) : formatName(walletAddress)}
               </span>
               <HiChevronDown />
             </button>
@@ -97,7 +99,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                   <li>
                     <a
                       href="#"
-                      className="block px-4 py-2 hover:bg-gray-100 text-gray-500 pointer-events-none">
+                      className="block px-4 py-2 hover:bg-gray-100 text-gray-500 pointer-events-none"
+                    >
                       <HiOutlineUser className="inline-flex mr-3" />
                       Profile
                     </a>
@@ -111,7 +114,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                   <li>
                     <a
                       href="#"
-                      className="block px-4 py-2 hover:bg-gray-100 text-gray-500 pinter-events-none">
+                      className="block px-4 py-2 hover:bg-gray-100 text-gray-500 pinter-events-none"
+                    >
                       <HiOutlineCalculator className="inline-flex mr-3" />
                       Settings
                     </a>

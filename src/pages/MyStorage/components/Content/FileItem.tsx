@@ -319,7 +319,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
   else
     return (
       <div
-        className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md hover:cursor-pointer"
+        className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md hover:cursor-pointer hover:bg-gray-100"
         onClick={handleView}
       >
         <div>

@@ -113,7 +113,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   const { logout } = useAuth();
 
-
   const dropRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(dropRef, open, setOpen);
@@ -249,13 +248,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     })
       .then((data) => {
         toast.success("upload Succeed!");
-        console.log(data)
-        dispatch(setUploadStatusAction({ info: "Finished uploading data", uploading: false }));
+        console.log(data);
+        dispatch(
+          setUploadStatusAction({
+            info: "Finished uploading data",
+            uploading: false,
+          })
+        );
         fetchRootContent();
         fetchUserDetail();
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
         toast.error("upload failed!");
       })
       .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
@@ -274,7 +278,12 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     let personalSignature;
     if (encryptionEnabled) {
-      personalSignature = await getPersonalSignature(name, autoEncryptionEnabled, accountType, logout);
+      personalSignature = await getPersonalSignature(
+        name,
+        autoEncryptionEnabled,
+        accountType,
+        logout
+      );
       if (!personalSignature) {
         toast.error("Failed to get personal signature");
         logout();
@@ -284,16 +293,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     const encryptedPathsMapping: { [path: string]: string } = {};
 
-
-
-
-
     let encryptionTimeTotal = 0;
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
       if (encryptionEnabled) {
-
         const infoText = `Encrypting file ${i + 1} of ${files.length}`;
         dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
         const encryptedResult = await handleEncryption(
@@ -316,7 +320,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         encryptionTimeTotal += encryptionTime;
 
-
         formData.append("encryptedFiles", encryptedFile);
         formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
         formData.append(
@@ -337,23 +340,27 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     //parse encryption total of all files with encrypted option
     if (encryptionTimeTotal > 0) {
-      let encryptionSuffix = "milliseconds"
+      let encryptionSuffix = "milliseconds";
       if (encryptionTimeTotal >= 1000 && encryptionTimeTotal < 60000) {
         encryptionTimeTotal /= 1000;
-        encryptionSuffix = "seconds"
+        encryptionSuffix = "seconds";
       } else if (encryptionTimeTotal >= 60000) {
         encryptionTimeTotal /= 60000;
-        encryptionSuffix = "minutes"
+        encryptionSuffix = "minutes";
       }
-      const encryptionTimeParsed = "Encrypting the data took " + encryptionTimeTotal.toFixed(2).toString() + " " + encryptionSuffix;
+      const encryptionTimeParsed =
+        "Encrypting the data took " +
+        encryptionTimeTotal.toFixed(2).toString() +
+        " " +
+        encryptionSuffix;
       toast.success(`${encryptionTimeParsed}`);
     }
 
     const infoText = isFolder
       ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
       : files.length === 1
-        ? files[0].name
-        : `uploading ${files.length} files`;
+      ? files[0].name
+      : `uploading ${files.length} files`;
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
@@ -399,17 +406,30 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex items-center justify-between mt-3">
           <label
             htmlFor="auto-signature"
-            className={`text-sm ${encryptionEnabled && accountType === AccountType.Provider ? "" : "text-gray-400"}`}
+            className={`text-sm ${
+              encryptionEnabled && accountType === AccountType.Provider
+                ? ""
+                : "text-gray-400"
+            }`}
           >
             Automatic
           </label>
           <div className="flex items-center align-middle">
             <Toggle
               id="auto-signature"
-              checked={autoEncryptionEnabled || !(accountType === AccountType.Provider)}
-              onChange={() => accountType === AccountType.Provider && dispatch(toggleAutoEncryption(!autoEncryptionEnabled))}
-              disabled={!(accountType === AccountType.Provider) || !encryptionEnabled}
-              className={autoEncryptionEnabled ? "automatic-on" : "automatic-off"}
+              checked={
+                autoEncryptionEnabled || !(accountType === AccountType.Provider)
+              }
+              onChange={() =>
+                accountType === AccountType.Provider &&
+                dispatch(toggleAutoEncryption(!autoEncryptionEnabled))
+              }
+              disabled={
+                !(accountType === AccountType.Provider) || !encryptionEnabled
+              }
+              className={
+                autoEncryptionEnabled ? "automatic-on" : "automatic-off"
+              }
               icons={false}
             />
           </div>
@@ -427,7 +447,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <div className="flex gap-4 items-center mt-4">
             <Tippy content="Create Folder">
               <button
-                className="flex items-center justify-center p-2 w-full rounded-xl text-xs bg-gradient-to-br from-green-500 to-blue-500 border text-white hover:from-green-600 hover:to-blue-600"
+                className="flex items-center justify-center p-2 w-full rounded-xl text-xs border border-gray-300 bg-gray-200 hover:bg-gray-300 text-gray-800"
                 onClick={onPresent}
               >
                 <div title="Upload folder">
@@ -437,7 +457,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             </Tippy>
             <Tippy content="Upload Folder">
               <button
-                className="flex items-center justify-center txt-gray-800 p-2 w-full rounded-xl text-xs bg-gradient-to-br from-green-500 to-blue-500 border text-white hover:from-green-600 hover:to-blue-600"
+                className="flex items-center justify-center txt-gray-800 p-2 w-full rounded-xl text-xs border border-gray-300 bg-gray-200 hover:bg-gray-300 text-gray-800"
                 onClick={handleFolderUpload}
               >
                 <RiFolderUploadLine className="h-6 w-6" />
@@ -453,19 +473,21 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             <NavLink
               to={v.to}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl`
+                `${isActive ? "bg-gray-200" : ""} hover:bg-gray-200 rounded-xl`
               }
               key={i}
             >
               <div
-                className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center px-2 py-1.5 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -490,20 +512,22 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               to={v.to}
               target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-300" : ""} hover:bg-gray-200 rounded-xl
+                `${isActive ? "bg-gray-200" : ""} hover:bg-gray-200 rounded-xl
                 ${v.available ? "" : "pointer-events-none"}`
               }
               key={i}
             >
               <div
-                className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
-                  }`}
+                className={`flex items-center px-2 py-1.5 justify-between ${
+                  v.available ? "" : "text-gray-500"
+                }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
-                      }`}
+                    className={`text-sm cursor-pointer ${
+                      v.available ? "" : "text-gray-500"
+                    }`}
                   >
                     {v.content}
                   </label>
@@ -534,10 +558,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <a
             href="/referrals"
             onClick={(e) => {
-              e.preventDefault()
+              e.preventDefault();
               navigate("/referrals");
             }}
-            className="text-orange-500 cursor-pointer hover:underline">
+            className="text-orange-500 cursor-pointer hover:underline"
+          >
             {formatBytes(storageAvailable, 2, false)} / 100 GB
           </a>
         </label>
