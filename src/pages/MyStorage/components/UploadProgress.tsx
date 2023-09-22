@@ -6,14 +6,14 @@ import { formatPercent } from "utils";
 export default function UploadProgress() {
   const { info, read, size } = useAppSelector((state) => state.uploadstatus);
   return (
-    <div className="absolute bg-white w-80 left-1/2 bottom-5 border shadow-md">
+    <div className="absolute bg-white w-96 left-1/2 bottom-5 border border-gray-200 shadow-md rounded-lg">
       <div>
         <div className="p-3">
           <div className="flex items-center justify-between">
-            <div className="">
-              <FaFile className="inline-block mr-3" />
-              <label className="w-52 text-ellipsis whitespace-nowrap overflow-hidden">
-                {info}
+            <div className="flex items-center">
+              <FaFile className="inline-block mr-2 text-gray-700" />
+              <label className="w-52 text-ellipsis whitespace-nowrap overflow-hidden text-gray-800">
+                {info.length > 24 ? info.substring(0, 24) + "..." : info}
               </label>
             </div>
             <div className="">{formatPercent(read, size, 1)}</div>
