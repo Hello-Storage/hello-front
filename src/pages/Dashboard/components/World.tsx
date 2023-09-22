@@ -4,7 +4,7 @@ import GlobeImg from "@images/globe.jpg";
 import globeData from "./data.json";
 import populationData from "./population.json";
 
-export default function World({ size }: { size: number | undefined }) {
+export default function World({ size = 0 }: { size: number | undefined }) {
   const globeRef = useRef();
 
   useEffect(() => {
@@ -31,8 +31,8 @@ export default function World({ size }: { size: number | undefined }) {
   return (
     <Globe
       ref={globeRef}
-      width={size}
-      height={size}
+      width={(size || 0) * 1.25}
+      height={(size || 0) * 1.25}
       backgroundColor="white"
       globeImageUrl={GlobeImg}
       atmosphereColor="#27272a"

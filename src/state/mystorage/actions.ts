@@ -2,8 +2,10 @@ import { createAction } from "@reduxjs/toolkit";
 import { Folder, RootResponse } from "api";
 
 export interface PreviewImage {
-  src: string;
+  src?: string;
   alt: string;
+  type?: "htmlVideo";
+  videoSrc?: string;
 }
 
 export const fetchContentAction = createAction<RootResponse>(
