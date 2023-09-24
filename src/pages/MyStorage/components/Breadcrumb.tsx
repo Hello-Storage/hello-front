@@ -12,44 +12,114 @@ export default function Breadcrumb() {
   const onClick = (url: string) => {
     navigate(url);
   };
+  type itemInfo = {
+    type: string;
+    id: string;
+    uid: string;
+  };
 
   const handleDrop = (event: React.DragEvent<HTMLLIElement>) => {
+    // Llamar a index de content para tener selected items y a partir de ahi hacer el update
     event.preventDefault();
-    const dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
+    const dragInfoReceived = JSON.parse(
+      event.dataTransfer.getData("text/plain")
+    );
     const dropInfo = {
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
     };
-    console.log("DragReceived: " + JSON.stringify(dragInfoReceived));
-    console.log("Drop: " + JSON.stringify(dropInfo));
-    if (dropInfo.id != dragInfoReceived.id) {
+    // check if array or single item
+    // Check if selectedItems is empty
+
+    if (dragInfoReceived.length === undefined) {
+      if (dropInfo.id == dragInfoReceived.id) {
+        //
+        // Comprobar tambien en selectedItems
+        // console.log("Same folder");
+        return;
+      }
+      // If empty, handle drop as normal
       const payload = {
         Id: dragInfoReceived.id,
         Uid: dragInfoReceived.uid,
-        Root: dropInfo.uid
+        Root: dropInfo.uid,
       };
+      handleDropSingle(event, payload, dragInfoReceived.type);
+    } else {
+      // If not empty, handle drop as batch
 
-      console.log("Sending payload:", payload);
-      const type=dragInfoReceived.type;
-      Api.put(`/${type}/update/root`, payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((res) => {
-          console.log("Folder root updated:", res.data);
-          fetchRootContent();
-        })
-        .catch((err) => {
-          console.log("Error updating folder root:", err);
-        });
+      // Check if the drop target is one of the selected items
+      if (dragInfoReceived.some((item: itemInfo) => item.id === dropInfo.id)) {
+        // console.log("Drop target is one of the selected items");
+        return;
+      }
+      dragInfoReceived.forEach((item: itemInfo) => {
+        const payload = {
+          Id: item.id,
+          Uid: item.uid,
+          Root: dropInfo.uid,
+        };
+        handleDropSingle(event, payload, item.type);
+      });
     }
+
+    // console.log("DragReceived: " + JSON.stringify(dragInfoReceived));
+    // console.log("Drop: " + JSON.stringify(dropInfo));
+    // if (dropInfo.id != dragInfoReceived.id) {
+    //   const payload = {
+    //     Id: dragInfoReceived.id,
+    //     Uid: dragInfoReceived.uid,
+    //     Root: dropInfo.uid
+    //   };
+
+    //   console.log("Sending payload:", payload);
+    //   const type=dragInfoReceived.type;
+    //   Api.put(`/${type}/update/root`, payload, {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   })
+    //     .then((res) => {
+    //       console.log("Folder root updated:", res.data);
+    //       fetchRootContent();
+    //     })
+    //     .catch((err) => {
+    //       console.log("Error updating folder root:", err);
+    //     });
+    // }
+  };
+
+  const handleDropSingle = (
+    event: React.DragEvent<HTMLLIElement>,
+    payload: any,
+    itemType: string
+  ) => {
+    // console.log("DragReceived: " + JSON.stringify(dragInfoReceived));
+    // console.log("Drop: " + JSON.stringify(dropInfo));
+
+    console.log("Sending payload:", payload);
+    Api.put(`/${itemType}/update/root`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        console.log("Folder root updated:", res.data);
+        fetchRootContent();
+      })
+      .catch((err) => {
+        console.log("Error updating folder root:", err);
+      });
   };
 
   return (
     <nav className="flex" aria-label="Breadcrumb">
       <ol className="inline-flex items-center space-x-1 md:space-x-3 text-xl font-medium">
-        <li className="inline-flex items-center"  onDrop={handleDrop} aria-label={"/"}>
+        <li
+          className="inline-flex items-center"
+          onDrop={handleDrop}
+          aria-label={"/"}
+        >
           <a
             onClick={() => onClick("/my-storage")}
             className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer"
@@ -79,6 +149,3 @@ export default function Breadcrumb() {
     </nav>
   );
 }
-
-
-

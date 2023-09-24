@@ -19,7 +19,12 @@ import { useNavigate } from "react-router-dom";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { formatUID } from "utils";
-import { decryptContent, decryptFileBuffer, decryptMetadata, hexToBuffer } from "utils/encryption/filesCipher";
+import {
+  decryptContent,
+  decryptFileBuffer,
+  decryptMetadata,
+  hexToBuffer,
+} from "utils/encryption/filesCipher";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAppSelector } from "state";
 import getAccountType from "api/getAccountType";
@@ -33,27 +38,14 @@ import React from "react";
 interface FolderItemProps {
   folder: Folder;
   view: "list" | "grid";
-  onButtonClick: (data: string) => void;
 }
 
-const FolderItem: React.FC<FolderItemProps> = ({
-  folder,
-  view,
-  onButtonClick,
-}) => {
+const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const { fetchRootContent } = useFetchData();
-  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const { name } = useAppSelector((state) => state.user);
-  const cloneRef = useRef<HTMLDivElement | null>(null);
-  const initialCoords = useRef({ x: 0, y: 0 });
-  const [isDragging, setDragging] = useState(false);
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
-  const [dragEnterCount, setDragEnterCount] = useState(0);
-  const { autoEncryptionEnabled } = useAppSelector(
-    (state) => state.userdetail
-  );
+  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
   const { logout } = useAuth();
   const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
@@ -64,9 +56,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
     toast.success("copied CID");
   };
 
-  const onFolderDoubleClick = (folderUID: string) => {
-    navigate(`/folder/${folderUID}`);
-  };
   const handleDownload = async () => {
     const personalSignature = await getPersonalSignature(
       name,
@@ -87,7 +76,12 @@ const FolderItem: React.FC<FolderItemProps> = ({
         for (const file of res.data.files) {
           const fileData = atob(file.data);
           if (file.encryption_status === EncryptionStatus.Encrypted) {
-            const decryptionResult = await decryptMetadata(file.name, file.mime_type, file.cid_original_encrypted, personalSignature)
+            const decryptionResult = await decryptMetadata(
+              file.name,
+              file.mime_type,
+              file.cid_original_encrypted,
+              personalSignature
+            );
             if (!decryptionResult) {
               logoutUser();
               return;
@@ -184,139 +178,13 @@ const FolderItem: React.FC<FolderItemProps> = ({
     }
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLTableRowElement>) => {
-    event.preventDefault();
-    setDragEnterCount((prev) => prev - 1);
-    const dragInfoReceived = JSON.parse(event.dataTransfer.getData("text/plain"));
-    const dropInfo = {
-      id: event.currentTarget.id.toString(),
-      uid: event.currentTarget.ariaLabel?.toString(),
-    };
-    console.log("DragReceived: " + JSON.stringify(dragInfoReceived));
-    console.log("Drop: " + JSON.stringify(dropInfo));
-    if (dropInfo.id != dragInfoReceived.id) {
-      const payload = {
-        Id: dragInfoReceived.id,
-        Uid: dragInfoReceived.uid,
-        Root: dropInfo.uid,
-      };
-
-      console.log("Sending payload:", payload);
-      const type = dragInfoReceived.type;
-      Api.put(`/${type}/update/root`, payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((res) => {
-          console.log("Folder root updated:", res.data);
-          fetchRootContent();
-        })
-        .catch((err) => {
-          console.log("Error updating folder root:", err);
-        });
-    }
-  };
-
-  const handleDragOver = (event: React.DragEvent<HTMLTableRowElement>) => {
-    event.preventDefault();
-  };
-
-  const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
-    const dragInfo = JSON.stringify({
-      type: "folder",
-      id: event.currentTarget.id.toString(),
-      uid: event.currentTarget.ariaLabel?.toString(),
-    });
-    event.dataTransfer.setData("text/plain", dragInfo);
-    event.dataTransfer.setDragImage(new Image(), 0, 0);
-    console.log("Drag: " + dragInfo);
-    event.dataTransfer.setData("text/plain", dragInfo);
-
-    const thElement = event.currentTarget.getElementsByTagName("th")[0];
-    const clone = thElement.cloneNode(true) as HTMLDivElement;
-    const rect = thElement.getBoundingClientRect();
-
-    clone.style.position = "fixed";
-    clone.style.top = rect.top + "px";
-    clone.style.left = rect.left + "px";
-    clone.style.width = rect.width + "px";
-    clone.style.height = rect.height + "px";
-    clone.style.zIndex = "100";
-    clone.style.pointerEvents = "none";
-    clone.style.opacity = "1.0";
-    clone.style.backgroundColor = "AliceBlue";
-    clone.style.borderRadius = "10px";
-    clone.style.border = "2px solid LightSkyBlue";
-    clone.style.boxSizing = "border-box";
-
-    document.body.appendChild(clone);
-
-    cloneRef.current = clone;
-    initialCoords.current = { x: event.clientX, y: event.clientY };
-  };
-
-  const handleDrag = (event: React.DragEvent<HTMLTableRowElement>) => {
-    if (cloneRef.current) {
-      const dx = event.clientX - initialCoords.current.x;
-      const dy = event.clientY - initialCoords.current.y;
-
-      cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
-    }
-  };
-
-  const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
-    if (cloneRef.current) {
-      document.body.removeChild(cloneRef.current);
-      cloneRef.current = null;
-    }
-  };
-
-  const handleDragEnter = () => {
-    setDragEnterCount((prev) => prev + 1);
-  };
-
-  const handleDragLeave = () => {
-    setDragEnterCount((prev) => prev - 1);
-  };
-  const [selectedItem, setSelectedItem] = React.useState(false);
-  const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
-    if (event.ctrlKey) {
-      setSelectedItem(!selectedItem);
-      return onButtonClick(
-        JSON.stringify({
-          type: "folder",
-          id: event.currentTarget.id.toString(),
-          uid: event.currentTarget.ariaLabel?.toString(),
-        })
-      );
-    }
-  };
-
   if (view === "list")
     return (
-      <tr
-        id={folder.id.toString()}
-        aria-label={folder.uid}
-        draggable
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragStart={handleDragStart}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDrag={handleDrag}
-        onDragEnd={handleDragEnd}
-        className={` hover:bg-gray-100 ${dragEnterCount > 0 || selectedItem
-            ? "bg-blue-100 border border-blue-500"
-            : "border-0"
-          } ${isDragging ? "active:bg-blue-100 active:text-white" : ""}`}
-        onDoubleClick={() => onFolderDoubleClick(folder.uid)}
-        onClick={handleOnClick}
-      >
+      <>
         <th
           scope="row"
           className="px-3 py-1 font-medium text-gray-900 whitespace-nowrap"
-          onDragEnter={() => setIsDraggingOver(true)}
+          // onDragEnter={() => setIsDraggingOver(true)}
         >
           <div className="flex items-center gap-3 select-none">
             <FaFolder size={32} color="#737373" />
@@ -390,7 +258,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
             </div>
           </button>
         </td>
-      </tr>
+      </>
     );
   else
     return (

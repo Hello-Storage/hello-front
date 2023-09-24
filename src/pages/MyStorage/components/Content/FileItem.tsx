@@ -28,23 +28,18 @@ import { useAppDispatch } from "state";
 import { setImageViewAction } from "state/mystorage/actions";
 import { truncate } from "utils/format";
 
-
 dayjs.extend(relativeTime);
 
 interface FileItemProps {
   file: FileType;
   view: "list" | "grid";
-  onButtonClick: (data: string) => void;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const dispatch = useAppDispatch();
   const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [isDragging, setDragging] = useState(false);
-  const cloneRef = useRef<HTMLDivElement | null>(null);
-  const initialCoords = useRef({ x: 0, y: 0 });
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
   useDropdown(ref, open, setOpen);
 
@@ -122,89 +117,11 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
       });
   };
 
-  const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
-    const dragInfo = JSON.stringify({
-      id: event.currentTarget.id.toString(),
-      uid: event.currentTarget.ariaLabel?.toString(),
-      type: "file",
-    });
-    event.dataTransfer.setData("text/plain", dragInfo);
-    event.dataTransfer.setDragImage(new Image(), 0, 0);
-
-    const thElement = event.currentTarget.getElementsByTagName("th")[0];
-    const clone = thElement.cloneNode(true) as HTMLDivElement;
-    const rect = thElement.getBoundingClientRect();
-
-    clone.style.position = "fixed";
-    clone.style.top = rect.top + "px";
-    clone.style.left = rect.left + "px";
-    clone.style.width = rect.width + "px";
-    clone.style.height = rect.height + "px";
-    clone.style.zIndex = "100";
-    clone.style.pointerEvents = "none";
-    clone.style.opacity = "1.0";
-    clone.style.backgroundColor = "AliceBlue";
-    clone.style.borderRadius = "10px";
-    clone.style.border = "2px solid LightSkyBlue";
-    clone.style.boxSizing = "border-box";
-
-    document.body.appendChild(clone);
-
-    cloneRef.current = clone;
-    initialCoords.current = { x: event.clientX, y: event.clientY };
-    setDragging(true);
-  };
-
-  const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
-    event.preventDefault();
-    if (cloneRef.current) {
-      document.body.removeChild(cloneRef.current);
-      cloneRef.current = null;
-    }
-    event.dataTransfer.clearData();
-    setDragging(false);
-  };
-
-  const handleDrag = (event: React.DragEvent<HTMLTableRowElement>) => {
-    if (cloneRef.current) {
-      const dx = event.clientX - initialCoords.current.x;
-      const dy = event.clientY - initialCoords.current.y;
-
-      cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
-    }
-  };
-  const [selectedItem, setSelectedItem] = useState(false);
-  const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
-    if (event.ctrlKey) {
-      setSelectedItem(!selectedItem);
-      return onButtonClick(
-        JSON.stringify({
-          type: "file",
-          id: event.currentTarget.id.toString(),
-          uid: event.currentTarget.ariaLabel?.toString(),
-        })
-      );
-    }
-  };
-
   if (view === "list")
     return (
-      <tr
-        id={file.id.toString()}
-        aria-label={file.cid}
-        draggable
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDrag={handleDrag}
-        className={`bg-white cursor-pointer border-b hover:bg-gray-100 ${isDragging || selectedItem
-          ? "bg-blue-200 border border-blue-500"
-          : "border-0"
-          }`}
-        // onClick={handleClick}
-        onDoubleClick={handleView}
-        onClick={handleOnClick}
-      >
+      <>
         <th
+          onDoubleClick={handleView}
           scope="row"
           className="px-3 py-1 font-medium text-gray-900 whitespace-nowrap"
         >
@@ -223,7 +140,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             <HiDocumentDuplicate />
           </div>
         </td>
-        <td className="py-1 pr-8 whitespace-nowrap">{formatBytes(file.size)}</td>
+        <td className="py-1 pr-8 whitespace-nowrap">
+          {formatBytes(file.size)}
+        </td>
         <td className="py-1 pr-8">
           <div className="flex items-center">
             {file.encryption_status === "public" ? (
@@ -239,7 +158,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             )}
           </div>
         </td>
-        <td className="py-1 pr-8 whitespace-nowrap">{dayjs(file.updated_at).fromNow()}</td>
+        <td className="py-1 pr-8 whitespace-nowrap">
+          {dayjs(file.updated_at).fromNow()}
+        </td>
         <td className="py-1 pr-8 text-right">
           <button
             className="rounded-full hover:bg-gray-300 p-3"
@@ -293,7 +214,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, onButtonClick }) => {
             </div>
           </button>
         </td>
-      </tr>
+      </>
     );
   else
     return (
