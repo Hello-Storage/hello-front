@@ -8,12 +8,17 @@ import Dropzone from "./components/Dropzone";
 import { useAppDispatch, useAppSelector } from "state";
 import { useSearchContext } from "contexts/SearchContext";
 
-import { useDropdown, useFetchData } from "hooks";
+import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
 import { setImageViewAction } from "state/mystorage/actions";
+import { File as FileType, Folder } from "api";
 
 // import styles
 import "lightbox.js-react/dist/index.css";
+import getAccountType from "api/getAccountType";
+import { handleEncryptedFiles, handleEncryptedFolders } from "utils/encryption/filesCipher";
+import { toast } from "react-toastify";
+import { set } from "react-hook-form";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -21,6 +26,10 @@ export default function Home() {
     (state) => state.mystorage
   );
   const { uploading } = useAppSelector((state) => state.uploadstatus);
+  const { name } = useAppSelector((state) => state.user);
+  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
+  const { logout } = useAuth();
+  const accountType = getAccountType();
 
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -29,10 +38,12 @@ export default function Home() {
   const location = useLocation();
 
   const { fetchRootContent, fetchUserDetail } = useFetchData();
+  const personalSignatureRef = useRef<string | undefined>();
 
   //pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -53,14 +64,48 @@ export default function Home() {
   const totalItems = folders.length + files.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems - 1);
+  const [startIndex, setStartIndex] = useState(0);
+  const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
 
-  const currentFolders = folders.slice(startIndex, Math.min(endIndex + 1, folders.length));
-  const folderItemsCount = currentFolders.length;
-  const filesStartIndex = Math.max(0, startIndex - folders.length);
-  const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount;
-  const currentFiles = files.slice(filesStartIndex, filesEndIndex);
+
+  const [currentFiles, setCurrentFlies] = useState<FileType[]>([]);
+  const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
+
+  useEffect(() => {
+    async function fetchContent() {
+      setLoading(true)
+      const tempStartIndex = (currentPage - 1) * itemsPerPage;
+      const tempEndIndex = Math.min(tempStartIndex + itemsPerPage - 1, totalItems - 1);
+      setStartIndex(tempStartIndex);
+      setEndIndex(tempEndIndex);
+      const currentEncryptedFolders = folders.slice(tempStartIndex, Math.min(tempEndIndex + 1, folders.length));
+      const folderItemsCount = currentFolders.length;
+      const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
+      const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount;
+      const currentEncryptedFiles = files.slice(filesStartIndex, filesEndIndex);
+
+      const decryptedFiles = await handleEncryptedFiles(currentEncryptedFiles, personalSignatureRef, name, autoEncryptionEnabled, accountType, logout);
+      setCurrentFlies(decryptedFiles || []);
+
+      const decryptedFolders: Folder[] | undefined = await handleEncryptedFolders(currentEncryptedFolders, personalSignatureRef);
+      setCurrentFolders(decryptedFolders || []);
+
+      if (!currentFiles || !currentFolders) {
+        toast.error("Failed to decrypt content");
+        fetchRootContent(setLoading);
+      }
+
+      setLoading(false)
+    }
+    fetchContent()
+  }, [logout, name, files, currentPage, folders.length])
+
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchRootContent()
+
+  }, [location])
+
 
   const [filter, setFilter] = useState("all");
 
@@ -72,7 +117,7 @@ export default function Home() {
       folder.uid.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredFiles = currentFiles.filter(
+  const filteredFiles = currentFiles?.filter(
     (file) =>
       file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       file.cid.toLowerCase().includes(searchTerm.toLowerCase())
@@ -81,7 +126,6 @@ export default function Home() {
   const [view, setView] = useState<"list" | "grid">("list");
 
 
-  const [loading, setLoading] = useState(false);
 
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
@@ -91,10 +135,6 @@ export default function Home() {
     fetchUserDetail();
   }, []);
 
-  useEffect(() => {
-    fetchRootContent(setLoading);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location]);
 
   return (
     <div className="flex flex-col flex-1">
@@ -197,7 +237,7 @@ export default function Home() {
       </div>
 
       <div className="flex flex-1 flex-col mt-3">
-          <Content loading={loading} files={filteredFiles} folders={filteredFolders} view={view} />
+        <Content loading={loading} files={filteredFiles} folders={filteredFolders} view={view} />
       </div>
       {/*Add buttons here */}
       <div className="flex justify-between items-center mt-3">
