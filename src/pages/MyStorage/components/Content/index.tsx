@@ -10,7 +10,7 @@ import { string } from "prop-types";
 interface ContentProps {
   loading: boolean;
   folders: Folder[];
-  files: File[];
+  files?: File[];
   view: "list" | "grid";
 }
 

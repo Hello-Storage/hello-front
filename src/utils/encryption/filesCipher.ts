@@ -1,6 +1,9 @@
 import { CID } from "multiformats/cid"
 import { sha256 } from "multiformats/hashes/sha2"
 import { logoutUser } from "state/user/actions";
+import { EncryptionStatus, File as FileType, Folder } from "api";
+import getPersonalSignature from "api/getPersonalSignature";
+import { toast } from "react-toastify";
 
 const RAW_CODEC = 0x55
 
@@ -245,4 +248,79 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
         console.error(error)
         throw error
     }
+}
+
+export const handleEncryptedFiles = async (files: FileType[], personalSignatureRef: React.MutableRefObject<string | undefined>, name: string, autoEncryptionEnabled: boolean, accountType: string | undefined, logout: () => void) => {
+    personalSignatureRef.current = await getPersonalSignature(
+        name,
+        autoEncryptionEnabled,
+        accountType
+    ); //Promise<string | undefined>
+    if (!personalSignatureRef.current) {
+        toast.error("Failed to get personal signature");
+        logout();
+        return;
+    }
+    // Using map to create an array of promises
+    const decrytpedFilesPromises = files.map(async (file) => {
+        if (file.encryption_status === EncryptionStatus.Encrypted) {
+            try {
+                const decryptionResult = await decryptMetadata(
+                    file.name,
+                    file.mime_type,
+                    file.cid_original_encrypted,
+                    personalSignatureRef.current
+                );
+                if (decryptionResult) {
+                    const {
+                        decryptedFilename,
+                        decryptedFiletype,
+                        decryptedCidOriginal,
+                    } = decryptionResult;
+                    return {
+                        ...file,
+                        name: decryptedFilename,
+                        mime_type: decryptedFiletype,
+                        cid_original_encrypted: decryptedCidOriginal,
+                    };
+                }
+            } catch (error) {
+                console.log(error);
+                return file;
+            }
+        }
+        return file;
+    });
+
+
+    // Wait for all promises to resolve
+    const decryptedFiles = await Promise.all(decrytpedFilesPromises);
+
+    return decryptedFiles;
+};
+
+export const handleEncryptedFolders = async (folders: Folder[], personalSignatureRef: React.MutableRefObject<string | undefined>) => {
+    // Using map to create an array of promises
+    const decrytpedFoldersPromises = folders.map(async (folder) => {
+        if (folder.encryption_status === EncryptionStatus.Encrypted) {
+            // encrypt file metadata and blob
+            const folderTitleBuffer = hexToBuffer(folder.title);
+            const decryptedTitleBuffer = await decryptContent(
+                folderTitleBuffer,
+                personalSignatureRef.current
+            );
+            //transform buffer to Uint8Array
+            const decryptedTitle = new TextDecoder().decode(decryptedTitleBuffer);
+
+            return {
+                ...folder,
+                title: decryptedTitle,
+            };
+        }
+        return folder;
+    });
+
+    // Wait for all promises to resolve
+    const decryptedFolders = await Promise.all(decrytpedFoldersPromises);
+    return decryptedFolders;
 }

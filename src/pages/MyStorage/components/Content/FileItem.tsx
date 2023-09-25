@@ -51,6 +51,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
 
   // Function to handle file download
   const handleDownload = () => {
+    toast.info("Downloading " + file.name + "...");
     // Make a request to download the file with responseType 'blob'
     Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
       .then(async (res) => {
@@ -69,6 +70,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         a.href = url;
         a.download = file.name; // Set the file name
         a.click(); // Trigger the download
+        toast.success("Download complete!");
 
         // Clean up
         window.URL.revokeObjectURL(url);
