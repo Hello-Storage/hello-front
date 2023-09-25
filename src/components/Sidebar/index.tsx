@@ -359,8 +359,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const infoText = isFolder
       ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
       : files.length === 1
-      ? files[0].name
-      : `uploading ${files.length} files`;
+        ? files[0].name
+        : `uploading ${files.length} files`;
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
@@ -406,11 +406,10 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex items-center justify-between mt-3">
           <label
             htmlFor="auto-signature"
-            className={`text-sm ${
-              encryptionEnabled && accountType === AccountType.Provider
-                ? ""
-                : "text-gray-400"
-            }`}
+            className={`text-sm ${encryptionEnabled && accountType === AccountType.Provider
+              ? ""
+              : "text-gray-400"
+              }`}
           >
             Automatic
           </label>
@@ -447,7 +446,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <div className="flex gap-4 items-center mt-4">
             <Tippy content="Create Folder">
               <button
-                className="flex items-center justify-center p-2 w-full rounded-xl text-xs border border-gray-300 bg-gray-200 hover:bg-gray-300 text-gray-800"
+                className="flex items-center justify-center p-2 w-full rounded-xl text-xs bg-gradient-to-br from-green-500 to-blue-500 border text-white hover:from-green-600 hover:to-blue-600"
                 onClick={onPresent}
               >
                 <div title="Upload folder">
@@ -457,7 +456,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             </Tippy>
             <Tippy content="Upload Folder">
               <button
-                className="flex items-center justify-center txt-gray-800 p-2 w-full rounded-xl text-xs border border-gray-300 bg-gray-200 hover:bg-gray-300 text-gray-800"
+                className="flex items-center justify-center txt-gray-800 p-2 w-full rounded-xl text-xs bg-gradient-to-br from-green-500 to-blue-500 border text-white hover:from-green-600 hover:to-blue-600"
                 onClick={handleFolderUpload}
               >
                 <RiFolderUploadLine className="h-6 w-6" />
@@ -478,16 +477,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center px-2 py-1.5 justify-between ${
-                  v.available ? "" : "text-gray-500"
-                }`}
+                className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
+                  }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${
-                      v.available ? "" : "text-gray-500"
-                    }`}
+                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
+                      }`}
                   >
                     {v.content}
                   </label>
@@ -518,16 +515,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               key={i}
             >
               <div
-                className={`flex items-center px-2 py-1.5 justify-between ${
-                  v.available ? "" : "text-gray-500"
-                }`}
+                className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
+                  }`}
               >
                 <div className={`flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
-                    className={`text-sm cursor-pointer ${
-                      v.available ? "" : "text-gray-500"
-                    }`}
+                    className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
+                      }`}
                   >
                     {v.content}
                   </label>
