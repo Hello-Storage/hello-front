@@ -342,7 +342,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
                       <FolderItem folder={v} key={i} view="list" />
                     </tr>
                   ))}
-                  {files.map((v, i) => (
+                  {files?.map((v, i) => (
                     <tr
                       key={i}
                       id={v.id.toString()}
@@ -382,7 +382,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
 
         <h3 className="my-3">Files</h3>
         <div className="grid grid-200 gap-3">
-          {files.map((v, i) => (
+          {files?.map((v, i) => (
             <FileItem file={v} key={i} view="grid" />
           ))}
         </div>
