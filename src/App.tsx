@@ -43,7 +43,6 @@ function App() {
   return (
     <BrowserRouter>
         <Routes>
-          <Route path="/stats" element={<Statistics />} />
           <Route path="/" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
