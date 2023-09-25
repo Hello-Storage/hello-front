@@ -446,7 +446,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <div className="flex gap-4 items-center mt-4">
             <Tippy content="Create Folder">
               <button
-                className="flex items-center justify-center p-2 w-full rounded-xl text-xs bg-gradient-to-br from-green-500 to-blue-500 border text-white hover:from-green-600 hover:to-blue-600"
+                className="flex items-center justify-center p-2 w-full rounded-xl text-xs bg-gray-200 hover:bg-gray-300 text-gray-800"
                 onClick={onPresent}
               >
                 <div title="Upload folder">
@@ -456,7 +456,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             </Tippy>
             <Tippy content="Upload Folder">
               <button
-                className="flex items-center justify-center txt-gray-800 p-2 w-full rounded-xl text-xs bg-gradient-to-br from-green-500 to-blue-500 border text-white hover:from-green-600 hover:to-blue-600"
+                className="flex items-center justify-center txt-gray-800 p-2 w-full rounded-xl text-xs bg-gray-200 hover:bg-gray-300 text-gray-800"
                 onClick={handleFolderUpload}
               >
                 <RiFolderUploadLine className="h-6 w-6" />
