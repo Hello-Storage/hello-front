@@ -25,7 +25,7 @@ import {
 } from "utils/encryption/filesCipher";
 import React from "react";
 import { useAppDispatch } from "state";
-import { setImageViewAction } from "state/mystorage/actions";
+import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
 import { truncate } from "utils/format";
 
 dayjs.extend(relativeTime);
@@ -93,11 +93,28 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           return;
         }
         const url = window.URL.createObjectURL(blob);
-        const img = {
-          src: url,
-          alt: file.name,
-        };
-        dispatch(setImageViewAction({ img, show: true }));
+
+        let mediaItem: PreviewImage;
+        if (file.mime_type.startsWith("video/")) {
+          mediaItem = {
+            type: "htmlVideo",
+            videoSrc: url,
+            alt: file.name,
+          };
+        } else if (
+          file.mime_type === "application/pdf" ||
+          file.mime_type === "text/plain"
+        ) {
+          window.open(url, "_blank"); // PDF or TXT in a new tab
+          return;
+        } else {
+          mediaItem = {
+            src: url,
+            alt: file.name,
+          };
+        }
+
+        dispatch(setImageViewAction({ img: mediaItem, show: true }));
       })
       .catch((err) => {
         console.error("Error downloading file:", err);
@@ -219,7 +236,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   else
     return (
       <div
-        className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md hover:cursor-pointer"
+        className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md hover:cursor-pointer hover:bg-gray-100"
         onClick={handleView}
       >
         <div>

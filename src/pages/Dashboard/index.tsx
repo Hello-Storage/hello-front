@@ -27,7 +27,7 @@ export default function Dashboard() {
   return (
     <div>
       <h1 className="text-xl font-medium">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  mt-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mt-4 md:gap-10 gap-5">
         <div className="border rounded-md p-3">
           <label>Used Storage</label>
           <div className="">
@@ -63,9 +63,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <hr className="mt-5 mb-3" />
-      <div className="grid grid-cols-1 lg:grid-cols-2  gap-3">
-        <div className="flex-1" ref={ref}>
+      <hr className="my-6" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="flex-1 overflow-hidden h-96 md:h-[656px]" ref={ref}>
           <h3 className="text-xl font-medium">Storage distribution</h3>
           <World size={width} />
         </div>
@@ -113,7 +113,7 @@ export default function Dashboard() {
 
           <StackedBar data={data} />
 
-          <div className="mt-5">
+          <div className="md:mt-12 mt-6">
             <Chart />
           </div>
         </div>
