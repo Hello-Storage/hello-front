@@ -27,6 +27,8 @@ import React from "react";
 import { useAppDispatch } from "state";
 import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
 import { truncate } from "utils/format";
+import { AxiosProgressEvent } from "axios";
+import { setUploadStatusAction } from "state/uploadstatus/actions";
 
 dayjs.extend(relativeTime);
 
@@ -34,6 +36,8 @@ interface FileItemProps {
   file: FileType;
   view: "list" | "grid";
 }
+
+
 
 const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const dispatch = useAppDispatch();
@@ -49,18 +53,51 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     toast.success("copied CID");
   };
 
+
+  const onDownloadProgress = (progressEvent: AxiosProgressEvent) => {
+
+    dispatch(setUploadStatusAction({ info: "Downloading " + file.name, uploading: true }));
+
+    dispatch(
+      setUploadStatusAction({
+        read: progressEvent.loaded,
+        size: file.size,
+      })
+    )
+  }
+
   // Function to handle file download
   const handleDownload = () => {
-    toast.info("Downloading " + file.name + "...");
+    toast.info("Starting download for " + file.name + "...");
     // Make a request to download the file with responseType 'blob'
-    Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
+    Api.get(`/file/download/${file.uid}`, {
+      responseType: "blob",
+      onDownloadProgress: onDownloadProgress
+    })
       .then(async (res) => {
+        dispatch(
+          setUploadStatusAction({
+            info: "Finished downloading data",
+            uploading: false,
+          })
+        );
         // Create a blob from the response data
         let binaryData = res.data;
         if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid);
+          binaryData = await decryptFileBuffer(binaryData, originalCid, (percentage) => {
+            dispatch(
+              setUploadStatusAction({ info: "Decrypting...", read: percentage, size: 100, uploading: true })
+            )
+          });
+
+          dispatch(
+            setUploadStatusAction({
+              info: "Decryption done",
+              uploading: false,
+            })
+          );
         }
         const blob = new Blob([binaryData], { type: file.mime_type });
 
@@ -81,13 +118,33 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   };
 
   const handleView = () => {
-    Api.get(`/file/download/${file.uid}`, { responseType: "blob" })
+    Api.get(`/file/download/${file.uid}`, {
+      responseType: "blob",
+      onDownloadProgress: onDownloadProgress
+    })
       .then(async (res) => {
+        dispatch(
+          setUploadStatusAction({
+            info: "Finished downloading data",
+            uploading: false,
+          })
+        );
         let binaryData = res.data;
         if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid);
+          binaryData = await decryptFileBuffer(binaryData, originalCid, (percentage) => {
+            dispatch(
+              setUploadStatusAction({ info: "Decrypting...", read: percentage, size: 100, uploading: true })
+            )
+          });
+
+          dispatch(
+            setUploadStatusAction({
+              info: "Decryption done",
+              uploading: false,
+            })
+          );
         }
         const blob = new Blob([binaryData], { type: file.mime_type });
         if (!blob) {
