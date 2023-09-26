@@ -233,16 +233,21 @@ export function blobToArrayBuffer(blob: Blob) {
     });
 }
 
-export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string): Promise<ArrayBuffer | null> => {
+export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string, onProgress: (percentage: number) => void): Promise<ArrayBuffer | null> => {
     try {
+        onProgress(10)
         const cipherBytes = new Uint8Array(cipher)
         const salt = cipherBytes.slice(0, 16)
+        onProgress(25)
         const iv = cipherBytes.slice(16, 16 + 12)
+        onProgress(40)
         const data = cipherBytes.slice(16 + 12)
+        onProgress(55)
         const { aesKey } = await getAesKey(originalCid, ['decrypt'], salt, iv)
-
-
-        return await decryptContentUtil(data, aesKey, iv)
+        onProgress(70)
+        const decryptedContent = await decryptContentUtil(data, aesKey, iv)
+        onProgress(100)
+        return decryptedContent
     } catch (error) {
         console.error('Error decrypting file')
         console.error(error)
