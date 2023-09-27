@@ -27,9 +27,6 @@ import { set } from "react-hook-form";
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const { folders, files, showPreview, preview } = useAppSelector(
-    (state) => state.mystorage
-  );
   const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { name } = useAppSelector((state) => state.user);
   const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
@@ -46,8 +43,6 @@ export default function Home() {
   const personalSignatureRef = useRef<string | undefined>();
 
   //pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -66,6 +61,13 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const { folders, files, showPreview, preview } = useAppSelector(
+    (state) => state.mystorage
+  );
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const totalItems = folders.length + files.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -78,16 +80,39 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchContent() {
-      setLoading(true)
+
+
+      setLoading(true);
       const tempStartIndex = (currentPage - 1) * itemsPerPage;
       const tempEndIndex = Math.min(tempStartIndex + itemsPerPage - 1, totalItems - 1);
       setStartIndex(tempStartIndex);
       setEndIndex(tempEndIndex);
-      const currentEncryptedFolders = folders.slice(tempStartIndex, Math.min(tempEndIndex + 1, folders.length));
-      const folderItemsCount = currentFolders.length;
+
+      // Calculate the number of folders and files to display on the current page.
+      const remainingFolders = folders.length - tempStartIndex;
+      const folderItemsCount = Math.min(remainingFolders, itemsPerPage);
+
+      // Slice the folders array to get the items to display on the current page.
+      const currentEncryptedFolders = folders.slice(tempStartIndex, tempStartIndex + folderItemsCount);
+
+      // Calculate starting index for files based on the number of folders taken.
       const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
-      const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount;
-      const currentEncryptedFiles = files.slice(filesStartIndex, filesEndIndex);
+
+      // Calculate the ending index for files.
+      const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount - 1;
+
+      // Slice the files array based on the calculated start and end indices.
+      const currentEncryptedFiles = files.slice(filesStartIndex, Math.min(files.length, filesEndIndex + 1));
+
+
+
+
+
+
+
+
+
+
 
       const decryptedFiles = await handleEncryptedFiles(currentEncryptedFiles, personalSignatureRef, name, autoEncryptionEnabled, accountType, logout);
       setCurrentFlies(decryptedFiles || []);
@@ -257,11 +282,10 @@ export default function Home() {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            className={`p-2 rounded flex items-center gap-2 ${
-              currentPage === 1
+            className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
-            }`}
+              }`}
             onClick={() =>
               setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
             }
@@ -271,11 +295,10 @@ export default function Home() {
             <span className="md:inline hidden">Prev</span>
           </button>
           <button
-            className={`p-2 rounded flex items-center gap-2 ${
-              totalPages === 0 || currentPage === totalPages
+            className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
-            }`}
+              }`}
             onClick={() =>
               setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
             }
