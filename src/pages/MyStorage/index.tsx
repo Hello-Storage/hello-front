@@ -125,9 +125,10 @@ export default function Home() {
         fetchRootContent(setLoading);
       }
 
-      setLoading(false)
     }
-    fetchContent()
+    fetchContent().then(() => { 
+      setLoading(false);
+    });
   }, [logout, name, files, currentPage, folders.length])
 
   useEffect(() => {
@@ -167,166 +168,171 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col flex-1">
-      <Dropzone />
-      <div className="flex justify-between">
-        <Breadcrumb />
+    <div className="flex flex-col h-screen">
+      <div className="flex flex-col flex-1 overflow-y-auto">
+        <Dropzone />
+        <div className="flex justify-between">
+          <Breadcrumb />
 
-        <div className="flex gap-3">
-          <div className="relative" ref={ref}>
-            <button
-              className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-              onClick={() => setOpen(!open)}
-            >
-              Filter
-            </button>
+          <div className="flex gap-3">
+            <div className="relative" ref={ref}>
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                onClick={() => setOpen(!open)}
+              >
+                Filter
+              </button>
 
-            {open && (
-              <div className="absolute mt-1 z-10 w-[150px] bg-white shadow divide-y border text-sm text-gray-700">
-                <ul className="p-2">
-                  <li>
-                    <div className="flex items-center justify-between p-2">
-                      <label
-                        htmlFor="all"
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                      >
-                        All
-                      </label>
-                      <input
-                        type="radio"
-                        id="all"
-                        name="filter-radio"
-                        value="all"
-                        checked={filter === "all"}
-                        onChange={onRadioChange}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                      />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center justify-between p-2">
-                      <label
-                        htmlFor="public"
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                      >
-                        Public
-                      </label>
-                      <input
-                        type="radio"
-                        id="public"
-                        name="filter-radio"
-                        value="public"
-                        checked={filter === "public"}
-                        onChange={onRadioChange}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                      />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center justify-between p-2">
-                      <label
-                        htmlFor="encrypted"
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                      >
-                        Encrypted
-                      </label>
-                      <input
-                        type="radio"
-                        id="encrypted"
-                        name="filter-radio"
-                        value="encrypted"
-                        checked={filter === "encrypted"}
-                        onChange={onRadioChange}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                      />
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
+              {open && (
+                <div className="absolute mt-1 z-10 w-[150px] bg-white shadow divide-y border text-sm text-gray-700">
+                  <ul className="p-2">
+                    <li>
+                      <div className="flex items-center justify-between p-2">
+                        <label
+                          htmlFor="all"
+                          className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                        >
+                          All
+                        </label>
+                        <input
+                          type="radio"
+                          id="all"
+                          name="filter-radio"
+                          value="all"
+                          checked={filter === "all"}
+                          onChange={onRadioChange}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                        />
+                      </div>
+                    </li>
+                    <li>
+                      <div className="flex items-center justify-between p-2">
+                        <label
+                          htmlFor="public"
+                          className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                        >
+                          Public
+                        </label>
+                        <input
+                          type="radio"
+                          id="public"
+                          name="filter-radio"
+                          value="public"
+                          checked={filter === "public"}
+                          onChange={onRadioChange}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                        />
+                      </div>
+                    </li>
+                    <li>
+                      <div className="flex items-center justify-between p-2">
+                        <label
+                          htmlFor="encrypted"
+                          className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                        >
+                          Encrypted
+                        </label>
+                        <input
+                          type="radio"
+                          id="encrypted"
+                          name="filter-radio"
+                          value="encrypted"
+                          checked={filter === "encrypted"}
+                          onChange={onRadioChange}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                        />
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
 
-          <div className="inline-flex rounded-md shadow-sm" role="group">
-            <button
-              type="button"
-              onClick={() => setView("list")}
-              className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-            >
-              <HiOutlineViewList size={20} />
-            </button>
+            <div className="inline-flex rounded-md shadow-sm" role="group">
+              <button
+                type="button"
+                onClick={() => setView("list")}
+                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+              >
+                <HiOutlineViewList size={20} />
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setView("grid")}
-              className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-            >
-              <HiOutlineViewGrid size={20} />
-            </button>
+              <button
+                type="button"
+                onClick={() => setView("grid")}
+                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+              >
+                <HiOutlineViewGrid size={20} />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex flex-1 flex-col mt-3">
-        <Content
-          loading={loading}
-          files={filteredFiles}
-          folders={filteredFolders}
-          view={view}
+        <div className="flex flex-1 flex-col mt-3">
+          <Content
+            loading={loading}
+            files={filteredFiles}
+            folders={filteredFolders}
+            view={view}
+          />
+        </div>
+        </div>
+
+        {/* Sticky footer */}
+        <div className="flex-shrink-0">
+          <div className="flex justify-between items-center mt-3 px-4 py-2 bg-white border-t border-gray-200">
+            <div>
+              Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
+              {Math.min(endIndex, totalItems) + 1} of {totalItems} results
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+                  }`}
+                onClick={() =>
+                  setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+                }
+                disabled={currentPage === 1}
+              >
+                <HiChevronLeft className="h-5 w-5" />
+                <span className="md:inline hidden">Prev</span>
+              </button>
+              <button
+                className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+                  }`}
+                onClick={() =>
+                  setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+                }
+                disabled={totalPages === 0 || currentPage === totalPages}
+              >
+                <span className="md:inline hidden">Next</span>{" "}
+                <HiChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Upload Info */}
+        {uploading && <UploadProgress />}
+
+        {/* lightbox */}
+        <SlideshowLightbox
+          images={preview == undefined ? [] : [preview]}
+          showThumbnails={false}
+          showThumbnailIcon={false}
+          open={showPreview}
+          lightboxIdentifier="lbox1"
+          backgroundColor="#0f0f0fcc"
+          iconColor="#ffffff"
+          modalClose="clickOutside"
+          onClose={() => {
+            dispatch(setImageViewAction({ show: false }));
+          }}
         />
-      </div>
-      {/*Add buttons here */}
-      <div className="flex justify-between items-center mt-3">
-        <div>
-          Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
-          {Math.min(endIndex, totalItems) + 1} of {totalItems} results
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-              }`}
-            onClick={() =>
-              setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
-            }
-            disabled={currentPage === 1}
-          >
-            <HiChevronLeft className="h-5 w-5" />
-            <span className="md:inline hidden">Prev</span>
-          </button>
-          <button
-            className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-              }`}
-            onClick={() =>
-              setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
-            }
-            disabled={totalPages === 0 || currentPage === totalPages}
-          >
-            <span className="md:inline hidden">Next</span>{" "}
-            <HiChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Upload Info */}
-      {uploading && <UploadProgress />}
-
-      {/* lightbox */}
-      <SlideshowLightbox
-        images={preview == undefined ? [] : [preview]}
-        showThumbnails={false}
-        showThumbnailIcon={false}
-        open={showPreview}
-        lightboxIdentifier="lbox1"
-        backgroundColor="#0f0f0fcc"
-        iconColor="#ffffff"
-        modalClose="clickOutside"
-        onClose={() => {
-          dispatch(setImageViewAction({ show: false }));
-        }}
-      />
-    </div>
+      </div >
   );
 }
