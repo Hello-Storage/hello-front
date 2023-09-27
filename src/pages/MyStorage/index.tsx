@@ -15,7 +15,7 @@ import { useSearchContext } from "contexts/SearchContext";
 
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
-import { setImageViewAction } from "state/mystorage/actions";
+import { setImageViewAction, updateDecryptedFilesAction, updateDecryptedFoldersAction } from "state/mystorage/actions";
 import { File as FileType, Folder } from "api";
 
 // import styles
@@ -23,7 +23,6 @@ import "lightbox.js-react/dist/index.css";
 import getAccountType from "api/getAccountType";
 import { handleEncryptedFiles, handleEncryptedFolders } from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
-import { set } from "react-hook-form";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -66,7 +65,7 @@ export default function Home() {
   );
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(window.innerWidth < 768 ? 6 : 10);
 
   const totalItems = folders.length + files.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -105,19 +104,21 @@ export default function Home() {
       const currentEncryptedFiles = files.slice(filesStartIndex, Math.min(files.length, filesEndIndex + 1));
 
 
-
-
-
-
-
-
-
-
-
       const decryptedFiles = await handleEncryptedFiles(currentEncryptedFiles, personalSignatureRef, name, autoEncryptionEnabled, accountType, logout);
+
+      if (decryptedFiles && decryptedFiles.length > 0) {
+        dispatch(updateDecryptedFilesAction(decryptedFiles))
+      }
+
+      // reduce decrypted files
+
       setCurrentFlies(decryptedFiles || []);
 
       const decryptedFolders: Folder[] | undefined = await handleEncryptedFolders(currentEncryptedFolders, personalSignatureRef);
+
+      if (decryptedFolders && decryptedFolders.length > 0) {
+        dispatch(updateDecryptedFoldersAction(decryptedFolders))
+      }
       setCurrentFolders(decryptedFolders || []);
 
       if (!currentFiles || !currentFolders) {
@@ -125,11 +126,13 @@ export default function Home() {
         fetchRootContent(setLoading);
       }
 
+      console.log(folders)
+
     }
-    fetchContent().then(() => { 
+    fetchContent().then(() => {
       setLoading(false);
     });
-  }, [logout, name, files, currentPage, folders.length])
+  }, [logout, name, currentPage, folders.length])
 
   useEffect(() => {
     setCurrentPage(1);
@@ -276,63 +279,63 @@ export default function Home() {
             view={view}
           />
         </div>
-        </div>
+      </div>
 
-        {/* Sticky footer */}
-        <div className="flex-shrink-0">
-          <div className="flex justify-between items-center mt-3 px-4 py-2 bg-white border-t border-gray-200">
-            <div>
-              Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
-              {Math.min(endIndex, totalItems) + 1} of {totalItems} results
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-gray-200"
-                  }`}
-                onClick={() =>
-                  setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
-                }
-                disabled={currentPage === 1}
-              >
-                <HiChevronLeft className="h-5 w-5" />
-                <span className="md:inline hidden">Prev</span>
-              </button>
-              <button
-                className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-gray-200"
-                  }`}
-                onClick={() =>
-                  setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
-                }
-                disabled={totalPages === 0 || currentPage === totalPages}
-              >
-                <span className="md:inline hidden">Next</span>{" "}
-                <HiChevronRight className="h-5 w-5" />
-              </button>
-            </div>
+      {/* Sticky footer */}
+      <div className="flex-shrink-0">
+        <div className="flex justify-between items-center mt-3 px-4 py-2 bg-white border-t border-gray-200">
+          <div>
+            Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
+            {Math.min(endIndex, totalItems) + 1} of {totalItems} results
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
+                }`}
+              onClick={() =>
+                setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+              }
+              disabled={currentPage === 1}
+            >
+              <HiChevronLeft className="h-5 w-5" />
+              <span className="md:inline hidden">Prev</span>
+            </button>
+            <button
+              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
+                }`}
+              onClick={() =>
+                setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+              }
+              disabled={totalPages === 0 || currentPage === totalPages}
+            >
+              <span className="md:inline hidden">Next</span>{" "}
+              <HiChevronRight className="h-5 w-5" />
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Upload Info */}
-        {uploading && <UploadProgress />}
+      {/* Upload Info */}
+      {uploading && <UploadProgress />}
 
-        {/* lightbox */}
-        <SlideshowLightbox
-          images={preview == undefined ? [] : [preview]}
-          showThumbnails={false}
-          showThumbnailIcon={false}
-          open={showPreview}
-          lightboxIdentifier="lbox1"
-          backgroundColor="#0f0f0fcc"
-          iconColor="#ffffff"
-          modalClose="clickOutside"
-          onClose={() => {
-            dispatch(setImageViewAction({ show: false }));
-          }}
-        />
-      </div >
+      {/* lightbox */}
+      <SlideshowLightbox
+        images={preview == undefined ? [] : [preview]}
+        showThumbnails={false}
+        showThumbnailIcon={false}
+        open={showPreview}
+        lightboxIdentifier="lbox1"
+        backgroundColor="#0f0f0fcc"
+        iconColor="#ffffff"
+        modalClose="clickOutside"
+        onClose={() => {
+          dispatch(setImageViewAction({ show: false }));
+        }}
+      />
+    </div >
   );
 }

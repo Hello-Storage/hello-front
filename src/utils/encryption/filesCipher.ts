@@ -268,7 +268,7 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignatureR
     }
     // Using map to create an array of promises
     const decrytpedFilesPromises = files.map(async (file) => {
-        if (file.encryption_status === EncryptionStatus.Encrypted) {
+        if (file.encryption_status === EncryptionStatus.Encrypted && !file.decrypted) {
             try {
                 const decryptionResult = await decryptMetadata(
                     file.name,
@@ -287,6 +287,7 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignatureR
                         name: decryptedFilename,
                         mime_type: decryptedFiletype,
                         cid_original_encrypted: decryptedCidOriginal,
+                        decrypted: true,
                     };
                 }
             } catch (error) {
@@ -307,7 +308,7 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignatureR
 export const handleEncryptedFolders = async (folders: Folder[], personalSignatureRef: React.MutableRefObject<string | undefined>) => {
     // Using map to create an array of promises
     const decrytpedFoldersPromises = folders.map(async (folder) => {
-        if (folder.encryption_status === EncryptionStatus.Encrypted) {
+        if (folder.encryption_status === EncryptionStatus.Encrypted && !folder.decrypted) {
             // encrypt file metadata and blob
             const folderTitleBuffer = hexToBuffer(folder.title);
             const decryptedTitleBuffer = await decryptContent(
@@ -320,6 +321,7 @@ export const handleEncryptedFolders = async (folders: Folder[], personalSignatur
             return {
                 ...folder,
                 title: decryptedTitle,
+                decrypted: true,
             };
         }
         return folder;

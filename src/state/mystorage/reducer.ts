@@ -6,6 +6,8 @@ import {
   setImageViewAction,
   PreviewImage,
   removeContent,
+  updateDecryptedFilesAction,
+  updateDecryptedFoldersAction,
 } from "./actions";
 import { RootResponse } from "api";
 
@@ -41,5 +43,11 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
       ...state,
       files: [],
       folders: [],
-    }));
+    }))
+    .addCase(updateDecryptedFilesAction, (state, { payload }) => {
+      state.files = state.files.map(file => {
+        const decryptedFile = payload.find(pf => pf.id === file.id);
+        return decryptedFile ? decryptedFile : file;
+      });
+    });
 });
