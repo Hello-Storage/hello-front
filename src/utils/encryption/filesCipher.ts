@@ -309,6 +309,7 @@ export const handleEncryptedFolders = async (folders: Folder[], personalSignatur
     // Using map to create an array of promises
     const decrytpedFoldersPromises = folders.map(async (folder) => {
         if (folder.encryption_status === EncryptionStatus.Encrypted && !folder.decrypted) {
+
             // encrypt file metadata and blob
             const folderTitleBuffer = hexToBuffer(folder.title);
             const decryptedTitleBuffer = await decryptContent(
@@ -325,6 +326,7 @@ export const handleEncryptedFolders = async (folders: Folder[], personalSignatur
             };
         }
         return folder;
+
     });
 
     // Wait for all promises to resolve
