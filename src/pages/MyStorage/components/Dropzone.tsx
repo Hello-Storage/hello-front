@@ -43,7 +43,7 @@ export default function Dropzone() {
       {isDragActive ? (
         <p className="text-center">Drop the files here ...</p>
       ) : (
-        <p className="text-center">Drag'n drop to upload, or click to here</p>
+        <p className="text-center">Drag'n drop to upload, or click here</p>
       )}
     </div>
   );

@@ -15,7 +15,7 @@ import { useSearchContext } from "contexts/SearchContext";
 
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
-import { setImageViewAction } from "state/mystorage/actions";
+import { setImageViewAction, updateDecryptedFilesAction, updateDecryptedFoldersAction } from "state/mystorage/actions";
 import { File as FileType, Folder } from "api";
 
 // import styles
@@ -23,13 +23,9 @@ import "lightbox.js-react/dist/index.css";
 import getAccountType from "api/getAccountType";
 import { handleEncryptedFiles, handleEncryptedFolders } from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
-import { set } from "react-hook-form";
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const { folders, files, showPreview, preview } = useAppSelector(
-    (state) => state.mystorage
-  );
   const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { name } = useAppSelector((state) => state.user);
   const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
@@ -46,8 +42,6 @@ export default function Home() {
   const personalSignatureRef = useRef<string | undefined>();
 
   //pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -66,6 +60,13 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const { folders, files, showPreview, preview } = useAppSelector(
+    (state) => state.mystorage
+  );
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(window.innerWidth < 768 ? 6 : 10);
+
   const totalItems = folders.length + files.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -78,21 +79,46 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchContent() {
-      setLoading(true)
+
+
+      setLoading(true);
       const tempStartIndex = (currentPage - 1) * itemsPerPage;
       const tempEndIndex = Math.min(tempStartIndex + itemsPerPage - 1, totalItems - 1);
       setStartIndex(tempStartIndex);
       setEndIndex(tempEndIndex);
-      const currentEncryptedFolders = folders.slice(tempStartIndex, Math.min(tempEndIndex + 1, folders.length));
-      const folderItemsCount = currentFolders.length;
+
+      // Calculate the number of folders and files to display on the current page.
+      const remainingFolders = folders.length - tempStartIndex;
+      const folderItemsCount = Math.min(remainingFolders, itemsPerPage);
+
+      // Slice the folders array to get the items to display on the current page.
+      const currentEncryptedFolders = folders.slice(tempStartIndex, tempStartIndex + folderItemsCount);
+
+      // Calculate starting index for files based on the number of folders taken.
       const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
-      const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount;
-      const currentEncryptedFiles = files.slice(filesStartIndex, filesEndIndex);
+
+      // Calculate the ending index for files.
+      const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount - 1;
+
+      // Slice the files array based on the calculated start and end indices.
+      const currentEncryptedFiles = files.slice(filesStartIndex, Math.min(files.length, filesEndIndex + 1));
+
 
       const decryptedFiles = await handleEncryptedFiles(currentEncryptedFiles, personalSignatureRef, name, autoEncryptionEnabled, accountType, logout);
+
+      if (decryptedFiles && decryptedFiles.length > 0) {
+        dispatch(updateDecryptedFilesAction(decryptedFiles))
+      }
+
+      // reduce decrypted files
+
       setCurrentFlies(decryptedFiles || []);
 
       const decryptedFolders: Folder[] | undefined = await handleEncryptedFolders(currentEncryptedFolders, personalSignatureRef);
+
+      if (decryptedFolders && decryptedFolders.length > 0) {
+        dispatch(updateDecryptedFoldersAction(decryptedFolders))
+      }
       setCurrentFolders(decryptedFolders || []);
 
       if (!currentFiles || !currentFolders) {
@@ -100,10 +126,13 @@ export default function Home() {
         fetchRootContent(setLoading);
       }
 
-      setLoading(false)
+      console.log(folders)
+
     }
-    fetchContent()
-  }, [logout, name, files, currentPage, folders.length])
+    fetchContent().then(() => {
+      setLoading(false);
+    });
+  }, [logout, name, currentPage, folders.length])
 
   useEffect(() => {
     setCurrentPage(1);
@@ -142,148 +171,151 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col flex-1">
-      <Dropzone />
-      <div className="flex justify-between">
-        <Breadcrumb />
+    <div className="flex flex-col h-screen">
+      <div className="flex flex-col flex-1 overflow-y-auto">
+        <Dropzone />
+        <div className="flex justify-between">
+          <Breadcrumb />
 
-        <div className="flex gap-3">
-          <div className="relative" ref={ref}>
-            <button
-              className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-              onClick={() => setOpen(!open)}
-            >
-              Filter
-            </button>
+          <div className="flex gap-3">
+            <div className="relative" ref={ref}>
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                onClick={() => setOpen(!open)}
+              >
+                Filter
+              </button>
 
-            {open && (
-              <div className="absolute mt-1 z-10 w-[150px] bg-white shadow divide-y border text-sm text-gray-700">
-                <ul className="p-2">
-                  <li>
-                    <div className="flex items-center justify-between p-2">
-                      <label
-                        htmlFor="all"
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                      >
-                        All
-                      </label>
-                      <input
-                        type="radio"
-                        id="all"
-                        name="filter-radio"
-                        value="all"
-                        checked={filter === "all"}
-                        onChange={onRadioChange}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                      />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center justify-between p-2">
-                      <label
-                        htmlFor="public"
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                      >
-                        Public
-                      </label>
-                      <input
-                        type="radio"
-                        id="public"
-                        name="filter-radio"
-                        value="public"
-                        checked={filter === "public"}
-                        onChange={onRadioChange}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                      />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center justify-between p-2">
-                      <label
-                        htmlFor="encrypted"
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                      >
-                        Encrypted
-                      </label>
-                      <input
-                        type="radio"
-                        id="encrypted"
-                        name="filter-radio"
-                        value="encrypted"
-                        checked={filter === "encrypted"}
-                        onChange={onRadioChange}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                      />
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            )}
+              {open && (
+                <div className="absolute mt-1 z-10 w-[150px] bg-white shadow divide-y border text-sm text-gray-700">
+                  <ul className="p-2">
+                    <li>
+                      <div className="flex items-center justify-between p-2">
+                        <label
+                          htmlFor="all"
+                          className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                        >
+                          All
+                        </label>
+                        <input
+                          type="radio"
+                          id="all"
+                          name="filter-radio"
+                          value="all"
+                          checked={filter === "all"}
+                          onChange={onRadioChange}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                        />
+                      </div>
+                    </li>
+                    <li>
+                      <div className="flex items-center justify-between p-2">
+                        <label
+                          htmlFor="public"
+                          className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                        >
+                          Public
+                        </label>
+                        <input
+                          type="radio"
+                          id="public"
+                          name="filter-radio"
+                          value="public"
+                          checked={filter === "public"}
+                          onChange={onRadioChange}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                        />
+                      </div>
+                    </li>
+                    <li>
+                      <div className="flex items-center justify-between p-2">
+                        <label
+                          htmlFor="encrypted"
+                          className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                        >
+                          Encrypted
+                        </label>
+                        <input
+                          type="radio"
+                          id="encrypted"
+                          name="filter-radio"
+                          value="encrypted"
+                          checked={filter === "encrypted"}
+                          onChange={onRadioChange}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                        />
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="inline-flex rounded-md shadow-sm" role="group">
+              <button
+                type="button"
+                onClick={() => setView("list")}
+                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+              >
+                <HiOutlineViewList size={20} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setView("grid")}
+                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+              >
+                <HiOutlineViewGrid size={20} />
+              </button>
+            </div>
           </div>
+        </div>
 
-          <div className="inline-flex rounded-md shadow-sm" role="group">
-            <button
-              type="button"
-              onClick={() => setView("list")}
-              className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-            >
-              <HiOutlineViewList size={20} />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setView("grid")}
-              className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-            >
-              <HiOutlineViewGrid size={20} />
-            </button>
-          </div>
+        <div className="flex flex-1 flex-col mt-3">
+          <Content
+            loading={loading}
+            files={filteredFiles}
+            folders={filteredFolders}
+            view={view}
+          />
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col mt-3">
-        <Content
-          loading={loading}
-          files={filteredFiles}
-          folders={filteredFolders}
-          view={view}
-        />
-      </div>
-      {/*Add buttons here */}
-      <div className="flex justify-between items-center mt-3">
-        <div>
-          Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
-          {Math.min(endIndex, totalItems) + 1} of {totalItems} results
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            className={`p-2 rounded flex items-center gap-2 ${
-              currentPage === 1
+      {/* Sticky footer */}
+      <div className="flex-shrink-0">
+        <div className="flex justify-between items-center mt-3 px-4 py-2 bg-white border-t border-gray-200">
+          <div>
+            Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
+            {Math.min(endIndex, totalItems) + 1} of {totalItems} results
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
-            }`}
-            onClick={() =>
-              setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
-            }
-            disabled={currentPage === 1}
-          >
-            <HiChevronLeft className="h-5 w-5" />
-            <span className="md:inline hidden">Prev</span>
-          </button>
-          <button
-            className={`p-2 rounded flex items-center gap-2 ${
-              totalPages === 0 || currentPage === totalPages
+                }`}
+              onClick={() =>
+                setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+              }
+              disabled={currentPage === 1}
+            >
+              <HiChevronLeft className="h-5 w-5" />
+              <span className="md:inline hidden">Prev</span>
+            </button>
+            <button
+              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-gray-200"
-            }`}
-            onClick={() =>
-              setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
-            }
-            disabled={totalPages === 0 || currentPage === totalPages}
-          >
-            <span className="md:inline hidden">Next</span>{" "}
-            <HiChevronRight className="h-5 w-5" />
-          </button>
+                }`}
+              onClick={() =>
+                setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+              }
+              disabled={totalPages === 0 || currentPage === totalPages}
+            >
+              <span className="md:inline hidden">Next</span>{" "}
+              <HiChevronRight className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -304,6 +336,6 @@ export default function Home() {
           dispatch(setImageViewAction({ show: false }));
         }}
       />
-    </div>
+    </div >
   );
 }
