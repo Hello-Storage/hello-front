@@ -104,7 +104,8 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
             const fileDataBufferEncrypted = stringToArrayBuffer(fileData);
             const fileDataBuffer = await decryptFileBuffer(
               fileDataBufferEncrypted,
-              decryptedCidOriginal
+              decryptedCidOriginal,
+              () => void 0,
             );
             if (!fileDataBuffer) {
               toast.error("Failed to decrypt file");

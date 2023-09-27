@@ -49,5 +49,11 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
         const decryptedFile = payload.find(pf => pf.id === file.id);
         return decryptedFile ? decryptedFile : file;
       });
+    })
+    .addCase(updateDecryptedFoldersAction, (state, { payload }) => {
+      state.folders = state.folders.map(folder => {
+        const decryptedFolder = payload.find(pf => pf.id === folder.id);
+        return decryptedFolder ? decryptedFolder : folder;
+      });
     });
 });
