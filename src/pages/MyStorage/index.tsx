@@ -74,65 +74,59 @@ export default function Home() {
   const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
 
 
-  const [currentFiles, setCurrentFlies] = useState<FileType[]>([]);
+  const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
   const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
 
+
+
   useEffect(() => {
-    async function fetchContent() {
+  async function fetchContent() {
+    setLoading(true);
 
+    const tempStartIndex = (currentPage - 1) * itemsPerPage;
+    const tempEndIndex = tempStartIndex + itemsPerPage;
 
-      setLoading(true);
-      const tempStartIndex = (currentPage - 1) * itemsPerPage;
-      const tempEndIndex = Math.min(tempStartIndex + itemsPerPage - 1, totalItems - 1);
-      setStartIndex(tempStartIndex);
-      setEndIndex(tempEndIndex);
+    setStartIndex(tempStartIndex);
+    setEndIndex(Math.min(tempEndIndex, totalItems));
 
-      // Calculate the number of folders and files to display on the current page.
-      const remainingFolders = folders.length - tempStartIndex;
-      const folderItemsCount = Math.min(remainingFolders, itemsPerPage);
+    // Calculate the number of folders and files to display on the current page.
+    let folderItemsCount = Math.min(folders.length - tempStartIndex, itemsPerPage);
+    folderItemsCount = Math.max(0, folderItemsCount); // Ensure it's not negative
 
-      // Slice the folders array to get the items to display on the current page.
-      const currentEncryptedFolders = folders.slice(tempStartIndex, tempStartIndex + folderItemsCount);
+    // Slice the folders array to get the items to display on the current page.
+    const currentEncryptedFolders = folders.slice(tempStartIndex, tempStartIndex + folderItemsCount);
 
-      // Calculate starting index for files based on the number of folders taken.
-      const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
+    // Calculate starting index for files based on the number of folders taken.
+    const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
+    const filesItemsCount = itemsPerPage - folderItemsCount; // Remaining space on the page
 
-      // Calculate the ending index for files.
-      const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount - 1;
+    // Slice the files array based on the calculated start and end indices.
+    const currentEncryptedFiles = files.slice(filesStartIndex, filesStartIndex + filesItemsCount);
 
-      // Slice the files array based on the calculated start and end indices.
-      const currentEncryptedFiles = files.slice(filesStartIndex, Math.min(files.length, filesEndIndex + 1));
+    const decryptedFiles = await handleEncryptedFiles(currentEncryptedFiles, personalSignatureRef, name, autoEncryptionEnabled, accountType, logout);
 
-
-      const decryptedFiles = await handleEncryptedFiles(currentEncryptedFiles, personalSignatureRef, name, autoEncryptionEnabled, accountType, logout);
-
-      if (decryptedFiles && decryptedFiles.length > 0) {
-        dispatch(updateDecryptedFilesAction(decryptedFiles))
-      }
-
-      // reduce decrypted files
-
-      setCurrentFlies(decryptedFiles || []);
-
-      const decryptedFolders: Folder[] | undefined = await handleEncryptedFolders(currentEncryptedFolders, personalSignatureRef);
-
-      if (decryptedFolders && decryptedFolders.length > 0) {
-        dispatch(updateDecryptedFoldersAction(decryptedFolders))
-      }
-      setCurrentFolders(decryptedFolders || []);
-
-      if (!currentFiles || !currentFolders) {
-        toast.error("Failed to decrypt content");
-        fetchRootContent(setLoading);
-      }
-
-      console.log(folders)
-
+    if (decryptedFiles && decryptedFiles.length > 0) {
+      dispatch(updateDecryptedFilesAction(decryptedFiles));
     }
-    fetchContent().then(() => {
-      setLoading(false);
-    });
-  }, [logout, name, currentPage, folders.length])
+
+    setCurrentFiles(decryptedFiles || []);
+
+    const decryptedFolders = await handleEncryptedFolders(currentEncryptedFolders, personalSignatureRef);
+
+    if (decryptedFolders && decryptedFolders.length > 0) {
+      dispatch(updateDecryptedFoldersAction(decryptedFolders));
+    }
+    setCurrentFolders(decryptedFolders || []);
+
+    if (!currentFiles || !currentFolders) {
+      toast.error("Failed to decrypt content");
+      fetchRootContent(setLoading);
+    }
+  }
+  fetchContent().then(() => {
+    setLoading(false);
+  });
+}, [logout, name, currentPage, folders.length, files.length]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -286,7 +280,7 @@ export default function Home() {
         <div className="flex justify-between items-center mt-3 px-4 py-2 bg-white border-t border-gray-200">
           <div>
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
-            {Math.min(endIndex, totalItems) + 1} of {totalItems} results
+            {Math.min(endIndex, totalItems)} of {totalItems} results
           </div>
           <div className="flex items-center space-x-2">
             <button
