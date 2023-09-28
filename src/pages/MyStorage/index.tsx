@@ -15,13 +15,20 @@ import { useSearchContext } from "contexts/SearchContext";
 
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
-import { setImageViewAction, updateDecryptedFilesAction, updateDecryptedFoldersAction } from "state/mystorage/actions";
+import {
+  setImageViewAction,
+  updateDecryptedFilesAction,
+  updateDecryptedFoldersAction,
+} from "state/mystorage/actions";
 import { File as FileType, Folder } from "api";
 
 // import styles
 import "lightbox.js-react/dist/index.css";
 import getAccountType from "api/getAccountType";
-import { handleEncryptedFiles, handleEncryptedFolders } from "utils/encryption/filesCipher";
+import {
+  handleEncryptedFiles,
+  handleEncryptedFolders,
+} from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
 
 export default function Home() {
@@ -65,7 +72,9 @@ export default function Home() {
   );
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(window.innerWidth < 768 ? 6 : 10);
+  const [itemsPerPage, setItemsPerPage] = useState(
+    window.innerWidth < 768 ? 6 : 10
+  );
 
   const totalItems = folders.length + files.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -73,17 +82,17 @@ export default function Home() {
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
 
-
   const [currentFiles, setCurrentFlies] = useState<FileType[]>([]);
   const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
 
   useEffect(() => {
     async function fetchContent() {
-
-
       setLoading(true);
       const tempStartIndex = (currentPage - 1) * itemsPerPage;
-      const tempEndIndex = Math.min(tempStartIndex + itemsPerPage - 1, totalItems - 1);
+      const tempEndIndex = Math.min(
+        tempStartIndex + itemsPerPage - 1,
+        totalItems - 1
+      );
       setStartIndex(tempStartIndex);
       setEndIndex(tempEndIndex);
 
@@ -92,32 +101,49 @@ export default function Home() {
       const folderItemsCount = Math.min(remainingFolders, itemsPerPage);
 
       // Slice the folders array to get the items to display on the current page.
-      const currentEncryptedFolders = folders.slice(tempStartIndex, tempStartIndex + folderItemsCount);
+      const currentEncryptedFolders = folders.slice(
+        tempStartIndex,
+        tempStartIndex + folderItemsCount
+      );
 
       // Calculate starting index for files based on the number of folders taken.
       const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
 
       // Calculate the ending index for files.
-      const filesEndIndex = filesStartIndex + itemsPerPage - folderItemsCount - 1;
+      const filesEndIndex =
+        filesStartIndex + itemsPerPage - folderItemsCount - 1;
 
       // Slice the files array based on the calculated start and end indices.
-      const currentEncryptedFiles = files.slice(filesStartIndex, Math.min(files.length, filesEndIndex + 1));
+      const currentEncryptedFiles = files.slice(
+        filesStartIndex,
+        Math.min(files.length, filesEndIndex + 1)
+      );
 
-
-      const decryptedFiles = await handleEncryptedFiles(currentEncryptedFiles, personalSignatureRef, name, autoEncryptionEnabled, accountType, logout);
+      const decryptedFiles = await handleEncryptedFiles(
+        currentEncryptedFiles,
+        personalSignatureRef,
+        name,
+        autoEncryptionEnabled,
+        accountType,
+        logout
+      );
 
       if (decryptedFiles && decryptedFiles.length > 0) {
-        dispatch(updateDecryptedFilesAction(decryptedFiles))
+        dispatch(updateDecryptedFilesAction(decryptedFiles));
       }
 
       // reduce decrypted files
 
       setCurrentFlies(decryptedFiles || []);
 
-      const decryptedFolders: Folder[] | undefined = await handleEncryptedFolders(currentEncryptedFolders, personalSignatureRef);
+      const decryptedFolders: Folder[] | undefined =
+        await handleEncryptedFolders(
+          currentEncryptedFolders,
+          personalSignatureRef
+        );
 
       if (decryptedFolders && decryptedFolders.length > 0) {
-        dispatch(updateDecryptedFoldersAction(decryptedFolders))
+        dispatch(updateDecryptedFoldersAction(decryptedFolders));
       }
       setCurrentFolders(decryptedFolders || []);
 
@@ -126,20 +152,17 @@ export default function Home() {
         fetchRootContent(setLoading);
       }
 
-      console.log(folders)
-
+      console.log(folders);
     }
     fetchContent().then(() => {
       setLoading(false);
     });
-  }, [logout, name, currentPage, folders.length])
+  }, [logout, name, currentPage, folders.length]);
 
   useEffect(() => {
     setCurrentPage(1);
-    fetchRootContent()
-
-  }, [location])
-
+    fetchRootContent();
+  }, [location]);
 
   const [filter, setFilter] = useState("all");
 
@@ -159,8 +182,6 @@ export default function Home() {
 
   const [view, setView] = useState<"list" | "grid">("list");
 
-
-
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
   };
@@ -168,7 +189,6 @@ export default function Home() {
   useEffect(() => {
     fetchUserDetail();
   }, []);
-
 
   return (
     <div className="flex flex-col h-screen">
@@ -255,7 +275,9 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setView("list")}
-                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 ${
+                  view === "list" ? "!bg-gray-100" : ""
+                }`}
               >
                 <HiOutlineViewList size={20} />
               </button>
@@ -263,7 +285,9 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setView("grid")}
-                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 ${
+                  view === "grid" ? "!bg-gray-100" : ""
+                }`}
               >
                 <HiOutlineViewGrid size={20} />
               </button>
@@ -290,10 +314,11 @@ export default function Home() {
           </div>
           <div className="flex items-center space-x-2">
             <button
-              className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-                }`}
+              className={`p-2 rounded flex items-center gap-2 ${
+                currentPage === 1
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
               }
@@ -303,10 +328,11 @@ export default function Home() {
               <span className="md:inline hidden">Prev</span>
             </button>
             <button
-              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-                }`}
+              className={`p-2 rounded flex items-center gap-2 ${
+                totalPages === 0 || currentPage === totalPages
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
               }
@@ -336,6 +362,6 @@ export default function Home() {
           dispatch(setImageViewAction({ show: false }));
         }}
       />
-    </div >
+    </div>
   );
 }
