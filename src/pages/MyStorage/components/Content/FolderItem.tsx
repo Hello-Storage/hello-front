@@ -105,7 +105,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
             const fileDataBuffer = await decryptFileBuffer(
               fileDataBufferEncrypted,
               decryptedCidOriginal,
-              () => void 0,
+              () => void 0
             );
             if (!fileDataBuffer) {
               toast.error("Failed to decrypt file");
@@ -182,144 +182,119 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   if (view === "list")
     return (
       <>
-        <th
-          scope="row"
-          className="px-3 py-1 font-medium text-gray-900 whitespace-nowrap"
-          // onDragEnter={() => setIsDraggingOver(true)}
-        >
-          <div className="flex items-center gap-3 select-none">
-            <FaFolder size={32} color="#737373" />
-            {truncate(folder.title, 24)}
-          </div>
-        </th>
-        <td className="p-1">
-          <div
-            className="flex items-center gap-1 select-none hover:text-blue-500"
-            onClick={onCopy}
-          >
-            {formatUID(folder.uid)}
-            <HiDocumentDuplicate />
-          </div>
-        </td>
-        <td className="p-1">-</td>
-        <td className="p-1">
-          <div className="flex items-center select-none">
-            {folder.encryption_status === "public" ? (
-              <>
-                <HiOutlineLockOpen />
-                <>Public</>
-              </>
-            ) : (
-              <HiLockClosed />
-            )}{" "}
-            {folder.encryption_status === "encrypted" && <>Encrypted</>}
-          </div>
-        </td>
-        <td className="p-1 select-none">
-          {dayjs(folder.updated_at).fromNow()}
-        </td>
-        <td className="py-1 px-3 text-right">
-          <button
-            className="rounded-full hover:bg-gray-300 p-3"
-            onClick={() => setOpen(!open)}
-          >
-            <HiDotsVertical />
-            <div className="relative" ref={ref}>
-              {open && (
-                <div
-                  id="dropdown"
-                  className="absolute right-6 z-10 mt-2 bg-white shadow text-left w-36 divide-y border"
-                >
-                  <ul className="py-2">
-                    <a
-                      href="#"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                      onClick={handleDownload}
+        <div className="bg-green-50 hover:bg-green-100 p-6 rounded-md w-[220px] rounded-lg relative">
+          <div className="flex flex-col">
+            <FaFolder
+              className="inline-block align-middle"
+              size={48}
+              color="#272727"
+            />
+            <div className="flex flex-row justify-between items-center">
+              <label className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
+                {truncate(folder.title, 24)}
+              </label>
+              <button
+                className="rounded-lg hover:bg-green-100 p-3"
+                onClick={() => setOpen(!open)}
+              >
+                <HiDotsVertical className="align-middle" />{" "}
+                {/* Align the three dots in the middle */}
+                <div className="relative" ref={ref}>
+                  {open && (
+                    <div
+                      id="dropdown"
+                      className="absolute right-6 z-10 mt-2 bg-white shadow text-left w-36 divide-y border"
                     >
-                      <HiOutlineDownload className="inline-flex mr-3" />
-                      Download
-                    </a>
-                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
-                      <HiOutlineShare className="inline-flex mr-3" />
-                      Share
-                    </a>
-                  </ul>
-                  <div className="py-2">
-                    <a
-                      href="#"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                      onClick={handleDelete}
-                    >
-                      <HiOutlineTrash className="inline-flex mr-3" />
-                      Delete
-                    </a>
-                  </div>
+                      <ul className="py-2">
+                        <a
+                          href="#"
+                          className="block px-4 py-2 hover:bg-gray-100"
+                          onClick={handleDownload}
+                        >
+                          <HiOutlineDownload className="inline-flex mr-3" />
+                          Download
+                        </a>
+                        <a
+                          href="#"
+                          className="block px-4 py-2 hover:bg-gray-100"
+                        >
+                          <HiOutlineShare className="inline-flex mr-3" />
+                          Share
+                        </a>
+                      </ul>
+                      <div className="py-2">
+                        <a
+                          href="#"
+                          className="block px-4 py-2 hover:bg-gray-100"
+                          onClick={handleDelete}
+                        >
+                          <HiOutlineTrash className="inline-flex mr-3" />
+                          Delete
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </button>
             </div>
-          </button>
-        </td>
+          </div>
+        </div>
       </>
     );
   else
     return (
-      <div className="bg-white p-3 rounded-md mb-3 border border-gray-200 shadow-md relative">
-        <div className="flex justify-between items-center">
-          <div className="">
-            <FaFolder
-              className="inline-block mr-3 align-middle"
-              size={32}
-              color="#737373"
-            />
-
+      <div className="bg-green-50 hover:bg-green-100 p-6 rounded-md w-[220px] rounded-lg relative">
+        <div className="flex flex-col">
+          <FaFolder
+            className="inline-block align-middle"
+            size={48}
+            color="#272727"
+          />
+          <div className="flex flex-row justify-between items-center">
             <label className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
               {truncate(folder.title, 24)}
             </label>
-          </div>
-          <button
-            className="rounded-full hover:bg-gray-300 p-3"
-            onClick={() => setOpen(!open)}
-          >
-            <HiDotsVertical />
-            <div className="relative" ref={ref}>
-              {open && (
-                <div
-                  id="dropdown"
-                  className="absolute right-6 z-10 mt-2 bg-white shadow text-left w-36 divide-y border"
-                >
-                  <ul className="py-2">
-                    <a
-                      href="#"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                      onClick={handleDownload}
-                    >
-                      <HiOutlineDownload className="inline-flex mr-3" />
-                      Download
-                    </a>
-                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
-                      <HiOutlineShare className="inline-flex mr-3" />
-                      Share
-                    </a>
-                  </ul>
-                  <div className="py-2">
-                    <a
-                      href="#"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                      onClick={handleDelete}
-                    >
-                      <HiOutlineTrash className="inline-flex mr-3" />
-                      Delete
-                    </a>
+            <button
+              className="rounded-lg hover:bg-green-100 p-3"
+              onClick={() => setOpen(!open)}
+            >
+              <HiDotsVertical className="align-middle" />{" "}
+              <div className="relative" ref={ref}>
+                {open && (
+                  <div
+                    id="dropdown"
+                    className="absolute right-6 z-10 mt-2 bg-white shadow text-left w-36 divide-y border"
+                  >
+                    <ul className="py-2">
+                      <a
+                        href="#"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={handleDownload}
+                      >
+                        <HiOutlineDownload className="inline-flex mr-3" />
+                        Download
+                      </a>
+                      <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                        <HiOutlineShare className="inline-flex mr-3" />
+                        Share
+                      </a>
+                    </ul>
+                    <div className="py-2">
+                      <a
+                        href="#"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={handleDelete}
+                      >
+                        <HiOutlineTrash className="inline-flex mr-3" />
+                        Delete
+                      </a>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          </button>
+                )}
+              </div>
+            </button>
+          </div>
         </div>
-
-        {/* <div className="flex items-center mt-auto text-xs gap-2">
-          {formatUID(folder.uid)} <HiDocumentDuplicate />
-        </div> */}
       </div>
     );
 };

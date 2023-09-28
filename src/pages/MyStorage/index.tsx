@@ -15,13 +15,20 @@ import { useSearchContext } from "contexts/SearchContext";
 
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
-import { setImageViewAction, updateDecryptedFilesAction, updateDecryptedFoldersAction } from "state/mystorage/actions";
+import {
+  setImageViewAction,
+  updateDecryptedFilesAction,
+  updateDecryptedFoldersAction,
+} from "state/mystorage/actions";
 import { File as FileType, Folder } from "api";
 
 // import styles
 import "lightbox.js-react/dist/index.css";
 import getAccountType from "api/getAccountType";
-import { handleEncryptedFiles, handleEncryptedFolders } from "utils/encryption/filesCipher";
+import {
+  handleEncryptedFiles,
+  handleEncryptedFolders,
+} from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
 
 export default function Home() {
@@ -65,7 +72,9 @@ export default function Home() {
   );
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(window.innerWidth < 768 ? 6 : 10);
+  const [itemsPerPage, setItemsPerPage] = useState(
+    window.innerWidth < 768 ? 6 : 10
+  );
 
   const totalItems = folders.length + files.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -130,10 +139,8 @@ export default function Home() {
 
   useEffect(() => {
     setCurrentPage(1);
-    fetchRootContent()
-
-  }, [location])
-
+    fetchRootContent();
+  }, [location]);
 
   const [filter, setFilter] = useState("all");
 
@@ -153,8 +160,6 @@ export default function Home() {
 
   const [view, setView] = useState<"list" | "grid">("list");
 
-
-
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
   };
@@ -162,7 +167,6 @@ export default function Home() {
   useEffect(() => {
     fetchUserDetail();
   }, []);
-
 
   return (
     <div className="flex flex-col h-screen">
@@ -249,7 +253,9 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setView("list")}
-                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 ${
+                  view === "list" ? "!bg-gray-100" : ""
+                }`}
               >
                 <HiOutlineViewList size={20} />
               </button>
@@ -257,7 +263,9 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setView("grid")}
-                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 ${
+                  view === "grid" ? "!bg-gray-100" : ""
+                }`}
               >
                 <HiOutlineViewGrid size={20} />
               </button>
@@ -284,10 +292,11 @@ export default function Home() {
           </div>
           <div className="flex items-center space-x-2">
             <button
-              className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-                }`}
+              className={`p-2 rounded flex items-center gap-2 ${
+                currentPage === 1
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
               }
@@ -297,10 +306,11 @@ export default function Home() {
               <span className="md:inline hidden">Prev</span>
             </button>
             <button
-              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-                }`}
+              className={`p-2 rounded flex items-center gap-2 ${
+                totalPages === 0 || currentPage === totalPages
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
               }
@@ -330,6 +340,6 @@ export default function Home() {
           dispatch(setImageViewAction({ show: false }));
         }}
       />
-    </div >
+    </div>
   );
 }
