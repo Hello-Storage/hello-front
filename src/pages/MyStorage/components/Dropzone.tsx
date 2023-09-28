@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import { useFetchData, useAuth } from "hooks";
@@ -35,16 +35,20 @@ const getColor = (
   return "border-[#eeeeee]";
 };
 
-export default function Dropzone() {
+const Dropzone = () => {
   const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
     (state) => state.userdetail
   );
 
+  const thisEncryptionEnabledRef = useRef(encryptionEnabled);
+  const thisAutoEncryptionEnabledRef = useRef(autoEncryptionEnabled);
+  
+
   useEffect(() => {
+    thisEncryptionEnabledRef.current = encryptionEnabled;
+    thisAutoEncryptionEnabledRef.current = autoEncryptionEnabled;
+  }, [autoEncryptionEnabled, encryptionEnabled])
 
-    console.log('encryptionEnabled changed:', encryptionEnabled);
-
-  }, [encryptionEnabled, autoEncryptionEnabled]);
 
   const { name } = useAppSelector((state) => state.user);
   const { fetchRootContent, fetchUserDetail } = useFetchData();
@@ -158,6 +162,7 @@ export default function Dropzone() {
 
   const postData = (formData: FormData) => {
     // console.log(formData);
+    //the below thisEncryptionEnabled is not updated for some reason
 
     Api.post("/file/upload", formData, {
       headers: {
@@ -197,10 +202,10 @@ export default function Dropzone() {
     // console.log(encryptionEnabled);
     // return;
 
-    if (encryptionEnabled) {
+    if (thisEncryptionEnabledRef.current) {
       personalSignature = await getPersonalSignature(
         name,
-        autoEncryptionEnabled,
+        thisAutoEncryptionEnabledRef.current,
         accountType,
         logout
       );
@@ -217,8 +222,7 @@ export default function Dropzone() {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      console.log(encryptionEnabled);
-      if (encryptionEnabled) {
+      if (thisEncryptionEnabledRef.current) {
         const infoText = `Encrypting file ${i + 1} of ${files.length}`;
         dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
         const encryptedResult = await handleEncryption(
@@ -289,7 +293,6 @@ export default function Dropzone() {
 
   const onDrop = useCallback((acceptedFiles: any[]) => {
     // console.log(localStorage.getItem("encryptionEnabled")); 
-    console.log("Actual status: ", encryptionEnabled);
     handleFileUpload(acceptedFiles, false);      
 
     // Do something with the files
@@ -321,3 +324,5 @@ export default function Dropzone() {
     </div>
   );
 }
+
+export default Dropzone;
