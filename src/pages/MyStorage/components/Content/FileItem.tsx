@@ -54,9 +54,12 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   };
 
 
+
+  const viewRef = useRef(false);
+
   const onDownloadProgress = (progressEvent: AxiosProgressEvent) => {
 
-    dispatch(setUploadStatusAction({ info: "Downloading " + file.name, uploading: true }));
+    dispatch(setUploadStatusAction({ info: `${viewRef.current ? "Loading" : "Downloading"} ` + file.name, uploading: true }));
 
     dispatch(
       setUploadStatusAction({
@@ -68,6 +71,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
 
   // Function to handle file download
   const handleDownload = () => {
+    viewRef.current = false;
     toast.info("Starting download for " + file.name + "...");
     // Make a request to download the file with responseType 'blob'
     Api.get(`/file/download/${file.uid}`, {
@@ -118,6 +122,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   };
 
   const handleView = () => {
+    viewRef.current = true;
+
     Api.get(`/file/download/${file.uid}`, {
       responseType: "blob",
       onDownloadProgress: onDownloadProgress
