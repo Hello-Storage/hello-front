@@ -35,10 +35,13 @@ const getColor = (
   return "border-[#eeeeee]";
 };
 
+
 const Dropzone = () => {
+
   const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
     (state) => state.userdetail
   );
+
 
   const thisEncryptionEnabledRef = useRef(encryptionEnabled);
   const thisAutoEncryptionEnabledRef = useRef(autoEncryptionEnabled);
@@ -162,8 +165,6 @@ const Dropzone = () => {
 
   const postData = (formData: FormData) => {
     // console.log(formData);
-    //the below thisEncryptionEnabled is not updated for some reason
-
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
