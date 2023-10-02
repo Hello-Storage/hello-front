@@ -182,8 +182,8 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   if (view === "list")
     return (
       <>
-        <div className="bg-green-50 hover:bg-green-100 px-5 py-3 w-[220px] rounded-lg relative">
-          <div className="flex flex-row items-center justify-between">
+        <div className="bg-gray-50 hover:bg-gray-100 px-5 py-3 w-[220px] rounded-lg relative overflow-visible">
+          <div className="flex flex-row items-center justify-between relative">
             <FaFolder
               className="inline-block align-middle mr-2"
               size={24}
@@ -194,7 +194,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                 {truncate(folder.title, 12)}
               </label>
               <button
-                className="rounded-lg hover:bg-green-100 p-1"
+                className="rounded-lg hover:bg-gray-100 p-1"
                 onClick={() => setOpen(!open)}
               >
                 <HiDotsVertical className="align-middle" />{" "}
@@ -202,7 +202,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                   {open && (
                     <div
                       id="dropdown"
-                      className="absolute right-6 z-10 mt-2 bg-white shadow text-left w-36 divide-y border"
+                      className="absolute origin-top-right right-0 z-50 mt-2 bg-white shadow text-left w-36 divide-y border"
                     >
                       <ul className="py-2">
                         <a
@@ -242,7 +242,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
     );
   else
     return (
-      <div className="bg-green-50 hover:bg-green-100 px-5 py-3 w-[220px] rounded-lg relative">
+      <div className="bg-gray-50 hover:bg-gray-100 px-5 py-3 w-[220px] rounded-lg relative">
         <div className="flex flex-row items-center justify-between">
           <FaFolder
             className="inline-block align-middle mr-2"
@@ -254,7 +254,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
               {truncate(folder.title, 12)}
             </label>
             <button
-              className="rounded-lg hover:bg-green-100 p-1"
+              className="rounded-lg hover:bg-gray-100 p-1"
               onClick={() => setOpen(!open)}
             >
               <HiDotsVertical className="align-middle" />{" "}

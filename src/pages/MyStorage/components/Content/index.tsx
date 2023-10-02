@@ -247,8 +247,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
 
   if (view === "list")
     return (
-      <div className="flex flex-col flex-1">
-        <div className="overflow-auto w-full md:overflow-visible custom-scrollbar">
+      <div className="flex flex-col flex-1 overflow-visible">
+        <div className="w-full custom-scrollbar">
           <div className="flex overflow-x-auto whitespace-nowrap mb-6 mt-3">
             {folders.map((v, i) => (
               <div
@@ -257,7 +257,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
                 aria-label={v.uid}
                 aria-valuetext="folder"
                 draggable
-                className={`cursor-pointer min-w-[220px] ${
+                className={`cursor-pointer min-w-[220px] z-50 ${
                   draggingOverFolderId === v.id.toString()
                     ? "bg-blue-200 border border-blue-500"
                     : isItemSelected(v.id.toString())
