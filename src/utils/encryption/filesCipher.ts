@@ -233,16 +233,21 @@ export function blobToArrayBuffer(blob: Blob) {
     });
 }
 
-export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string): Promise<ArrayBuffer | null> => {
+export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string, onProgress: (percentage: number) => void): Promise<ArrayBuffer | null> => {
     try {
+        onProgress(10)
         const cipherBytes = new Uint8Array(cipher)
         const salt = cipherBytes.slice(0, 16)
+        onProgress(25)
         const iv = cipherBytes.slice(16, 16 + 12)
+        onProgress(40)
         const data = cipherBytes.slice(16 + 12)
+        onProgress(55)
         const { aesKey } = await getAesKey(originalCid, ['decrypt'], salt, iv)
-
-
-        return await decryptContentUtil(data, aesKey, iv)
+        onProgress(70)
+        const decryptedContent = await decryptContentUtil(data, aesKey, iv)
+        onProgress(100)
+        return decryptedContent
     } catch (error) {
         console.error('Error decrypting file')
         console.error(error)
@@ -263,7 +268,7 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignatureR
     }
     // Using map to create an array of promises
     const decrytpedFilesPromises = files.map(async (file) => {
-        if (file.encryption_status === EncryptionStatus.Encrypted) {
+        if (file.encryption_status === EncryptionStatus.Encrypted && !file.decrypted) {
             try {
                 const decryptionResult = await decryptMetadata(
                     file.name,
@@ -282,6 +287,7 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignatureR
                         name: decryptedFilename,
                         mime_type: decryptedFiletype,
                         cid_original_encrypted: decryptedCidOriginal,
+                        decrypted: true,
                     };
                 }
             } catch (error) {
@@ -302,7 +308,8 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignatureR
 export const handleEncryptedFolders = async (folders: Folder[], personalSignatureRef: React.MutableRefObject<string | undefined>) => {
     // Using map to create an array of promises
     const decrytpedFoldersPromises = folders.map(async (folder) => {
-        if (folder.encryption_status === EncryptionStatus.Encrypted) {
+        if (folder.encryption_status === EncryptionStatus.Encrypted && !folder.decrypted) {
+
             // encrypt file metadata and blob
             const folderTitleBuffer = hexToBuffer(folder.title);
             const decryptedTitleBuffer = await decryptContent(
@@ -315,9 +322,11 @@ export const handleEncryptedFolders = async (folders: Folder[], personalSignatur
             return {
                 ...folder,
                 title: decryptedTitle,
+                decrypted: true,
             };
         }
         return folder;
+
     });
 
     // Wait for all promises to resolve
