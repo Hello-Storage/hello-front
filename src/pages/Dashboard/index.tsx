@@ -3,6 +3,10 @@ import { useResizeDetector } from "react-resize-detector";
 import World from "./components/World";
 import { StackedBar } from "components";
 import Chart from "./components/Chart";
+import { Api } from "api";
+import { useAppSelector } from "state";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const data = [
   {
@@ -24,6 +28,70 @@ const data = [
 ];
 export default function Dashboard() {
   const { width, height, ref } = useResizeDetector();
+  const { uid } = useAppSelector((state) => state.user);
+  const [counttotalusedstorageuser, setcounttotalusedstorageuser] =
+    useState("");
+  const [counttotalencryptedfilesuser, setcounttotalencryptedfilesuser] =
+    useState("");
+  const [counttotalpublicfilesuser, setcounttotalpublicfilesuser] =
+    useState("");
+  const [counttotalfilesuser, setcounttotalfilesuser] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  function formatBytes(bytes: number): string {
+    if (bytes === 0) return "0 Byte";
+
+    const k = 1000;
+    const sizes = [
+      " Bytes",
+      " KiB",
+      " MiB",
+      " GiB",
+      " TiB",
+      " PiB",
+      " EiB",
+      " ZiB",
+      " YiB",
+    ];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / k ** i).toFixed(2)) + sizes[i];
+  }
+
+  const fetchData = () => {
+    // Esta URL debe ser la ruta de tu backend
+    const apiUrl = `http://172.19.19.228:8080/api/statistics/${uid}`;
+
+    Api
+      .get(apiUrl)
+      .then((response) => {
+        const data = response.data;
+        setcounttotalusedstorageuser(data.CountTotalUsedStorageUser);
+        setcounttotalencryptedfilesuser(data.CountTotalEncryptedFilesUser);
+        setcounttotalpublicfilesuser(data.CountTotalPublicFilesUser);
+        setcounttotalfilesuser(data.CountTotalFilesUser);
+
+        
+
+        console.log(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("There was an error loading data", error);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchData();
+
+    // 15 seconds update interval
+    const intervalId = setInterval(fetchData, 15000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <div>
       <h1 className="text-xl font-medium">Dashboard</h1>
@@ -32,7 +100,10 @@ export default function Dashboard() {
           <label>Used Storage</label>
           <div className="">
             <label className="text-sm text-gray-500">
-              <b className="text-2xl font-semibold text-black">10GB</b> / 40GB
+              <b className="text-2xl font-semibold text-black">
+              {formatBytes(parseInt(counttotalusedstorageuser))}
+              </b>{" "}
+              
             </label>
           </div>
         </div>
@@ -40,7 +111,9 @@ export default function Dashboard() {
         <div className="border rounded-md p-3">
           <label>Total files</label>
           <div className="">
-            <label className="text-2xl font-semibold text-black">134</label>
+            <label className="text-2xl font-semibold text-black">
+              {counttotalfilesuser}
+            </label>
           </div>
         </div>
 
@@ -48,7 +121,10 @@ export default function Dashboard() {
           <label>Public files</label>
           <div className="">
             <label className="text-sm text-gray-500">
-              <b className="text-2xl font-semibold text-black">132</b> / files
+              <b className="text-2xl font-semibold text-black">
+                {counttotalpublicfilesuser}
+              </b>{" "}
+              / files
             </label>
           </div>
         </div>
@@ -57,7 +133,10 @@ export default function Dashboard() {
           <label>Encrypted files</label>
           <div className="">
             <label className="text-sm text-gray-500">
-              <b className="text-2xl font-semibold text-black">50</b> / files
+              <b className="text-2xl font-semibold text-black">
+                {counttotalencryptedfilesuser}
+              </b>{" "}
+              / files
             </label>
           </div>
         </div>
