@@ -6,8 +6,8 @@ import { formatPercent } from "utils";
 export default function UploadProgress() {
   const { info, read, size } = useAppSelector((state) => state.uploadstatus);
   return (
-    <div className="absolute bg-white w-96 left-1/2 bottom-5 border border-gray-200 shadow-md rounded-lg">
-      <div>
+    <div className="absolute bg-white w-96 left-1/2 bottom-5 border border-gray-200 shadow-md rounded-lg transform -translate-x-1/2">
+      <div className="flex flex-col justify-center h-full"> 
         <div className="p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -18,8 +18,7 @@ export default function UploadProgress() {
             </div>
             <div className="">{formatPercent(read, size, 1)}</div>
           </div>
-
-          <div className="mt-2">
+          <div className="mt-2 flex justify-center"> 
             <ProgressBar
               className="h-1"
               percent={(read * 100) / size}
@@ -31,3 +30,4 @@ export default function UploadProgress() {
     </div>
   );
 }
+

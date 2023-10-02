@@ -248,6 +248,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     })
       .then((data) => {
         toast.success("upload Succeed!");
+        setSidebarOpen(false);
+        console.log(data);
         dispatch(
           setUploadStatusAction({
             info: "Finished uploading data",
@@ -370,6 +372,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     event
   ) => {
     handleInputChange(event, false);
+    setSidebarOpen(false);
   };
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
