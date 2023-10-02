@@ -247,14 +247,43 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
 
   if (view === "list")
     return (
-      <div className="flex flex-col flex-1 max-h-screen">
-        <div className="overflow-auto md:overflow-visible max-h-[calc(100vh-6rem)] custom-scrollbar">
+      <div className="flex flex-col flex-1">
+        <h3 className="mb-3">Folders</h3>
+        <div className="overflow-auto w-full md:overflow-visible custom-scrollbar">
+          <div className="flex overflow-x-auto whitespace-nowrap mb-8">
+            {folders.map((v, i) => (
+              <div
+                key={i}
+                id={v.id.toString()}
+                aria-label={v.uid}
+                aria-valuetext="folder"
+                draggable
+                className={`cursor-pointer min-w-[220px] ${
+                  draggingOverFolderId === v.id.toString()
+                    ? "bg-blue-200 border border-blue-500"
+                    : isItemSelected(v.id.toString())
+                    ? "bg-sky-100"
+                    : ""
+                } ${i < folders.length - 1 ? "mr-5" : ""}`}
+                onDrag={handleDrag}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onDoubleClick={() => onFolderDoubleClick(v.uid)}
+                onClick={handleOnClick}
+              >
+                <FolderItem folder={v} key={i} view="list" />
+              </div>
+            ))}
+          </div>
           <table className="w-full text-sm text-left text-gray-500 table-with-lines">
             <thead className="text-xs text-gray-700 bg-gray-100">
               <tr>
                 <th
                   scope="col"
-                  className="p-3 rounded-tl-lg rounded-bl-lg"
+                  className="p-2.5 rounded-tl-lg rounded-bl-lg"
                   onClick={(event: React.MouseEvent<HTMLTableCellElement>) => {
                     if (event.ctrlKey) {
                       setSelectedItems([]);
@@ -316,32 +345,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
                 </tr>
               ) : (
                 <>
-                  {folders.map((v, i) => (
-                    <tr
-                      key={i}
-                      id={v.id.toString()}
-                      aria-label={v.uid}
-                      aria-valuetext="folder"
-                      draggable
-                      className={`cursor-pointer ${
-                        draggingOverFolderId === v.id.toString()
-                          ? "bg-blue-200 border border-blue-500"
-                          : isItemSelected(v.id.toString())
-                          ? "bg-sky-100"
-                          : "bg-white hover:bg-gray-100"
-                      }`}
-                      onDrag={handleDrag}
-                      onDragStart={handleDragStart}
-                      onDragEnd={handleDragEnd}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      onDoubleClick={() => onFolderDoubleClick(v.uid)}
-                      onClick={handleOnClick}
-                    >
-                      <FolderItem folder={v} key={i} view="list" />
-                    </tr>
-                  ))}
                   {files?.map((v, i) => (
                     <tr
                       key={i}
@@ -374,9 +377,16 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     return (
       <Fragment>
         <h3 className="mb-3">Folders</h3>
-        <div className="grid grid-200 gap-3">
+        <div className="flex overflow-x-auto whitespace-nowrap gap-3 mb-5">
           {folders.map((v, i) => (
-            <FolderItem folder={v} key={i} view="grid" />
+            <div
+              className={`cursor-pointer min-w-[220px] ${
+                i < folders.length - 1 ? "mr-2" : ""
+              }`}
+              onDoubleClick={() => onFolderDoubleClick(v.uid)}
+            >
+              <FolderItem folder={v} key={i} view="grid" />
+            </div>
           ))}
         </div>
 

@@ -299,7 +299,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       const file = files[i];
 
       if (encryptionEnabled) {
-        const infoText = `Encrypting file ${i + 1} of ${files.length}`;
+        const infoText = `Encrypting ${i + 1} of ${files.length}`;
         dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
         const encryptedResult = await handleEncryption(
           file,
