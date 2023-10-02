@@ -40,9 +40,9 @@ export default function Dashboard() {
 
   function formatBytes(bytes: number): string {
     if (bytes === 0) return "0 Byte";
-    
-    const k = 1024;
 
+    const k = 1024;
+    
     const sizes = [
       " Bytes",
       " KiB",
@@ -62,9 +62,8 @@ export default function Dashboard() {
 
   const fetchData = () => {
     // Esta URL debe ser la ruta de tu backend
-  
-    Api
-      .get("statistics/" + uid)
+
+    Api.get("statistics/" + uid)
       .then((response) => {
         const data = response.data;
         setcounttotalusedstorageuser(data.CountTotalUsedStorageUser);
@@ -72,7 +71,6 @@ export default function Dashboard() {
         setcounttotalpublicfilesuser(data.CountTotalPublicFilesUser);
         setcounttotalfilesuser(data.CountTotalFilesUser);
 
-        
 
         console.log(data);
         setLoading(false);
@@ -101,6 +99,7 @@ export default function Dashboard() {
           <div className="">
             <label className="text-sm text-gray-500">
               <b className="text-2xl font-semibold text-black">
+
               {formatBytes(parseInt(counttotalusedstorageuser))}
               </b>{" "}
               
@@ -144,7 +143,10 @@ export default function Dashboard() {
 
       <hr className="my-6" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="flex-1 overflow-hidden h-96 md:h-[656px]" ref={ref}>
+        <div
+          className="flex flex-col items-start overflow-hidden h-96 md:h-[656px]"
+          ref={ref}
+        >
           <h3 className="text-xl font-medium">Storage distribution</h3>
           <World size={width} />
         </div>
