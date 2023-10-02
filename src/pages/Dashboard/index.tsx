@@ -61,10 +61,9 @@ export default function Dashboard() {
 
   const fetchData = () => {
     // Esta URL debe ser la ruta de tu backend
-    const apiUrl = `http://172.19.19.228:8080/api/statistics/${uid}`;
-
+  
     Api
-      .get(apiUrl)
+      .get("statistics/" + uid)
       .then((response) => {
         const data = response.data;
         setcounttotalusedstorageuser(data.CountTotalUsedStorageUser);
