@@ -9,6 +9,7 @@ interface Base {
   deleted_at: string | null;
   updated_at: string;
   encryption_status: EncryptionStatus;
+  decrypted?: boolean;
 }
 
 export interface File extends Base {

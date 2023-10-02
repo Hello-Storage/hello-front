@@ -5,6 +5,7 @@ interface UploadStatus {
   read?: number;
   size?: number;
   uploading?: boolean;
+  decryptionProgress?: number;
 }
 
 export const setUploadStatusAction =
