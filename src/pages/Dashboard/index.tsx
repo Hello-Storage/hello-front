@@ -41,7 +41,8 @@ export default function Dashboard() {
   function formatBytes(bytes: number): string {
     if (bytes === 0) return "0 Byte";
 
-    const k = 1000;
+    const k = 1024;
+    
     const sizes = [
       " Bytes",
       " KiB",
@@ -70,6 +71,7 @@ export default function Dashboard() {
         setcounttotalpublicfilesuser(data.CountTotalPublicFilesUser);
         setcounttotalfilesuser(data.CountTotalFilesUser);
 
+
         console.log(data);
         setLoading(false);
       })
@@ -97,8 +99,10 @@ export default function Dashboard() {
           <div className="">
             <label className="text-sm text-gray-500">
               <b className="text-2xl font-semibold text-black">
-                {formatBytes(parseInt(counttotalusedstorageuser))}
+
+              {formatBytes(parseInt(counttotalusedstorageuser))}
               </b>{" "}
+              
             </label>
           </div>
         </div>
