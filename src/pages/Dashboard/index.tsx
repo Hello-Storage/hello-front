@@ -3,6 +3,7 @@ import { useResizeDetector } from "react-resize-detector";
 import World from "./components/World";
 import { StackedBar } from "components";
 import Chart from "./components/Chart";
+import { useEffect } from "react";
 
 const data = [
   {
@@ -23,6 +24,11 @@ const data = [
   },
 ];
 export default function Dashboard() {
+
+  useEffect(() => {
+    fetchUserDetail();
+  }, []);
+
   const { width, height, ref } = useResizeDetector();
   return (
     <div>
@@ -121,3 +127,7 @@ export default function Dashboard() {
     </div>
   );
 }
+function fetchUserDetail() {
+  throw new Error("Function not implemented.");
+}
+

@@ -145,6 +145,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     folderInput.current?.click();
   };
 
+
+  useEffect(() => {
+    fetchUserDetail();
+  }, []);
+
   const getRoot = () =>
     location.pathname.includes("/folder")
       ? location.pathname.split("/")[2]
