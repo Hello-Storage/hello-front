@@ -82,60 +82,79 @@ export default function Home() {
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
 
-
   const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
   const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
 
-
-
   useEffect(() => {
-  async function fetchContent() {
-    setLoading(true);
+    async function fetchContent() {
+      setLoading(true);
 
-    const tempStartIndex = (currentPage - 1) * itemsPerPage;
-    const tempEndIndex = tempStartIndex + itemsPerPage;
+      const itemsPerPage = currentPage === 1 ? 10 : 20;
 
-    setStartIndex(tempStartIndex);
-    setEndIndex(Math.min(tempEndIndex, totalItems));
+      const tempStartIndex =
+        currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
+      const tempEndIndex = tempStartIndex + itemsPerPage;
 
-    // Calculate the number of folders and files to display on the current page.
-    let folderItemsCount = Math.min(folders.length - tempStartIndex, itemsPerPage);
-    folderItemsCount = Math.max(0, folderItemsCount); // Ensure it's not negative
+      setStartIndex(tempStartIndex);
+      setEndIndex(Math.min(tempEndIndex, totalItems));
 
-    // Slice the folders array to get the items to display on the current page.
-    const currentEncryptedFolders = folders.slice(tempStartIndex, tempStartIndex + folderItemsCount);
+      // Calculate the number of folders and files to display on the current page.
+      let folderItemsCount = Math.min(
+        folders.length - tempStartIndex,
+        itemsPerPage
+      );
+      folderItemsCount = Math.max(0, folderItemsCount); // Ensure it's not negative
 
-    // Calculate starting index for files based on the number of folders taken.
-    const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
-    const filesItemsCount = itemsPerPage - folderItemsCount; // Remaining space on the page
+      // Slice the folders array to get the items to display on the current page.
+      const currentEncryptedFolders = folders.slice(
+        tempStartIndex,
+        tempStartIndex + folderItemsCount
+      );
 
-    // Slice the files array based on the calculated start and end indices.
-    const currentEncryptedFiles = files.slice(filesStartIndex, filesStartIndex + filesItemsCount);
+      // Calculate starting index for files based on the number of folders taken.
+      const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
+      const filesItemsCount = itemsPerPage - folderItemsCount; // Remaining space on the page
 
-    const decryptedFiles = await handleEncryptedFiles(currentEncryptedFiles, personalSignatureRef, name, autoEncryptionEnabled, accountType, logout);
+      // Slice the files array based on the calculated start and end indices.
+      const currentEncryptedFiles = files.slice(
+        filesStartIndex,
+        filesStartIndex + filesItemsCount
+      );
 
-    if (decryptedFiles && decryptedFiles.length > 0) {
-      dispatch(updateDecryptedFilesAction(decryptedFiles));
+      const decryptedFiles = await handleEncryptedFiles(
+        currentEncryptedFiles,
+        personalSignatureRef,
+        name,
+        autoEncryptionEnabled,
+        accountType,
+        logout
+      );
+
+      if (decryptedFiles && decryptedFiles.length > 0) {
+        dispatch(updateDecryptedFilesAction(decryptedFiles));
+      }
+
+      setCurrentFiles(decryptedFiles || []);
+
+      const decryptedFolders = await handleEncryptedFolders(
+        currentEncryptedFolders,
+        personalSignatureRef
+      );
+
+      if (decryptedFolders && decryptedFolders.length > 0) {
+        dispatch(updateDecryptedFoldersAction(decryptedFolders));
+      }
+      setCurrentFolders(decryptedFolders || []);
+
+      if (!currentFiles || !currentFolders) {
+        toast.error("Failed to decrypt content");
+        fetchRootContent(setLoading);
+      }
     }
-
-    setCurrentFiles(decryptedFiles || []);
-
-    const decryptedFolders = await handleEncryptedFolders(currentEncryptedFolders, personalSignatureRef);
-
-    if (decryptedFolders && decryptedFolders.length > 0) {
-      dispatch(updateDecryptedFoldersAction(decryptedFolders));
-    }
-    setCurrentFolders(decryptedFolders || []);
-
-    if (!currentFiles || !currentFolders) {
-      toast.error("Failed to decrypt content");
-      fetchRootContent(setLoading);
-    }
-  }
-  fetchContent().then(() => {
-    setLoading(false);
-  });
-}, [logout, name, currentPage, folders.length, files.length]);
+    fetchContent().then(() => {
+      setLoading(false);
+    });
+  }, [logout, name, currentPage, folders.length, files.length]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -285,8 +304,8 @@ export default function Home() {
 
       {/* Sticky footer */}
       <div className="flex-shrink-0">
-        <div className="flex justify-between items-center mt-3 px-4 py-2 bg-white border-t border-gray-200">
-          <div>
+        <div className="flex justify-between items-center text-sm mt-3 py-2 bg-white border-t border-gray-200">
+          <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
             {Math.min(endIndex, totalItems)} of {totalItems} results
           </div>
