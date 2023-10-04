@@ -163,6 +163,7 @@ const Dropzone = () => {
     };
   };
 
+
   const postData = (formData: FormData) => {
     // console.log(formData);
     Api.post("/file/upload", formData, {

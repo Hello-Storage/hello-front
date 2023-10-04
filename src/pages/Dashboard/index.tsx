@@ -3,10 +3,12 @@ import { useResizeDetector } from "react-resize-detector";
 import World from "./components/World";
 import { StackedBar } from "components";
 import Chart from "./components/Chart";
+
 import { Api } from "api";
 import { useAppSelector } from "state";
 import axios from "axios";
 import { useEffect, useState } from "react";
+
 
 const data = [
   {
@@ -27,6 +29,11 @@ const data = [
   },
 ];
 export default function Dashboard() {
+
+  useEffect(() => {
+    fetchUserDetail();
+  }, []);
+
   const { width, height, ref } = useResizeDetector();
   const { uid } = useAppSelector((state) => state.user);
   const [counttotalusedstorageuser, setcounttotalusedstorageuser] =
@@ -202,3 +209,7 @@ export default function Dashboard() {
     </div>
   );
 }
+function fetchUserDetail() {
+  throw new Error("Function not implemented.");
+}
+
