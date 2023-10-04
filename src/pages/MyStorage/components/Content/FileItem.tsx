@@ -37,8 +37,6 @@ interface FileItemProps {
   view: "list" | "grid";
 }
 
-
-
 const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const dispatch = useAppDispatch();
   const { fetchRootContent } = useFetchData();
@@ -53,21 +51,23 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     toast.success("copied CID");
   };
 
-
-
   const viewRef = useRef(false);
 
   const onDownloadProgress = (progressEvent: AxiosProgressEvent) => {
-
-    dispatch(setUploadStatusAction({ info: `${viewRef.current ? "Loading" : "Downloading"} ` + file.name, uploading: true }));
+    dispatch(
+      setUploadStatusAction({
+        info: `${viewRef.current ? "Loading" : "Downloading"} ` + file.name,
+        uploading: true,
+      })
+    );
 
     dispatch(
       setUploadStatusAction({
         read: progressEvent.loaded,
         size: file.size,
       })
-    )
-  }
+    );
+  };
 
   // Function to handle file download
   const handleDownload = () => {
@@ -76,7 +76,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     // Make a request to download the file with responseType 'blob'
     Api.get(`/file/download/${file.uid}`, {
       responseType: "blob",
-      onDownloadProgress: onDownloadProgress
+      onDownloadProgress: onDownloadProgress,
     })
       .then(async (res) => {
         dispatch(
@@ -90,11 +90,20 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid, (percentage) => {
-            dispatch(
-              setUploadStatusAction({ info: "Decrypting...", read: percentage, size: 100, uploading: true })
-            )
-          });
+          binaryData = await decryptFileBuffer(
+            binaryData,
+            originalCid,
+            (percentage) => {
+              dispatch(
+                setUploadStatusAction({
+                  info: "Decrypting...",
+                  read: percentage,
+                  size: 100,
+                  uploading: true,
+                })
+              );
+            }
+          );
 
           dispatch(
             setUploadStatusAction({
@@ -126,7 +135,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
 
     Api.get(`/file/download/${file.uid}`, {
       responseType: "blob",
-      onDownloadProgress: onDownloadProgress
+      onDownloadProgress: onDownloadProgress,
     })
       .then(async (res) => {
         dispatch(
@@ -139,11 +148,20 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(binaryData, originalCid, (percentage) => {
-            dispatch(
-              setUploadStatusAction({ info: "Decrypting...", read: percentage, size: 100, uploading: true })
-            )
-          });
+          binaryData = await decryptFileBuffer(
+            binaryData,
+            originalCid,
+            (percentage) => {
+              dispatch(
+                setUploadStatusAction({
+                  info: "Decrypting...",
+                  read: percentage,
+                  size: 100,
+                  uploading: true,
+                })
+              );
+            }
+          );
 
           dispatch(
             setUploadStatusAction({
@@ -301,15 +319,13 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   else
     return (
       <div
-        className="bg-white p-4 rounded-md mb-3 border border-gray-200 shadow-md hover:cursor-pointer hover:bg-gray-100"
+        className="bg-gray-50 p-4 rounded-lg mb-3 border border-gray-200 hover:cursor-pointer hover:bg-gray-100"
         onClick={handleView}
       >
         <div>
           <div className="flex flex-col items-center gap-3">
-            <div className="p-1 bg-gray-100 rounded-md">
-              <HiDocumentText className="w-7 h-7" />
-            </div>
-            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis">
+            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis flex items-center gap-2">
+              <HiDocumentText className="w-4 h-4 flex-shrink-0" />
               <span className="hidden md:inline">
                 {truncate(file.name, 40)}
               </span>
@@ -320,7 +336,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           </div>
         </div>
         <div
-          className="text-center text-xs flex items-center justify-center gap-1 select-none hover:text-blue-500 mt-4"
+          className="text-center text-xs flex items-center justify-left gap-1 select-none hover:text-blue-500 mt-4"
           onClick={(e) => {
             e.stopPropagation(); // Prevent triggering the parent's onClick
             onCopy(e);
