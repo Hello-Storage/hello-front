@@ -57,7 +57,7 @@ function App() {
           <Route path="/space/migration" element={<Migration />} />
         </Route>
 
-        <Route path="/login" element={<Login />} />
+        <Route path="/space/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );
