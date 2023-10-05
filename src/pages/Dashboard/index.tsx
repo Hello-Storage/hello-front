@@ -8,6 +8,7 @@ import { Api } from "api";
 import { useAppSelector } from "state";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import useFetchData from "hooks/useFetchData";
 
 
 const data = [
@@ -29,6 +30,7 @@ const data = [
   },
 ];
 export default function Dashboard() {
+  const { fetchUserDetail } = useFetchData();
 
   useEffect(() => {
     fetchUserDetail();
@@ -208,8 +210,5 @@ export default function Dashboard() {
       </div>
     </div>
   );
-}
-function fetchUserDetail() {
-  throw new Error("Function not implemented.");
 }
 
