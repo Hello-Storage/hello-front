@@ -8,6 +8,7 @@ import {
   removeContent,
   updateDecryptedFilesAction,
   updateDecryptedFoldersAction,
+  removeFile,
 } from "./actions";
 import { RootResponse } from "api";
 
@@ -38,6 +39,10 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
       ...state,
       preview: payload.img,
       showPreview: payload.show == undefined ? false : payload.show,
+    }))
+    .addCase(removeFile, (state, { payload }) => ({
+      ...state,
+      files: state.files.filter(file => file.uid !== payload),
     }))
     .addCase(removeContent, (state) => ({
       ...state,
