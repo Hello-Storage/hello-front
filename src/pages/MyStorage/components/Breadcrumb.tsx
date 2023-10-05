@@ -121,7 +121,7 @@ export default function Breadcrumb() {
           aria-label={"/"}
         >
           <a
-            onClick={() => onClick("/space")}
+            onClick={() => onClick("/space/m-storage")}
             className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer"
           >
             My Storage
@@ -132,7 +132,7 @@ export default function Breadcrumb() {
             <div className="flex items-center">
               <HiChevronRight />
               <a
-                onClick={() => onClick(`/folder/${v.uid}`)}
+                onClick={() => onClick(`/space/folder/${v.uid}`)}
                 className="ml-1 text-gray-700 hover:text-blue-600 md:ml-2 cursor-pointer"
               >
                 <FaFolder

@@ -11,7 +11,7 @@ const PrivateRoute: FC<{ component: React.ComponentType }> = ({
   if (loading) return <Spinner3 />;
   if (authenticated) return <RouteComponent />;
 
-  return <Navigate to="/login" />;
+  return <Navigate to="/space/login" />;
 };
 
 export default PrivateRoute;
