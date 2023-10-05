@@ -34,7 +34,7 @@ export default function Login() {
 
   if (loading) return <Spinner3 />;
   if (authenticated) {
-    return <Navigate to="/" />;
+    return <Navigate to="/space/my-storage" />;
   }
 
   return (
