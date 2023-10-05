@@ -70,8 +70,8 @@ const Dropzone = () => {
   };
 
   const getRoot = () =>
-    location.pathname.includes("/folder")
-      ? location.pathname.split("/")[2]
+    location.pathname.includes("/space/folder")
+      ? location.pathname.split("/")[3]
       : "/";
 
   const handleEncryption = async (

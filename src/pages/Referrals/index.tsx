@@ -70,7 +70,7 @@ const Referrals = () => {
   return (
     <div className="flex flex-col h-full relative">
       <a
-        onClick={() => navigate("/referrals")}
+        onClick={() => navigate("/space/referrals")}
         className="p-2 text-xl inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer"
       >
         Referrals

@@ -27,10 +27,10 @@ const useFetchData = () => {
   const fetchRootContent = useCallback((setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
     if (setLoading)
       setLoading(true);
-    let root = "/folder";
+    let root = "/space/folder";
 
-    if (location.pathname.includes("/folder")) {
-      root = "/folder/" + location.pathname.split("/")[2];
+    if (location.pathname.includes("/space/folder")) {
+      root = "/space/folder/" + location.pathname.split("/")[3];
     }
 
 

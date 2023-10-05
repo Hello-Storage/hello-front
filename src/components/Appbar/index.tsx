@@ -122,7 +122,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                   </li>
                   <li>
                     <a
-                      href="/referrals"
+                      href="/space/referrals"
                       className="block px-4 py-2 hover:bg-gray-100"
                     >
                       <HiUsers className="inline-flex mr-3" />
