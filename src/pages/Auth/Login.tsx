@@ -42,7 +42,7 @@ export default function Login() {
       <div className="md:absolute flex items-center gap-2">
         <div className="flex items-center gap-3">
           <label className="text-2xl font-semibold font-[Outfit]">
-            Hello.app
+            hello.app
           </label>
           <img src={LogoHello} alt="logo" className="w-12 h-6" />
         </div>

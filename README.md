@@ -1,3 +1,5 @@
-# joinhelloapp - frontend
+# Hello app- frontend
 
-Join Hello App
+Join Hello App today!
+
+## Private decentralized protocol

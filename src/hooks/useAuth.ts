@@ -46,7 +46,7 @@ const useAuth = () => {
       wallet_address,
     });
 
-    const message = `Greetings from joinhello\nSign this message to log into joinhello\nnonce: ${nonceResp.data}`;
+    const message = `Greetings from hello\nSign this message to log into hello\nnonce: ${nonceResp.data}`;
 
     const signature = await signMessage({ message });
 

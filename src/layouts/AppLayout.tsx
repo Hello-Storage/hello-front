@@ -68,7 +68,7 @@ export default function AppLayout() {
           <div className="flex items-center justify-between sticky px-5 py-2 w-full bg-gray-100 lg:hidden">
             <div className="flex items-center gap-3">
               <label className="text-xl font-semibold font-[Outfit]">
-                Hello.app
+                hello.app
               </label>
               <img src={LogoHello} alt="beta" className="w-10 h-5" />
             </div>

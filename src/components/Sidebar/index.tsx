@@ -391,7 +391,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <label className="text-2xl font-semibold font-[Outfit]">
-            Hello.app
+            hello.app
           </label>
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
         </div>
