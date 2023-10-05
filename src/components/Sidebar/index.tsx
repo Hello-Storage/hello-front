@@ -560,7 +560,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             }}
             className="text-orange-500 cursor-pointer hover:underline"
           >
-            {formatBytes(storageAvailable, 2, false)} / 100 GB
+            {formatBytes(storageAvailable, 2, false)} / 100 GiB
           </a>
         </label>
         <div className="mt-4 pb-1">
