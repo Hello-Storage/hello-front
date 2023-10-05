@@ -22,8 +22,8 @@ export default function CreateFolderModal() {
   const {logout} = useAuth();
 
   const getRoot = () =>
-    window.location.pathname.includes("/folder")
-      ? window.location.pathname.split("/")[2]
+    window.location.pathname.includes("/space/folder")
+      ? window.location.pathname.split("/")[3]
       : "/";
 
   const onChange: ChangeEventHandler = (e: any) => {

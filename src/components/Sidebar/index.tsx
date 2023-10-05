@@ -44,19 +44,19 @@ import "tippy.js/dist/tippy.css";
 
 const links1 = [
   {
-    to: "/dashboard",
+    to: "/space/dashboard",
     icon: <img src={Layout} alt="custom icon" className="w-6 h-6" />,
     content: "Dashboard",
     available: true,
   },
   {
-    to: "/space",
+    to: "/space/my-storage",
     icon: <img src={FolderLock} alt="custom icon" className="w-6 h-6" />,
     content: "My storage",
     available: true,
   },
   {
-    to: "/referrals",
+    to: "/space/referrals",
     icon: <GoPeople className="w-5 h-5" />,
     content: "Referrals",
     available: true,
@@ -66,7 +66,7 @@ const links1 = [
 
 const links2 = [
   {
-    to: "/shared-with-me",
+    to: "/space/shared-with-me",
     icon: <img src={Send} alt="custom icon" className="w-6 h-6" />,
     content: "Shared",
     available: false,
@@ -151,8 +151,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   }, []);
 
   const getRoot = () =>
-    location.pathname.includes("/folder")
-      ? location.pathname.split("/")[2]
+    location.pathname.includes("/space/folder")
+      ? location.pathname.split("/")[3]
       : "/";
 
   const handleEncryption = async (
@@ -558,10 +558,10 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           {formatPercent(storageUsed, storageAvailable)} /{" "}
           {formatBytes(storageAvailable)} used -&nbsp;
           <a
-            href="/referrals"
+            href="/space/referrals"
             onClick={(e) => {
               e.preventDefault();
-              navigate("/referrals");
+              navigate("/space/referrals");
             }}
             className="text-orange-500 cursor-pointer hover:underline"
           >
@@ -571,7 +571,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="mt-4 pb-1">
           <button
             className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
-            onClick={() => navigate("/referrals")}
+            onClick={() => navigate("/space/referrals")}
             disabled={storageAvailable >= Math.pow(1024, 3) * 100}
           >
             Get {formatBytes(100 * Math.pow(1024, 3) - storageAvailable)} Free

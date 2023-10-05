@@ -31,7 +31,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   >(null);
 
   const onFolderDoubleClick = (folderUID: string) => {
-    navigate(`/folder/${folderUID}`);
+    navigate(`/space/folder/${folderUID}`);
   };
 
   // Event for select item
