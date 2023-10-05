@@ -50,7 +50,7 @@ const links1 = [
     available: true,
   },
   {
-    to: "/my-storage",
+    to: "/space",
     icon: <img src={FolderLock} alt="custom icon" className="w-6 h-6" />,
     content: "My storage",
     available: true,
