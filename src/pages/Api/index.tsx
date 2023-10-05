@@ -1,3 +1,4 @@
+import { Navigate } from "react-router";
 export default function Api() {
-  return <div>Api</div>;
+return <Navigate to="/login" />;
 }

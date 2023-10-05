@@ -17,7 +17,7 @@ const Shared = lazy(() => import("pages/Shared"));
 const Recent = lazy(() => import("pages/Recent"));
 const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));
-const Statistics = lazy(() => import("pages/Statistics"));
+const Statistics = lazy(() => import("pages/Api/Statistics"));
 const Api = lazy(() => import("pages/Api"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
@@ -42,22 +42,23 @@ function App() {
 
   return (
     <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<PrivateRoute component={AppLayout} />}>
-            <Route index element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/my-storage" element={<MyStorage />} />
-            <Route path="/folder/*" element={<MyStorage />} />
-            <Route path="/shared-with-me" element={<Shared />} />
-            <Route path="/recent" element={<Recent />} />
-            <Route path="/referrals" element={<Referrals />} />
-            <Route path="/deleted" element={<Deleted />} />
-            <Route path="/migration" element={<Migration />} />
-            <Route path="/api" element={<Api />} />
-          </Route>
+      <Routes>
+        <Route path="/stats" element={<Statistics />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
+          <Route index element={<Api />} />
+          <Route path="/space/dashboard" element={<Dashboard />} />
+          <Route path="/space/my-storage" element={<MyStorage />} />
+          <Route path="/space/folder/*" element={<MyStorage />} />
+          <Route path="/space/shared-with-me" element={<Shared />} />
+          <Route path="/space/recent" element={<Recent />} />
+          <Route path="/space/referrals" element={<Referrals />} />
+          <Route path="/space/deleted" element={<Deleted />} />
+          <Route path="/space/migration" element={<Migration />} />
+        </Route>
 
-          <Route path="/login" element={<Login />} />
-        </Routes>
+        <Route path="/login" element={<Login />} />
+      </Routes>
     </BrowserRouter>
   );
 }
