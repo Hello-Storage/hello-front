@@ -108,7 +108,7 @@ export default function Statistics() {
                     Hello Storage Overview
                 </h1>
                 <a
-                    href="https://staging.joinhello.app/login"
+                    href="https://hello.app"
                     className="text-sm bg-blue-500 text-white py-1 px-3 rounded mt-4 md:mt-10 md:absolute md:top-3 md:right-4"
                 >
                     Go to Hello Staging
