@@ -52,7 +52,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 
   const onCopy = (event: React.MouseEvent) => {
     if (!event.ctrlKey) return;
-    copy(`https://staging.joinhello.app/folder/${folder.uid}`);
+    copy(`https://hello.app/space/folder/${folder.uid}`);
     toast.success("copied CID");
   };
 
