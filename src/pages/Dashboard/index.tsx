@@ -45,13 +45,15 @@ export default function Dashboard() {
   const [counttotalpublicfilesuser, setcounttotalpublicfilesuser] =
     useState("");
   const [counttotalfilesuser, setcounttotalfilesuser] = useState("");
+  const [counttotalpublicfoldersuser, setcounttotalpublicfoldersuser] =
+    useState("");
   const [loading, setLoading] = useState(true);
 
   function formatBytes(bytes: number): string {
     if (bytes === 0) return "0 Byte";
 
     const k = 1024;
-    
+
     const sizes = [
       " Bytes",
       " KiB",
@@ -79,7 +81,7 @@ export default function Dashboard() {
         setcounttotalencryptedfilesuser(data.CountTotalEncryptedFilesUser);
         setcounttotalpublicfilesuser(data.CountTotalPublicFilesUser);
         setcounttotalfilesuser(data.CountTotalFilesUser);
-
+        setcounttotalpublicfoldersuser(data.CountTotalPublicFoldersUser);
 
         console.log(data);
         setLoading(false);
@@ -102,16 +104,14 @@ export default function Dashboard() {
   return (
     <div>
       <h1 className="text-xl font-medium">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mt-4 md:gap-10 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 mt-4 md:gap-10 gap-5">
         <div className="border rounded-md p-3">
           <label>Used Storage</label>
           <div className="">
             <label className="text-sm text-gray-500">
               <b className="text-2xl font-semibold text-black">
-
-              {formatBytes(parseInt(counttotalusedstorageuser))}
+                {formatBytes(parseInt(counttotalusedstorageuser))}
               </b>{" "}
-              
             </label>
           </div>
         </div>
@@ -145,6 +145,18 @@ export default function Dashboard() {
                 {counttotalencryptedfilesuser}
               </b>{" "}
               / files
+            </label>
+          </div>
+        </div>
+
+        <div className="border rounded-md p-3 b-classname">
+          <label>Folders</label>
+          <div className="">
+            <label className="text-sm text-gray-500">
+              <b className="text-2xl font-semibold text-black">
+                {counttotalpublicfoldersuser}
+              </b>{" "}
+              / folders
             </label>
           </div>
         </div>
