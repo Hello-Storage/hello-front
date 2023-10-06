@@ -12,12 +12,12 @@ const config = createConfig(
     walletConnectProjectId: "1dbf8283aaabbc089924a34f1e9ffad2",
 
     // Required
-    appName: "joinhello",
+    appName: "hello",
 
     // Optional
     appDescription: "hello decentralized storage",
-    appUrl: "https://joinhello.app", // your app's url
-    appIcon: "https://joinhello.app/logo.png", // your app's icon, no bigger than 1024x1024px (max. 1MB)
+    appUrl: "https://hello.app", // your app's url
+    appIcon: "https://hello.app/logo.png", // your app's icon, no bigger than 1024x1024px (max. 1MB)
   })
 );
 
