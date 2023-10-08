@@ -1,5 +1,5 @@
-# Hello app- frontend
+# hello.app- frontend
 
-Join Hello App today!
+Join hello.app today!
 
 ## Private decentralized protocol
