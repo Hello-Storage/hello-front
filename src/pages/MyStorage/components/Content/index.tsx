@@ -6,6 +6,9 @@ import "./spinner.css";
 import { useNavigate } from "react-router-dom";
 import { useFetchData } from "hooks";
 import { string } from "prop-types";
+import { RiFolderAddLine } from "react-icons/ri";
+import { CreateFolderModal} from "components";
+import { useModal } from "components/Modal";
 
 interface ContentProps {
   loading: boolean;
@@ -29,7 +32,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   const [draggingOverFolderId, setDraggingOverFolderId] = useState<
     string | null
   >(null);
-
+  const [onPresent] = useModal(<CreateFolderModal />);
   const onFolderDoubleClick = (folderUID: string) => {
     navigate(`/space/folder/${folderUID}`);
   };
@@ -249,7 +252,17 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     return (
       <div className="flex flex-col flex-1 overflow-visible">
         <div className="w-full custom-scrollbar">
+          <h4>Folders</h4>
           <div className="flex overflow-x-auto whitespace-nowrap mb-6 mt-3">
+            
+            <div className="cursor-pointer min-w-[220px] mr-5">
+              <div className="bg-gray-50 hover:bg-gray-100 px-5 py-3 w-[220px] rounded-lg relative overflow-visible flex items-center justify-center"
+              onClick={onPresent}
+              >
+                <RiFolderAddLine className="h-6 w-6" />
+              </div>
+            </div>
+
             {folders.map((v, i) => (
               <div
                 key={i}
@@ -277,6 +290,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
               </div>
             ))}
           </div>
+          <h4 className="pb-3">Files</h4>
           <table className="w-full text-sm text-left text-gray-500 table-with-lines">
             <thead className="text-xs text-gray-700 bg-gray-100">
               <tr>
