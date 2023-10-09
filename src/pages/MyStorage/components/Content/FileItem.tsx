@@ -29,6 +29,7 @@ import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
 import { truncate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
+import { removeFile } from "state/mystorage/actions";
 
 dayjs.extend(relativeTime);
 
@@ -44,6 +45,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const [open, setOpen] = useState(false);
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
   useDropdown(ref, open, setOpen);
+
 
   const onCopy = (event: React.MouseEvent) => {
     if (event.shiftKey) return;
@@ -210,7 +212,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       .then((res) => {
         console.log(res);
         toast.success("File deleted!");
-        fetchRootContent();
+        
+        dispatch(removeFile(file.uid));
       })
       .catch((err) => {
         console.error("Error deleting file:", err);
