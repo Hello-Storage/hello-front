@@ -622,7 +622,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       </div>
 
       <div className="pt-4">
-        <label>{formatBytes(storageUsed)} Used</label>
+        <label>{formatBytes(storageUsed)} </label>
 
         <ProgressBar
           percent={(storageUsed * 100) / storageAvailable}
@@ -632,7 +632,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         <label className="text-xs text-neutral-800">
           {formatPercent(storageUsed, storageAvailable)} /{" "}
-          {formatBytes(storageAvailable)} used -&nbsp;
+          {formatBytes(storageAvailable)}  -&nbsp;
           <a
             href="/space/referrals"
             onClick={(e) => {
@@ -641,7 +641,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             }}
             className="text-orange-500 cursor-pointer hover:underline"
           >
-            {formatBytes(storageAvailable, 2, false)} / 100 GB
+            {formatBytes(storageAvailable, 2, false)} / 100 GiB
           </a>
         </label>
         <div className="mt-4 pb-1">
