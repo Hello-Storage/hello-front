@@ -173,7 +173,7 @@ export default function Dashboard() {
         </div>
 
         <div className="flex-1">
-          <h5 className="text-xl font-semibold">Folders storage</h5>
+          <h5 className="text-xl font-semibold">Statistics Storage</h5>
 
           <ul className="list-none mt-3">
             <li className="inline mr-3">
