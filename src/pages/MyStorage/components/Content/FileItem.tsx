@@ -88,6 +88,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         );
         // Create a blob from the response data
         let binaryData = res.data;
+        console.log("file download response: ")
+        console.log(res)
         if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);
@@ -104,7 +106,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
                 })
               );
             }
-          );
+          ).catch((err) => {
+            console.error("Error downloading file:", err);
+          });
 
           dispatch(
             setUploadStatusAction({
@@ -146,6 +150,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           })
         );
         let binaryData = res.data;
+        console.log("file download response: ")
+        console.log(res)
         if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);

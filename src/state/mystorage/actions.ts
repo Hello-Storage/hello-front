@@ -17,14 +17,11 @@ export const createFolderAction = createAction<Folder>(
 
 export const removeContent = createAction<string>("dashboard/remove-content");
 
-
-export const createFileAction = createAction<FileType>("dashboard/create-file");
-
 export const removeFileAction = createAction<string>("dashboard/remove-file");
 
 export const removeFolder = createAction<string>("dashboard/remove-folder");
 
-export const createFile = createAction<FileType>("dashboard/create-file");
+export const createFileAction = createAction<FileType>("dashboard/create-file");
 
 export const removeFile = createAction<string>("dashboard/remove-file");
 

@@ -9,6 +9,7 @@ import {
   updateDecryptedFilesAction,
   updateDecryptedFoldersAction,
   removeFileAction,
+  createFileAction,
   removeFolder,
 } from "./actions";
 import { RootResponse } from "api";
@@ -65,5 +66,9 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
         const decryptedFolder = payload.find(pf => pf.id === folder.id);
         return decryptedFolder ? decryptedFolder : folder;
       });
-    });
+    })
+    .addCase(createFileAction, (state, { payload }) => ({
+      ...state,
+      files: [...state.files, payload],
+      }));
 });

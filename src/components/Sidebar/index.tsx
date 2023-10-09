@@ -15,7 +15,7 @@ import Cloud from "assets/images/Outline/Cloud-upload.png";
 import { FiX } from "react-icons/fi";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
-import { AccountType, Api } from "api";
+import { AccountType, Api, EncryptionStatus, File as FileType } from "api";
 import { useFetchData, useDropdown, useAuth } from "hooks";
 import {
   toggleEncryption,
@@ -41,6 +41,7 @@ import { AxiosProgressEvent } from "axios";
 import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
+import { createFileAction } from "state/mystorage/actions";
 
 const links1 = [
   {
@@ -164,6 +165,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     encryptedFile: File;
     cidOfEncryptedBufferStr: string;
     cidOriginalEncryptedBase64Url: string;
+    cidOriginalStr?: string;
     encryptedWebkitRelativePath: string;
     encryptionTime: number;
   } | null> => {
@@ -185,6 +187,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       encryptedFileBuffer,
       encryptionTime,
     } = await encryptFileBuffer(fileArrayBuffer);
+
 
     const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
     const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
@@ -239,30 +242,61 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       encryptedFile,
       cidOfEncryptedBufferStr,
       cidOriginalEncryptedBase64Url,
+      cidOriginalStr,
       encryptedWebkitRelativePath,
       encryptionTime,
     };
   };
 
-  const postData = (formData: FormData) => {
+  const postData = (formData: FormData, files: FileType[]) => {
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
       onUploadProgress,
     })
-      .then((data) => {
+      .then((res) => {
         toast.success("upload Succeed!");
         setSidebarOpen(false);
-        console.log(data);
         dispatch(
           setUploadStatusAction({
             info: "Finished uploading data",
             uploading: false,
           })
         );
-        
-        fetchRootContent();
+
+        //getAll files and encryptedFils into a single files variable from formData
+        const filesRes = res.data.files;
+
+
+
+        for (let i = 0; i < filesRes.length; i++) {
+          //get file at index from formdata
+          const fileRes = filesRes[i];
+          const file = files[i];
+
+          const fileObject: FileType = {
+            name: file.name,
+            cid: fileRes.cid,
+            id: fileRes.id,
+            uid: fileRes.uid,
+            cid_original_encrypted: file.cid_original_encrypted,
+            size: file.size,
+            root: fileRes.root,
+            mime_type: file.media_type,
+            media_type: file.mime_type,
+            path: file.path,
+            encryption_status: fileRes.encryption_status,
+            created_at: fileRes.created_at,
+            updated_at: fileRes.updated_at,
+            deleted_at: fileRes.deleted_at,
+          }
+          console.log(fileObject)
+          dispatch(createFileAction(
+            fileObject
+          ));
+        }
+
         fetchUserDetail();
       })
       .catch((err) => {
@@ -278,6 +312,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   ) => {
     const root = getRoot();
     const files = event.target.files;
+    const filesCustomType: FileType[] = [];
     if (!files) return;
 
     const formData = new FormData();
@@ -321,9 +356,12 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           encryptedFile,
           cidOfEncryptedBufferStr,
           cidOriginalEncryptedBase64Url,
+          cidOriginalStr,
           encryptedWebkitRelativePath,
           encryptionTime,
         } = encryptedResult;
+
+
 
         encryptionTimeTotal += encryptionTime;
 
@@ -337,11 +375,48 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           `webkitRelativePath[${i}]`,
           encryptedWebkitRelativePath
         );
+        const customFile: FileType = {
+          name: file.name,
+          cid: cidOriginalStr || '',
+          id: 0,
+          uid: "",
+          cid_original_encrypted: cidOriginalStr || '',
+          size: file.size,
+          root: root,
+          mime_type: file.type,
+          media_type: file.type.split("/")[0],
+          path: file.webkitRelativePath,
+          encryption_status: EncryptionStatus.Encrypted,
+          created_at: "",
+          updated_at: "",
+          deleted_at: "",
+        }
+
+        filesCustomType.push(customFile);
       } else {
         const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
         const cidStr = await getCid(uint8ArrayBuffer);
         formData.append(`cid[${i}]`, cidStr);
         formData.append("files", file);
+
+        const customFile: FileType = {
+          name: file.name,
+          cid: cidStr,
+          id: 0,
+          uid: "",
+          cid_original_encrypted: "",
+          size: file.size,
+          root: root,
+          mime_type: file.type,
+          media_type: file.type.split("/")[0],
+          path: file.webkitRelativePath,
+          encryption_status: EncryptionStatus.Public,
+          created_at: "",
+          updated_at: "",
+          deleted_at: "",
+        }
+
+        filesCustomType.push(customFile);
       }
     }
 
@@ -371,7 +446,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
-    postData(formData);
+    postData(formData, filesCustomType);
   };
 
   const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (
