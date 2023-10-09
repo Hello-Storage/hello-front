@@ -29,7 +29,7 @@ import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
 import { truncate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
-import { removeFile } from "state/mystorage/actions";
+import { removeFileAction } from "state/mystorage/actions";
 
 dayjs.extend(relativeTime);
 
@@ -40,7 +40,6 @@ interface FileItemProps {
 
 const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const dispatch = useAppDispatch();
-  const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
@@ -213,7 +212,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         console.log(res);
         toast.success("File deleted!");
         
-        dispatch(removeFile(file.uid));
+        dispatch(removeFileAction(file.uid));
       })
       .catch((err) => {
         console.error("Error deleting file:", err);

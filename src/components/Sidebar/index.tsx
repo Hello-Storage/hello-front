@@ -261,6 +261,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             uploading: false,
           })
         );
+        
         fetchRootContent();
         fetchUserDetail();
       })

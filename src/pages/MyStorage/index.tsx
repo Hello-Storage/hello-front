@@ -154,7 +154,12 @@ export default function Home() {
     fetchContent().then(() => {
       setLoading(false);
     });
-  }, [logout, name, currentPage, folders.length, files.length]);
+  }, [name, currentPage, files.length]);
+
+  useEffect(() => {
+    setCurrentFolders(folders);
+  }, [folders.length])
+
 
   useEffect(() => {
     setCurrentPage(1);

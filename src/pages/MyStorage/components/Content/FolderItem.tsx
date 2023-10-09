@@ -2,23 +2,18 @@ import { Api } from "api";
 import { EncryptionStatus, Folder } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useAuth, useDropdown, useFetchData } from "hooks";
+import { useAuth, useDropdown } from "hooks";
 import JSZip from "jszip";
 import { useRef, useState } from "react";
 import { FaFolder } from "react-icons/fa";
 import {
-  HiDocumentDuplicate,
   HiDotsVertical,
-  HiLockClosed,
   HiOutlineDownload,
-  HiOutlineLockOpen,
   HiOutlineShare,
   HiOutlineTrash,
 } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
-import { formatUID } from "utils";
 import {
   decryptContent,
   decryptFileBuffer,
@@ -26,10 +21,11 @@ import {
   hexToBuffer,
 } from "utils/encryption/filesCipher";
 import getPersonalSignature from "api/getPersonalSignature";
-import { useAppSelector } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import getAccountType from "api/getAccountType";
 import { logoutUser } from "state/user/actions";
 import { truncate } from "utils/format";
+import { removeFolder } from "state/mystorage/actions";
 
 dayjs.extend(relativeTime);
 
@@ -41,7 +37,7 @@ interface FolderItemProps {
 }
 
 const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
-  const { fetchRootContent } = useFetchData();
+  const dispatch = useAppDispatch();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const { name } = useAppSelector((state) => state.user);
@@ -169,7 +165,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
           // Show a success message
           toast.success("Folder deleted successfully!");
           // Fetch the root content again
-          fetchRootContent();
+          dispatch(removeFolder(folder.uid))
         })
         .catch((err) => {
           console.error("Error deleting folder:", err);
