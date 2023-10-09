@@ -24,6 +24,10 @@ export const removeFileAction = createAction<string>("dashboard/remove-file");
 
 export const removeFolder = createAction<string>("dashboard/remove-folder");
 
+export const createFile = createAction<FileType>("dashboard/create-file");
+
+export const removeFile = createAction<string>("dashboard/remove-file");
+
 export const updateDecryptedFilesAction = createAction<FileType[]>(
   "myStorage/updateDecryptedFiles"
 );
