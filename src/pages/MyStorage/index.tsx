@@ -67,7 +67,7 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { folders, files, showPreview, preview } = useAppSelector(
+  const { folders, files, showPreview, path, preview } = useAppSelector(
     (state) => state.mystorage
   );
 
@@ -154,7 +154,16 @@ export default function Home() {
     fetchContent().then(() => {
       setLoading(false);
     });
-  }, [logout, name, currentPage, folders.length, files.length]);
+  }, [path, currentPage, name]);
+
+  useEffect(() => {
+    setCurrentFolders(folders);
+  }, [folders.length])
+
+  useEffect(() => {
+    setCurrentFiles(files);
+  }, [files.length])
+
 
   useEffect(() => {
     setCurrentPage(1);

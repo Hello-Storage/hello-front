@@ -29,6 +29,7 @@ import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
 import { truncate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
+import { removeFileAction } from "state/mystorage/actions";
 
 dayjs.extend(relativeTime);
 
@@ -39,11 +40,11 @@ interface FileItemProps {
 
 const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const dispatch = useAppDispatch();
-  const { fetchRootContent } = useFetchData();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
   useDropdown(ref, open, setOpen);
+
 
   const onCopy = (event: React.MouseEvent) => {
     if (event.shiftKey) return;
@@ -87,6 +88,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         );
         // Create a blob from the response data
         let binaryData = res.data;
+        console.log("file download response: ")
+        console.log(res)
         if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);
@@ -103,7 +106,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
                 })
               );
             }
-          );
+          ).catch((err) => {
+            console.error("Error downloading file:", err);
+          });
 
           dispatch(
             setUploadStatusAction({
@@ -145,6 +150,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           })
         );
         let binaryData = res.data;
+        console.log("file download response: ")
+        console.log(res)
         if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
           binaryData = await blobToArrayBuffer(binaryData);
@@ -210,7 +217,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       .then((res) => {
         console.log(res);
         toast.success("File deleted!");
-        fetchRootContent();
+        
+        dispatch(removeFileAction(file.uid));
       })
       .catch((err) => {
         console.error("Error deleting file:", err);

@@ -8,6 +8,9 @@ import {
   removeContent,
   updateDecryptedFilesAction,
   updateDecryptedFoldersAction,
+  removeFileAction,
+  createFileAction,
+  removeFolder,
 } from "./actions";
 import { RootResponse } from "api";
 
@@ -39,6 +42,14 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
       preview: payload.img,
       showPreview: payload.show == undefined ? false : payload.show,
     }))
+    .addCase(removeFileAction, (state, { payload }) => ({
+      ...state,
+      files: state.files.filter(file => file.uid !== payload),
+    }))
+    .addCase(removeFolder, (state, { payload }) => ({
+      ...state,
+      folders: state.folders.filter(folder => folder.uid !== payload),
+    }))
     .addCase(removeContent, (state) => ({
       ...state,
       files: [],
@@ -55,5 +66,9 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
         const decryptedFolder = payload.find(pf => pf.id === folder.id);
         return decryptedFolder ? decryptedFolder : folder;
       });
-    });
+    })
+    .addCase(createFileAction, (state, { payload }) => ({
+      ...state,
+      files: [...state.files, payload],
+      }));
 });

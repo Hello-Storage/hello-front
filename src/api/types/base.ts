@@ -23,7 +23,7 @@ export interface File extends Base {
   media_type: string;
   path: string;
   //base64 data
-  data: string;
+  data?: string;
 }
 
 export interface Folder extends Base {
