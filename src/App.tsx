@@ -24,6 +24,9 @@ const Login = lazy(() => import("pages/Auth/Login"));
 
 
 function App() {
+  useEffect(() => {
+    document.title = "hello.app | Stats";
+  }, []);
   const { load } = useAuth();
 
   useEffect(() => {

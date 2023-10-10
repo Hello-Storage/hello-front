@@ -11,6 +11,10 @@ import getAccountType from "api/getAccountType";
 import { AccountType } from "api";
 
 export default function AppLayout() {
+  useEffect(() => {
+    document.title = "hello.app | Space";
+  }, []);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
