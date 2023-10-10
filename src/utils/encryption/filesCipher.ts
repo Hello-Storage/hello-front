@@ -48,8 +48,6 @@ const getResultBytes = (cipherBytesArray: Uint8Array, salt: Uint8Array, iv: Uint
 
 const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> => {
 
-    console.log("cipherBytes: ")
-    console.log(cipherBytes)
     return await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, aesKey, cipherBytes).catch((err) => {
         console.log("Error decrypting buffer:")
         console.log(err)
