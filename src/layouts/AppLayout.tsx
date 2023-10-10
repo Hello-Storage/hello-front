@@ -67,7 +67,7 @@ export default function AppLayout() {
 */
   return (
     <SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
-      <div style={{fontFamily: "SF Mono"}}className="flex h-90vh flex-col justify-between">
+      <div style={{fontFamily: "SF Mono", height: "100%"}} className="flex flex-col justify-between">
         {!sidebarOpen && (
           <div className="flex items-center justify-between sticky px-5 py-2 w-full bg-gray-100 lg:hidden">
             <div className="flex items-center gap-3">
@@ -99,7 +99,7 @@ export default function AppLayout() {
           </div>
           <div
           style={{ 
-            height: "94vh",
+            height: "100vh",
            }}
             className={`flex flex-col flex-1 md:px-10 px-5 py-4 overflow-y-auto ${
               sidebarOpen ? "md:ml-72 overflow-hidden w-full blur-sm" : ""

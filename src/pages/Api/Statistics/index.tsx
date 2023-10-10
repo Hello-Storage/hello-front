@@ -60,6 +60,11 @@ const IconWithTooltip = ({
 };
 
 const Statistics = () => {
+
+    useEffect(() => {
+        document.title = "hello.app | Stats";
+    }, []);
+
     const [upfile, setupfile] = useState("");
     const [msize, setmsize] = useState(0);
     const [encryptedfiles, setencryptedfiles] = useState("");
