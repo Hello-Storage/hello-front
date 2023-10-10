@@ -76,27 +76,32 @@ export default function Home() {
     window.innerWidth < 768 ? 6 : 10
   );
 
-  const totalItems = folders.length + files.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
 
   const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
   const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
+  const [totalItems, setTotalItems] = useState(0); // folders.length + files.length
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     async function fetchContent() {
       setLoading(true);
 
-      const itemsPerPage = currentPage === 1 ? 10 : 20;
+      const itemsPerPage = 10;
+
+      const totalItemsTemp = folders.length + files.length;
+      const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
+      setTotalItems(totalItemsTemp);
+      setTotalPages(totalPagesTemp);
 
       const tempStartIndex =
         currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
       const tempEndIndex = tempStartIndex + itemsPerPage;
 
       setStartIndex(tempStartIndex);
-      setEndIndex(Math.min(tempEndIndex, totalItems));
+      setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
 
       // Calculate the number of folders and files to display on the current page.
       let folderItemsCount = Math.min(
@@ -156,12 +161,57 @@ export default function Home() {
     });
   }, [path, currentPage, name]);
 
+  const paginateContent = async () => {
+    const itemsPerPage = currentPage === 1 ? 10 : 20;
+
+    const totalItemsTemp = folders.length + files.length;
+    const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
+    setTotalItems(totalItemsTemp);
+    setTotalPages(totalPagesTemp);
+
+    const tempStartIndex =
+      currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
+    const tempEndIndex = tempStartIndex + itemsPerPage;
+
+    setStartIndex(tempStartIndex);
+    setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
+
+    let folderItemsCount = Math.min(
+      folders.length - tempStartIndex,
+      itemsPerPage
+    );
+    folderItemsCount = Math.max(0, folderItemsCount);
+
+    const currentFolders = folders.slice(
+      tempStartIndex,
+      tempStartIndex + folderItemsCount
+    )
+
+    const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
+    const filesItemsCount = itemsPerPage - folderItemsCount;
+
+    const currentFiles = files.slice(
+      filesStartIndex,
+      filesStartIndex + filesItemsCount
+    )
+
+    if (!currentFiles || !currentFolders) {
+      toast.error("Failed to decrypt content");
+      fetchRootContent(setLoading);
+    }
+
+    setCurrentFiles(currentFiles);
+
+    setCurrentFolders(currentFolders);
+
+  }
+
   useEffect(() => {
     setCurrentFolders(folders);
   }, [folders.length])
 
   useEffect(() => {
-    setCurrentFiles(files);
+    paginateContent();
   }, [files.length])
 
 
@@ -197,8 +247,8 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col ">
-      <div className="flex flex-col flex-1 custom-scrollbar">
+    <div style={{ height: "100%" }} className="h-vh w-100 overflow-hidden flex flex-col ">
+      <div className="pb-16 flex-grow overflow-hidden flex flex-col custom-scrollbar">
         <Dropzone />
         <div className="flex justify-between">
           <Breadcrumb />
@@ -281,9 +331,8 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setView("list")}
-                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 ${
-                  view === "list" ? "!bg-gray-100" : ""
-                }`}
+                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 ${view === "list" ? "!bg-gray-100" : ""
+                  }`}
               >
                 <HiOutlineViewList size={20} />
               </button>
@@ -291,9 +340,8 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setView("grid")}
-                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 ${
-                  view === "grid" ? "!bg-gray-100" : ""
-                }`}
+                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 ${view === "grid" ? "!bg-gray-100" : ""
+                  }`}
               >
                 <HiOutlineViewGrid size={20} />
               </button>
@@ -312,19 +360,18 @@ export default function Home() {
       </div>
 
       {/* Sticky footer */}
-      <div className="flex-shrink-0">
-        <div className="flex justify-between items-center text-sm mt-3 py-2 bg-white border-t border-gray-200">
+      <div className="right-0 bottom-0 px-3 flex-shrink-0">
+        <div className=" bg-white flex justify-between items-center text-sm py-2  border-t border-gray-200">
           <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
             {Math.min(endIndex, totalItems)} of {totalItems} results
           </div>
           <div className="flex items-center space-x-2">
             <button
-              className={`p-2 rounded flex items-center gap-2 ${
-                currentPage === 1
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-gray-200"
-              }`}
+              className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
+                }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
               }
@@ -334,11 +381,10 @@ export default function Home() {
               <span className="md:inline hidden">Prev</span>
             </button>
             <button
-              className={`p-2 rounded flex items-center gap-2 ${
-                totalPages === 0 || currentPage === totalPages
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-gray-200"
-              }`}
+              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
+                }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
               }
