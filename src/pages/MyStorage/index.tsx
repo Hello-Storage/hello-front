@@ -89,7 +89,7 @@ export default function Home() {
     async function fetchContent() {
       setLoading(true);
 
-      const itemsPerPage = currentPage === 1 ? 10 : 20;
+      const itemsPerPage = 10;
 
       const tempStartIndex =
         currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
@@ -371,14 +371,14 @@ export default function Home() {
               <span className="md:inline hidden">Prev</span>
             </button>
             <button
-              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
+              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages - 1
                   ? "cursor-not-allowed opacity-50"
                   : "hover:bg-gray-200"
                 }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
               }
-              disabled={totalPages === 0 || currentPage === totalPages}
+              disabled={totalPages === 0 || currentPage === totalPages - 1}
             >
               <span className="md:inline hidden">Next</span>{" "}
               <HiChevronRight className="h-5 w-5" />
