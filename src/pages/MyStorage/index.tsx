@@ -76,14 +76,14 @@ export default function Home() {
     window.innerWidth < 768 ? 6 : 10
   );
 
-  const totalItems = folders.length + files.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
 
   const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
   const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
+  const [totalItems, setTotalItems] = useState(0); // folders.length + files.length
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     async function fetchContent() {
@@ -91,12 +91,17 @@ export default function Home() {
 
       const itemsPerPage = 10;
 
+      const totalItemsTemp = folders.length + files.length;
+      const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
+      setTotalItems(totalItemsTemp);
+      setTotalPages(totalPagesTemp);
+
       const tempStartIndex =
         currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
       const tempEndIndex = tempStartIndex + itemsPerPage;
 
       setStartIndex(tempStartIndex);
-      setEndIndex(Math.min(tempEndIndex, totalItems));
+      setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
 
       // Calculate the number of folders and files to display on the current page.
       let folderItemsCount = Math.min(
@@ -159,12 +164,17 @@ export default function Home() {
   const paginateContent = async () => {
     const itemsPerPage = currentPage === 1 ? 10 : 20;
 
+    const totalItemsTemp = folders.length + files.length;
+    const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
+    setTotalItems(totalItemsTemp);
+    setTotalPages(totalPagesTemp);
+
     const tempStartIndex =
       currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
     const tempEndIndex = tempStartIndex + itemsPerPage;
 
     setStartIndex(tempStartIndex);
-    setEndIndex(Math.min(tempEndIndex, totalItems));
+    setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
 
     let folderItemsCount = Math.min(
       folders.length - tempStartIndex,
@@ -359,8 +369,8 @@ export default function Home() {
           <div className="flex items-center space-x-2">
             <button
               className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-gray-200"
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
                 }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
@@ -371,14 +381,14 @@ export default function Home() {
               <span className="md:inline hidden">Prev</span>
             </button>
             <button
-              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages - 1
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-gray-200"
+              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
                 }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
               }
-              disabled={totalPages === 0 || currentPage === totalPages - 1}
+              disabled={totalPages === 0 || currentPage === totalPages}
             >
               <span className="md:inline hidden">Next</span>{" "}
               <HiChevronRight className="h-5 w-5" />
