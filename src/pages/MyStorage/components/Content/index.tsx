@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useFetchData } from "hooks";
 import { string } from "prop-types";
 import { RiFolderAddLine } from "react-icons/ri";
-import { CreateFolderModal} from "components";
+import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
 
 interface ContentProps {
@@ -95,7 +95,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
     });
-    // Añadir condicion que detecte si esta arrastrando un elemento que no esta seleccionado
     if (selectedItems.length === 0) {
       event.dataTransfer.setData("text/plain", dragInfo);
     } else {
@@ -103,15 +102,22 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     }
     event.dataTransfer.setDragImage(new Image(), 0, 0);
 
-    const thElement = event.currentTarget.getElementsByTagName("th")[0];
+    const thElement = event.currentTarget.firstElementChild;
+
+    if (!thElement) {
+      console.log("thElement is null");
+      return;
+    }
+
     const clone = thElement.cloneNode(true) as HTMLDivElement;
+    const cloneButton = clone.getElementsByTagName("button")[0];
+    cloneButton?.remove();
     const rect = thElement.getBoundingClientRect();
 
     clone.style.position = "fixed";
     clone.style.top = rect.top + "px";
     clone.style.left = rect.left + "px";
     clone.style.width = "auto";
-    clone.style.padding = "5px 10px";
     clone.style.padding = "5px 15px 5px 10px";
     clone.style.height = rect.height + "px";
     clone.style.zIndex = "100";
@@ -121,6 +127,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     clone.style.borderRadius = "10px";
     clone.style.border = "2px solid LightSkyBlue";
     clone.style.boxSizing = "border-box";
+    clone.style.display = "flex";
+    clone.style.alignItems = "center";
 
     if (selectedItems.length > 1) {
       const counter = document.createElement("span");
@@ -150,7 +158,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
       cloneRef.current = null;
     }
     setSelectedItems([]);
-    setDraggingOverFolderId(null); // <-- Añade esta línea
+    setDraggingOverFolderId(null); 
   };
 
   // On the Drop Target
@@ -194,7 +202,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     // Check if selectedItems is empty
     if (selectedItems.length === 0) {
       if (dropInfo.id == dragInfoReceived.id) {
-        // Comprobar tambien en selectedItems
         // console.log("Same folder");
         return;
       }
@@ -254,10 +261,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         <div className="w-full custom-scrollbar">
           <h4>Folders</h4>
           <div className="flex overflow-x-auto whitespace-nowrap mb-6 mt-3">
-            
             <div className="cursor-pointer min-w-[220px] mr-5">
-              <div className="bg-gray-50 hover:bg-gray-100 px-5 py-3 w-[220px] rounded-lg relative overflow-visible flex items-center justify-center"
-              onClick={onPresent}
+              <div
+                className="bg-gray-50 hover:bg-gray-100 px-5 py-3 w-[220px] rounded-lg relative overflow-visible flex items-center justify-center"
+                onClick={onPresent}
               >
                 <RiFolderAddLine className="h-6 w-6" />
               </div>
