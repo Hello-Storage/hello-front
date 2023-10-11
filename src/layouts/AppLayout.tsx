@@ -9,11 +9,11 @@ import { useAppSelector } from "state";
 import { useAccount, useConnect } from "wagmi";
 import getAccountType from "api/getAccountType";
 import { AccountType } from "api";
+import useTitle from "hooks/useTitle";
 
 export default function AppLayout() {
-  useEffect(() => {
-    document.title = "hello.app | Space";
-  }, []);
+
+  useTitle("hello.app | Space");
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
