@@ -1,4 +1,3 @@
-"use client";
 
 import { GrCircleInformation } from "react-icons/gr";
 import { useEffect, useState } from "react";
@@ -18,6 +17,7 @@ import Png from "assets/images/Outline/picture_m.png";
 import Txt from "assets/images/Outline/document_m.png";
 import Pdf from "assets/images/Outline/invoice_m.png";
 import SharedFiles from "assets/images/Outline/shared-box_m.png";
+import useTitle from "hooks/useTitle";
 /* import Chart from "./Components/Chart"; */
 
 type IconWithTooltipProps = {
@@ -61,9 +61,8 @@ const IconWithTooltip = ({
 
 const Statistics = () => {
 
-    useEffect(() => {
-        document.title = "hello.app | Stats";
-    }, []);
+
+    useTitle("hello.app | Stats");
 
     const [upfile, setupfile] = useState("");
     const [msize, setmsize] = useState(0);
@@ -137,21 +136,20 @@ const Statistics = () => {
             });
     };
 
+
     useEffect(() => {
         const correctPassword = "hello2023";
         const enteredPassword = prompt("Enter password to access this page");
         if (enteredPassword !== correctPassword) {
-            window.location.href = "https://space.hello.app/login";
+            alert("Incorrect password!");
+        } else {
+            fetchData();
+
+            // 15 seconds update interval
+            const intervalId = setInterval(fetchData, 15000);
+
+            return () => clearInterval(intervalId);
         }
-    }, []);
-
-    useEffect(() => {
-        fetchData();
-
-        // 15 seconds update interval
-        const intervalId = setInterval(fetchData, 15000);
-
-        return () => clearInterval(intervalId);
     }, []);
 
     return (
