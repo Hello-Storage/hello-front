@@ -107,7 +107,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     autoEncryptionEnabled,
   } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
-  const { fetchRootContent, fetchUserDetail } = useFetchData();
+  const { fetchUserDetail } = useFetchData();
   const { name } = useAppSelector((state) => state.user);
   const accountType = getAccountType();
   const navigate = useNavigate();
@@ -248,7 +248,190 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     };
   };
 
-  const postData = (formData: FormData, files: FileType[]) => {
+
+  const handleInputChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    isFolder: boolean
+  ) => {
+    const root = getRoot();
+    const files = event.target.files;
+    if (!files) return;
+
+    const formData = new FormData();
+    formData.append("root", root);
+
+    let personalSignature;
+    if (encryptionEnabled) {
+      personalSignature = await getPersonalSignature(
+        name,
+        autoEncryptionEnabled,
+        accountType,
+        logout
+      );
+      if (!personalSignature) {
+        toast.error("Failed to get personal signature");
+        logout();
+        return;
+      }
+    }
+
+    const encryptedPathsMapping: { [path: string]: string } = {};
+
+    let encryptionTimeTotal = 0;
+
+    const filesMap: { customFile: FileType; file: File }[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i];
+
+      if (encryptionEnabled) {
+        const infoText = `Encrypting ${i + 1} of ${files.length}`;
+        dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
+        const encryptedResult = await handleEncryption(
+          file,
+          personalSignature,
+          isFolder,
+          encryptedPathsMapping
+        );
+        if (!encryptedResult) {
+          toast.error("Failed to encrypt file");
+          return;
+        }
+        const {
+          encryptedFile,
+          cidOfEncryptedBufferStr,
+          cidOriginalEncryptedBase64Url,
+          cidOriginalStr,
+          encryptedWebkitRelativePath,
+          encryptionTime,
+        } = encryptedResult;
+
+        file = encryptedFile;
+
+
+
+        encryptionTimeTotal += encryptionTime;
+
+        const customFile: FileType = {
+          name: file.name,
+          cid: cidOfEncryptedBufferStr || '',
+          id: 0,
+          uid: "",
+          cid_original_encrypted: cidOriginalStr || '',
+          cid_original_encrypted_base64_url: cidOriginalEncryptedBase64Url,
+          size: file.size,
+          root: root,
+          mime_type: file.type,
+          media_type: file.type.split("/")[0],
+          path: encryptedWebkitRelativePath,
+          encryption_status: EncryptionStatus.Encrypted,
+          created_at: "",
+          updated_at: "",
+          deleted_at: "",
+        }
+
+        filesMap.push({ customFile, file });
+
+      } else {
+        const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
+        const cidStr = await getCid(uint8ArrayBuffer);
+
+        const customFile: FileType = {
+          name: file.name,
+          cid: cidStr,
+          id: 0,
+          uid: "",
+          cid_original_encrypted: "",
+          size: file.size,
+          root: root,
+          mime_type: file.type,
+          media_type: file.type.split("/")[0],
+          path: file.webkitRelativePath,
+          encryption_status: EncryptionStatus.Public,
+          created_at: "",
+          updated_at: "",
+          deleted_at: "",
+        }
+
+        filesMap.push({ customFile, file });
+
+
+      }
+    }
+
+    //parse encryption total of all files with encrypted option
+    if (encryptionTimeTotal > 0) {
+      let encryptionSuffix = "milliseconds";
+      if (encryptionTimeTotal >= 1000 && encryptionTimeTotal < 60000) {
+        encryptionTimeTotal /= 1000;
+        encryptionSuffix = "seconds";
+      } else if (encryptionTimeTotal >= 60000) {
+        encryptionTimeTotal /= 60000;
+        encryptionSuffix = "minutes";
+      }
+      const encryptionTimeParsed =
+        "Encrypting the data took " +
+        encryptionTimeTotal.toFixed(2).toString() +
+        " " +
+        encryptionSuffix;
+      toast.success(`${encryptionTimeParsed}`);
+    }
+
+    const infoText = isFolder
+      ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
+      : files.length === 1
+        ? files[0].name
+        : `uploading ${files.length} files`;
+
+    dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
+
+    postData(formData, filesMap);
+  };
+
+  const postData = (formData: FormData, filesMap: { customFile: FileType, file: File }[]) => {
+
+    //iterate over each file and make a get request to check if cid exists in Api
+    //post file metadata to api
+
+    //get customFiles from filesMap
+    const customFiles = filesMap.map(fileMap => fileMap.customFile);
+    //get files from filesMap
+    const files = filesMap.map(fileMap => fileMap.file);
+
+    Api.post(`/file/pool/check`, { customFiles })
+
+      .then((res) => {
+        //if cid of file exists in database, get res 
+        const existingFiles: FileType[] = res.data.existingFiles;
+
+        if (existingFiles.length > 0) {
+          existingFiles.forEach(existingFile => {
+            dispatch(createFileAction(existingFile))
+          })
+
+          // Filter out existing files from files and formData
+          const newFiles = filesMap.filter((fileMap) => !existingFiles.some(existingFile => existingFile.cid === fileMap.customFile.cid));
+          newFiles.forEach((fileMap, index) => {
+            // complete the following new form data
+            if (fileMap.customFile.encryption_status === EncryptionStatus.Encrypted) {
+              formData.append("encryptedFiles", fileMap.file)
+              formData.append(`cid[${index}]`, fileMap.customFile.cid)
+              if (fileMap.customFile.cid_original_encrypted_base64_url)
+              formData.append(`cidOriginalEncrypted[${index}]`, fileMap.customFile.cid_original_encrypted_base64_url)
+              formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
+            } else {
+              formData.append(`cid[${index}]`, fileMap.customFile.cid)
+              formData.append("files", fileMap.file)
+            }
+          })
+
+
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
     Api.post("/file/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -304,149 +487,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         toast.error("upload failed!");
       })
       .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
-  };
-
-  const handleInputChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    isFolder: boolean
-  ) => {
-    const root = getRoot();
-    const files = event.target.files;
-    const filesCustomType: FileType[] = [];
-    if (!files) return;
-
-    const formData = new FormData();
-    formData.append("root", root);
-
-    let personalSignature;
-    if (encryptionEnabled) {
-      personalSignature = await getPersonalSignature(
-        name,
-        autoEncryptionEnabled,
-        accountType,
-        logout
-      );
-      if (!personalSignature) {
-        toast.error("Failed to get personal signature");
-        logout();
-        return;
-      }
-    }
-
-    const encryptedPathsMapping: { [path: string]: string } = {};
-
-    let encryptionTimeTotal = 0;
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      if (encryptionEnabled) {
-        const infoText = `Encrypting ${i + 1} of ${files.length}`;
-        dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-        const encryptedResult = await handleEncryption(
-          file,
-          personalSignature,
-          isFolder,
-          encryptedPathsMapping
-        );
-        if (!encryptedResult) {
-          toast.error("Failed to encrypt file");
-          return;
-        }
-        const {
-          encryptedFile,
-          cidOfEncryptedBufferStr,
-          cidOriginalEncryptedBase64Url,
-          cidOriginalStr,
-          encryptedWebkitRelativePath,
-          encryptionTime,
-        } = encryptedResult;
-
-
-
-        encryptionTimeTotal += encryptionTime;
-
-        formData.append("encryptedFiles", encryptedFile);
-        formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
-        formData.append(
-          `cidOriginalEncrypted[${i}]`,
-          cidOriginalEncryptedBase64Url
-        );
-        formData.append(
-          `webkitRelativePath[${i}]`,
-          encryptedWebkitRelativePath
-        );
-        const customFile: FileType = {
-          name: file.name,
-          cid: cidOriginalStr || '',
-          id: 0,
-          uid: "",
-          cid_original_encrypted: cidOriginalStr || '',
-          size: file.size,
-          root: root,
-          mime_type: file.type,
-          media_type: file.type.split("/")[0],
-          path: file.webkitRelativePath,
-          encryption_status: EncryptionStatus.Encrypted,
-          created_at: "",
-          updated_at: "",
-          deleted_at: "",
-        }
-
-        filesCustomType.push(customFile);
-      } else {
-        const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
-        const cidStr = await getCid(uint8ArrayBuffer);
-        formData.append(`cid[${i}]`, cidStr);
-        formData.append("files", file);
-
-        const customFile: FileType = {
-          name: file.name,
-          cid: cidStr,
-          id: 0,
-          uid: "",
-          cid_original_encrypted: "",
-          size: file.size,
-          root: root,
-          mime_type: file.type,
-          media_type: file.type.split("/")[0],
-          path: file.webkitRelativePath,
-          encryption_status: EncryptionStatus.Public,
-          created_at: "",
-          updated_at: "",
-          deleted_at: "",
-        }
-
-        filesCustomType.push(customFile);
-      }
-    }
-
-    //parse encryption total of all files with encrypted option
-    if (encryptionTimeTotal > 0) {
-      let encryptionSuffix = "milliseconds";
-      if (encryptionTimeTotal >= 1000 && encryptionTimeTotal < 60000) {
-        encryptionTimeTotal /= 1000;
-        encryptionSuffix = "seconds";
-      } else if (encryptionTimeTotal >= 60000) {
-        encryptionTimeTotal /= 60000;
-        encryptionSuffix = "minutes";
-      }
-      const encryptionTimeParsed =
-        "Encrypting the data took " +
-        encryptionTimeTotal.toFixed(2).toString() +
-        " " +
-        encryptionSuffix;
-      toast.success(`${encryptionTimeParsed}`);
-    }
-
-    const infoText = isFolder
-      ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
-      : files.length === 1
-        ? files[0].name
-        : `uploading ${files.length} files`;
-
-    dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-
-    postData(formData, filesCustomType);
   };
 
   const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (

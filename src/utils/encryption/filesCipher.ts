@@ -99,7 +99,6 @@ export const decryptContent = async (cipherBytes: Uint8Array | string, personalS
     return decryptContentUtil(data, aesKey, iv);
 }
 
-
 export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryptedFiletypeBase64Url: string, cidOriginalEncrypted: string, personalSignature: string | undefined): Promise<{ decryptedFilename: string, decryptedFiletype: string, decryptedCidOriginal: string } | undefined> => {
     if (!personalSignature) {
         logoutUser();
@@ -248,16 +247,7 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
         const data = cipherBytes.slice(16 + 12)
         onProgress(55)
         const { aesKey } = await getAesKey(originalCid, ['decrypt'], salt, iv)
-        console.log("AES Key: ")
-        console.log(aesKey)
-        console.log("Salt: ")
-        console.log(salt)
-        console.log("IV: ")
-        console.log(iv)
-
         onProgress(70)
-        console.log("Data size: ")
-        console.log(data.byteLength)
         const decryptedContent = await decryptContentUtil(data, aesKey, iv)
         onProgress(100)
         return decryptedContent
@@ -268,17 +258,7 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
     }
 }
 
-export const handleEncryptedFiles = async (files: FileType[], personalSignatureRef: React.MutableRefObject<string | undefined>, name: string, autoEncryptionEnabled: boolean, accountType: string | undefined, logout: () => void) => {
-    personalSignatureRef.current = await getPersonalSignature(
-        name,
-        autoEncryptionEnabled,
-        accountType
-    ); //Promise<string | undefined>
-    if (!personalSignatureRef.current) {
-        toast.error("Failed to get personal signature");
-        logout();
-        return;
-    }
+export const handleEncryptedFiles = async (files: FileType[], personalSignature: string, name: string, autoEncryptionEnabled: boolean, accountType: string | undefined, logout: () => void) => {
     // Using map to create an array of promises
     const decrytpedFilesPromises = files.map(async (file) => {
         if (file.encryption_status === EncryptionStatus.Encrypted && !file.decrypted) {
@@ -287,7 +267,7 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignatureR
                     file.name,
                     file.mime_type,
                     file.cid_original_encrypted,
-                    personalSignatureRef.current
+                    personalSignature
                 );
                 if (decryptionResult) {
                     const {
@@ -318,7 +298,7 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignatureR
     return decryptedFiles;
 };
 
-export const handleEncryptedFolders = async (folders: Folder[], personalSignatureRef: React.MutableRefObject<string | undefined>) => {
+export const handleEncryptedFolders = async (folders: Folder[], personalSignature: string) => {
     // Using map to create an array of promises
     const decrytpedFoldersPromises = folders.map(async (folder) => {
         if (folder.encryption_status === EncryptionStatus.Encrypted && !folder.decrypted) {
@@ -327,8 +307,9 @@ export const handleEncryptedFolders = async (folders: Folder[], personalSignatur
             const folderTitleBuffer = hexToBuffer(folder.title);
             const decryptedTitleBuffer = await decryptContent(
                 folderTitleBuffer,
-                personalSignatureRef.current
+                personalSignature
             );
+
             //transform buffer to Uint8Array
             const decryptedTitle = new TextDecoder().decode(decryptedTitleBuffer);
 
