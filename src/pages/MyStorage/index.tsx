@@ -103,27 +103,13 @@ export default function Home() {
       setStartIndex(tempStartIndex);
       setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
 
-      // Calculate the number of folders and files to display on the current page.
-      let folderItemsCount = Math.min(
-        folders.length - tempStartIndex,
-        itemsPerPage
-      );
-      folderItemsCount = Math.max(0, folderItemsCount); // Ensure it's not negative
-
-      // Slice the folders array to get the items to display on the current page.
-      const currentEncryptedFolders = folders.slice(
-        tempStartIndex,
-        tempStartIndex + folderItemsCount
-      );
-
       // Calculate starting index for files based on the number of folders taken.
-      const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
-      const filesItemsCount = itemsPerPage - folderItemsCount; // Remaining space on the page
+      const filesStartIndex = Math.max(0, tempStartIndex);
 
       // Slice the files array based on the calculated start and end indices.
       const currentEncryptedFiles = files.slice(
         filesStartIndex,
-        filesStartIndex + filesItemsCount
+        filesStartIndex + itemsPerPage
       );
 
       const decryptedFiles = await handleEncryptedFiles(
@@ -142,7 +128,7 @@ export default function Home() {
       setCurrentFiles(decryptedFiles || []);
 
       const decryptedFolders = await handleEncryptedFolders(
-        currentEncryptedFolders,
+        folders,
         personalSignatureRef
       );
 
