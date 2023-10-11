@@ -148,7 +148,7 @@ export default function Home() {
   }, [path, currentPage, name]);
 
   const paginateContent = async () => {
-    const itemsPerPage = currentPage === 1 ? 10 : 20;
+    const itemsPerPage = 10;
 
     const totalItemsTemp = folders.length + files.length;
     const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
