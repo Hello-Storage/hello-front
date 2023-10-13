@@ -18,6 +18,7 @@ import Txt from "assets/images/Outline/document_m.png";
 import Pdf from "assets/images/Outline/invoice_m.png";
 import SharedFiles from "assets/images/Outline/shared-box_m.png";
 import useTitle from "hooks/useTitle";
+import { useNavigate } from "react-router-dom";
 /* import Chart from "./Components/Chart"; */
 
 type IconWithTooltipProps = {
@@ -152,6 +153,8 @@ const Statistics = () => {
         }
     }, []);
 
+    const navigate = useNavigate();
+
     return (
         <div
             className="text-black relative h-full overflow-y-auto"
@@ -167,8 +170,8 @@ const Statistics = () => {
                     Hello Storage Overview
                 </h1>
                 <a
-                    href="https://space.hello.app/login"
                     className="text-sm bg-blue-500 text-white py-1 px-3 rounded mt-4 md:mt-10 md:absolute md:top-3 md:right-4"
+                    onClick={() => navigate("/space/login")}
                 >
                     Go to Hello Staging
                 </a>

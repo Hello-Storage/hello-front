@@ -259,6 +259,10 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
 }
 
 export const handleEncryptedFiles = async (files: FileType[], personalSignature: string, name: string, autoEncryptionEnabled: boolean, accountType: string | undefined, logout: () => void) => {
+    
+    if (personalSignature === undefined) {
+        return;
+    }
     // Using map to create an array of promises
     const decrytpedFilesPromises = files.map(async (file) => {
         if (file.encryption_status === EncryptionStatus.Encrypted && !file.decrypted) {
@@ -299,6 +303,9 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignature:
 };
 
 export const handleEncryptedFolders = async (folders: Folder[], personalSignature: string) => {
+    if (personalSignature === undefined) {
+        return;
+    }
     // Using map to create an array of promises
     const decrytpedFoldersPromises = folders.map(async (folder) => {
         if (folder.encryption_status === EncryptionStatus.Encrypted && !folder.decrypted) {

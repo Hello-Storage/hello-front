@@ -12,7 +12,13 @@ interface Base {
   decrypted?: boolean;
 }
 
-export interface File extends Base {
+interface UnencryptedBase {
+  name_unencrypted?: string;
+  mime_type_unencrypted?: string;
+  cid_original_unencrypted?: string;
+}
+
+export interface File extends Base, UnencryptedBase {
   uid: string;
   cid: string;
   cid_original_encrypted: string;

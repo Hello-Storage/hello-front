@@ -87,7 +87,7 @@ export default function Home() {
   const [totalPages, setTotalPages] = useState(0);
 
   const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
-
+  const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
 
 
 
@@ -119,7 +119,9 @@ export default function Home() {
       );
 
 
-      if (!personalSignatureRef.current) {
+      if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
+        hasCalledGetPersonalSignatureRef.current = true;
+
         personalSignatureRef.current = await getPersonalSignature(
           name,
           autoEncryptionEnabled,
@@ -149,7 +151,7 @@ export default function Home() {
 
       const decryptedFolders = await handleEncryptedFolders(
         folders,
-        personalSignatureRef.current
+        personalSignatureRef.current,
       );
 
       if (decryptedFolders && decryptedFolders.length > 0) {
@@ -166,18 +168,17 @@ export default function Home() {
       setLoading(false);
       setPersonalSignatureDefined(true);
     });
-  }, [path]);
+  }, [path, currentPage]);
   useEffect(() => {
     if (personalSignatureDefined) {
       if (!personalSignatureRef.current) {
-        toast.error("no personal signature at fetchRoot MyStorage");
         return;
       }
 
       fetchRootContent();
       setCurrentPage(1)
     }
-  }, [location, personalSignatureDefined]);
+  }, [location, name, personalSignatureRef.current]);
 
   const paginateContent = async () => {
     const itemsPerPage = 10;
