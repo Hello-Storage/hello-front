@@ -7,6 +7,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useEffect, useState } from "react";
 import { Api } from "api";
+import { Link } from "react-router-dom";
 
 const copyToClipboard = (str: string) => {
   navigator.clipboard.writeText(str);
@@ -69,12 +70,12 @@ const Referrals = () => {
 
   return (
     <div className="flex flex-col h-full relative">
-      <a
-        onClick={() => navigate("/space/referrals")}
+      <Link
+        to="/space/referrals"
         className="p-2 text-xl inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer"
       >
         Referrals
-      </a>
+      </Link>
       <hr className="mt-5 mb-3" />
       <div className="h-full p-8 flex flex-col items-center border rounded-xl">
         <div className="mb-4 flex items-center justify-center text-center w-full space-x-2">
@@ -164,9 +165,8 @@ const Referrals = () => {
               {Array.from({ length: maxUsers }).map((_, index) => (
                 <div
                   key={index}
-                  className={`md:h-6 md:w-12 h-4 w-6 p-2 rounded ${
-                    index < totalUsers ? "bg-green-500" : "bg-red-200"
-                  } fex items-center`}
+                  className={`md:h-6 md:w-12 h-4 w-6 p-2 rounded ${index < totalUsers ? "bg-green-500" : "bg-red-200"
+                    } fex items-center`}
                   title={
                     index < totalUsers
                       ? `Invited user wallet address: ${referredAddresses[index]}`
