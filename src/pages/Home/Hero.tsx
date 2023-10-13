@@ -5,6 +5,7 @@ import "./styles/globals.css"
 import { useAppSelector } from "state";
 import { Navigate } from "react-router";
 import useTitle from "hooks/useTitle";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
     useTitle("hello.app | Decentralized");
@@ -35,10 +36,11 @@ const Hero = () => {
     }
   };
   const { authenticated, } = useAppSelector((state) => state.user);
+
+  const navigate = useNavigate();
   
   if (authenticated) {
-    const newUrl = new URL("/space/my-storage", window.location.origin);
-    return window.location.href = newUrl.href;
+    return navigate("/space/my-storage")
   }
 
   return (
@@ -73,7 +75,7 @@ const Hero = () => {
                 className="absolute inset-0 z-0 scale-x-[2.0] blur before:absolute before:inset-0 before:top-1/2 before:aspect-square before:animate-disco before:bg-gradient-conic before:from-purple-700 before:via-pink-500 before:to-green-400"
               />
             </button>
-              <button type="button" onClick={() => window.location.href = window.location + "space/login"} className="pointer-events-auto relative overflow-hidden rounded-lg bg-black px-24 py-6 ring-red-500/50 ring-offset-black will-change-transform focus:outline-none focus:ring-1 focus:ring-offset-2 cursor-emoji">
+              <button type="button" onClick={() => navigate("/space/login")} className="pointer-events-auto relative overflow-hidden rounded-lg bg-black px-24 py-6 ring-red-500/50 ring-offset-black will-change-transform focus:outline-none focus:ring-1 focus:ring-offset-2 cursor-emoji">
               <span className="absolute inset-px z-10 grid place-items-center rounded-lg bg-black bg-gradient-to-t from-neutral-800 text-neutral-400">
                 <b>Join beta</b>
               </span>
