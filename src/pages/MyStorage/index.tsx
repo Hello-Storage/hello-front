@@ -136,7 +136,7 @@ export default function Home() {
 
       const decryptedFiles = await handleEncryptedFiles(
         currentEncryptedFiles,
-        personalSignatureRef.current,
+        personalSignatureRef.current || "",
         name,
         autoEncryptionEnabled,
         accountType,
@@ -151,7 +151,7 @@ export default function Home() {
 
       const decryptedFolders = await handleEncryptedFolders(
         folders,
-        personalSignatureRef.current,
+        personalSignatureRef.current || "",
       );
 
       if (decryptedFolders && decryptedFolders.length > 0) {
