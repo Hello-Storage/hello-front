@@ -4,8 +4,10 @@ import ThreeDScene from "./hello3d";
 import "./styles/globals.css"
 import { useAppSelector } from "state";
 import { Navigate } from "react-router";
+import useTitle from "hooks/useTitle";
 
 const Hero = () => {
+    useTitle("hello.app | Decentralized");
   const [showModal, setShowModal] = React.useState(false);
   const [email, setEmail] = React.useState("");
 

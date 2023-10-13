@@ -41,7 +41,7 @@ import { AxiosProgressEvent } from "axios";
 import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
-import { createFileAction } from "state/mystorage/actions";
+import { createFileAction, createFolderAction } from "state/mystorage/actions";
 
 const links1 = [
   {
@@ -107,7 +107,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     autoEncryptionEnabled,
   } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
-  const { fetchRootContent, fetchUserDetail } = useFetchData();
+  const { fetchUserDetail } = useFetchData();
   const { name } = useAppSelector((state) => state.user);
   const accountType = getAccountType();
   const navigate = useNavigate();
@@ -164,8 +164,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   ): Promise<{
     encryptedFile: File;
     cidOfEncryptedBufferStr: string;
-    cidOriginalEncryptedBase64Url: string;
     cidOriginalStr?: string;
+    cidOriginalEncryptedBase64Url: string;
     encryptedWebkitRelativePath: string;
     encryptionTime: number;
   } | null> => {
@@ -241,70 +241,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     return {
       encryptedFile,
       cidOfEncryptedBufferStr,
-      cidOriginalEncryptedBase64Url,
       cidOriginalStr,
+      cidOriginalEncryptedBase64Url,
       encryptedWebkitRelativePath,
       encryptionTime,
     };
   };
 
-  const postData = (formData: FormData, files: FileType[]) => {
-    Api.post("/file/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress,
-    })
-      .then((res) => {
-        toast.success("upload Succeed!");
-        setSidebarOpen(false);
-        dispatch(
-          setUploadStatusAction({
-            info: "Finished uploading data",
-            uploading: false,
-          })
-        );
-
-        //getAll files and encryptedFils into a single files variable from formData
-        const filesRes = res.data.files;
-
-
-
-        for (let i = 0; i < filesRes.length; i++) {
-          //get file at index from formdata
-          const fileRes = filesRes[i];
-          const file = files[i];
-
-          const fileObject: FileType = {
-            name: file.name,
-            cid: fileRes.cid,
-            id: fileRes.id,
-            uid: fileRes.uid,
-            cid_original_encrypted: file.cid_original_encrypted,
-            size: file.size,
-            root: fileRes.root,
-            mime_type: file.media_type,
-            media_type: file.mime_type,
-            path: file.path,
-            encryption_status: fileRes.encryption_status,
-            created_at: fileRes.created_at,
-            updated_at: fileRes.updated_at,
-            deleted_at: fileRes.deleted_at,
-          }
-          console.log(fileObject)
-          dispatch(createFileAction(
-            fileObject
-          ));
-        }
-
-        fetchUserDetail();
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("upload failed!");
-      })
-      .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
-  };
 
   const handleInputChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -312,8 +255,13 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   ) => {
     const root = getRoot();
     const files = event.target.files;
-    const filesCustomType: FileType[] = [];
     if (!files) return;
+
+    let outermostFolderTitle = "";
+
+    if (isFolder && files.length > 0 && files[0].webkitRelativePath) {
+      outermostFolderTitle = files[0].webkitRelativePath.split("/")[0];
+    }
 
     const formData = new FormData();
     formData.append("root", root);
@@ -336,10 +284,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const encryptedPathsMapping: { [path: string]: string } = {};
 
     let encryptionTimeTotal = 0;
+
+    const filesMap: { customFile: FileType; file: File }[] = [];
+
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+      let file = files[i];
 
       if (encryptionEnabled) {
+        const originalFile = file;
         const infoText = `Encrypting ${i + 1} of ${files.length}`;
         dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
         const encryptedResult = await handleEncryption(
@@ -355,49 +307,44 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         const {
           encryptedFile,
           cidOfEncryptedBufferStr,
-          cidOriginalEncryptedBase64Url,
           cidOriginalStr,
+          cidOriginalEncryptedBase64Url,
           encryptedWebkitRelativePath,
           encryptionTime,
         } = encryptedResult;
+
+        file = encryptedFile;
 
 
 
         encryptionTimeTotal += encryptionTime;
 
-        formData.append("encryptedFiles", encryptedFile);
-        formData.append(`cid[${i}]`, cidOfEncryptedBufferStr);
-        formData.append(
-          `cidOriginalEncrypted[${i}]`,
-          cidOriginalEncryptedBase64Url
-        );
-        formData.append(
-          `webkitRelativePath[${i}]`,
-          encryptedWebkitRelativePath
-        );
         const customFile: FileType = {
-          name: file.name,
-          cid: cidOriginalStr || '',
+          name: encryptedFile.name,
+          name_unencrypted: originalFile.name,
+          cid: cidOfEncryptedBufferStr || '',
           id: 0,
           uid: "",
-          cid_original_encrypted: cidOriginalStr || '',
-          size: file.size,
+          cid_original_encrypted: cidOriginalEncryptedBase64Url || '',
+          cid_original_unencrypted: cidOriginalStr || '',
+          cid_original_encrypted_base64_url: cidOriginalEncryptedBase64Url,
+          size: encryptedFile.size,
           root: root,
-          mime_type: file.type,
-          media_type: file.type.split("/")[0],
-          path: file.webkitRelativePath,
+          mime_type: encryptedFile.type,
+          mime_type_unencrypted: originalFile.type,
+          media_type: encryptedFile.type.split("/")[0],
+          path: encryptedWebkitRelativePath,
           encryption_status: EncryptionStatus.Encrypted,
           created_at: "",
           updated_at: "",
           deleted_at: "",
         }
 
-        filesCustomType.push(customFile);
+        filesMap.push({ customFile, file });
+
       } else {
         const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
         const cidStr = await getCid(uint8ArrayBuffer);
-        formData.append(`cid[${i}]`, cidStr);
-        formData.append("files", file);
 
         const customFile: FileType = {
           name: file.name,
@@ -416,7 +363,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           deleted_at: "",
         }
 
-        filesCustomType.push(customFile);
+        filesMap.push({ customFile, file });
+
+
       }
     }
 
@@ -446,7 +395,164 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
-    postData(formData, filesCustomType);
+    postData(formData, filesMap, outermostFolderTitle, isFolder);
+  };
+
+  const postData = async (formData: FormData, filesMap: { customFile: FileType, file: File }[], outermostFolderTitle: string, isFolder: boolean) => {
+
+    //iterate over each file and make a get request to check if cid exists in Api
+    //post file metadata to api
+
+    //get customFiles from filesMap
+    const customFiles = filesMap.map(fileMap => fileMap.customFile);
+    let filesToUpload: { customFile: FileType, file: File }[] = [];
+
+    console.log(customFiles)
+    let folderRootUID = "";
+    await Api.post(`/file/pool/check`, customFiles)
+
+      .then((res) => {
+        // CIDs of files that were FOUND in S3 and need to be dispatched.
+        const filesFound: FileType[] = res.data.filesFound;
+        folderRootUID = res.data.firstRootUID;
+
+
+        console.log(filesFound)
+
+        // Dispatch actions for files that were found in S3.
+        filesToUpload = filesMap.filter((fileMap) =>
+          !filesFound.some(fileFound => fileFound.cid === fileMap.customFile.cid)
+        )
+
+        filesToUpload.forEach((fileMap, index) => {
+          console.log(filesToUpload)
+          // Append the files that need to be uploaded to formData.
+          if (fileMap.customFile.encryption_status === EncryptionStatus.Encrypted) {
+            formData.append("encryptedFiles", fileMap.file)
+            formData.append(`cid[${index}]`, fileMap.customFile.cid)
+            if (fileMap.customFile.cid_original_encrypted_base64_url)
+              formData.append(`cidOriginalEncrypted[${index}]`, fileMap.customFile.cid_original_encrypted_base64_url)
+            formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
+          } else {
+            formData.append(`cid[${index}]`, fileMap.customFile.cid)
+            formData.append("files", fileMap.file)
+          }
+        })
+
+
+        const filesFoundInS3 = filesMap.filter((fileMap) =>
+          filesFound.some(fileFound => fileFound.cid === fileMap.customFile.cid)
+        )
+        console.log(filesFound)
+
+        filesFoundInS3.forEach((fileMap) => {
+          const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
+
+          //replace for customFile in fileMap values:
+          //- put name_unencrypted to name
+          //- put cid_original_unencrypted to cid_original_encrypted
+          //- put mime_type_unencrypted to mime_type
+
+          fileMap.customFile.id = fileFound?.id || 0;
+          fileMap.customFile.uid = fileFound?.uid || '';
+          fileMap.customFile.created_at = fileFound?.created_at || '';
+          fileMap.customFile.updated_at = fileFound?.updated_at || '';
+
+          fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
+          fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
+          fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
+
+          console.log(fileMap.customFile)
+
+          if (!isFolder) dispatch(createFileAction(fileMap.customFile))
+        })
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    if (filesToUpload.length !== 0) {
+      await Api.post("/file/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress,
+      })
+        .then((res) => {
+          toast.success("upload Succeed!");
+          setSidebarOpen(false);
+          dispatch(
+            setUploadStatusAction({
+              info: "Finished uploading data",
+              uploading: false,
+            })
+          );
+
+          //getAll files and encryptedFils into a single files variable from formData
+          const filesRes = res.data.files;
+
+
+
+          for (let i = 0; i < filesRes.length; i++) {
+            //get file at index from formdata
+            const fileRes = filesRes[i];
+            const file = customFiles[i];
+
+            const fileObject: FileType = {
+              name: file.name,
+              cid: fileRes.cid,
+              id: fileRes.id,
+              uid: fileRes.uid,
+              cid_original_encrypted: file.cid_original_encrypted,
+              size: file.size,
+              root: fileRes.root,
+              mime_type: file.media_type,
+              media_type: file.mime_type,
+              path: file.path,
+              encryption_status: fileRes.encryption_status,
+              created_at: fileRes.created_at,
+              updated_at: fileRes.updated_at,
+              deleted_at: fileRes.deleted_at,
+            }
+            console.log(fileObject)
+            if (!isFolder) dispatch(createFileAction(
+              fileObject
+            ))
+
+          }
+
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("upload failed!");
+        })
+        .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
+    } else {
+      toast.success("upload Succeed!");
+      setSidebarOpen(false);
+      dispatch(
+        setUploadStatusAction({
+          info: "Finished uploading data",
+          uploading: false,
+        })
+      );
+
+    }
+    if (isFolder && folderRootUID !== "" && outermostFolderTitle !== "") {
+      dispatch(createFolderAction({
+        title: outermostFolderTitle,
+        uid: folderRootUID,
+        root: getRoot(),
+        created_at: "",
+        updated_at: "",
+        deleted_at: "",
+        id: 0,
+        path: "/",
+        encryption_status: encryptionEnabled ? EncryptionStatus.Encrypted : EncryptionStatus.Public,
+      }))
+    }
+    fetchUserDetail();
+    dispatch(setUploadStatusAction({ uploading: false }))
   };
 
   const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (
