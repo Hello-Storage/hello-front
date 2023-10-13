@@ -18,7 +18,7 @@ const Referrals = () => {
   const baseUrl = window.location.origin;
 
   const { walletAddress } = useAppSelector((state) => state.user);
-  const referralLink = `${baseUrl}/login?ref=${walletAddress}`;
+  const referralLink = `${baseUrl}/space/login?ref=${walletAddress}`;
 
   const [referredAddresses, setReferredAddresses] = useState<string[]>([]);
   const [referredBy, setReferredBy] = useState<string>("");
