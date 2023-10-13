@@ -3,9 +3,8 @@ import React from "react";
 import ThreeDScene from "./hello3d";
 import "./styles/globals.css"
 import { useAppSelector } from "state";
-import { Navigate } from "react-router";
 import useTitle from "hooks/useTitle";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const Hero = () => {
     useTitle("hello.app | Decentralized");
@@ -36,11 +35,11 @@ const Hero = () => {
     }
   };
   const { authenticated, } = useAppSelector((state) => state.user);
-
   const navigate = useNavigate();
+
   
   if (authenticated) {
-    return navigate("/space/my-storage")
+    return <Navigate to="/space/my-storage" />;
   }
 
   return (
