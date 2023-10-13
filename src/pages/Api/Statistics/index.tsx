@@ -18,7 +18,7 @@ import Txt from "assets/images/Outline/document_m.png";
 import Pdf from "assets/images/Outline/invoice_m.png";
 import SharedFiles from "assets/images/Outline/shared-box_m.png";
 import useTitle from "hooks/useTitle";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 /* import Chart from "./Components/Chart"; */
 
 type IconWithTooltipProps = {
@@ -140,18 +140,12 @@ const Statistics = () => {
 
 
     useEffect(() => {
-        const correctPassword = "hello2023";
-        const enteredPassword = prompt("Enter password to access this page");
-        if (enteredPassword !== correctPassword) {
-            alert("Incorrect password!");
-        } else {
-            fetchData();
+        fetchData();
 
-            // 15 seconds update interval
-            const intervalId = setInterval(fetchData, 15000);
+        // 15 seconds update interval
+        const intervalId = setInterval(fetchData, 15000);
 
-            return () => clearInterval(intervalId);
-        }
+        return () => clearInterval(intervalId);
     }, []);
 
     const navigate = useNavigate();
@@ -171,12 +165,12 @@ const Statistics = () => {
                 <h1 className="text-xl font-medium text-center mt-10 md:mr-4">
                     Hello Storage Overview
                 </h1>
-                <a
+                <Link
+                    to="/space/login"
                     className="text-sm bg-blue-500 text-white py-1 px-3 rounded mt-4 md:mt-10 md:absolute md:top-3 md:right-4"
-                    onClick={() => navigate("/space/login")}
                 >
                     Go to Hello Staging
-                </a>
+                </Link>
             </div>
             {loading && (
                 <div className="text-black flex flex-col md:flex-row justify-center items-center">

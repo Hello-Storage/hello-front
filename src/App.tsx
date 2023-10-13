@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppLayout } from "layouts";
 
@@ -58,24 +58,26 @@ function App() {
 
   return (
     <BrowserRouter>
-    <TrackPageViews />
-      <Routes>
-        <Route path="/stats" element={<Statistics />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
-          <Route index element={<Api />} />
-          <Route path="/space/dashboard" element={<Dashboard />} />
-          <Route path="/space/my-storage" element={<MyStorage />} />
-          <Route path="/space/folder/*" element={<MyStorage />} />
-          <Route path="/space/shared-with-me" element={<Shared />} />
-          <Route path="/space/recent" element={<Recent />} />
-          <Route path="/space/referrals" element={<Referrals />} />
-          <Route path="/space/deleted" element={<Deleted />} />
-          <Route path="/space/migration" element={<Migration />} />
-        </Route>
+      <TrackPageViews />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/stats" element={<Statistics />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
+            <Route index element={<Api />} />
+            <Route path="/space/dashboard" element={<Dashboard />} />
+            <Route path="/space/my-storage" element={<MyStorage />} />
+            <Route path="/space/folder/*" element={<MyStorage />} />
+            <Route path="/space/shared-with-me" element={<Shared />} />
+            <Route path="/space/recent" element={<Recent />} />
+            <Route path="/space/referrals" element={<Referrals />} />
+            <Route path="/space/deleted" element={<Deleted />} />
+            <Route path="/space/migration" element={<Migration />} />
+          </Route>
 
-        <Route path="/space/login" element={<Login />} />
-      </Routes>
+          <Route path="/space/login" element={<Login />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
