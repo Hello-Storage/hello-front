@@ -36,8 +36,7 @@ export default function Login() {
 
   if (loading) return <Spinner3 />;
   if (authenticated) {
-    const newUrl = new URL("/space/my-storage", window.location.origin);
-    return window.location.href = newUrl.href;
+    return <Navigate to="/space/my-storage" />;
   }
 
   return (
