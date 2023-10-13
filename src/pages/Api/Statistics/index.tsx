@@ -30,6 +30,7 @@ const IconWithTooltip = ({
     IconComponent,
     tooltipText,
 }: IconWithTooltipProps) => {
+    useTitle("hello.app | Stats");
     const [showTooltip, setShowTooltip] = useState(false);
 
     return (
@@ -153,7 +154,6 @@ const Statistics = () => {
         }
     }, []);
 
-    const navigate = useNavigate();
 
     return (
         <div
@@ -171,7 +171,7 @@ const Statistics = () => {
                 </h1>
                 <a
                     className="text-sm bg-blue-500 text-white py-1 px-3 rounded mt-4 md:mt-10 md:absolute md:top-3 md:right-4"
-                    onClick={() => navigate("/space/login")}
+                    onClick={() => window.location.href = new URL("/space/login", window.location.origin).href}
                 >
                     Go to Hello Staging
                 </a>

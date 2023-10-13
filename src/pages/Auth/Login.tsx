@@ -14,7 +14,7 @@ import LogoHello from "assets/images/beta.png";
 import useTitle from "hooks/useTitle";
 
 export default function Login() {
-  useTitle("hello.app | Login");
+  useTitle("hello.app | Space");
   const { authenticated, loading } = useAppSelector((state) => state.user);
   const { startOTP } = useAuth();
   const [email, setEmail] = useState("");
@@ -36,7 +36,8 @@ export default function Login() {
 
   if (loading) return <Spinner3 />;
   if (authenticated) {
-    return <Navigate to="/space/my-storage" />;
+    const newUrl = new URL("/space/my-storage", window.location.origin);
+    return window.location.href = newUrl.href;
   }
 
   return (

@@ -37,7 +37,8 @@ const Hero = () => {
   const { authenticated, } = useAppSelector((state) => state.user);
   
   if (authenticated) {
-    return <Navigate to="/space/my-storage" />;
+    const newUrl = new URL("/space/my-storage", window.location.origin);
+    return window.location.href = newUrl.href;
   }
 
   return (
