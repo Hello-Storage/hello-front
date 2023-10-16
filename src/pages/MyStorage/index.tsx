@@ -30,6 +30,7 @@ import {
   handleEncryptedFolders,
 } from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
+import getPersonalSignature from "api/getPersonalSignature";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -67,7 +68,7 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { folders, files, showPreview, path, preview } = useAppSelector(
+  const { folders, files, showPreview, path, root, preview } = useAppSelector(
     (state) => state.mystorage
   );
 
@@ -85,13 +86,18 @@ export default function Home() {
   const [totalItems, setTotalItems] = useState(0); // folders.length + files.length
   const [totalPages, setTotalPages] = useState(0);
 
+  const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
+  const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
+
+
+
   useEffect(() => {
     async function fetchContent() {
       setLoading(true);
 
       const itemsPerPage = 10;
 
-      const totalItemsTemp = folders.length + files.length;
+      const totalItemsTemp = files.length;
       const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
       setTotalItems(totalItemsTemp);
       setTotalPages(totalPagesTemp);
@@ -112,9 +118,25 @@ export default function Home() {
         filesStartIndex + itemsPerPage
       );
 
+
+      if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
+        hasCalledGetPersonalSignatureRef.current = true;
+
+        personalSignatureRef.current = await getPersonalSignature(
+          name,
+          autoEncryptionEnabled,
+          accountType
+        );//Promie<string | undefined>
+        if (!personalSignatureRef.current) {
+          toast.error("Failed to get personal signature");
+          logout();
+          return;
+        }
+      }
+
       const decryptedFiles = await handleEncryptedFiles(
         currentEncryptedFiles,
-        personalSignatureRef,
+        personalSignatureRef.current || "",
         name,
         autoEncryptionEnabled,
         accountType,
@@ -129,7 +151,7 @@ export default function Home() {
 
       const decryptedFolders = await handleEncryptedFolders(
         folders,
-        personalSignatureRef
+        personalSignatureRef.current || "",
       );
 
       if (decryptedFolders && decryptedFolders.length > 0) {
@@ -144,13 +166,24 @@ export default function Home() {
     }
     fetchContent().then(() => {
       setLoading(false);
+      setPersonalSignatureDefined(true);
     });
-  }, [path, currentPage, name]);
+  }, [path, currentPage]);
+  useEffect(() => {
+    if (personalSignatureDefined) {
+      if (!personalSignatureRef.current) {
+        return;
+      }
+
+      fetchRootContent();
+      setCurrentPage(1)
+    }
+  }, [location, name, personalSignatureRef.current]);
 
   const paginateContent = async () => {
-    const itemsPerPage = currentPage === 1 ? 10 : 20;
+    const itemsPerPage = 10;
 
-    const totalItemsTemp = folders.length + files.length;
+    const totalItemsTemp = files.length;
     const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
     setTotalItems(totalItemsTemp);
     setTotalPages(totalPagesTemp);
@@ -162,19 +195,9 @@ export default function Home() {
     setStartIndex(tempStartIndex);
     setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
 
-    let folderItemsCount = Math.min(
-      folders.length - tempStartIndex,
-      itemsPerPage
-    );
-    folderItemsCount = Math.max(0, folderItemsCount);
 
-    const currentFolders = folders.slice(
-      tempStartIndex,
-      tempStartIndex + folderItemsCount
-    )
-
-    const filesStartIndex = Math.max(0, tempStartIndex - folders.length);
-    const filesItemsCount = itemsPerPage - folderItemsCount;
+    const filesStartIndex = Math.max(0, tempStartIndex);
+    const filesItemsCount = itemsPerPage;
 
     const currentFiles = files.slice(
       filesStartIndex,
@@ -201,10 +224,6 @@ export default function Home() {
   }, [files.length])
 
 
-  useEffect(() => {
-    setCurrentPage(1);
-    fetchRootContent();
-  }, [location]);
 
   const [filter, setFilter] = useState("all");
 
@@ -350,7 +369,7 @@ export default function Home() {
         <div className=" bg-white flex justify-between items-center text-sm py-2  border-t border-gray-200">
           <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
-            {Math.min(endIndex, totalItems)} of {totalItems} results
+            {Math.min(endIndex, totalItems)} of {totalItems} files
           </div>
           <div className="flex items-center space-x-2">
             <button

@@ -1,16 +1,12 @@
 import { useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Api, EncryptionStatus, RootResponse, UserDetailResponse } from "api";
+import { Api, RootResponse, UserDetailResponse } from "api";
 import { useAppDispatch } from "state";
 import { fetchContentAction } from "state/mystorage/actions";
 import { loadUserDetail } from "state/userdetail/actions";
-import { Folder } from "api/types/base";
 import { toast } from "react-toastify";
 import {
-  decryptContent,
-  handleEncryptedFiles,
   handleEncryptedFolders,
-  hexToBuffer,
 } from "utils/encryption/filesCipher";
 
 const useFetchData = () => {
@@ -36,16 +32,24 @@ const useFetchData = () => {
 
     Api.get<RootResponse>(root)
       .then(async (res) => {
-        const decryptedPath = await handleEncryptedFolders(res.data.path, personalSignatureRef).catch(
+        personalSignatureRef.current = sessionStorage.getItem("personal_signature") ?? undefined;
+        if (!personalSignatureRef.current) {
+          toast.error("Failed to fetch root");
+          return;
+        }
+        const decryptedPath = await handleEncryptedFolders(res.data.path, personalSignatureRef.current).catch(
           (err) => {
             console.log(err);
           }
         );
+
+
         if (!decryptedPath) {
           toast.error("Failed to decrypt files");
           dispatch(fetchContentAction(res.data));
           return;
         }
+        
 
         const sortedFiles = res.data.files.sort(
           (a, b) =>
@@ -91,3 +95,4 @@ const useFetchData = () => {
 };
 
 export default useFetchData;
+
