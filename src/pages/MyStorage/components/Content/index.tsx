@@ -256,10 +256,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   };
 
   useEffect(() => {
-    let invScroll = document.getElementById("scroll-invisible-section");
-    let visScroll = document.getElementById("scroll-visible-section");
-    let widthHelper = document.getElementById("width-section-helper");
-    let size = folders.length * 240 + 240 + "px";
+    const invScroll = document.getElementById("scroll-invisible-section");
+    const visScroll = document.getElementById("scroll-visible-section");
+    const widthHelper = document.getElementById("width-section-helper");
+    const size = folders.length * 240 + 240 + "px";
     if (widthHelper) widthHelper.style.width = size;
     if (invScroll && visScroll) {
       invScroll.onscroll = function () {
@@ -291,13 +291,12 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
               aria-label={v.uid}
               aria-valuetext="folder"
               draggable
-              className={`cursor-pointer min-w-[220px] z-50 ${
-                draggingOverFolderId === v.id.toString()
-                  ? "bg-blue-200 border border-blue-500"
-                  : isItemSelected(v.id.toString())
+              className={`cursor-pointer min-w-[220px] z-50 ${draggingOverFolderId === v.id.toString()
+                ? "bg-blue-200 border border-blue-500"
+                : isItemSelected(v.id.toString())
                   ? "bg-sky-100"
                   : ""
-              } ${i < folders.length - 1 ? "mr-5" : ""}`}
+                } ${i < folders.length - 1 ? "mr-5" : ""}`}
               onDrag={handleDrag}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
@@ -320,7 +319,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         </section>
 
         <div className="position-sticky-left">
-          <h4 className="pb-3">Files</h4>
+          <h4 className="pt-3 pb-3">Files</h4>
         </div>
         <section className="custom-scrollbar position-sticky-left">
           <div>
@@ -407,11 +406,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
                           onDragStart={handleDragStart}
                           onDragEnd={handleDragEnd}
                           onDrag={handleDrag}
-                          className={` cursor-pointer ${
-                            isItemSelected(v.id.toString())
-                              ? "bg-sky-100"
-                              : "hover:bg-gray-100 bg-white"
-                          }`}
+                          className={` cursor-pointer ${isItemSelected(v.id.toString())
+                            ? "bg-sky-100"
+                            : "hover:bg-gray-100 bg-white"
+                            }`}
                           // onDoubleClick={handleView}
                           onClick={handleOnClick}
                         >
@@ -433,9 +431,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         <div className="flex overflow-x-auto whitespace-nowrap gap-3 mb-5 mt-3 overflow-visible">
           {folders.map((v, i) => (
             <div
-              className={`cursor-pointer min-w-[220px] ${
-                i < folders.length - 1 ? "mr-2" : ""
-              }`}
+              className={`cursor-pointer min-w-[220px] ${i < folders.length - 1 ? "mr-2" : ""
+                }`}
               onDoubleClick={() => onFolderDoubleClick(v.uid)}
             >
               <FolderItem folder={v} key={i} view="grid" />
