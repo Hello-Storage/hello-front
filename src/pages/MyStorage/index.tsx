@@ -30,6 +30,7 @@ import {
   handleEncryptedFolders,
 } from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
+import getPersonalSignature from "api/getPersonalSignature";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -67,7 +68,7 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { folders, files, showPreview, path, preview } = useAppSelector(
+  const { folders, files, showPreview, path, root, preview } = useAppSelector(
     (state) => state.mystorage
   );
 
@@ -76,27 +77,36 @@ export default function Home() {
     window.innerWidth < 768 ? 6 : 10
   );
 
-  const totalItems = folders.length + files.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
 
   const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
   const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
+  const [totalItems, setTotalItems] = useState(0); // folders.length + files.length
+  const [totalPages, setTotalPages] = useState(0);
+
+  const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
+  const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
+
 
   useEffect(() => {
     async function fetchContent() {
       setLoading(true);
 
-      const filesItemsCount = currentPage === 1 ? 10 : 20;
+      const itemsPerPage = 10;
+
+      const totalItemsTemp = files.length;
+      const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
+      setTotalItems(totalItemsTemp);
+      setTotalPages(totalPagesTemp);
 
       const tempStartIndex =
         currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
       const tempEndIndex = tempStartIndex + itemsPerPage;
 
       setStartIndex(tempStartIndex);
-      setEndIndex(Math.min(tempEndIndex, totalItems));
+      setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
 
       // Calculate starting index for files based on the number of folders taken.
       const filesStartIndex = Math.max(0, tempStartIndex);
@@ -104,12 +114,28 @@ export default function Home() {
       // Slice the files array based on the calculated start and end indices.
       const currentEncryptedFiles = files.slice(
         filesStartIndex,
-        filesStartIndex + filesItemsCount
+        filesStartIndex + itemsPerPage
       );
+
+
+      if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
+        hasCalledGetPersonalSignatureRef.current = true;
+
+        personalSignatureRef.current = await getPersonalSignature(
+          name,
+          autoEncryptionEnabled,
+          accountType
+        );//Promie<string | undefined>
+        if (!personalSignatureRef.current) {
+          toast.error("Failed to get personal signature");
+          logout();
+          return;
+        }
+      }
 
       const decryptedFiles = await handleEncryptedFiles(
         currentEncryptedFiles,
-        personalSignatureRef,
+        personalSignatureRef.current || "",
         name,
         autoEncryptionEnabled,
         accountType,
@@ -124,7 +150,7 @@ export default function Home() {
 
       const decryptedFolders = await handleEncryptedFolders(
         folders,
-        personalSignatureRef
+        personalSignatureRef.current || "",
       );
 
       if (decryptedFolders && decryptedFolders.length > 0) {
@@ -139,21 +165,63 @@ export default function Home() {
     }
     fetchContent().then(() => {
       setLoading(false);
+      setPersonalSignatureDefined(true);
     });
-  }, [path, currentPage, name]);
+  }, [path, currentPage]);
+  useEffect(() => {
+    if (personalSignatureDefined) {
+      if (!personalSignatureRef.current) {
+        return;
+      }
+
+      fetchRootContent();
+      setCurrentPage(1)
+    }
+  }, [location, name, personalSignatureRef.current]);
+
+  const paginateContent = async () => {
+    const itemsPerPage = 10;
+
+    const totalItemsTemp = files.length;
+    const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
+    setTotalItems(totalItemsTemp);
+    setTotalPages(totalPagesTemp);
+
+    const tempStartIndex =
+      currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
+    const tempEndIndex = tempStartIndex + itemsPerPage;
+
+    setStartIndex(tempStartIndex);
+    setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
+
+
+    const filesStartIndex = Math.max(0, tempStartIndex);
+    const filesItemsCount = itemsPerPage;
+
+    const currentFiles = files.slice(
+      filesStartIndex,
+      filesStartIndex + filesItemsCount
+    )
+
+    if (!currentFiles || !currentFolders) {
+      toast.error("Failed to decrypt content");
+      fetchRootContent(setLoading);
+    }
+
+    setCurrentFiles(currentFiles);
+
+    setCurrentFolders(currentFolders);
+
+  }
 
   useEffect(() => {
     setCurrentFolders(folders);
   }, [folders.length]);
 
   useEffect(() => {
-    setCurrentFiles(files);
-  }, [files.length]);
+    paginateContent();
+  }, [files.length])
 
-  useEffect(() => {
-    setCurrentPage(1);
-    fetchRootContent();
-  }, [location]);
 
   const [filter, setFilter] = useState("all");
 
@@ -180,6 +248,7 @@ export default function Home() {
   useEffect(() => {
     fetchUserDetail();
   }, []);
+
 
   return (
     <div className="h-screen overflow-hidden flex flex-col table-main ">

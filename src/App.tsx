@@ -1,5 +1,5 @@
-import { lazy, useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy, useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppLayout } from "layouts";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -22,11 +22,24 @@ const Api = lazy(() => import("pages/Api"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
 
+const TrackPageViews = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check if the `dataLayer` object exists (it should be injected by the Google Tag Manager script)
+    if ((window as any).dataLayer) {
+      // Push a pageview event to the dataLayer
+      (window as any).dataLayer.push({
+        event: "page_view",
+        page_path: location.pathname, // Get the current path
+      });
+    }
+  }, [location]); // Re-run this effect when the location changes
+
+  return null; // This component does not render anything
+};
 
 function App() {
-  useEffect(() => {
-    document.title = "hello.app | Decentralized";
-  }, []);
   const { load } = useAuth();
 
   useEffect(() => {
@@ -45,23 +58,26 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/stats" element={<Statistics />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
-          <Route index element={<Api />} />
-          <Route path="/space/dashboard" element={<Dashboard />} />
-          <Route path="/space/my-storage" element={<MyStorage />} />
-          <Route path="/space/folder/*" element={<MyStorage />} />
-          <Route path="/space/shared-with-me" element={<Shared />} />
-          <Route path="/space/recent" element={<Recent />} />
-          <Route path="/space/referrals" element={<Referrals />} />
-          <Route path="/space/deleted" element={<Deleted />} />
-          <Route path="/space/migration" element={<Migration />} />
-        </Route>
+      <TrackPageViews />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/stats" element={<Statistics />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
+            <Route index element={<Api />} />
+            <Route path="/space/dashboard" element={<Dashboard />} />
+            <Route path="/space/my-storage" element={<MyStorage />} />
+            <Route path="/space/folder/*" element={<MyStorage />} />
+            <Route path="/space/shared-with-me" element={<Shared />} />
+            <Route path="/space/recent" element={<Recent />} />
+            <Route path="/space/referrals" element={<Referrals />} />
+            <Route path="/space/deleted" element={<Deleted />} />
+            <Route path="/space/migration" element={<Migration />} />
+          </Route>
 
-        <Route path="/space/login" element={<Login />} />
-      </Routes>
+          <Route path="/space/login" element={<Login />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

@@ -11,8 +11,10 @@ import { useAuth } from "hooks";
 import React, { useState } from "react";
 import { useModal } from "components/Modal";
 import LogoHello from "assets/images/beta.png";
+import useTitle from "hooks/useTitle";
 
 export default function Login() {
+  useTitle("hello.app | Space");
   const { authenticated, loading } = useAppSelector((state) => state.user);
   const { startOTP } = useAuth();
   const [email, setEmail] = useState("");
