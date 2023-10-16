@@ -90,7 +90,6 @@ export default function Home() {
   const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
 
 
-
   useEffect(() => {
     async function fetchContent() {
       setLoading(true);
@@ -217,12 +216,11 @@ export default function Home() {
 
   useEffect(() => {
     setCurrentFolders(folders);
-  }, [folders.length])
+  }, [folders.length]);
 
   useEffect(() => {
     paginateContent();
   }, [files.length])
-
 
 
   const [filter, setFilter] = useState("all");
@@ -251,11 +249,12 @@ export default function Home() {
     fetchUserDetail();
   }, []);
 
+
   return (
-    <div style={{ height: "100%" }} className="h-vh w-100 overflow-hidden flex flex-col ">
-      <div className="pb-16 flex-grow overflow-hidden flex flex-col custom-scrollbar">
+    <div className="h-screen overflow-hidden flex flex-col table-main ">
+      <div className="position-sticky-left">
         <Dropzone />
-        <div className="flex justify-between">
+        <div className="flex justify-between ">
           <Breadcrumb />
 
           <div className="flex gap-3">
@@ -336,8 +335,9 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setView("list")}
-                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 ${view === "list" ? "!bg-gray-100" : ""
-                  }`}
+                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 ${
+                  view === "list" ? "!bg-gray-100" : ""
+                }`}
               >
                 <HiOutlineViewList size={20} />
               </button>
@@ -345,38 +345,39 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setView("grid")}
-                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 ${view === "grid" ? "!bg-gray-100" : ""
-                  }`}
+                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 ${
+                  view === "grid" ? "!bg-gray-100" : ""
+                }`}
               >
                 <HiOutlineViewGrid size={20} />
               </button>
             </div>
           </div>
         </div>
-
-        <div className="flex flex-1 flex-col mt-3">
-          <Content
-            loading={loading}
-            files={filteredFiles}
-            folders={filteredFolders}
-            view={view}
-          />
-        </div>
       </div>
 
+      <section className="custom-scrollbar invisible-scrollbar" id="scroll-invisible-section">
+        <Content
+          loading={loading}
+          files={filteredFiles}
+          folders={filteredFolders}
+          view={view}
+        />
+      </section>
       {/* Sticky footer */}
-      <div className="right-0 bottom-0 px-3 flex-shrink-0">
-        <div className=" bg-white flex justify-between items-center text-sm py-2  border-t border-gray-200">
+      <div className="flex-shrink-0">
+        <div className="flex justify-between items-center text-sm mt-3 py-2 bg-white border-t border-gray-200">
           <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
-            {Math.min(endIndex, totalItems)} of {totalItems} files
+            {Math.min(endIndex, totalItems)} of {totalItems} results
           </div>
           <div className="flex items-center space-x-2">
             <button
-              className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-                }`}
+              className={`p-2 rounded flex items-center gap-2 ${
+                currentPage === 1
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
               }
@@ -386,10 +387,11 @@ export default function Home() {
               <span className="md:inline hidden">Prev</span>
             </button>
             <button
-              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-                }`}
+              className={`p-2 rounded flex items-center gap-2 ${
+                totalPages === 0 || currentPage === totalPages
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
               }
