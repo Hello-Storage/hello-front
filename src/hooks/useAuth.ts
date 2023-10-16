@@ -24,6 +24,7 @@ const useAuth = () => {
 
       if (privateKey) {
         //sign message with private key
+
         const signature = await signPersonalSignature(loadResp.data.walletAddress, localStorage.getItem("account_type") as AccountType, privateKey);
         setPersonalSignature(signature);
       }

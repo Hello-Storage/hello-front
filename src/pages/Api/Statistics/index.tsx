@@ -1,4 +1,3 @@
-"use client";
 
 import { GrCircleInformation } from "react-icons/gr";
 import { useEffect, useState } from "react";
@@ -18,6 +17,8 @@ import Png from "assets/images/Outline/picture_m.png";
 import Txt from "assets/images/Outline/document_m.png";
 import Pdf from "assets/images/Outline/invoice_m.png";
 import SharedFiles from "assets/images/Outline/shared-box_m.png";
+import useTitle from "hooks/useTitle";
+import { Link, useNavigate } from "react-router-dom";
 /* import Chart from "./Components/Chart"; */
 
 type IconWithTooltipProps = {
@@ -29,6 +30,7 @@ const IconWithTooltip = ({
     IconComponent,
     tooltipText,
 }: IconWithTooltipProps) => {
+    useTitle("hello.app | Stats");
     const [showTooltip, setShowTooltip] = useState(false);
 
     return (
@@ -61,9 +63,8 @@ const IconWithTooltip = ({
 
 const Statistics = () => {
 
-    useEffect(() => {
-        document.title = "hello.app | Stats";
-    }, []);
+
+    useTitle("hello.app | Stats");
 
     const [upfile, setupfile] = useState("");
     const [msize, setmsize] = useState(0);
@@ -110,7 +111,7 @@ const Statistics = () => {
     const fetchData = () => {
         // Esta URL debe ser la ruta de tu backend
 
-        const apiUrl = "https://api-staging.joinhello.app/api/statistics";
+        const apiUrl = import.meta.env.VITE_API_ENDPOINT + "/statistics"
 
         axios
             .get(apiUrl)
@@ -137,13 +138,6 @@ const Statistics = () => {
             });
     };
 
-    useEffect(() => {
-        const correctPassword = "hello2023";
-        const enteredPassword = prompt("Enter password to access this page");
-        if (enteredPassword !== correctPassword) {
-            window.location.href = "https://space.hello.app/login";
-        }
-    }, []);
 
     useEffect(() => {
         fetchData();
@@ -153,6 +147,9 @@ const Statistics = () => {
 
         return () => clearInterval(intervalId);
     }, []);
+
+    const navigate = useNavigate();
+
 
     return (
         <div
@@ -168,12 +165,12 @@ const Statistics = () => {
                 <h1 className="text-xl font-medium text-center mt-10 md:mr-4">
                     Hello Storage Overview
                 </h1>
-                <a
-                    href="https://space.hello.app/login"
+                <Link
+                    to="/space/login"
                     className="text-sm bg-blue-500 text-white py-1 px-3 rounded mt-4 md:mt-10 md:absolute md:top-3 md:right-4"
                 >
                     Go to Hello Staging
-                </a>
+                </Link>
             </div>
             {loading && (
                 <div className="text-black flex flex-col md:flex-row justify-center items-center">
