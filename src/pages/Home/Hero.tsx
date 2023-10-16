@@ -44,7 +44,7 @@ const Hero = () => {
 
   return (
     <section className="relative h-screen">
-      <div className="absolute inset-0 z-10 -mt-40 md:mt-0">
+      <div className=".custom-font absolute inset-0 z-10 -mt-40 md:mt-0">
         <ThreeDScene />
       </div>
       <div
@@ -64,7 +64,7 @@ const Hero = () => {
             </p>
           </div>
 
-          <div className="flex flex-col justify-center items-center mb-6">
+          <div className=" flex flex-col justify-center items-center mb-6">
             <button type="button" onClick={() => setShowModal(true)} className="pointer-events-auto relative mb-2 overflow-hidden rounded-lg bg-black px-24 py-6 ring-red-500/50 ring-offset-black will-change-transform focus:outline-none focus:ring-1 focus:ring-offset-2 cursor-emoji">
               <span className="absolute inset-px z-10 grid place-items-center rounded-lg bg-black bg-gradient-to-t from-neutral-800 text-neutral-400">
                 Know more
