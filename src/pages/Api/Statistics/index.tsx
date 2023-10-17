@@ -112,6 +112,7 @@ const Statistics = () => {
         // Esta URL debe ser la ruta de tu backend
 
         const apiUrl = "http://localhost:8080"
+
         axios
             .get(apiUrl)
             .then((response) => {
