@@ -407,7 +407,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const customFiles = filesMap.map(fileMap => fileMap.customFile);
     let filesToUpload: { customFile: FileType, file: File }[] = [];
 
-    console.log(customFiles)
     let folderRootUID = "";
     await Api.post(`/file/pool/check`, customFiles)
 
@@ -417,15 +416,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         folderRootUID = res.data.firstRootUID;
 
 
-        console.log(filesFound)
 
         // Dispatch actions for files that were found in S3.
-        filesToUpload = filesMap.filter((fileMap) =>
-          !filesFound.some(fileFound => fileFound.cid === fileMap.customFile.cid)
+        filesToUpload = filesMap.filter((fileMap) => {
+          const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
+          return !fileInFilesFound;
+
+        }
         )
 
+
+
         filesToUpload.forEach((fileMap, index) => {
-          console.log(filesToUpload)
           // Append the files that need to be uploaded to formData.
           if (fileMap.customFile.encryption_status === EncryptionStatus.Encrypted) {
             formData.append("encryptedFiles", fileMap.file)
@@ -441,30 +443,31 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
 
         const filesFoundInS3 = filesMap.filter((fileMap) =>
-          filesFound.some(fileFound => fileFound.cid === fileMap.customFile.cid)
+          (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid)
         )
-        console.log(filesFound)
 
         filesFoundInS3.forEach((fileMap) => {
-          const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
+          if (filesFound) {
+            const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
 
-          //replace for customFile in fileMap values:
-          //- put name_unencrypted to name
-          //- put cid_original_unencrypted to cid_original_encrypted
-          //- put mime_type_unencrypted to mime_type
+            //replace for customFile in fileMap values:
+            //- put name_unencrypted to name
+            //- put cid_original_unencrypted to cid_original_encrypted
+            //- put mime_type_unencrypted to mime_type
 
-          fileMap.customFile.id = fileFound?.id || 0;
-          fileMap.customFile.uid = fileFound?.uid || '';
-          fileMap.customFile.created_at = fileFound?.created_at || '';
-          fileMap.customFile.updated_at = fileFound?.updated_at || '';
+            fileMap.customFile.id = fileFound?.id || 0;
+            fileMap.customFile.uid = fileFound?.uid || '';
+            fileMap.customFile.created_at = fileFound?.created_at || '';
+            fileMap.customFile.updated_at = fileFound?.updated_at || '';
 
-          fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
-          fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
-          fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
+            fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
+            fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
+            fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
 
-          console.log(fileMap.customFile)
 
-          if (!isFolder) dispatch(createFileAction(fileMap.customFile))
+            if (!isFolder) dispatch(createFileAction(fileMap.customFile))
+          }
+
         })
       })
       .catch((err) => {
@@ -499,14 +502,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             const file = customFiles[i];
 
             const fileObject: FileType = {
-              name: file.name,
+              name: file.name_unencrypted || file.name,
               cid: fileRes.cid,
               id: fileRes.id,
               uid: fileRes.uid,
-              cid_original_encrypted: file.cid_original_encrypted,
+              cid_original_encrypted: file.cid_original_unencrypted || file.cid_original_encrypted,
               size: file.size,
               root: fileRes.root,
-              mime_type: file.media_type,
+              mime_type: file.mime_type_unencrypted || file.mime_type,
               media_type: file.mime_type,
               path: file.path,
               encryption_status: fileRes.encryption_status,
@@ -514,7 +517,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               updated_at: fileRes.updated_at,
               deleted_at: fileRes.deleted_at,
             }
-            console.log(fileObject)
             if (!isFolder) dispatch(createFileAction(
               fileObject
             ))
