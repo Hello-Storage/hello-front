@@ -10,7 +10,6 @@ import state from "state";
 import { logoutUser } from "state/user/actions";
 import { Navigate } from "react-router-dom";
 
-const Home = lazy(() => import("pages/Home"));
 const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
 const Referrals = lazy(() => import("pages/Referrals"));
@@ -18,7 +17,6 @@ const Shared = lazy(() => import("pages/Shared"));
 const Recent = lazy(() => import("pages/Recent"));
 const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));
-const Statistics = lazy(() => import("pages/Api/Statistics"));
 const Api = lazy(() => import("pages/Api"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
@@ -62,8 +60,7 @@ function App() {
       <TrackPageViews />
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
-          <Route path="/stats" element={<Statistics />} />
-          <Route path="/" element={<Navigate to="/space/login" replace />} />
+          <Route path="/" element={<Navigate to="/space/my-storage" replace />} />
           <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Api />} />
             <Route path="/space/dashboard" element={<Dashboard />} />

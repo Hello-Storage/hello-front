@@ -40,8 +40,8 @@ export default function Login() {
   }
 
   return (
-    <div className="p-8 md:h-screen">
-      <div className="md:absolute flex items-center gap-2">
+    <div className="flex flex-col min-h-screen p-8 md:h-screen">
+      <div className="flex-grow">
         <div className="flex items-center gap-3">
           <label className="text-2xl font-semibold font-[Outfit]">
             hello.app
@@ -102,23 +102,47 @@ export default function Login() {
             </form>
           </div>
         </div>
-
-        {/*
-          <div
-            className={`flex items-center flex-1 bg-[url('/images/login-bg.jpg')] bg-cover rounded-[40px]`}
-          >
-            <div className="w-full p-6 md:p-0">
-              <img className="mx-auto" src={shows} alt="shows" />
-
-              <div className="text-center mt-16">
-                <label className="text-white text-xl font-medium">
-                  Keep your data safe.
-                </label>
-              </div>
-            </div>
-          </div>
-        */}
       </div>
+      <footer className="text-sm text-black mx-8 md:mx-12 mt-8">
+        <div className="flex space-x-4 p-2">
+      <a href="mailto:team@hello.app" target="_blank" rel="noopener noreferrer">
+        <i className="h-5 w-5 zIndex-100 fas fa-envelope text-black hover:text-gray-500" />
+      </a>
+      <a
+        href="https://www.linkedin.com/company/hellostorage"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <i className="h-5 w-5 fab fa-linkedin text-black hover:text-gray-500" />
+      </a>
+      <a
+        href="https://github.com/hello-storage"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <i className="h-5 w-5 fab fa-github text-black hover:text-gray-500" />
+      </a>
+      <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer">
+        <i className="h-5 w-5 fab fa-twitter text-black hover:text-gray-500" />
+      </a>
+      <a
+        href="https://www.instagram.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <i className="h-5 w-5 fab fa-instagram text-black hover:text-gray-500" />
+      </a>
+      <a
+        href="https://www.tiktok.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <i className="h-5 w-5 fab fa-tiktok text-black hover:text-gray-500" />
+      </a>
+    </div>
+    © 2023 hello.app | all rights reserved.
+  </footer>
+
     </div>
   );
 }
