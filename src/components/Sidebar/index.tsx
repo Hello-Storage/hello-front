@@ -414,15 +414,22 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       .then((res) => {
         // CIDs of files that were FOUND in S3 and need to be dispatched.
         const filesFound: FileType[] = res.data.filesFound;
+        console.log("filesFound:", filesFound)
         folderRootUID = res.data.firstRootUID;
 
 
-        console.log(filesFound)
 
         // Dispatch actions for files that were found in S3.
-        filesToUpload = filesMap.filter((fileMap) =>
-          !filesFound.some(fileFound => fileFound.cid === fileMap.customFile.cid)
+        filesToUpload = filesMap.filter((fileMap) => {
+          const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
+          console.log("File CID:", fileMap.customFile.cid, "Found in filesFound:", fileInFilesFound);
+          return !fileInFilesFound;
+
+        }
         )
+
+        console.log("filesToUpload:", filesToUpload);
+
 
         filesToUpload.forEach((fileMap, index) => {
           console.log(filesToUpload)
@@ -441,30 +448,33 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
 
         const filesFoundInS3 = filesMap.filter((fileMap) =>
-          filesFound.some(fileFound => fileFound.cid === fileMap.customFile.cid)
+          (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid)
         )
-        console.log(filesFound)
+        console.log("filesFoundInS3:", filesFoundInS3);
 
         filesFoundInS3.forEach((fileMap) => {
-          const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
+          if (filesFound) {
+            const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
 
-          //replace for customFile in fileMap values:
-          //- put name_unencrypted to name
-          //- put cid_original_unencrypted to cid_original_encrypted
-          //- put mime_type_unencrypted to mime_type
+            //replace for customFile in fileMap values:
+            //- put name_unencrypted to name
+            //- put cid_original_unencrypted to cid_original_encrypted
+            //- put mime_type_unencrypted to mime_type
 
-          fileMap.customFile.id = fileFound?.id || 0;
-          fileMap.customFile.uid = fileFound?.uid || '';
-          fileMap.customFile.created_at = fileFound?.created_at || '';
-          fileMap.customFile.updated_at = fileFound?.updated_at || '';
+            fileMap.customFile.id = fileFound?.id || 0;
+            fileMap.customFile.uid = fileFound?.uid || '';
+            fileMap.customFile.created_at = fileFound?.created_at || '';
+            fileMap.customFile.updated_at = fileFound?.updated_at || '';
 
-          fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
-          fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
-          fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
+            fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
+            fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
+            fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
 
-          console.log(fileMap.customFile)
+            console.log(fileMap.customFile)
 
-          if (!isFolder) dispatch(createFileAction(fileMap.customFile))
+            if (!isFolder) dispatch(createFileAction(fileMap.customFile))
+          }
+
         })
       })
       .catch((err) => {
@@ -493,6 +503,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
 
 
+          console.log("CUSTOM FILES:")
+          console.log(customFiles)
           for (let i = 0; i < filesRes.length; i++) {
             //get file at index from formdata
             const fileRes = filesRes[i];
