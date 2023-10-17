@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppLayout } from "layouts";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -8,6 +8,7 @@ import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
 import state from "state";
 import { logoutUser } from "state/user/actions";
+import { Navigate } from "react-router-dom";
 
 const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
@@ -71,7 +72,6 @@ function App() {
             <Route path="/space/deleted" element={<Deleted />} />
             <Route path="/space/migration" element={<Migration />} />
           </Route>
-
           <Route path="/space/login" element={<Login />} />
         </Routes>
       </Suspense>

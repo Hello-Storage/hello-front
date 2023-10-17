@@ -279,7 +279,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         </div>
         <div className="folders-div">
           <div
-            className="bg-gray-50 hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
+            className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
             onClick={onPresent}
           >
             <RiFolderAddLine className="h-6 w-6" />
@@ -291,12 +291,13 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
               aria-label={v.uid}
               aria-valuetext="folder"
               draggable
-              className={`cursor-pointer min-w-[220px] z-50 ${draggingOverFolderId === v.id.toString()
-                ? "bg-blue-200 border border-blue-500"
-                : isItemSelected(v.id.toString())
+              className={`cursor-pointer min-w-[220px] z-50 ${
+                draggingOverFolderId === v.id.toString()
+                  ? "bg-blue-200 border border-blue-500"
+                  : isItemSelected(v.id.toString())
                   ? "bg-sky-100"
                   : ""
-                } ${i < folders.length - 1 ? "mr-5" : ""}`}
+              } ${i < folders.length - 1 ? "mr-5" : ""}`}
               onDrag={handleDrag}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
@@ -406,10 +407,11 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
                           onDragStart={handleDragStart}
                           onDragEnd={handleDragEnd}
                           onDrag={handleDrag}
-                          className={` cursor-pointer ${isItemSelected(v.id.toString())
-                            ? "bg-sky-100"
-                            : "hover:bg-gray-100 bg-white"
-                            }`}
+                          className={` cursor-pointer ${
+                            isItemSelected(v.id.toString())
+                              ? "bg-sky-100"
+                              : "hover:bg-gray-100 bg-white"
+                          }`}
                           // onDoubleClick={handleView}
                           onClick={handleOnClick}
                         >
@@ -431,8 +433,9 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         <div className="flex overflow-x-auto whitespace-nowrap gap-3 mb-5 mt-3 overflow-visible">
           {folders.map((v, i) => (
             <div
-              className={`cursor-pointer min-w-[220px] ${i < folders.length - 1 ? "mr-2" : ""
-                }`}
+              className={`cursor-pointer min-w-[220px] ${
+                i < folders.length - 1 ? "mr-2" : ""
+              }`}
               onDoubleClick={() => onFolderDoubleClick(v.uid)}
             >
               <FolderItem folder={v} key={i} view="grid" />
