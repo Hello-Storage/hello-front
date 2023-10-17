@@ -407,14 +407,12 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const customFiles = filesMap.map(fileMap => fileMap.customFile);
     let filesToUpload: { customFile: FileType, file: File }[] = [];
 
-    console.log(customFiles)
     let folderRootUID = "";
     await Api.post(`/file/pool/check`, customFiles)
 
       .then((res) => {
         // CIDs of files that were FOUND in S3 and need to be dispatched.
         const filesFound: FileType[] = res.data.filesFound;
-        console.log("filesFound:", filesFound)
         folderRootUID = res.data.firstRootUID;
 
 
@@ -422,17 +420,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         // Dispatch actions for files that were found in S3.
         filesToUpload = filesMap.filter((fileMap) => {
           const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
-          console.log("File CID:", fileMap.customFile.cid, "Found in filesFound:", fileInFilesFound);
           return !fileInFilesFound;
 
         }
         )
 
-        console.log("filesToUpload:", filesToUpload);
 
 
         filesToUpload.forEach((fileMap, index) => {
-          console.log(filesToUpload)
           // Append the files that need to be uploaded to formData.
           if (fileMap.customFile.encryption_status === EncryptionStatus.Encrypted) {
             formData.append("encryptedFiles", fileMap.file)
@@ -450,7 +445,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         const filesFoundInS3 = filesMap.filter((fileMap) =>
           (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid)
         )
-        console.log("filesFoundInS3:", filesFoundInS3);
 
         filesFoundInS3.forEach((fileMap) => {
           if (filesFound) {
@@ -470,7 +464,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
             fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
 
-            console.log(fileMap.customFile)
 
             if (!isFolder) dispatch(createFileAction(fileMap.customFile))
           }
@@ -503,22 +496,20 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
 
 
-          console.log("CUSTOM FILES:")
-          console.log(customFiles)
           for (let i = 0; i < filesRes.length; i++) {
             //get file at index from formdata
             const fileRes = filesRes[i];
             const file = customFiles[i];
 
             const fileObject: FileType = {
-              name: file.name,
+              name: file.name_unencrypted || file.name,
               cid: fileRes.cid,
               id: fileRes.id,
               uid: fileRes.uid,
-              cid_original_encrypted: file.cid_original_encrypted,
+              cid_original_encrypted: file.cid_original_unencrypted || file.cid_original_encrypted,
               size: file.size,
               root: fileRes.root,
-              mime_type: file.media_type,
+              mime_type: file.mime_type_unencrypted || file.mime_type,
               media_type: file.mime_type,
               path: file.path,
               encryption_status: fileRes.encryption_status,
@@ -526,7 +517,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               updated_at: fileRes.updated_at,
               deleted_at: fileRes.deleted_at,
             }
-            console.log(fileObject)
             if (!isFolder) dispatch(createFileAction(
               fileObject
             ))
