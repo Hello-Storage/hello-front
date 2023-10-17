@@ -122,18 +122,18 @@ export default function Login() {
       >
         <i className="h-5 w-5 fab fa-github text-black hover:text-gray-500" />
       </a>
-      <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer">
+      <a href="https://twitter.com/joinhelloapp" target="_blank" rel="noopener noreferrer">
         <i className="h-5 w-5 fab fa-twitter text-black hover:text-gray-500" />
       </a>
       <a
-        href="https://www.instagram.com/"
+        href="https://www.instagram.com/joinhelloapp/"
         target="_blank"
         rel="noopener noreferrer"
       >
         <i className="h-5 w-5 fab fa-instagram text-black hover:text-gray-500" />
       </a>
       <a
-        href="https://www.tiktok.com/"
+        href="https://www.tiktok.com/@hello.app_"
         target="_blank"
         rel="noopener noreferrer"
       >
