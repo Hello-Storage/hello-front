@@ -421,7 +421,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         // Dispatch actions for files that were found in S3.
         filesToUpload = filesMap.filter((fileMap) => {
-          const fileInFilesFound = filesFound.some(fileFound => fileFound.cid === fileMap.customFile.cid);
+          const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
           console.log("File CID:", fileMap.customFile.cid, "Found in filesFound:", fileInFilesFound);
           return !fileInFilesFound;
 
