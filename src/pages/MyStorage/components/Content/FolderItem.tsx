@@ -165,7 +165,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
           // Show a success message
           toast.success("Folder deleted successfully!");
           // Fetch the root content again
-          dispatch(removeFolder(folder.uid))
+          dispatch(removeFolder(folder.uid));
         })
         .catch((err) => {
           console.error("Error deleting folder:", err);
@@ -185,8 +185,8 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
               size={24}
               color="#272727"
             />
-            <div className="flex flex-row justify-between items-center w-full">
-              <label className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
+            <div className="flex flex-row justify-between items-center w-full relative">
+              <label className="font-medium cursor-pointer text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
                 {truncate(folder.title, 12)}
               </label>
               <button
@@ -194,11 +194,11 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                 onClick={() => setOpen(!open)}
               >
                 <HiDotsVertical className="align-middle" />{" "}
-                <div className="relative" ref={ref}>
+                <div className="drop-down-menu" ref={ref}>
                   {open && (
                     <div
                       id="dropdown"
-                      className="absolute origin-top-right right-0 z-50 mt-2 bg-white shadow text-left w-36 divide-y border"
+                      className="absolute origin-top-right right-0 mt-2 bg-white shadow text-left w-36 divide-y borde r"
                     >
                       <ul className="py-2">
                         <a
@@ -246,7 +246,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
             color="#272727"
           />
           <div className="flex flex-row justify-between items-center w-full">
-            <label className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
+            <label className="font-medium cursor-pointer text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
               {truncate(folder.title, 12)}
             </label>
             <button

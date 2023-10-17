@@ -111,7 +111,7 @@ const Statistics = () => {
     const fetchData = () => {
         // Esta URL debe ser la ruta de tu backend
 
-        const apiUrl = import.meta.env.VITE_API_ENDPOINT + "/statistics"
+        const apiUrl = import.meta.env.VITE_API_ENDPOINT + "/"
 
         axios
             .get(apiUrl)

@@ -272,14 +272,14 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
             onClick={() => setOpen(!open)}
           >
             <HiDotsVertical />
-            <div className="relative" ref={ref}>
+            <div className="relative " ref={ref}>
               {open && (
                 <div
                   id="dropdown"
-                  className="absolute right-6 z-50 mt-2 bg-white shadow-lg text-left w-36 divide-y border"
+                  className="absolute right-6 z-50 mt-2 shadow-lg text-left w-36 divide-y border top-0 "
                   style={{ bottom: "100%" }}
                 >
-                  <ul className="py-2">
+                  <ul className="py-2 bg-white">
                     <a
                       href="#"
                       className="block px-4 py-2 hover:bg-gray-100"
@@ -304,10 +304,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
                     )}
                   </ul>
 
-                  <div className="py-2">
+                  <div className="py-2 bg-white">
                     <a
                       href="#"
-                      className="block px-4 py-2 hover:bg-gray-100"
+                      className="block px-4 py-2 hover:bg-gray-100 "
                       onClick={handleDelete}
                     >
                       <HiOutlineTrash className="inline-flex mr-3" />

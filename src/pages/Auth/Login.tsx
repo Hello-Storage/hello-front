@@ -103,19 +103,21 @@ export default function Login() {
           </div>
         </div>
 
-        <div
-          className={`flex items-center flex-1 bg-[url('/images/login-bg.jpg')] bg-cover rounded-[40px]`}
-        >
-          <div className="w-full p-6 md:p-0">
-            <img className="mx-auto" src={shows} alt="shows" />
+        {/*
+          <div
+            className={`flex items-center flex-1 bg-[url('/images/login-bg.jpg')] bg-cover rounded-[40px]`}
+          >
+            <div className="w-full p-6 md:p-0">
+              <img className="mx-auto" src={shows} alt="shows" />
 
-            <div className="text-center mt-16">
-              <label className="text-white text-xl font-medium">
-                Keep your data safe.
-              </label>
+              <div className="text-center mt-16">
+                <label className="text-white text-xl font-medium">
+                  Keep your data safe.
+                </label>
+              </div>
             </div>
           </div>
-        </div>
+        */}
       </div>
     </div>
   );
