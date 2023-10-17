@@ -61,7 +61,6 @@ function App() {
       <TrackPageViews />
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
-          <Route path="/stats" element={<Statistics />} />
           <Route path="/" element={<Home />} />
           <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Api />} />
