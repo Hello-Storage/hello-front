@@ -356,7 +356,7 @@ export default function Home() {
         </div>
       </div>
 
-      <section className="custom-scrollbar invisible-scrollbar" id="scroll-invisible-section">
+      <section className="custom-scrollbar invisible-scrollbar flex-grow" id="scroll-invisible-section">
         <Content
           loading={loading}
           files={filteredFiles}
