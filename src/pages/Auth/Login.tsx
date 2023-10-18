@@ -17,8 +17,9 @@ import { HiMail } from "react-icons/hi";
 import { CiLinkedin } from "react-icons/ci";
 import { FaGithubSquare } from "react-icons/fa";
 import { TbBrandTwitterFilled } from "react-icons/tb";
-import { BsInstagram } from "react-icons/bs";
 import { PiTiktokLogoFill } from "react-icons/pi";
+import { BiLogoInstagramAlt } from "react-icons/bi";
+import { BsLinkedin } from 'react-icons/bs';
 
 export default function Login() {
   useTitle("hello.app | Space");
@@ -116,20 +117,20 @@ export default function Login() {
             <a href="mailto:team@hello.app" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
                 <HiMail />
             </a>
-            <a href="https://www.linkedin.com/company/hellostorage" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
-                <CiLinkedin />
+            <a href="https://www.linkedin.com/company/hellostorage" target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px' }}>
+                <BsLinkedin />
             </a>
             <a href="https://github.com/hello-storage" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
                 <FaGithubSquare />
             </a>
 
-            <a href="https://twitter.com/joinhelloapp" target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px' }}>
+            <a href="https://twitter.com/joinhelloapp" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
                 <TbBrandTwitterFilled/>
             </a>
-            <a href="https://www.instagram.com/joinhelloapp/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px' }}>
-                <BsInstagram/>
+            <a href="https://www.instagram.com/joinhelloapp/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
+                <BiLogoInstagramAlt/>
             </a>
-            <a href="https://www.tiktok.com/@hello.app_" target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px' }}>
+            <a href="https://www.tiktok.com/@hello.app_" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
                 <PiTiktokLogoFill/>
             </a>
           </div>

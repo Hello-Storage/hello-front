@@ -324,7 +324,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         </div>
         <section className="custom-scrollbar position-sticky-left">
           <div>
-            <div className="table-div custom-scrollbar">
+            <div className="table-div custom-scrollbar h-full">
               <table className="w-full text-sm text-left text-gray-500 table-with-lines">
                 <thead className="text-xs text-gray-700 bg-gray-100">
                   <tr>
