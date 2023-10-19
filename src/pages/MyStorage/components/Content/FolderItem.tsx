@@ -165,7 +165,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
           // Show a success message
           toast.success("Folder deleted successfully!");
           // Fetch the root content again
-          dispatch(removeFolder(folder.uid))
+          dispatch(removeFolder(folder.uid));
         })
         .catch((err) => {
           console.error("Error deleting folder:", err);
@@ -186,7 +186,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
               color="#272727"
             />
             <div className="flex flex-row justify-between items-center w-full relative">
-              <label className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
+              <label className="font-medium cursor-pointer text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
                 {truncate(folder.title, 12)}
               </label>
               <button
@@ -246,7 +246,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
             color="#272727"
           />
           <div className="flex flex-row justify-between items-center w-full">
-            <label className="font-medium text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
+            <label className="font-medium cursor-pointer text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
               {truncate(folder.title, 12)}
             </label>
             <button

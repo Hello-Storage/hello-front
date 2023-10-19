@@ -6,7 +6,7 @@
 
 .table-div {
   overflow-y: scroll;
-  max-height: 50vh;
+  max-height: calc(100vh - 450px);
 }
 
 .folders-div{
