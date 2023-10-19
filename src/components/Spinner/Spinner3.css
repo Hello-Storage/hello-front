@@ -1,0 +1,7 @@
+.spinner.flip {
+    width: 60px;
+    height: 60px;
+}
+.spinner.flip::before {
+    background: #777778;
+}
