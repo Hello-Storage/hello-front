@@ -9,7 +9,7 @@ const config = createConfig(
     // Required API Keys
     // alchemyId: "", // or infuraId
     infuraId: "c98e454d12794f69bf21afbcc74c3da7",
-    walletConnectProjectId: "1dbf8283aaabbc089924a34f1e9ffad2",
+    walletConnectProjectId: "5d3531e7d28f447f0bcc0a9307a1843e",
 
     // Required
     appName: "hello",
