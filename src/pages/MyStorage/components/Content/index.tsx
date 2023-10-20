@@ -37,6 +37,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     navigate(`/space/folder/${folderUID}`);
   };
 
+  
+
   // Event for select item
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
     if (!event.ctrlKey) {
@@ -47,7 +49,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString() || "",
     };
-    let isAlreadySelected = selectedItems.some(
+    const isAlreadySelected = selectedItems.some(
       (item) => item.id === selInfo.id
     );
     if (isAlreadySelected) {
@@ -291,7 +293,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
               aria-label={v.uid}
               aria-valuetext="folder"
               draggable
-              className={`cursor-pointer min-w-[220px] z-50 ${
+              className={`cursor-pointer min-w-[220px] ${
                 draggingOverFolderId === v.id.toString()
                   ? "bg-blue-200 border border-blue-500"
                   : isItemSelected(v.id.toString())

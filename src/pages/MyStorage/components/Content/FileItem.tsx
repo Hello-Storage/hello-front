@@ -25,7 +25,7 @@ import {
 } from "utils/encryption/filesCipher";
 import React from "react";
 import { useAppDispatch } from "state";
-import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
+import { PreviewImage, setImageViewAction, setSelectedShareFile, setShowShareModal } from "state/mystorage/actions";
 import { truncate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
@@ -288,7 +288,12 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
                       <HiOutlineDownload className="inline-flex mr-3" />
                       Download
                     </a>
-                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                    <a href="#" 
+                      onClick={() => {
+                        dispatch(setShowShareModal(true))
+                        dispatch(setSelectedShareFile(file))
+                      }}
+                    className="block px-4 py-2 hover:bg-gray-100">
                       <HiOutlineShare className="inline-flex mr-3" />
                       Share
                     </a>

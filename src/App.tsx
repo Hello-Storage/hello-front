@@ -18,6 +18,7 @@ const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
 const Referrals = lazy(() => import("pages/Referrals"));
 const Shared = lazy(() => import("pages/Shared"));
+const ShareModal = lazy(() => import("pages/Shared/Components/ShareModal"));
 const Recent = lazy(() => import("pages/Recent"));
 const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));

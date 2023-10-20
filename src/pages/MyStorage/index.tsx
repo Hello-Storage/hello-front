@@ -16,9 +16,9 @@ import { useSearchContext } from "contexts/SearchContext";
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
 import {
-  setImageViewAction,
-  updateDecryptedFilesAction,
-  updateDecryptedFoldersAction,
+setImageViewAction,
+updateDecryptedFilesAction,
+updateDecryptedFoldersAction,
 } from "state/mystorage/actions";
 import { File as FileType, Folder } from "api";
 
@@ -26,160 +26,75 @@ import { File as FileType, Folder } from "api";
 import "lightbox.js-react/dist/index.css";
 import getAccountType from "api/getAccountType";
 import {
-  handleEncryptedFiles,
-  handleEncryptedFolders,
+handleEncryptedFiles,
+handleEncryptedFolders,
 } from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
 import getPersonalSignature from "api/getPersonalSignature";
+import ShareModal from "pages/Shared/Components/ShareModal";
 
 export default function Home() {
-  const dispatch = useAppDispatch();
-  const { uploading } = useAppSelector((state) => state.uploadstatus);
-  const { name } = useAppSelector((state) => state.user);
-  const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
-  const { logout } = useAuth();
-  const accountType = getAccountType();
+const dispatch = useAppDispatch();
+const { uploading } = useAppSelector((state) => state.uploadstatus);
+const { name } = useAppSelector((state) => state.user);
+const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
+const { logout } = useAuth();
+const accountType = getAccountType();
 
-  const ref = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
-  useDropdown(ref, open, setOpen);
+const ref = useRef<HTMLDivElement>(null);
+const [open, setOpen] = useState(false);
+useDropdown(ref, open, setOpen);
 
-  const location = useLocation();
+const location = useLocation();
 
-  const { fetchRootContent, fetchUserDetail } = useFetchData();
-  const personalSignatureRef = useRef<string | undefined>();
+const { fetchRootContent, fetchUserDetail } = useFetchData();
+const personalSignatureRef = useRef<string | undefined>();
 
-  //pagination
-  const [loading, setLoading] = useState(false);
+//pagination
+const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => {
-      // Set itemsPerPage to 5 if window width is less than 768px (mobile), else set it to 10 (desktop)
-      setItemsPerPage(window.innerWidth < 768 ? 6 : 10);
-    };
+useEffect(() => {
+  const handleResize = () => {
+    // Set itemsPerPage to 5 if window width is less than 768px (mobile), else set it to 10 (desktop)
+    setItemsPerPage(window.innerWidth < 768 ? 6 : 10);
+  };
 
-    // Attach event listener
-    window.addEventListener("resize", handleResize);
+  // Attach event listener
+  window.addEventListener("resize", handleResize);
 
-    // Call handler right away so state gets updated with initial window size
-    handleResize();
+  // Call handler right away so state gets updated with initial window size
+  handleResize();
 
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // Remove event listener on cleanup
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
 
-  const { folders, files, showPreview, path, root, preview } = useAppSelector(
-    (state) => state.mystorage
-  );
+const { folders, files, showPreview, path, preview, showShareModal} = useAppSelector(
+  (state) => state.mystorage
+);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(
-    window.innerWidth < 768 ? 6 : 10
-  );
-
-
-  const [startIndex, setStartIndex] = useState(0);
-  const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
-
-  const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
-  const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
-  const [totalItems, setTotalItems] = useState(0); // folders.length + files.length
-  const [totalPages, setTotalPages] = useState(0);
-
-  const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
-  const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
+const [currentPage, setCurrentPage] = useState(1);
+const [itemsPerPage, setItemsPerPage] = useState(
+  window.innerWidth < 768 ? 6 : 10
+);
 
 
-  useEffect(() => {
-    async function fetchContent() {
-      setLoading(true);
+const [startIndex, setStartIndex] = useState(0);
+const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
 
-      const itemsPerPage = 10;
+const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
+const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
+const [totalItems, setTotalItems] = useState(0); // folders.length + files.length
+const [totalPages, setTotalPages] = useState(0);
 
-      const totalItemsTemp = files.length;
-      const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
-      setTotalItems(totalItemsTemp);
-      setTotalPages(totalPagesTemp);
-
-      const tempStartIndex =
-        currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
-      const tempEndIndex = tempStartIndex + itemsPerPage;
-
-      setStartIndex(tempStartIndex);
-      setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
-
-      // Calculate starting index for files based on the number of folders taken.
-      const filesStartIndex = Math.max(0, tempStartIndex);
-
-      // Slice the files array based on the calculated start and end indices.
-      const currentEncryptedFiles = files.slice(
-        filesStartIndex,
-        filesStartIndex + itemsPerPage
-      );
+const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
+const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
 
 
-      if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
-        hasCalledGetPersonalSignatureRef.current = true;
+useEffect(() => {
+  async function fetchContent() {
+    setLoading(true);
 
-        personalSignatureRef.current = await getPersonalSignature(
-          name,
-          autoEncryptionEnabled,
-          accountType
-        );//Promie<string | undefined>
-        if (!personalSignatureRef.current) {
-          toast.error("Failed to get personal signature");
-          logout();
-          return;
-        }
-      }
-
-      const decryptedFiles = await handleEncryptedFiles(
-        currentEncryptedFiles,
-        personalSignatureRef.current || "",
-        name,
-        autoEncryptionEnabled,
-        accountType,
-        logout
-      );
-
-      if (decryptedFiles && decryptedFiles.length > 0) {
-        dispatch(updateDecryptedFilesAction(decryptedFiles));
-      }
-
-      setCurrentFiles(decryptedFiles || []);
-
-      const decryptedFolders = await handleEncryptedFolders(
-        folders,
-        personalSignatureRef.current || "",
-      );
-
-      if (decryptedFolders && decryptedFolders.length > 0) {
-        dispatch(updateDecryptedFoldersAction(decryptedFolders));
-      }
-      setCurrentFolders(decryptedFolders || []);
-
-      if (!currentFiles || !currentFolders) {
-        toast.error("Failed to decrypt content");
-        fetchRootContent(setLoading);
-      }
-    }
-    fetchContent().then(() => {
-      setLoading(false);
-      setPersonalSignatureDefined(true);
-    });
-  }, [path, currentPage]);
-  useEffect(() => {
-    if (personalSignatureDefined) {
-      if (!personalSignatureRef.current) {
-        return;
-      }
-
-      fetchRootContent();
-      setCurrentPage(1)
-    }
-  }, [location, name, personalSignatureRef.current]);
-
-  const paginateContent = async () => {
     const itemsPerPage = 10;
 
     const totalItemsTemp = files.length;
@@ -194,55 +109,141 @@ export default function Home() {
     setStartIndex(tempStartIndex);
     setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
 
-
+    // Calculate starting index for files based on the number of folders taken.
     const filesStartIndex = Math.max(0, tempStartIndex);
-    const filesItemsCount = itemsPerPage;
 
-    const currentFiles = files.slice(
+    // Slice the files array based on the calculated start and end indices.
+    const currentEncryptedFiles = files.slice(
       filesStartIndex,
-      filesStartIndex + filesItemsCount
-    )
+      filesStartIndex + itemsPerPage
+    );
+
+
+    if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
+      hasCalledGetPersonalSignatureRef.current = true;
+
+      personalSignatureRef.current = await getPersonalSignature(
+        name,
+        autoEncryptionEnabled,
+        accountType
+      );//Promie<string | undefined>
+      if (!personalSignatureRef.current) {
+        toast.error("Failed to get personal signature");
+        logout();
+        return;
+      }
+    }
+
+    const decryptedFiles = await handleEncryptedFiles(
+      currentEncryptedFiles,
+      personalSignatureRef.current || "",
+      name,
+      autoEncryptionEnabled,
+      accountType,
+      logout
+    );
+
+    if (decryptedFiles && decryptedFiles.length > 0) {
+      dispatch(updateDecryptedFilesAction(decryptedFiles));
+    }
+
+    setCurrentFiles(decryptedFiles || []);
+
+    const decryptedFolders = await handleEncryptedFolders(
+      folders,
+      personalSignatureRef.current || "",
+    );
+
+    if (decryptedFolders && decryptedFolders.length > 0) {
+      dispatch(updateDecryptedFoldersAction(decryptedFolders));
+    }
+    setCurrentFolders(decryptedFolders || []);
 
     if (!currentFiles || !currentFolders) {
       toast.error("Failed to decrypt content");
       fetchRootContent(setLoading);
     }
+  }
+  fetchContent().then(() => {
+    setLoading(false);
+    setPersonalSignatureDefined(true);
+  });
+}, [path, currentPage]);
+useEffect(() => {
+  if (personalSignatureDefined) {
+    if (!personalSignatureRef.current) {
+      return;
+    }
 
-    setCurrentFiles(currentFiles);
+    fetchRootContent();
+    setCurrentPage(1)
+  }
+}, [location, name, personalSignatureRef.current]);
 
-    setCurrentFolders(currentFolders);
+const paginateContent = async () => {
+  const itemsPerPage = 10;
 
+  const totalItemsTemp = files.length;
+  const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
+  setTotalItems(totalItemsTemp);
+  setTotalPages(totalPagesTemp);
+
+  const tempStartIndex =
+    currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
+  const tempEndIndex = tempStartIndex + itemsPerPage;
+
+  setStartIndex(tempStartIndex);
+  setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
+
+
+  const filesStartIndex = Math.max(0, tempStartIndex);
+  const filesItemsCount = itemsPerPage;
+
+  const currentFiles = files.slice(
+    filesStartIndex,
+    filesStartIndex + filesItemsCount
+  )
+
+  if (!currentFiles || !currentFolders) {
+    toast.error("Failed to decrypt content");
+    fetchRootContent(setLoading);
   }
 
-  useEffect(() => {
-    setCurrentFolders(folders);
-  }, [folders.length]);
+  setCurrentFiles(currentFiles);
 
-  useEffect(() => {
-    paginateContent();
-  }, [files.length])
+  setCurrentFolders(currentFolders);
+
+}
+
+useEffect(() => {
+  setCurrentFolders(folders);
+}, [folders.length]);
+
+useEffect(() => {
+  paginateContent();
+}, [files.length])
 
 
-  const [filter, setFilter] = useState("all");
+const [filter, setFilter] = useState("all");
 
-  const { searchTerm } = useSearchContext();
+const { searchTerm } = useSearchContext();
 
-  const filteredFolders = currentFolders.filter(
-    (folder) =>
-      folder.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      folder.uid.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredFolders = currentFolders.filter(
+  (folder) =>
+    folder.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    folder.uid.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
-  const filteredFiles = currentFiles?.filter(
-    (file) =>
-      file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file.cid.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredFiles = currentFiles?.filter(
+  (file) =>
+    file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    file.cid.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
-  const [view, setView] = useState<"list" | "grid">("list");
+const [view, setView] = useState<"list" | "grid">("list");
 
-  const onRadioChange = (e: any) => {
-    setFilter(e.target.value);
+const onRadioChange = (e: any) => {
+  setFilter(e.target.value);
   };
 
   useEffect(() => {
@@ -252,6 +253,9 @@ export default function Home() {
 
   return (
     <div className="h-screen overflow-hidden flex flex-col table-main ">
+      <h1>asd</h1>
+      <h1>sharemodal: {JSON.stringify(showShareModal)}</h1>
+      {showShareModal && <ShareModal />}
       <div className="position-sticky-left">
         <Dropzone />
         <div className="flex justify-between ">
