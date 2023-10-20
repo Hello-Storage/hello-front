@@ -4,6 +4,7 @@ import {
   fetchContentAction,
   createFolderAction,
   setImageViewAction,
+  setShowShareModal,
   PreviewImage,
   removeContent,
   updateDecryptedFilesAction,
@@ -17,6 +18,7 @@ import { RootResponse } from "api";
 interface MyStorageProps extends RootResponse {
   preview: PreviewImage | undefined;
   showPreview: boolean;
+  showShareModal: boolean;
 }
 const initialState: MyStorageProps = {
   root: "/",
@@ -25,6 +27,7 @@ const initialState: MyStorageProps = {
   folders: [],
   preview: undefined,
   showPreview: false,
+  showShareModal: false,
 };
 
 export default createReducer<MyStorageProps>(initialState, (builder) => {
@@ -70,5 +73,9 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
     .addCase(createFileAction, (state, { payload }) => ({
       ...state,
       files: [...state.files, payload],
-      }));
+    }))
+    .addCase(setShowShareModal, (state, { payload }) => ({
+      ...state,
+      showShareModal: payload,
+    }));
 });
