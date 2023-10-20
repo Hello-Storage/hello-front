@@ -120,12 +120,6 @@ export default function Breadcrumb() {
           onDrop={handleDrop}
           aria-label={"/"}
         >
-          <a
-            onClick={() => onClick("/space/my-storage")}
-            className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer"
-          >
-            My Storage
-          </a>
         </li>
         {mystorage.path.map((v, i) => (
           <li onDrop={handleDrop} key={i} aria-label={v.uid}>

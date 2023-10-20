@@ -176,48 +176,6 @@ export default function Dashboard() {
           <div className="md:mt-10 mt-6 pb-8">
             <Chart />
           </div>
-          <h3 className="text-xl font-medium pt-8 border-t border-gray-200">
-            Folders storage
-          </h3>
-          <ul className="list-none mt-3">
-            <li className="inline mr-3">
-              <FaCircle
-                color="#BEBFF5"
-                size={10}
-                className="inline-block mr-2"
-              />
-              <span>Documents</span>
-            </li>
-
-            <li className="inline mr-3">
-              <FaCircle
-                color="#FCB3FC"
-                size={10}
-                className="inline-block mr-2"
-              />
-              <span>Archives</span>
-            </li>
-
-            <li className="inline mr-3">
-              <FaCircle
-                color="#BFEED0"
-                size={10}
-                className="inline-block mr-2"
-              />
-              <span>Images</span>
-            </li>
-
-            <li className="inline mr-3">
-              <FaCircle
-                color="#B5CFFD"
-                size={10}
-                className="inline-block mr-2"
-              />
-              <span>Images</span>
-            </li>
-          </ul>
-
-          <StackedBar data={data} />
         </div>
       </div>
     </div>

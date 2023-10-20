@@ -31,6 +31,7 @@ import {
 } from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
 import getPersonalSignature from "api/getPersonalSignature";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -39,6 +40,10 @@ export default function Home() {
   const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
   const { logout } = useAuth();
   const accountType = getAccountType();
+  const navigate = useNavigate();
+  const onClick = (url: string) => {
+    navigate(url);
+  };
 
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -252,6 +257,12 @@ export default function Home() {
 
   return (
     <div className="h-screen overflow-hidden flex flex-col table-main ">
+    <h3
+         onClick={() => onClick("/space/my-storage")}
+         className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer text-xl" 
+       >
+           <strong>My Storage</strong>
+    </h3>
       <div className="position-sticky-left">
         <Dropzone />
         <div className="flex justify-between ">
