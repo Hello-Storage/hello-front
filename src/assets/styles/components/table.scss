@@ -30,4 +30,11 @@
   overflow-x: scroll;
   width: 100%;
   height: 10px;
+  &::-webkit-scrollbar-track {
+    background: white;
+  }
+}
+
+.scrollbar-color::-webkit-scrollbar-track {
+  background: white;
 }
