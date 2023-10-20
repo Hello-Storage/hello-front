@@ -4,15 +4,12 @@
 <head>
   <link rel="canonical" href="https://hello.app/" />
   <meta charset="UTF-8" />
-  <title>hello.app | Stats</title>
   <script>
     (function () {
       const path = window.location.pathname;
       let title;
 
-      if (path.startsWith('/stats')) {
-        title = 'hello.app | Stats';
-      } else if (path.startsWith('/space')) {
+      if (path.startsWith('/space')) {
         title = 'hello.app | Space';
       } else if (path.startsWith('/login')) {
         title = 'hello.app | Space';
@@ -29,9 +26,16 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/src/assets/images/multicolor.jpg" />
   <link rel="icon" type="image/png" sizes="16x16" href="/src/assets/images/multicolor.jpg" />
   <link rel="manifest" href="/site.webmanifest" />
+
+
+  <!-- spinners: -->
+  <link rel="stylesheet" href=https://cdn.jsdelivr.net/npm/scss-spinners />
+
+
   <link rel="apple-touch-icon" sizes="180x180" href="/src/assets/images/multicolor.jpg" />
   <link rel="icon" type="image/png" sizes="32x32" href="/src/assets/images/multicolor.jpg" />
   <link rel="icon" type="image/png" sizes="16x16" href="/src/assets/images/multicolor.jpg" />
+
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400..600" />
   <!-- End Google Font -->

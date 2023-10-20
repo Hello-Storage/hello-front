@@ -8,7 +8,11 @@ import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
 import state from "state";
 import { logoutUser } from "state/user/actions";
+
+import { Spinner3 } from "components/Spinner";
+
 import { Navigate } from "react-router-dom";
+
 
 const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
@@ -58,7 +62,7 @@ function App() {
   return (
     <BrowserRouter>
       <TrackPageViews />
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Spinner3 />}>
         <Routes>
           <Route path="/" element={<Navigate to="/space/my-storage" replace />} />
           <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
