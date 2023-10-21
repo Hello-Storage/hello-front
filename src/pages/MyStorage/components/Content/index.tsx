@@ -275,7 +275,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     return (
       <>
         <div className="position-sticky-left">
-          <h4>Folders</h4>
+        <h4 className="pt-1 pb-3">Folders</h4>
         </div>
         <div className="folders-div">
           <div
@@ -320,7 +320,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         </section>
 
         <div className="position-sticky-left">
-          <h4 className="pt-3 pb-3">Files</h4>
+          <h4 className="pt-1 pb-3">Files</h4>
         </div>
         <section className="custom-scrollbar position-sticky-left">
           <div>
