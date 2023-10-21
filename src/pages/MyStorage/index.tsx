@@ -259,7 +259,7 @@ export default function Home() {
     <div className="h-screen overflow-hidden flex flex-col table-main ">
     <h3
          onClick={() => onClick("/space/my-storage")}
-         className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer text-xl mb-10" 
+         className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer text-xl mb-7" 
        >
            <strong>My Storage</strong>
     </h3>
