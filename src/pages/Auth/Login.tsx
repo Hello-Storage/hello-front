@@ -69,7 +69,7 @@ export default function Login() {
 
       return setRedirectMessage(`Log in to view/download: ${publishedFileName}`);
     }
-    return setRedirectMessage(`Redirect: ${url}`);
+    return setRedirectMessage("");
   };
 
 
@@ -92,7 +92,7 @@ export default function Login() {
           <img src={LogoHello} alt="logo" className="w-12 h-6" />
         </div>
       </div>
-      {redirectMessage && <p>{redirectMessage}</p>} 
+      {redirectMessage && <p>{redirectMessage}</p>}
 
       <div className="flex flex-col md:flex-row gap-8 md:gap-0 h-full">
         <div className="flex items-center justify-center flex-1">
