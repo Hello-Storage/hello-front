@@ -114,7 +114,7 @@ export default function Breadcrumb() {
 
   return (
     <nav className="flex" aria-label="Breadcrumb">
-      <ol className="inline-flex align-bottom space-x-1 md:space-x-3 text-xl font-medium">
+      <ol className="inline-flex align-bottom space-x-1  text-xl  font-medium">
         <li
           className="inline-flex"
           onDrop={handleDrop}
