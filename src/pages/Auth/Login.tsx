@@ -45,7 +45,7 @@ export default function Login() {
 
     if (result) onPresent();
   };
- const [redirectMessage, setRedirectMessage] = useState("");
+  const [redirectMessage, setRedirectMessage] = useState("");
 
   const getRedirectMessage = async (url: string | undefined) => {
     if (url && url.includes("/shared/public")) {
@@ -83,16 +83,14 @@ export default function Login() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-8 md:h-screen">
-      <div className="flex-grow">
-        <div className="flex items-center gap-3">
-          <label className="text-2xl font-semibold font-[Outfit]">
-            hello.app
-          </label>
-          <img src={LogoHello} alt="logo" className="w-12 h-6" />
-        </div>
+    <div className="flex flex-col min-h-screen p-8 md:h-screen  justify-between">
+      <div className="flex items-center gap-3">
+        <label className="text-2xl font-semibold font-[Outfit]">
+          hello.app
+        </label>
+        <img src={LogoHello} alt="logo" className="w-12 h-6" />
       </div>
-      {redirectMessage && <p>{redirectMessage}</p>}
+      { redirectMessage && <p>{redirectMessage}</p> }
 
       <div className="flex flex-col md:flex-row gap-8 md:gap-0 h-full">
         <div className="flex items-center justify-center flex-1">
@@ -175,13 +173,6 @@ export default function Login() {
           </div>
         </div>
       </footer>
-
-
-
-
-
-
-
-    </div>
+    </div >
   );
 }
