@@ -58,7 +58,7 @@ const links1 = [
   },
   {
     to: "/space/referrals",
-    icon: <GoPeople className="w-5 h-5" />,
+    icon: <GoPeople className="w-6 h-5" />,
     content: "Referrals",
     available: true,
     img: <img src={HotReferral} alt="beta" className="w-12 h-5" />,
