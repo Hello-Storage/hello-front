@@ -75,7 +75,7 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
     })
     .addCase(createFileAction, (state, { payload }) => ({
       ...state,
-      files: [...state.files, payload],
+      files: [payload, ...state.files],
     }))
     .addCase(setShowShareModal, (state, { payload }) => ({
       ...state,

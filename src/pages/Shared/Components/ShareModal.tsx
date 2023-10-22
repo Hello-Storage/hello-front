@@ -1,6 +1,6 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 //import { selectShowShareModal, setShowShareModal } from "../../features/storage/filesSlice";
-import { MouseEventHandler, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 //import { setLoading, setShowToast, setToastMessage } from "../../features/account/accountSlice";
 //import { OverlayTrigger, Tooltip } from "react-bootstrap";
 //import { FileDB, FileMetadata } from "../../types";
@@ -8,47 +8,17 @@ import { MouseEventHandler, useEffect, useRef, useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 //import { baseName } from "../../constants";
 //import { logOut } from "../../requests/clientRequests";
-import { NavigateFunction } from "react-router-dom";
 import { Api, File } from "api";
 import { setSelectedShareFile, setShowShareModal } from "state/mystorage/actions";
 import { useAppSelector } from "state";
 import { toast } from "react-toastify";
+import { shareFile, unshareFile } from "../Utils/shareUtils";
 
 //can be public, one time, address restricted, password restricted, temporary link or subscription
 
 //share type interface:
 
-interface ShareDetails {
-    type: string;
-    title: string;
-    description?: string;
-    state: string; //selected, enabled or disabled
-}
 
-interface PublicFile {
-    id: number;
-    cid: string;
-    cid_original_decrypted: string;
-    file_uid: string;
-    mime_type: string;
-    name: string;
-    share_hash: string;
-    size: number;
-    hash: string;
-    metadata: File;
-    created_at: Date;
-    updated_at: Date;
-    deleted_at?: Date;
-}
-
-interface ShareState {
-    id: number;
-    //File: FileDB;
-    PublicFile: PublicFile;
-    created_at: Date;
-    updated_at: Date;
-    deleted_at?: Date;
-}
 
 
 
@@ -90,8 +60,10 @@ const ShareModal = () => {
                 if ((res as AxiosResponse).status === 200) {
                     res = res as AxiosResponse;
                     const shareState = res?.data as ShareState;
-                    console.log(res)
                     setFileSharedState(shareState);
+                    if (shareState.public_file.id !== 0) {
+                        setSelectedShareTypes(prevTypes => [...prevTypes, "public"]);
+                    }
                     //dispatch(setLoading(false));
                     //dispatch(setToastMessage("File shared successfully"));
                     //dispatch(setShowToast(true));
@@ -121,7 +93,7 @@ const ShareModal = () => {
             type: "one-time",
             title: "One-time only",
             description: "Generate an obfuscated URL that can be accessed only once. Once visited, the URL will self-destroy.",
-            state: "enabled"
+            state: "disabled"
         },
         {
             type: "address-restricted",
@@ -161,62 +133,59 @@ const ShareModal = () => {
 
     const handleShareChange = (type: string) => async (e: React.ChangeEvent<HTMLInputElement>) => {
         const shareTypeObject = shareDetails.find(st => st.type === type);
-        console.log(shareTypeObject)
-        if (!shareTypeObject) {
+        if (!shareTypeObject || !selectedShareFile) {
             setShareError("Invalid share type");
-        } else if (shareTypeObject.state === 'disabled') {
+        } else if (selectedShareFile.decrypted === false) {
+            setShareError("File is not decrypted yet");
+        }
+        else if (shareTypeObject.state === 'disabled') {
             setShareError("This share type is not available yet");
         } else {
             setShareError("");
             if (e.target.checked) {
                 //handle sharing from shareRequests.ts
-                Api.post("/file/share/publish", {
-                })
-                /*
-            shareFile(selectedFile, type).then((res) => {
-                //if res is AxiosResponse:
-                if ((res as AxiosResponse).status === 200) {
-                    res = res as AxiosResponse;
-                    const shareState = res?.data as ShareState;
-                    setFileSharedState(shareState);
-                    dispatch(setLoading(false));
-                    dispatch(setToastMessage("File shared successfully"));
-                    dispatch(setShowToast(true));
-                }
-                if ((res as AxiosError).isAxiosError) {
-                    dispatch(setLoading(false));
-                    dispatch(setToastMessage((res as AxiosError).response?.data));
-                    dispatch(setShowToast(true));
-                }
-            }).catch(err => {
-                setShareError(err.message);
-            });
-            */
-                setSelectedShareTypes(prevTypes => prevTypes.filter(t => t !== type))
-            } else {
 
-                /*
-                unshareFile(selectedFile, type).then(async (res) => {
+                shareFile(selectedShareFile, type).then((res) => {
                     //if res is AxiosResponse:
                     if ((res as AxiosResponse).status === 200) {
                         res = res as AxiosResponse;
                         const shareState = res?.data as ShareState;
                         setFileSharedState(shareState);
-                        dispatch(setLoading(false));
-                        dispatch(setToastMessage("File unshared successfully"));
-                        dispatch(setShowToast(true));
+                        if (shareState.public_file.id !== 0) {
+                            setSelectedShareTypes(prevTypes => [...prevTypes, "public"]);
+                        }
+                        toast.success("File shared successfully");
                     }
                     if ((res as AxiosError).isAxiosError) {
-                        await logOut(navigate, dispatch, currentPage)
-                        dispatch(setLoading(false));
-                        dispatch(setToastMessage((res as AxiosError).response?.data));
-                        dispatch(setShowToast(true));
+                        toast.error("Error sharing file");
                     }
                 }).catch(err => {
                     setShareError(err.message);
-                    logOut(navigate, dispatch, currentPage)
                 });
-                */
+
+                
+
+            } else {
+
+                
+                unshareFile(selectedShareFile, type).then((res) => {
+                    //if res is AxiosResponse:
+                    if ((res as AxiosResponse).status === 200) {
+                        res = res as AxiosResponse;
+                        const shareState = res?.data as ShareState;
+                        setFileSharedState(shareState);
+                        //if public_file.id is 0, remove public from selectedShareTypes
+                        if (shareState.public_file.id === 0) {
+                            setSelectedShareTypes(prevTypes => prevTypes.filter(st => st !== "public"));
+                        }
+                    }
+                    if ((res as AxiosError).isAxiosError) {
+                        toast.error("Error unsharing file");
+                    }
+                }).catch(err => {
+                    setShareError(err.message);
+                });
+                
 
 
 
@@ -274,7 +243,7 @@ const ShareModal = () => {
                                                                 type="checkbox"
                                                                 className="form-checkbox h-5 w-5 text-blue-600"
                                                                 checked={selectedShareTypes.includes(sd.type)}
-                                                                onChange={() => handleShareChange(sd.type)}
+                                                                onChange={handleShareChange(sd.type)}
                                                                 disabled={sd.state === "disabled"}
                                                             />
                                                             <span className="ml-2 text-gray-700">{sd.title}</span>
@@ -302,16 +271,16 @@ const ShareModal = () => {
                                                                 {sd.description}
                                                             </span>
                                                         )}
-                                                        {sd.type === "public" && fileSharedState?.PublicFile.id !== 0 &&
+                                                        {sd.type === "public" && fileSharedState?.public_file.id !== 0 &&
                                                             <div className="flex flex-col">
                                                                 <label htmlFor="shareLink" className="form-label">Share link</label>
                                                                 <div className="">
-                                                                    <input type="email" className="form-control mb-2 text-cyan-600 text-ellipsis underline" id="shareLink" aria-describedby="shareLink" value={`${window.location.origin}/#/shared/public/${fileSharedState?.PublicFile.share_hash}`} onClick={() => {
+                                                                    <input type="email" className="form-control mb-2 text-cyan-600 text-ellipsis underline" id="shareLink" aria-describedby="shareLink" value={`${window.location.origin}/space/shared/public/${fileSharedState?.public_file.share_hash}`} onClick={() => {
                                                                         //copy to clipboard
-                                                                        navigator.clipboard.writeText(`${window.location.origin}/#/shared/public/${fileSharedState?.PublicFile.share_hash}`);
+                                                                        navigator.clipboard.writeText(`${window.location.origin}/space/shared/public/${fileSharedState?.public_file.share_hash}`);
                                                                         toast.success("Link copied to clipboard");
                                                                     }} readOnly />
-                                                                    <button className="btn btn-primary ml-2" onClick={() => window.open(`${window.location.origin}/#/shared/public/${fileSharedState?.PublicFile.share_hash}`, '_blank')}>
+                                                                    <button className="btn btn-primary ml-2" onClick={() => window.open(`${window.location.origin}/space/shared/public/${fileSharedState?.public_file.share_hash}`, '_blank')}>
                                                                         <i className="fas fa-external-link-alt"></i> Go
                                                                     </button>
                                                                 </div>

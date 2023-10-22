@@ -253,8 +253,6 @@ const onRadioChange = (e: any) => {
 
   return (
     <div className="h-screen overflow-hidden flex flex-col table-main ">
-      <h1>asd</h1>
-      <h1>sharemodal: {JSON.stringify(showShareModal)}</h1>
       {showShareModal && <ShareModal />}
       <div className="position-sticky-left">
         <Dropzone />
