@@ -48,15 +48,13 @@ export default function Login() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-8 md:h-screen">
-      <div className="flex-grow">
+    <div className="flex flex-col min-h-screen p-8 md:h-screen  justify-between">
         <div className="flex items-center gap-3">
           <label className="text-2xl font-semibold font-[Outfit]">
             hello.app
           </label>
           <img src={LogoHello} alt="logo" className="w-12 h-6" />
         </div>
-      </div>
 
       <div className="flex flex-col md:flex-row gap-8 md:gap-0 h-full">
         <div className="flex items-center justify-center flex-1">
