@@ -114,13 +114,19 @@ export default function Breadcrumb() {
 
   return (
     <nav className="flex" aria-label="Breadcrumb">
-      <ol className="inline-flex items-center space-x-1 md:space-x-3 text-xl font-medium">
+      <ol className="inline-flex align-bottom space-x-1 md:space-x-3 text-xl font-medium">
         <li
-          className="inline-flex items-center"
+          className="inline-flex"
           onDrop={handleDrop}
           aria-label={"/"}
         >
         </li>
+        <h3
+         onClick={() => onClick("/space/my-storage")}
+         className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer text-xl" 
+        >
+           <strong>My Storage</strong>
+        </h3>
         {mystorage.path.map((v, i) => (
           <li onDrop={handleDrop} key={i} aria-label={v.uid}>
             <div className="flex items-center">
