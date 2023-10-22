@@ -225,17 +225,17 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   if (view === "list")
     return (
       <>
-        <th
+        <td
           onDoubleClick={handleView}
           scope="row"
-          className="px-3 py-1 font-medium text-gray-900 whitespace-nowrap"
-        >
+          className="px-3 font-medium text-gray-900 whitespace-nowrap"
+          >
           <div className="flex items-center gap-3">
             {getFileIcon(file.name)}
             <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
             <span className="inline md:hidden"> {truncate(file.name, 24)}</span>
           </div>
-        </th>
+        </td>
         <td className="py-1 pr-8">
           <div
             className="flex items-center gap-1 select-none hover:text-blue-500"

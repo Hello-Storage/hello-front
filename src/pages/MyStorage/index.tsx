@@ -256,18 +256,9 @@ export default function Home() {
 
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col table-main ">
-    <h3
-         onClick={() => onClick("/space/my-storage")}
-         className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer text-xl mb-7" 
-       >
-           <strong>My Storage</strong>
-    </h3>
-      <div className="position-sticky-left">
-        <Dropzone />
-        <div className="flex justify-between ">
+    <div className="overflow-hidden flex flex-col table-main ">
+      <div className="flex justify-between mb-[15px]"> 
           <Breadcrumb />
-
           <div className="flex gap-3">
             <div className="relative" ref={ref}>
               <button
@@ -365,6 +356,8 @@ export default function Home() {
             </div>
           </div>
         </div>
+      <div className="position-sticky-left">
+        <Dropzone />
       </div>
 
       <section className="custom-scrollbar invisible-scrollbar flex-grow" id="scroll-invisible-section">

@@ -312,7 +312,7 @@ const Dropzone = () => {
   return (
     <div
       className={[
-        "flex-col items-center justify-center p-8 border-2 rounded-sm border-dashed bg-gray-50 outline-none mb-5 hidden sm:flex",
+        "flex-col items-center justify-center p-8 border-2 rounded-sm border-dashed bg-gray-50 outline-none mb-[15px] hidden sm:flex",
         `${getColor(isFocused, isDragAccept, isDragReject)}`,
       ].join(" ")}
       {...getRootProps()}
