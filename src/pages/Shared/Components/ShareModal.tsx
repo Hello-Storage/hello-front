@@ -13,6 +13,7 @@ import { setSelectedShareFile, setShowShareModal } from "state/mystorage/actions
 import { useAppSelector } from "state";
 import { toast } from "react-toastify";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
+import { useNavigate } from "react-router-dom";
 
 //can be public, one time, address restricted, password restricted, temporary link or subscription
 
@@ -207,6 +208,8 @@ const ShareModal = () => {
             closeShareModal();
         }
     };
+
+    const navigate = useNavigate();
     /*
         //shareType useEffect listener
         useEffect(() => {
@@ -280,7 +283,7 @@ const ShareModal = () => {
                                                                         navigator.clipboard.writeText(`${window.location.origin}/space/shared/public/${fileSharedState?.public_file.share_hash}`);
                                                                         toast.success("Link copied to clipboard");
                                                                     }} readOnly />
-                                                                    <button className="btn btn-primary ml-2" onClick={() => window.open(`${window.location.origin}/space/shared/public/${fileSharedState?.public_file.share_hash}`, '_blank')}>
+                                                                    <button className="btn btn-primary ml-2" onClick={() => navigate(`/space/shared/public/${fileSharedState?.public_file.share_hash}`)}>
                                                                         <i className="fas fa-external-link-alt"></i> Go
                                                                     </button>
                                                                 </div>
