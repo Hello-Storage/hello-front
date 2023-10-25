@@ -33,8 +33,8 @@ export default function World({ size = 0 }: { size: number | undefined }) {
       <div className="-ml-[20%]">
         <Globe
           ref={globeRef}
-          width={(size || 0) * 1.25}
-          height={(size || 0) * 1.25}
+          width={(size || 0) * 1.50}
+          height={(size || 0) * 0.85}
           backgroundColor="white"
           globeImageUrl={GlobeImg}
           atmosphereColor="#27272a"

@@ -100,7 +100,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div>
+    <div className="dashboard-container overflow-y-hidden max-h-screen">
       <h1 className="text-xl font-medium">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 mt-4 md:gap-10 gap-5">
         <div className="border rounded-md p-3">
