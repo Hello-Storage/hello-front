@@ -188,7 +188,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       encryptionTime,
     } = await encryptFileBuffer(fileArrayBuffer);
 
-
     const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
     const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
     const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
@@ -510,7 +509,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               size: file.size,
               root: fileRes.root,
               mime_type: file.mime_type_unencrypted || file.mime_type,
-              media_type: file.mime_type,
+              media_type: file.media_type,
               path: file.path,
               encryption_status: fileRes.encryption_status,
               created_at: fileRes.created_at,
