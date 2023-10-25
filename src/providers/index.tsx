@@ -4,15 +4,17 @@ import { Provider } from "react-redux";
 
 import { ModalProvider } from "components/Modal";
 
-import state from "state";
+import state, { persistor } from "state";
 import EthProvider from "./EthProvider";
 import GoogleOAuth from "./GoogleOAuthProvider";
 import SWRProvider from "./SWRProvider";
+import { PersistGate } from "redux-persist/integration/react";
 
 const Providers: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <>
       <Provider store={state}>
+        <PersistGate loading={null} persistor={persistor}>
         <GoogleOAuth>
           <EthProvider>
             <SWRProvider>
@@ -20,6 +22,7 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
             </SWRProvider>
           </EthProvider>
         </GoogleOAuth>
+        </PersistGate>
       </Provider>
 
       {/* toast */}
