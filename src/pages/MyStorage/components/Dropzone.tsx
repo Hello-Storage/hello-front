@@ -131,7 +131,7 @@ const Dropzone = () => {
 
     let encryptedWebkitRelativePath = "";
     if (isFolder) {
-      const pathComponents = file.path.split("/");
+      const pathComponents = (file as unknown as { path: string }).path.split("/");
       //remove first component (folder name)
       pathComponents.shift();
       const encryptedPathComponents = [];
