@@ -36,6 +36,9 @@ export default {
           cursor:
             "url(https://em-content.zobj.net/thumbs/72/apple/354/victory-hand_medium-light-skin-tone_270c-1f3fc_1f3fc.png) 32 32, auto",
         },
+        '.calc-height-50': {
+          height: 'calc(100vh - 50px)',
+        },
       });
     }),
   ],

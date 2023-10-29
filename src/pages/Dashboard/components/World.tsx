@@ -29,31 +29,29 @@ export default function World({ size = 0 }: { size: number | undefined }) {
   }, []);
 
   return (
-    <div className="overflow-hidden">
-      <div className="-ml-[20%]">
-        <Globe
-          ref={globeRef}
-          width={(size || 0) * 1.25}
-          height={(size || 0) * 1.25}
-          backgroundColor="white"
-          globeImageUrl={GlobeImg}
-          atmosphereColor="#27272a"
-          atmosphereAltitude={0.1}
-          hexPolygonsData={globeData.features}
-          labelsData={populationData.features}
-          labelAltitude={0.002}
-          labelLat={(d: any) => d.properties.latitude}
-          labelLng={(d: any) => d.properties.longitude}
-          labelText={(d: any) => d.properties.name}
-          labelSize={(d: any) => Math.sqrt(d.properties.pop_max) * 4e-4}
-          labelDotRadius={(d: any) => Math.sqrt(d.properties.pop_max) * 4e-4}
-          labelColor={() => "#03BC47"}
-          labelResolution={2}
-          hexPolygonResolution={3}
-          hexPolygonMargin={0.3}
-          hexPolygonColor={() => `#71717a`}
-        />
-      </div>
+    <div className="w-full h-full overflow-hidden flex justify-center">
+      <Globe
+        ref={globeRef}
+        width={(size || 0)}
+        height={(size || 0)}
+        backgroundColor="white"
+        globeImageUrl={GlobeImg}
+        atmosphereColor="#27272a"
+        atmosphereAltitude={0.1}
+        hexPolygonsData={globeData.features}
+        labelsData={populationData.features}
+        labelAltitude={0.002}
+        labelLat={(d: any) => d.properties.latitude}
+        labelLng={(d: any) => d.properties.longitude}
+        labelText={(d: any) => d.properties.name}
+        labelSize={(d: any) => Math.sqrt(d.properties.pop_max) * 4e-4}
+        labelDotRadius={(d: any) => Math.sqrt(d.properties.pop_max) * 4e-4}
+        labelColor={(d: any) => d.properties.color ? d.properties.color : '#03BC47'}
+        labelResolution={2}
+        hexPolygonResolution={3}
+        hexPolygonMargin={0.3}
+        hexPolygonColor={() => `#71717a`}
+      />
     </div>
   );
 }

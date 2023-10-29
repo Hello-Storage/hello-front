@@ -80,8 +80,6 @@ export default function Dashboard() {
         setcounttotalpublicfilesuser(data.CountTotalPublicFilesUser);
         setcounttotalfilesuser(data.CountTotalFilesUser);
         setcounttotalpublicfoldersuser(data.CountTotalPublicFoldersUser);
-
-        console.log(data);
         setLoading(false);
       })
       .catch((error) => {
@@ -100,7 +98,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div>
+    <div className="dashboard-container">  {/*le restamos la altura de header */}
       <h1 className="text-xl font-medium">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 mt-4 md:gap-10 gap-5">
         <div className="border rounded-md p-3">
@@ -163,18 +161,18 @@ export default function Dashboard() {
       <hr className="my-6" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div
-          className="flex flex-col items-start overflow-hidden h-96 md:h-[656px]"
+          className="flex flex-col items-start overflow-hidden h-full"
           ref={ref}
         >
           <h3 className="text-xl font-medium">Storage distribution</h3>
-          <World size={width} />
+          <World size={width ? width < 700 ? width * .80 : width * .60 : 0} />
         </div>
 
         <div className="flex-1">
           <h5 className="text-xl font-medium">Storage used by day</h5>
 
-          <div className="md:mt-10 mt-6 pb-8">
-            <Chart />
+          <div className="w-full h-[90%] flex justify-center items-center mb-5 mt-5">
+            <Chart totalUsedStorage={counttotalusedstorageuser} />
           </div>
         </div>
       </div>

@@ -98,6 +98,7 @@ export default function AppLayout() {
             <Sidebar setSidebarOpen={setSidebarOpen} />
           </div>
           <div
+
             className={`flex flex-col flex-1 md:px-10 px-5 py-4 overflow-y-auto ${
               sidebarOpen ? "md:ml-72 overflow-hidden w-full blur-sm" : ""
             }`}
