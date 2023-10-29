@@ -102,7 +102,7 @@ export default function Login() {
               Select your favorite login option
             </h3>
 
-            <div className="mt-12 flex gap-4 flex-col">
+            <div className="mt-12 flex gap-[15px] flex-col justify-around">
               <GoogleLoginButton />
               <ConnectWalletButton />
             </div>
@@ -132,7 +132,7 @@ export default function Login() {
                   required
                 />
 
-                <div className="mt-6">
+                <div className="mt-[15px]">
                   <button
                     className="w-full inline-flex items-center justify-center text-white px-3 py-4 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
                     type="submit"

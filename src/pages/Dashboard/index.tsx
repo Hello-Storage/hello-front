@@ -165,7 +165,7 @@ export default function Dashboard() {
           ref={ref}
         >
           <h3 className="text-xl font-medium">Storage distribution</h3>
-          <World size={width ? width < 700 ? width * .80 : width * .60 : 0} />
+          <World size={width ? width < 700 ? width * .75 : width * .60 : 0} />
         </div>
 
         <div className="flex-1">

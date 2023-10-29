@@ -464,8 +464,6 @@ const Dropzone = () => {
     // if acceptefDiles[0] contains "/" in path, it is a folder
     const isFolderUpload = acceptedFiles[0]?.path?.includes("/");
     handleFileUpload(acceptedFiles, !!isFolderUpload);
-    console.log(acceptedFiles)
-
     // Do something with the files
   }, []);
 
