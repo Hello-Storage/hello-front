@@ -198,7 +198,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                   {open && (
                     <div
                       id="dropdown"
-                      className="absolute origin-top-right right-0 mt-2 bg-white shadow text-left w-36 divide-y borde r"
+                      className="z-50 absolute origin-top-right right-0 mt-2 bg-white shadow text-left w-36 divide-y borde r"
                     >
                       <ul className="py-2">
                         <a
@@ -209,13 +209,14 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                           <HiOutlineDownload className="inline-flex mr-3" />
                           Download
                         </a>
+                        {/*
                         <a
                           href="#"
                           className="block px-4 py-2 hover:bg-gray-100"
                         >
                           <HiOutlineShare className="inline-flex mr-3" />
                           Share
-                        </a>
+                  </a>*/}
                       </ul>
                       <div className="py-2">
                         <a

@@ -37,3 +37,11 @@ export const setImageViewAction = createAction<{
   img?: PreviewImage;
   show?: boolean;
 }>("mystorage/image-view");
+
+export const setShowShareModal = createAction<boolean>(
+  "mystorage/set-show-share-modal"
+);
+
+export const setSelectedShareFile = createAction<FileType | undefined>(
+  "mystorage/set-selected-share-file"
+);

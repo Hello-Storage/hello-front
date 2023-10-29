@@ -1,6 +1,6 @@
 import { createReducer } from "@reduxjs/toolkit";
 
-import { loadUser, loadingUser, loadUserFail, logoutUser } from "./actions";
+import { loadUser, loadingUser, loadUserFail, logoutUser, setRedirectUrl } from "./actions";
 
 interface User {
   uid: string;
@@ -9,6 +9,8 @@ interface User {
   walletAddress: string;
   authenticated: boolean;
   loading: boolean;
+  redirectUrl?: string;
+  message?: string;
 }
 
 const initialState: User = {
@@ -18,6 +20,8 @@ const initialState: User = {
   walletAddress: "",
   authenticated: false,
   loading: true,
+  redirectUrl: undefined,
+  message: undefined,
 };
 
 export default createReducer<User>(initialState, (builder) => {
@@ -36,8 +40,16 @@ export default createReducer<User>(initialState, (builder) => {
       ...state,
       loading: false,
     }))
-    .addCase(logoutUser, (state) => ({
+    .addCase(logoutUser, (state, { payload } ) => (
+      console.log("logged out user"),
+      {
       ...initialState,
+      redirectUrl: state.redirectUrl,
       loading: false,
+    }))
+    .addCase(setRedirectUrl, (state, { payload } ) => (
+      {
+      ...state,
+      redirectUrl: payload,
     }));
 });

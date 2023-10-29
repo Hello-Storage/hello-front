@@ -25,7 +25,7 @@ import {
 } from "utils/encryption/filesCipher";
 import React from "react";
 import { useAppDispatch } from "state";
-import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
+import { PreviewImage, setImageViewAction, setSelectedShareFile, setShowShareModal } from "state/mystorage/actions";
 import { truncate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
@@ -225,17 +225,17 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   if (view === "list")
     return (
       <>
-        <th
+        <td
           onDoubleClick={handleView}
           scope="row"
-          className="px-3 py-1 font-medium text-gray-900 whitespace-nowrap"
-        >
-          <div className="flex items-center gap-3">
+          className="px-3 font-medium text-gray-900 whitespace-nowrap "
+          >
+          <div className="flex items-center gap-3 ">
             {getFileIcon(file.name)}
             <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
             <span className="inline md:hidden"> {truncate(file.name, 24)}</span>
           </div>
-        </th>
+        </td>
         <td className="py-1 pr-8">
           <div
             className="flex items-center gap-1 select-none hover:text-blue-500"
@@ -288,7 +288,12 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
                       <HiOutlineDownload className="inline-flex mr-3" />
                       Download
                     </a>
-                    <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                    <a href="#" 
+                      onClick={() => {
+                        dispatch(setShowShareModal(true))
+                        dispatch(setSelectedShareFile(file))
+                      }}
+                    className="block px-4 py-2 hover:bg-gray-100">
                       <HiOutlineShare className="inline-flex mr-3" />
                       Share
                     </a>

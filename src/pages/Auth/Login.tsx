@@ -8,7 +8,7 @@ import { Spinner3 } from "components/Spinner";
 import GoogleLoginButton from "./components/GoogleLoginButton";
 import GithubLoginButton from "./components/GithubLoginButton";
 import { useAuth } from "hooks";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useModal } from "components/Modal";
 import LogoHello from "assets/images/beta.png";
 import useTitle from "hooks/useTitle";
@@ -20,10 +20,14 @@ import { TbBrandTwitterFilled } from "react-icons/tb";
 import { PiTiktokLogoFill } from "react-icons/pi";
 import { BiLogoInstagramAlt } from "react-icons/bi";
 import { BsLinkedin } from 'react-icons/bs';
+import { formatUID } from "utils";
+import { Api } from "api";
+import { AxiosError, AxiosResponse } from "axios";
+import { toast } from "react-toastify";
 
 export default function Login() {
   useTitle("hello.app | Space");
-  const { authenticated, loading } = useAppSelector((state) => state.user);
+  const { authenticated, loading, redirectUrl } = useAppSelector((state) => state.user);
   const { startOTP } = useAuth();
   const [email, setEmail] = useState("");
   const [onPresent] = useModal(<OTPModal email={email} />);
@@ -41,22 +45,52 @@ export default function Login() {
 
     if (result) onPresent();
   };
+  const [redirectMessage, setRedirectMessage] = useState("");
+
+  const getRedirectMessage = async (url: string | undefined) => {
+    if (url && url.includes("/shared/public")) {
+      const share_hash = url.split("/").pop(); // assuming the CID is always the last part of the URL
+
+      const res = await Api.get(`/file/share/published/name/${share_hash}`);
+
+      let publishedFileName = "";
+      if ((res as AxiosResponse).status === 200) {
+        publishedFileName = res.data;
+      }
+
+      if ((res as unknown as AxiosError).isAxiosError) {
+        toast.error("An error occured while fetching the file name");
+        if ((res as unknown as AxiosError).response?.status === 404 || (res as unknown as AxiosError).response?.status === 503) {
+          return;
+        }
+      }
+
+
+
+      return setRedirectMessage(`Log in to view/download: ${publishedFileName}`);
+    }
+    return setRedirectMessage("");
+  };
+
+
+  useEffect(() => {
+    getRedirectMessage(redirectUrl);
+  }, [redirectUrl]);
 
   if (loading) return <Spinner3 />;
   if (authenticated) {
-    return <Navigate to="/space/my-storage" />;
+    return redirectUrl ? <Navigate to={redirectUrl} /> : <Navigate to="/space/my-storage" />;
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-8 md:h-screen">
-      <div className="flex-grow">
-        <div className="flex items-center gap-3">
-          <label className="text-2xl font-semibold font-[Outfit]">
-            hello.app
-          </label>
-          <img src={LogoHello} alt="logo" className="w-12 h-6" />
-        </div>
+    <div className="flex flex-col min-h-screen p-8 md:h-screen  justify-between">
+      <div className="flex items-center gap-3">
+        <label className="text-2xl font-semibold font-[Outfit]">
+          hello.app
+        </label>
+        <img src={LogoHello} alt="logo" className="w-12 h-6" />
       </div>
+      { redirectMessage && <p>{redirectMessage}</p> }
 
       <div className="flex flex-col md:flex-row gap-8 md:gap-0 h-full">
         <div className="flex items-center justify-center flex-1">
@@ -115,37 +149,30 @@ export default function Login() {
         <div className="flex flex-col items-start">
           <div className="flex space-x-4 p-0 md:p-0">
             <a href="mailto:team@hello.app" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
-                <HiMail />
+              <HiMail />
             </a>
             <a href="https://www.linkedin.com/company/hellostorage" target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px' }}>
-                <BsLinkedin />
+              <BsLinkedin />
             </a>
             <a href="https://github.com/hello-storage" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
-                <FaGithubSquare />
+              <FaGithubSquare />
             </a>
 
             <a href="https://twitter.com/joinhelloapp" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
-                <TbBrandTwitterFilled/>
+              <TbBrandTwitterFilled />
             </a>
             <a href="https://www.instagram.com/joinhelloapp/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
-                <BiLogoInstagramAlt/>
+              <BiLogoInstagramAlt />
             </a>
             <a href="https://www.tiktok.com/@hello.app_" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
-                <PiTiktokLogoFill/>
+              <PiTiktokLogoFill />
             </a>
           </div>
           <div className="mt-1 md:mt-1">
-            © 2023 hello.app 
+            © 2023 hello.app
           </div>
         </div>
       </footer>
-
-
-
-
-
-
-
-    </div>
+    </div >
   );
 }

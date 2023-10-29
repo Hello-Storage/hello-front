@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Folder, File, Api } from "api";
 import FolderItem from "./FolderItem";
 import FileItem from "./FileItem";
@@ -29,6 +29,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   const initialCoords = useRef({ x: 0, y: 0 });
 
   const [selectedItems, setSelectedItems] = React.useState<itemInfo[]>([]);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [draggingOverFolderId, setDraggingOverFolderId] = useState<
     string | null
   >(null);
@@ -36,6 +37,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   const onFolderDoubleClick = (folderUID: string) => {
     navigate(`/space/folder/${folderUID}`);
   };
+
+  
 
   // Event for select item
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
@@ -47,7 +50,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString() || "",
     };
-    let isAlreadySelected = selectedItems.some(
+    const isAlreadySelected = selectedItems.some(
       (item) => item.id === selInfo.id
     );
     if (isAlreadySelected) {
@@ -57,7 +60,9 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     }
     if (isAlreadySelected) {
       // Remove the item from the array
-      setSelectedItems(selectedItems.filter((item) => item.id !== selInfo.id));
+      setSelectedItems(
+        selectedItems.filter((item) => item.id !== selInfo.id)
+      );
     } else {
       // Add the item to the array
       setSelectedItems([...selectedItems, selInfo]);
@@ -67,7 +72,9 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     if (selectedItems.some((item) => item.id === selInfo.id)) {
       // Remove the item from the array
       console.log("Removing item");
-      setSelectedItems(selectedItems.filter((item) => item.id !== selInfo.id));
+      setSelectedItems(
+        selectedItems.filter((item) => item.id !== selInfo.id)
+      );
     } else {
       // Add the item to the array
       console.log("Adding item");
@@ -98,7 +105,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     if (selectedItems.length === 0) {
       event.dataTransfer.setData("text/plain", dragInfo);
     } else {
-      event.dataTransfer.setData("text/plain", JSON.stringify(selectedItems));
+      event.dataTransfer.setData(
+        "text/plain",
+        JSON.stringify(selectedItems)
+      );
     }
     event.dataTransfer.setDragImage(new Image(), 0, 0);
 
@@ -263,19 +273,43 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     if (widthHelper) widthHelper.style.width = size;
     if (invScroll && visScroll) {
       invScroll.onscroll = function () {
-        if (invScroll && visScroll) visScroll.scrollLeft = invScroll.scrollLeft;
+        if (invScroll && visScroll)
+          visScroll.scrollLeft = invScroll.scrollLeft;
       };
       visScroll.onscroll = function () {
-        if (invScroll && visScroll) invScroll.scrollLeft = visScroll.scrollLeft;
+        if (invScroll && visScroll)
+          invScroll.scrollLeft = visScroll.scrollLeft;
       };
     }
   }, [folders]);
+
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      const headerScroll = document.getElementById("files-headers");
+      const rowsScroll = document.getElementById("files-rows");
+      const tablerowdiv = document.getElementById("table-row-div");
+      const tableheaderdiv = document.getElementById("header-scroll-inv");
+      if (headerScroll && rowsScroll) {
+        headerScroll.style.width = rowsScroll.getBoundingClientRect().width + "px"
+      }
+      if (tablerowdiv && tableheaderdiv) {
+        tablerowdiv.onscroll = function () {
+          if (headerScroll)
+            tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
+        };
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (view === "list")
     return (
       <>
         <div className="position-sticky-left">
-        <h4 className="pt-1 pb-3">Folders</h4>
+          <h4 className="mb-[15px]">Folders</h4>
         </div>
         <div className="folders-div">
           <div
@@ -291,13 +325,13 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
               aria-label={v.uid}
               aria-valuetext="folder"
               draggable
-              className={`cursor-pointer min-w-[220px] z-50 ${
+              className={`cursor-pointer min-w-[220px] ${
                 draggingOverFolderId === v.id.toString()
                   ? "bg-blue-200 border border-blue-500"
                   : isItemSelected(v.id.toString())
                   ? "bg-sky-100"
                   : ""
-              } ${i < folders.length - 1 ? "mr-5" : ""}`}
+                } ${i < folders.length - 1 ? "mr-5" : ""}`}
               onDrag={handleDrag}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
@@ -313,116 +347,142 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         </div>
 
         <section
-          className="custom-scrollbar position-sticky-left"
+          className="custom-scrollbar position-sticky-left mb-[15px]"
           id="scroll-visible-section"
         >
           <div id="width-section-helper"></div>
         </section>
-
-        <div className="position-sticky-left">
-          <h4 className="pt-1 pb-3">Files</h4>
-        </div>
         <section className="custom-scrollbar position-sticky-left">
-          <div>
-            <div className="table-div custom-scrollbar h-full scrollbar-color">
-              <table className="w-full text-sm text-left text-gray-500 table-with-lines">
-                <thead className="text-xs text-gray-700 bg-gray-100">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="p-2.5 rounded-tl-lg rounded-bl-lg"
-                      onClick={(
-                        event: React.MouseEvent<HTMLTableCellElement>
-                      ) => {
-                        if (event.ctrlKey) {
-                          setSelectedItems([]);
-                          console.log("Deleted selected items");
-                        } else {
-                          console.log(selectedItems);
-                        }
-                      }}
-                    >
-                      Name
-                    </th>
-                    <th scope="col" className="p-1">
-                      CID
-                    </th>
-                    <th scope="col" className="p-1">
-                      Size
-                    </th>
-                    <th scope="col" className="py-1 px-3">
-                      Type
-                    </th>
-                    <th scope="col" className="p-1 whitespace-nowrap">
-                      Last Modified
-                    </th>
-                    <th
-                      scope="col"
-                      className="rounded-tr-lg rounded-br-lg"
-                    ></th>
-                  </tr>
-                </thead>
+          <h4 className="pt-1 pb-3">Files</h4>
+          <div id="header-scroll-inv">
+            <table id="files-headers" className="w-full text-sm text-left text-gray-500 table-with-lines">
+              <thead className="text-xs text-gray-700 bg-gray-100">
+                <tr>
+                  <th
+                    id="column-name"
+                    scope="col"
+                    className="p-2.5 rounded-tl-lg rounded-bl-lg"
+                    onClick={(
+                      event: React.MouseEvent<
+                        HTMLTableCellElement
+                      >
+                    ) => {
+                      if (event.ctrlKey) {
+                        setSelectedItems([]);
+                        console.log(
+                          "Deleted selected items"
+                        );
+                      } else {
+                        console.log(selectedItems);
+                      }
+                    }}
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="p-1"
+                    id="column-cid"
+                  >
+                    CID
+                  </th>
+                  <th
+                    scope="col"
+                    className="p-1"
+                    id="column-size"
+                  >
+                    Size
+                  </th>
+                  <th
+                    scope="col"
+                    className="py-1 px-3"
+                    id="column-type"
+                  >
+                    Type
+                  </th>
+                  <th
+                    scope="col"
+                    className="p-1 whitespace-nowrap"
+                    id="column-lm"
+                  >
+                    Last Modified
+                  </th>
+                  <th
+                    id="column-option"
+                    scope="col"
+                    className="rounded-tr-lg rounded-br-lg"
+                  ></th>
+                </tr>
+              </thead>
+            </table>
+          </div>
 
-                <tbody>
-                  {loading ? (
-                    <tr className="w-full h-64">
-                      <td colSpan={6}>
-                        <div className="flex flex-col w-full h-full items-center justify-center text-center">
-                          <div className="text-xl font-semibold mb-4">
-                            Decrypting
-                          </div>
-                          {/* SVG Spinner */}
-                          <svg
-                            className="animate-spin h-12 w-12 text-violet-500 mb-4"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
+          <div id="table-row-div" className="table-div custom-scrollbar h-full scrollbar-color">
+            <table id="files-rows" className="w-full text-sm text-left text-gray-500 table-with-lines">
+              <tbody>
+                {loading ? (
+                  <tr className="w-full h-64">
+                    <td colSpan={6}>
+                      <div className="flex flex-col w-full h-full items-center justify-center text-center">
+                        <div className="text-xl font-semibold mb-4">
+                          Decrypting
                         </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    <>
-                      {files?.map((v, i) => (
-                        <tr
-                          key={i}
-                          id={v.id.toString()}
-                          aria-label={v.uid}
-                          aria-valuetext="file"
-                          draggable
-                          onDragStart={handleDragStart}
-                          onDragEnd={handleDragEnd}
-                          onDrag={handleDrag}
-                          className={` cursor-pointer ${
-                            isItemSelected(v.id.toString())
-                              ? "bg-sky-100"
-                              : "hover:bg-gray-100 bg-white"
-                          }`}
-                          // onDoubleClick={handleView}
-                          onClick={handleOnClick}
+                        {/* SVG Spinner */}
+                        <svg
+                          className="animate-spin h-12 w-12 text-violet-500 mb-4"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
                         >
-                          <FileItem file={v} key={i} view="list" />
-                        </tr>
-                      ))}
-                    </>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  <>
+                    {files?.map((v, i) => (
+                      <tr
+                        key={i}
+                        id={v.id.toString()}
+                        aria-label={v.uid}
+                        aria-valuetext="file"
+                        draggable
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                        onDrag={handleDrag}
+                        className={` cursor-pointer ${isItemSelected(
+                          v.id.toString()
+                        )
+                          ? "bg-sky-100"
+                          : "hover:bg-gray-100 bg-white"
+                          }`}
+                        // onDoubleClick={handleView}
+                        onClick={handleOnClick}
+                      >
+                        <FileItem
+                          file={v}
+                          key={i}
+                          view="list"
+                        />
+                      </tr>
+                    ))}
+                  </>
+                )}
+              </tbody>
+            </table>
           </div>
         </section>
       </>
@@ -430,25 +490,58 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   else
     return (
       <Fragment>
-        <div className="flex overflow-x-auto whitespace-nowrap gap-3 mb-5 mt-3 overflow-visible">
+        <div className="position-sticky-left">
+          <h4 className="mb-[15px]">Folders</h4>
+        </div>
+        <div className="folders-div">
+          <div
+            className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
+            onClick={onPresent}
+          >
+            <RiFolderAddLine className="h-6 w-6" />
+          </div>
           {folders.map((v, i) => (
             <div
-              className={`cursor-pointer min-w-[220px] ${
-                i < folders.length - 1 ? "mr-2" : ""
-              }`}
+              key={i}
+              id={v.id.toString()}
+              aria-label={v.uid}
+              aria-valuetext="folder"
+              draggable
+              className={`cursor-pointer min-w-[220px] z-50 ${draggingOverFolderId === v.id.toString()
+                ? "bg-blue-200 border border-blue-500"
+                : isItemSelected(v.id.toString())
+                  ? "bg-sky-100"
+                  : ""
+                } ${i < folders.length - 1 ? "mr-5" : ""}`}
+              onDrag={handleDrag}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
               onDoubleClick={() => onFolderDoubleClick(v.uid)}
+              onClick={handleOnClick}
             >
-              <FolderItem folder={v} key={i} view="grid" />
+              <FolderItem folder={v} key={i} view="list" />
             </div>
           ))}
         </div>
 
-        <h3 className="my-3">Files</h3>
-        <div className="grid grid-200 gap-3">
-          {files?.map((v, i) => (
-            <FileItem file={v} key={i} view="grid" />
-          ))}
-        </div>
+        <section
+          className="custom-scrollbar position-sticky-left mb-[10px]"
+          id="scroll-visible-section"
+        >
+          <div id="width-section-helper"></div>
+        </section>
+
+        <section className="custom-scrollbar position-sticky-left">
+          <h3 className="my-3">Files</h3>
+          <div className="grid grid-200 gap-3">
+            {files?.map((v, i) => (
+              <FileItem file={v} key={i} view="grid" />
+            ))}
+          </div>
+        </section>
       </Fragment>
     );
 };

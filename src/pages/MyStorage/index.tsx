@@ -32,6 +32,7 @@ import {
 import { toast } from "react-toastify";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useNavigate } from "react-router-dom";
+import ShareModal from "pages/Shared/Components/ShareModal";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -73,7 +74,7 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { folders, files, showPreview, path, root, preview } = useAppSelector(
+  const { folders, files, showPreview, path, preview, showShareModal } = useAppSelector(
     (state) => state.mystorage
   );
 
@@ -256,115 +257,107 @@ export default function Home() {
 
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col table-main ">
-    <h3
-         onClick={() => onClick("/space/my-storage")}
-         className="inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer text-xl" 
-       >
-           <strong>My Storage</strong>
-    </h3>
-      <div className="position-sticky-left">
-        <Dropzone />
-        <div className="flex justify-between ">
-          <Breadcrumb />
+    <div className="overflow-hidden flex flex-col table-main ">
+      {showShareModal && <ShareModal />}
+      <div className="flex justify-between mb-[15px]">
+        <Breadcrumb />
+        <div className="flex gap-3">
+          <div className="relative" ref={ref}>
+            <button
+              className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+              onClick={() => setOpen(!open)}
+            >
+              Filter
+            </button>
 
-          <div className="flex gap-3">
-            <div className="relative" ref={ref}>
-              <button
-                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-                onClick={() => setOpen(!open)}
-              >
-                Filter
-              </button>
+            {open && (
+              <div className="absolute mt-1 z-10 w-[150px] bg-white shadow divide-y border text-sm text-gray-700">
+                <ul className="p-2">
+                  <li>
+                    <div className="flex items-center justify-between p-2">
+                      <label
+                        htmlFor="all"
+                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                      >
+                        All
+                      </label>
+                      <input
+                        type="radio"
+                        id="all"
+                        name="filter-radio"
+                        value="all"
+                        checked={filter === "all"}
+                        onChange={onRadioChange}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="flex items-center justify-between p-2">
+                      <label
+                        htmlFor="public"
+                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                      >
+                        Public
+                      </label>
+                      <input
+                        type="radio"
+                        id="public"
+                        name="filter-radio"
+                        value="public"
+                        checked={filter === "public"}
+                        onChange={onRadioChange}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="flex items-center justify-between p-2">
+                      <label
+                        htmlFor="encrypted"
+                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                      >
+                        Encrypted
+                      </label>
+                      <input
+                        type="radio"
+                        id="encrypted"
+                        name="filter-radio"
+                        value="encrypted"
+                        checked={filter === "encrypted"}
+                        onChange={onRadioChange}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                      />
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
 
-              {open && (
-                <div className="absolute mt-1 z-10 w-[150px] bg-white shadow divide-y border text-sm text-gray-700">
-                  <ul className="p-2">
-                    <li>
-                      <div className="flex items-center justify-between p-2">
-                        <label
-                          htmlFor="all"
-                          className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                        >
-                          All
-                        </label>
-                        <input
-                          type="radio"
-                          id="all"
-                          name="filter-radio"
-                          value="all"
-                          checked={filter === "all"}
-                          onChange={onRadioChange}
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                        />
-                      </div>
-                    </li>
-                    <li>
-                      <div className="flex items-center justify-between p-2">
-                        <label
-                          htmlFor="public"
-                          className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                        >
-                          Public
-                        </label>
-                        <input
-                          type="radio"
-                          id="public"
-                          name="filter-radio"
-                          value="public"
-                          checked={filter === "public"}
-                          onChange={onRadioChange}
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                        />
-                      </div>
-                    </li>
-                    <li>
-                      <div className="flex items-center justify-between p-2">
-                        <label
-                          htmlFor="encrypted"
-                          className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                        >
-                          Encrypted
-                        </label>
-                        <input
-                          type="radio"
-                          id="encrypted"
-                          name="filter-radio"
-                          value="encrypted"
-                          checked={filter === "encrypted"}
-                          onChange={onRadioChange}
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                        />
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="inline-flex rounded-md shadow-sm" role="group">
-              <button
-                type="button"
-                onClick={() => setView("list")}
-                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 ${
-                  view === "list" ? "!bg-gray-100" : ""
+          <div className="inline-flex rounded-md shadow-sm" role="group">
+            <button
+              type="button"
+              onClick={() => setView("list")}
+              className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 ${view === "list" ? "!bg-gray-100" : ""
                 }`}
-              >
-                <HiOutlineViewList size={20} />
-              </button>
+            >
+              <HiOutlineViewList size={20} />
+            </button>
 
-              <button
-                type="button"
-                onClick={() => setView("grid")}
-                className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 ${
-                  view === "grid" ? "!bg-gray-100" : ""
+            <button
+              type="button"
+              onClick={() => setView("grid")}
+              className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-md hover:bg-gray-100 ${view === "grid" ? "!bg-gray-100" : ""
                 }`}
-              >
-                <HiOutlineViewGrid size={20} />
-              </button>
-            </div>
+            >
+              <HiOutlineViewGrid size={20} />
+            </button>
           </div>
         </div>
+      </div>
+      <div className="position-sticky-left">
+        <Dropzone />
       </div>
 
       <section className="custom-scrollbar invisible-scrollbar flex-grow" id="scroll-invisible-section">
@@ -384,11 +377,10 @@ export default function Home() {
           </div>
           <div className="flex items-center space-x-2">
             <button
-              className={`p-2 rounded flex items-center gap-2 ${
-                currentPage === 1
+              className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
                   ? "cursor-not-allowed opacity-50"
                   : "hover:bg-gray-200"
-              }`}
+                }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
               }
@@ -398,11 +390,10 @@ export default function Home() {
               <span className="md:inline hidden">Prev</span>
             </button>
             <button
-              className={`p-2 rounded flex items-center gap-2 ${
-                totalPages === 0 || currentPage === totalPages
+              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
                   ? "cursor-not-allowed opacity-50"
                   : "hover:bg-gray-200"
-              }`}
+                }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
               }
