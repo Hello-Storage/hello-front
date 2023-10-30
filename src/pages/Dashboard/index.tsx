@@ -98,7 +98,9 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="dashboard-container">  {/*le restamos la altura de header */}
+    <div className="dashboard-container">
+      {" "}
+      {/*le restamos la altura de header */}
       <h1 className="text-xl font-medium">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 mt-4 md:gap-10 gap-5">
         <div className="border rounded-md p-3">
@@ -157,7 +159,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
       <hr className="my-6" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div
@@ -165,14 +166,38 @@ export default function Dashboard() {
           ref={ref}
         >
           <h3 className="text-xl font-medium">Storage distribution</h3>
-          <World size={width ? width < 700 ? width * .75 : width * .60 : 0} />
+          <World
+            size={width ? (width < 700 ? width * 0.75 : width * 0.6) : 0}
+          />
+          <h5 className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-center mt-0 w-full ">
+            Hello Network data nodes across the globe
+          </h5>
         </div>
 
         <div className="flex-1">
           <h5 className="text-xl font-medium">Storage used by day</h5>
 
-          <div className="w-full h-[90%] flex justify-center items-center mb-5 mt-5">
+          <div className="w-full h-[90%] flex flex-col justify-center items-center mb-11 mt-11">
             <Chart totalUsedStorage={counttotalusedstorageuser} />
+            <div className="mb-9 flex flex-col items-center mt-9">
+              <label
+                htmlFor="timePeriod"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Select Time Period
+              </label>
+              <select
+                id="timePeriod"
+                name="timePeriod"
+                className="mt-1 block py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                defaultValue="day"
+              >
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>

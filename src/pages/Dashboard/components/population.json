@@ -8,7 +8,7 @@
         "natscale": 600,
         "labelrank": 1,
         "featurecla": "Admin-1 capital",
-        "name": "Rio de Janeiro",
+        "name": "",
         "namepar": null,
         "namealt": null,
         "diffascii": 0,
@@ -30,8 +30,8 @@
         "changed": 0,
         "namediff": 0,
         "diffnote": null,
-        "pop_max": 11748000,
-        "pop_min": 2010175,
+        "pop_max": 12000000,
+        "pop_min": 8000000,
         "pop_other": 1821489,
         "rank_max": 14,
         "rank_min": 12,
@@ -52,7 +52,7 @@
         "natscale": 600,
         "labelrank": 1,
         "featurecla": "Populated place",
-        "name": "New York",
+        "name": "",
         "namepar": null,
         "namealt": "New York-Newark",
         "diffascii": 0,
@@ -74,8 +74,8 @@
         "changed": 0,
         "namediff": 0,
         "diffnote": null,
-        "pop_max": 19040000,
-        "pop_min": 8008278,
+        "pop_max": 12000000,
+        "pop_min": 8000000,
         "pop_other": 9292603,
         "rank_max": 14,
         "rank_min": 13,
@@ -96,7 +96,7 @@
         "natscale": 50,
         "labelrank": 0,
         "featurecla": "Admin-0 capital",
-        "name": "Kingstown",
+        "name": "",
         "namepar": null,
         "namealt": null,
         "diffascii": 0,
@@ -118,8 +118,8 @@
         "changed": 4,
         "namediff": 0,
         "diffnote": "Location adjusted. Changed scale rank.",
-        "pop_max": 49485,
-        "pop_min": 24518,
+        "pop_max": 12000000,
+        "pop_min": 8000000,
         "pop_other": 0,
         "rank_max": 7,
         "rank_min": 7,
@@ -140,51 +140,7 @@
         "natscale": 50,
         "labelrank": 8,
         "featurecla": "Admin-0 capital",
-        "name": "Roseau",
-        "namepar": null,
-        "namealt": null,
-        "diffascii": 0,
-        "nameascii": "Roseau",
-        "adm0cap": 1,
-        "capalt": null,
-        "capin": null,
-        "worldcity": 0,
-        "megacity": 0,
-        "sov0name": "Dominica",
-        "sov_a3": "DMA",
-        "adm0name": "Dominica",
-        "adm0_a3": "DMA",
-        "adm1name": "Saint George",
-        "iso_a2": "DM",
-        "note": null,
-        "latitude": 15.3010156443,
-        "longitude": -61.3870129818,
-        "changed": 4,
-        "namediff": 0,
-        "diffnote": "Changed scale rank.",
-        "pop_max": 23336,
-        "pop_min": 16571,
-        "pop_other": 23336,
-        "rank_max": 7,
-        "rank_min": 6,
-        "geonameid": 3575635,
-        "meganame": null,
-        "ls_name": "Roseau",
-        "ls_match": 1,
-        "checkme": 5,
-        "min_zoom": 5.1
-      },
-      "bbox": [-61.387013, 15.301016, -61.387013, 15.301016],
-      "geometry": { "type": "Point", "coordinates": [-61.387013, 15.301016] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "scalerank": 4,
-        "natscale": 50,
-        "labelrank": 8,
-        "featurecla": "Admin-0 capital",
-        "name": "Djibouti",
+        "name": "",
         "namepar": null,
         "namealt": null,
         "diffascii": 0,
@@ -206,8 +162,8 @@
         "changed": 4,
         "namediff": 0,
         "diffnote": "Changed scale rank.",
-        "pop_max": 923000,
-        "pop_min": 604013,
+        "pop_max": 12000000,
+        "pop_min": 8000000,
         "pop_other": 335001,
         "rank_max": 11,
         "rank_min": 11,
@@ -228,7 +184,7 @@
         "natscale": 600,
         "labelrank": 3,
         "featurecla": "Admin-1 capital",
-        "name": "Sydney",
+        "name": "",
         "namepar": null,
         "namealt": null,
         "diffascii": 0,
@@ -250,8 +206,8 @@
         "changed": 4,
         "namediff": 0,
         "diffnote": "Changed feature class.",
-        "pop_max": 4630000,
-        "pop_min": 3641422,
+        "pop_max": 12000000,
+        "pop_min": 8000000,
         "pop_other": 2669348,
         "rank_max": 12,
         "rank_min": 12,
@@ -272,7 +228,7 @@
         "natscale": 600,
         "labelrank": 0,
         "featurecla": "Admin-0 capital",
-        "name": "Singapore",
+        "name": "",
         "namepar": null,
         "namealt": null,
         "diffascii": 0,
@@ -294,8 +250,8 @@
         "changed": 0,
         "namediff": 0,
         "diffnote": null,
-        "pop_max": 5183700,
-        "pop_min": 3289529,
+        "pop_max": 12000000,
+        "pop_min": 8000000,
         "pop_other": 3314179,
         "rank_max": 13,
         "rank_min": 12,
@@ -316,7 +272,7 @@
         "natscale": 600,
         "labelrank": 0,
         "featurecla": "Admin-0 region capital",
-        "name": "Hong Kong",
+        "name": "",
         "namepar": null,
         "namealt": null,
         "diffascii": 0,
@@ -338,8 +294,8 @@
         "changed": 0,
         "namediff": 0,
         "diffnote": null,
-        "pop_max": 7206000,
-        "pop_min": 4551579,
+        "pop_max": 12000000,
+        "pop_min": 8000000,
         "pop_other": 4549026,
         "rank_max": 13,
         "rank_min": 12,
@@ -356,7 +312,7 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Moscu",
+        "name": "",
         "latitude": 55.7558,
         "longitude": 37.6173,
         "color": "#FF0000",
@@ -368,96 +324,96 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Sídney",
+        "name": "",
         "latitude": -33.8688,
         "longitude": 151.2093,
         "color": "#0000FF",
-        "pop_max": 5000000,
-        "pop_min": 4000000
+        "pop_max": 12000000,
+        "pop_min": 8000000
       },
       "geometry": { "type": "Point", "coordinates": [151.2093, -33.8688] }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Ciudad de Mexico",
+        "name": "",
         "latitude": 19.4326,
         "longitude": -99.1332,
         "color": "#FF0000",
-        "pop_max": 22000000,
-        "pop_min": 15000000
+        "pop_max": 12000000,
+        "pop_min": 8000000
       },
       "geometry": { "type": "Point", "coordinates": [-99.1332, 19.4326] }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Roma",
+        "name": "",
         "latitude": 41.9028,
         "longitude": 12.4964,
         "color": "#0000FF",
-        "pop_max": 3000000,
-        "pop_min": 2500000
+        "pop_max": 12000000,
+        "pop_min": 8000000
       },
       "geometry": { "type": "Point", "coordinates": [12.4964, 41.9028] }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Pekín",
+        "name": "",
         "latitude": 39.9042,
         "longitude": 116.4074,
         "color": "#FF0000",
-        "pop_max": 21500000,
-        "pop_min": 15000000
+        "pop_max": 12000000,
+        "pop_min": 8000000
       },
       "geometry": { "type": "Point", "coordinates": [116.4074, 39.9042] }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "El Cairo",
+        "name": "",
         "latitude": 30.0444,
         "longitude": 31.2357,
         "color": "#0000FF",
-        "pop_max": 20000000,
-        "pop_min": 15000000
+        "pop_max": 12000000,
+        "pop_min": 8000000
       },
       "geometry": { "type": "Point", "coordinates": [31.2357, 30.0444] }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Mumbai",
+        "name": "",
         "latitude": 19.0760,
         "longitude": 72.8777,
         "color": "#FF0000",
-        "pop_max": 18000000,
-        "pop_min": 12000000
+        "pop_max": 12000000,
+        "pop_min": 8000000
       },
       "geometry": { "type": "Point", "coordinates": [72.8777, 19.0760] }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Johannesburgo",
+        "name": "",
         "latitude": -26.2041,
         "longitude": 28.0473,
         "color": "#0000FF",
-        "pop_max": 5000000,
-        "pop_min": 3000000
+        "pop_max": 12000000,
+        "pop_min": 8000000
       },
       "geometry": { "type": "Point", "coordinates": [28.0473, -26.2041] }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Toronto",
+        "name": "",
         "latitude": 43.6511,
         "longitude": -79.3470,
         "color": "#FF0000",
-        "pop_max": 6500000,
-        "pop_min": 5000000
+        "pop_max": 12000000,
+        "pop_min": 8000000
       },
       "geometry": { "type": "Point", "coordinates": [-79.3470, 43.6511] }
     }
