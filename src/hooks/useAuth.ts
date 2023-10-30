@@ -36,6 +36,7 @@ const useAuth = () => {
   }, []);
 
   const login = useCallback(async (wallet_address: string) => {
+    const referral = new URLSearchParams(window.location.search).get("ref");
     localStorage.removeItem("access_token");
     setAuthToken(undefined);
     localStorage.removeItem("account_type")
@@ -45,6 +46,7 @@ const useAuth = () => {
 
     const nonceResp = await Api.post<string>("/nonce", {
       wallet_address,
+      referral,
     });
 
     const message = `Greetings from hello\nSign this message to log into hello\nnonce: ${nonceResp.data}`;
@@ -54,6 +56,7 @@ const useAuth = () => {
     const loginResp = await Api.post<LoginResponse>("/login", {
       wallet_address,
       signature,
+      referral,
     });
 
     setAuthToken(loginResp.data.access_token);
@@ -63,7 +66,7 @@ const useAuth = () => {
   }, []);
 
   // otp (one-time-passcode login)
-  const startOTP = async (email: string) => {
+  const startOTP = async (email: string ) => {
     const referrer_code = new URLSearchParams(window.location.search).get("ref");
     try {
       const account = Web3.eth.accounts.create();

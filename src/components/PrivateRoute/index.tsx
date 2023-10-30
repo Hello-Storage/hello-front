@@ -22,6 +22,7 @@ const PrivateRoute: FC<{ component: React.ComponentType }> = ({
     dispatch(setRedirectUrl(location.pathname));
 
 
+
     content = <Navigate to="/space/login" />;
   }
 
