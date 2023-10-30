@@ -34,7 +34,9 @@ import getPersonalSignature from "api/getPersonalSignature";
 import { useNavigate } from "react-router-dom";
 import ShareModal from "pages/Shared/Components/ShareModal";
 
-export default function Home() {
+
+export default function Home () {
+
   const dispatch = useAppDispatch();
   const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { name } = useAppSelector((state) => state.user);

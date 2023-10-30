@@ -28,6 +28,14 @@ import { toast } from "react-toastify";
 export default function Login() {
   useTitle("hello.app | Space");
   const { authenticated, loading, redirectUrl } = useAppSelector((state) => state.user);
+  const [isRef, setIsRef] = useState(false);
+
+  // Capture the ref query parameter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setIsRef(params.get('ref') === 'ns');
+  }, [location.search]);
+
   const { startOTP } = useAuth();
   const [email, setEmail] = useState("");
   const [onPresent] = useModal(<OTPModal email={email} />);
@@ -90,7 +98,7 @@ export default function Login() {
         </label>
         <img src={LogoHello} alt="logo" className="w-12 h-6" />
       </div>
-      { redirectMessage && <p>{redirectMessage}</p> }
+      {redirectMessage && <p>{redirectMessage}</p>}
 
       <div className="flex flex-col md:flex-row gap-8 md:gap-0 h-full">
         <div className="flex items-center justify-center flex-1">
