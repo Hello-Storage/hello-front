@@ -142,6 +142,14 @@ export const getCid = async (buffer: Uint8Array): Promise<string> => {
     return cid.toString()
 }
 
+export const getCidFromStrList = async (strList: string[]): Promise<string> => {
+    const uint8FileBuffer = new Uint8Array(new TextEncoder().encode(strList.join('')))
+    const hash = await sha256.digest(uint8FileBuffer)
+    const cid = CID.create(1, sha256.code, hash)
+
+    return cid.toString()
+}
+
 export function bufferToBase64Url(buffer: Uint8Array): string {
     const str = String.fromCharCode(...buffer);
     let base64 = btoa(str);

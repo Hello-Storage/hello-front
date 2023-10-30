@@ -22,11 +22,12 @@ const rootReducer = combineReducers({
   uploadstatus: uploadstatusReducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+//const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 
 export const state = configureStore({
-  reducer: persistedReducer,
+  //reducer: persistedReducer,
+  reducer: rootReducer,
   devTools: import.meta.env.MODE !== "production",
 });
 

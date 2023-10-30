@@ -16,12 +16,16 @@ interface UnencryptedBase {
   name_unencrypted?: string;
   mime_type_unencrypted?: string;
   cid_original_unencrypted?: string;
+  cid_parts_original_unencrypted?: string[];
 }
 
 export interface File extends Base, UnencryptedBase {
   uid: string;
-  cid: string;
-  cid_original_encrypted: string;
+  cid?: string;
+  cid_parts?: string[];
+  cid_parts_original_encrypted?: string[];
+  cid_original_encrypted?: string;
+  cid_parts_original_encrypted_base64_url?: string[];
   cid_original_encrypted_base64_url?: string;
   name: string;
   root: string;
@@ -32,6 +36,8 @@ export interface File extends Base, UnencryptedBase {
   //base64 data
   data?: string;
   file_share_state?: ShareState;
+  last_modified?: number;
+  bigFile: boolean;
 }
 
 export interface Folder extends Base {

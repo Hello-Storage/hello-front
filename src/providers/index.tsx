@@ -14,7 +14,7 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <>
       <Provider store={state}>
-        <PersistGate loading={null} persistor={persistor}>
+        {/*<PersistGate loading={null} persistor={persistor}>*/}
         <GoogleOAuth>
           <EthProvider>
             <SWRProvider>
@@ -22,7 +22,7 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
             </SWRProvider>
           </EthProvider>
         </GoogleOAuth>
-        </PersistGate>
+        {/*</PersistGate>*/}
       </Provider>
 
       {/* toast */}
