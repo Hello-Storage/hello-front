@@ -352,7 +352,116 @@
       },
       "bbox": [114.183063, 22.306927, 114.183063, 22.306927],
       "geometry": { "type": "Point", "coordinates": [114.183063, 22.306927] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Moscu",
+        "latitude": 55.7558,
+        "longitude": 37.6173,
+        "color": "#FF0000",
+        "pop_max": 12000000,
+        "pop_min": 8000000
+      },
+      "geometry": { "type": "Point", "coordinates": [37.6173, 55.7558] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sídney",
+        "latitude": -33.8688,
+        "longitude": 151.2093,
+        "color": "#0000FF",
+        "pop_max": 5000000,
+        "pop_min": 4000000
+      },
+      "geometry": { "type": "Point", "coordinates": [151.2093, -33.8688] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ciudad de Mexico",
+        "latitude": 19.4326,
+        "longitude": -99.1332,
+        "color": "#FF0000",
+        "pop_max": 22000000,
+        "pop_min": 15000000
+      },
+      "geometry": { "type": "Point", "coordinates": [-99.1332, 19.4326] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Roma",
+        "latitude": 41.9028,
+        "longitude": 12.4964,
+        "color": "#0000FF",
+        "pop_max": 3000000,
+        "pop_min": 2500000
+      },
+      "geometry": { "type": "Point", "coordinates": [12.4964, 41.9028] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pekín",
+        "latitude": 39.9042,
+        "longitude": 116.4074,
+        "color": "#FF0000",
+        "pop_max": 21500000,
+        "pop_min": 15000000
+      },
+      "geometry": { "type": "Point", "coordinates": [116.4074, 39.9042] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "El Cairo",
+        "latitude": 30.0444,
+        "longitude": 31.2357,
+        "color": "#0000FF",
+        "pop_max": 20000000,
+        "pop_min": 15000000
+      },
+      "geometry": { "type": "Point", "coordinates": [31.2357, 30.0444] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mumbai",
+        "latitude": 19.0760,
+        "longitude": 72.8777,
+        "color": "#FF0000",
+        "pop_max": 18000000,
+        "pop_min": 12000000
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8777, 19.0760] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Johannesburgo",
+        "latitude": -26.2041,
+        "longitude": 28.0473,
+        "color": "#0000FF",
+        "pop_max": 5000000,
+        "pop_min": 3000000
+      },
+      "geometry": { "type": "Point", "coordinates": [28.0473, -26.2041] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Toronto",
+        "latitude": 43.6511,
+        "longitude": -79.3470,
+        "color": "#FF0000",
+        "pop_max": 6500000,
+        "pop_min": 5000000
+      },
+      "geometry": { "type": "Point", "coordinates": [-79.3470, 43.6511] }
     }
+    
   ],
   "bbox": [
     -175.220564477617, -41.2999878536917, 179.216647094029, 64.1500236197392

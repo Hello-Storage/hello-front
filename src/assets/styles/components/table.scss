@@ -6,7 +6,8 @@
 
 .table-div {
   overflow-y: scroll;
-  max-height: calc(100vh - 450px);
+  min-height: calc(100vh - 530px);
+  max-height: calc(100vh - 530px);
 }
 
 .folders-div{
@@ -37,4 +38,44 @@
 
 .scrollbar-color::-webkit-scrollbar-track {
   background: white;
+}
+
+.header-stick-top {
+  position: sticky;
+  top: 0;
+  background-color: #f1f1f1;
+}
+
+.align-bottom{
+  display: flex;
+  align-items: flex-end;
+}
+
+
+#column{
+  &-name{
+    padding-left: 50px;
+    width: 39%;
+  }
+  &-cid{
+    width: 14%;
+  }
+  &-size{
+    width: 12%;
+  }
+  &-type{
+    width: 13%;
+  }
+}
+
+#header-scroll-inv{
+  overflow: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.file-name, .row-name{
+  width: 39%;
 }

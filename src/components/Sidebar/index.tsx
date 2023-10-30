@@ -58,7 +58,7 @@ const links1 = [
   },
   {
     to: "/space/referrals",
-    icon: <GoPeople className="w-5 h-5" />,
+    icon: <GoPeople className="w-6 h-5" />,
     content: "Referrals",
     available: true,
     img: <img src={HotReferral} alt="beta" className="w-12 h-5" />,
@@ -187,7 +187,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       encryptedFileBuffer,
       encryptionTime,
     } = await encryptFileBuffer(fileArrayBuffer);
-
 
     const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
     const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
@@ -510,7 +509,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               size: file.size,
               root: fileRes.root,
               mime_type: file.mime_type_unencrypted || file.mime_type,
-              media_type: file.mime_type,
+              media_type: file.media_type,
               path: file.path,
               encryption_status: fileRes.encryption_status,
               created_at: fileRes.created_at,

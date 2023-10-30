@@ -56,3 +56,29 @@ export const truncate = (str: string, num: number): string => {
   }
   return str.slice(0, num) + "...";
 };
+
+/**
+* Converts a list of bytes to the unit specified. If the unit is not found in the list the list is returned unaltered.
+* 
+* @param {number} bytesList - The list of bytes to convert. Must be non - empty.
+* @param {string} unit
+* 
+* @return { number [] } The list of bytes converted to the unit
+*/
+export function convertListToUnit(bytesList: number[], unit: string): number[] {
+  const units: string[] = ["Bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+  const unitIndex: number = units.indexOf(unit.trim());
+  
+  // Returns the bytes list of bytes.
+  if (unitIndex === -1) {
+    return bytesList
+  }
+
+  const conversionFactor: number = Math.pow(1024, unitIndex);
+
+
+  return bytesList.map((bytes) => {
+      return bytes / conversionFactor;
+  });
+}
+

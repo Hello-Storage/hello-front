@@ -4,6 +4,8 @@ import {
   fetchContentAction,
   createFolderAction,
   setImageViewAction,
+  setShowShareModal,
+  setSelectedShareFile,
   PreviewImage,
   removeContent,
   updateDecryptedFilesAction,
@@ -12,11 +14,13 @@ import {
   createFileAction,
   removeFolder,
 } from "./actions";
-import { RootResponse } from "api";
+import { File as FileType, RootResponse } from "api";
 
 interface MyStorageProps extends RootResponse {
   preview: PreviewImage | undefined;
   showPreview: boolean;
+  showShareModal: boolean;
+  selectedShareFile?: FileType;
 }
 const initialState: MyStorageProps = {
   root: "/",
@@ -25,6 +29,8 @@ const initialState: MyStorageProps = {
   folders: [],
   preview: undefined,
   showPreview: false,
+  showShareModal: false,
+  selectedShareFile: undefined,
 };
 
 export default createReducer<MyStorageProps>(initialState, (builder) => {
@@ -69,6 +75,14 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
     })
     .addCase(createFileAction, (state, { payload }) => ({
       ...state,
-      files: [...state.files, payload],
-      }));
+      files: [payload, ...state.files],
+    }))
+    .addCase(setShowShareModal, (state, { payload }) => ({
+      ...state,
+      showShareModal: payload,
+    }))
+    .addCase(setSelectedShareFile, (state, { payload }) => ({
+      ...state,
+      selectedShareFile: payload,
+    }));
 });
