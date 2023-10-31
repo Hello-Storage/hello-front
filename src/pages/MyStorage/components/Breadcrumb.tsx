@@ -2,8 +2,9 @@ import { Api } from "api";
 import { HiChevronRight, HiFolder } from "react-icons/hi";
 import { FaFolder } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import { useFetchData } from "hooks";
+import { removeFileAction } from "state/mystorage/actions";
 
 export default function Breadcrumb() {
   const { fetchRootContent } = useFetchData();
@@ -89,6 +90,8 @@ export default function Breadcrumb() {
     // }
   };
 
+  const dispatch = useAppDispatch();
+
   const handleDropSingle = (
     event: React.DragEvent<HTMLLIElement>,
     payload: any,
@@ -105,7 +108,8 @@ export default function Breadcrumb() {
     })
       .then((res) => {
         console.log("Folder root updated:", res.data);
-        fetchRootContent();
+        //dispatch the file uid removal
+        dispatch(removeFileAction(payload.Uid));
       })
       .catch((err) => {
         console.log("Error updating folder root:", err);

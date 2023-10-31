@@ -9,6 +9,8 @@ import { string } from "prop-types";
 import { RiFolderAddLine } from "react-icons/ri";
 import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
+import { useAppDispatch } from "state";
+import { removeFileAction } from "state/mystorage/actions";
 
 interface ContentProps {
   loading: boolean;
@@ -242,6 +244,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     }
   };
 
+  const dispatch = useAppDispatch();
+
   const handleDropSingle = (
     event: React.DragEvent<HTMLTableRowElement>,
     payload: any,
@@ -258,7 +262,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
     })
       .then((res) => {
         console.log("Folder root updated:", res.data);
-        fetchRootContent();
+        dispatch(removeFileAction(payload.Uid));
       })
       .catch((err) => {
         console.log("Error updating folder root:", err);
