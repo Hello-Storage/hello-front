@@ -45,11 +45,10 @@ function App() {
   
   useEffect(() => {
 		const token = localStorage.getItem("access_token");
-
 		if (token) {
 			setAuthToken(token);
-			load();
 		}
+    load();
 
 		const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "access_token" && !localStorage.getItem("access_token")) {

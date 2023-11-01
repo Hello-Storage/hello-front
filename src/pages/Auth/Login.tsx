@@ -37,7 +37,6 @@ export default function Login() {
     e.preventDefault();
 
     const result = await startOTP(email);
-    console.log(result);
 
     if (result) onPresent();
   };

@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import state from "state";
 import { logoutUser } from "state/user/actions";
 
