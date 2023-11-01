@@ -10,23 +10,23 @@ import uploadstatusReducer from "./uploadstatus/reducer";
 import storage from "redux-persist/es/storage";
 import {persistStore, persistReducer} from "redux-persist";
 
-const persistConfig = {
-  key: 'root',
+const mystoragePersistConfig = {
+  key: 'mystorage',
   storage,
+  whitelist: ['mystorage'] // Only mystorage will be persisted
 };
 
 const rootReducer = combineReducers({
   user: userReducer,
   userdetail: userdetailReducer,
-  mystorage: mystorageReducer,
+  mystorage: persistReducer(mystoragePersistConfig, mystorageReducer),
   uploadstatus: uploadstatusReducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 
 export const state = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   devTools: import.meta.env.MODE !== "production",
 });
 
