@@ -1,43 +1,36 @@
-import { FaCircle } from "react-icons/fa";
 import { useResizeDetector } from "react-resize-detector";
 import World from "./components/World";
-import { StackedBar } from "components";
 import Chart from "./components/Chart";
 import { Api } from "api";
 import { useAppSelector } from "state";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import useFetchData from "hooks/useFetchData";
 
-const data = [
-  {
-    color: "#BEBFF5",
-    percent: 40,
-  },
-  {
-    color: "#FCB3FC",
-    percent: 40,
-  },
-  {
-    color: "#BFEED0",
-    percent: 10,
-  },
-  {
-    color: "#B5CFFD",
-    percent: 10,
-  },
-];
+// const data = [
+//   {
+//     color: "#BEBFF5",
+//     percent: 40,
+//   },
+//   {
+//     color: "#FCB3FC",
+//     percent: 40,
+//   },
+//   {
+//     color: "#BFEED0",
+//     percent: 10,
+//   },
+//   {
+//     color: "#B5CFFD",
+//     percent: 10,
+//   },
+// ];
 export default function Dashboard() {
   const { fetchUserDetail } = useFetchData();
-
-  useEffect(() => {
-    fetchUserDetail();
-  }, []);
 
   const { width, height, ref } = useResizeDetector();
   const { uid } = useAppSelector((state) => state.user);
   const [counttotalusedstorageuser, setcounttotalusedstorageuser] =
-    useState("");
+    useState(0);
   const [counttotalencryptedfilesuser, setcounttotalencryptedfilesuser] =
     useState("");
   const [counttotalpublicfilesuser, setcounttotalpublicfilesuser] =
@@ -90,13 +83,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData();
+    fetchUserDetail();
 
     // 15 seconds update interval
     const intervalId = setInterval(fetchData, 15000);
 
     return () => clearInterval(intervalId);
   }, []);
-
   return (
     <div className="dashboard-container">
       {" "}
@@ -108,7 +101,7 @@ export default function Dashboard() {
           <div className="">
             <label className="text-sm text-gray-500">
               <b className="text-2xl font-semibold text-black">
-                {formatBytes(parseInt(counttotalusedstorageuser))}
+                {formatBytes(counttotalusedstorageuser)}
               </b>{" "}
             </label>
           </div>

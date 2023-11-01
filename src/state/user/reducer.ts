@@ -40,7 +40,7 @@ export default createReducer<User>(initialState, (builder) => {
       ...state,
       loading: false,
     }))
-    .addCase(logoutUser, (state, { payload } ) => (
+    .addCase(logoutUser, (state) => (
       console.log("logged out user"),
       {
       ...initialState,

@@ -93,16 +93,20 @@ const useAuth = () => {
   }
 
   const logout = useCallback(() => {
-    state.dispatch(logoutUser());
-
-    setAuthToken(undefined);
-    setPersonalSignature(undefined);
-    setAccountType(undefined);
-    state.dispatch(removeContent(""));
-
-    // disconnect when you sign with wallet
-    disconnect();
+    if (localStorage.getItem("access_token")) {
+      setAuthToken(undefined);
+    } else {
+      state.dispatch(logoutUser());
+  
+      setPersonalSignature(undefined);
+      setAccountType(undefined);
+      state.dispatch(removeContent());
+  
+      // disconnect when you sign with wallet
+      disconnect();
+    }
   }, []);
+  
 
   return {
     login,
