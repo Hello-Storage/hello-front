@@ -120,6 +120,7 @@ export default function Login() {
                   Email address
                 </label>
                 <input
+                  id="email"
                   type="email"
                   className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-4"
                   placeholder="example@email.com"

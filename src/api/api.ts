@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
-// import state from "state";
-// import { logoutUser } from "state/user/actions";
+import state from "state";
+import { logoutUser } from "state/user/actions";
 
 // Create an instance of axios
 export const Api = axios.create({
@@ -14,11 +14,12 @@ export const Api = axios.create({
 
 Api.interceptors.response.use(
   (res) => res,
-  (err: AxiosError) => {
-    if (err.response?.status === 401) {
-      // console.error("Axios error: ", err); the error will still be received from wherever the call is made, I think it is unnecessary to print it here
+  (err: any) => {
+    const error=err.response?.data.error
+    if (err.response?.status === 401 && error && error==="authorization header is not provided") {
+      console.error("Axios error: ",error );// the error will still be received from wherever the call is made, I think it is unnecessary to print it here
       // dispatch logout
-      // state.dispatch(logoutUser()); this is throwing errors, I will remove it to review later
+      state.dispatch(logoutUser()); // this is throwing errors
     }
     return Promise.reject(err);
   }
