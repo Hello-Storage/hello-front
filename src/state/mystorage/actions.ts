@@ -26,11 +26,11 @@ export const createFileAction = createAction<FileType>("dashboard/create-file");
 export const removeFile = createAction<string>("dashboard/remove-file");
 
 export const updateDecryptedFilesAction = createAction<FileType[]>(
-  "myStorage/updateDecryptedFiles"
+  "mystorage/updateDecryptedFiles"
 );
 
 export const updateDecryptedFoldersAction = createAction<Folder[]>(
-  "myStorage/updateDecryptedFolders"
+  "mystorage/updateDecryptedFolders"
 );
 
 export const setImageViewAction = createAction<{
