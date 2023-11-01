@@ -6,8 +6,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { setAuthToken } from "api";
 import { useAuth } from "hooks";
 import PrivateRoute from "components/PrivateRoute";
-import state from "state";
-import { logoutUser } from "state/user/actions";
 
 import { Spinner3 } from "components/Spinner";
 
@@ -43,21 +41,31 @@ const TrackPageViews = () => {
 };
 
 function App() {
-  const { load } = useAuth();
-
+  const { load,logout } = useAuth();
+  
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
+		const token = localStorage.getItem("access_token");
 
-    if (token) {
-      setAuthToken(token);
+		if (token) {
+			setAuthToken(token);
+			load();
+		}
+
+		const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "access_token" && !localStorage.getItem("access_token")) {
+        logout();
+      } else {
+        if (window.location.pathname.includes("login") && localStorage.getItem("access_token")) {
+          window.location.reload();
+        }
+      }
     }
+		window.addEventListener("storage", handleStorageChange);
 
-    load();
-    // log user out from all tabs if they log out in one tab
-    window.addEventListener("storage", () => {
-      if (!localStorage.token) state.dispatch(logoutUser());
-    });
-  }, []);
+		return () => {
+			window.removeEventListener("storage", handleStorageChange);
+		};
+  }, [load, logout]);
 
   return (
     <BrowserRouter>

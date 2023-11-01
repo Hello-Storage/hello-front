@@ -174,6 +174,7 @@ const Dropzone = () => {
     let filesToUpload: { customFile: FileType, file: File }[] = [];
 
     let folderRootUID = "";
+    let failed=false;
 
     await Api.post("/file/pool/check", customFiles)
       .then((res) => {
@@ -227,9 +228,14 @@ const Dropzone = () => {
       })
       .catch((err) => {
         console.log(err);
+        failed=true;
         toast.error("upload failed!");
       })
-      .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
+      .finally(() =>{
+        if (!failed) {
+          dispatch(setUploadStatusAction({ uploading: false }))
+        }
+      });
 
     if (filesToUpload.length !== 0) {
       await Api.post("/file/upload", formData, {
