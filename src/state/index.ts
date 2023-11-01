@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
-import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { configureStore, combineReducers, getDefaultMiddleware } from "@reduxjs/toolkit";
 
 import userReducer from "./user/reducer";
 import userdetailReducer from "./userdetail/reducer";
@@ -27,6 +27,11 @@ const rootReducer = combineReducers({
 
 export const state = configureStore({
   reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+  getDefaultMiddleware({
+    serializableCheck: false,
+  }),
+
   devTools: import.meta.env.MODE !== "production",
 });
 

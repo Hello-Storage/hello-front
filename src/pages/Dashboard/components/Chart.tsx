@@ -64,14 +64,13 @@ function formatBytes(bytes: number): { size: number; unit: string } {
 }
 
 interface ChartProps {
-	totalUsedStorage: string;
+	totalUsedStorage: number;
 }
 
 const Chart: React.FC<ChartProps> = ({ totalUsedStorage }) => {
 	const { uid } = useAppSelector((state) => state.user);
 	const [dailyStasts, setDailyStats] = useState<DailyStats>();
-	const ylim = formatBytes(parseInt(totalUsedStorage));
-	console.log(dailyStasts);
+	const ylim = formatBytes(totalUsedStorage);
 
 	const fetchData = () => {
 		Api.get("statistics/" + uid + "/day")

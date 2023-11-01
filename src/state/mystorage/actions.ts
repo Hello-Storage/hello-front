@@ -15,7 +15,7 @@ export const createFolderAction = createAction<Folder>(
   "mystorage/create-folder"
 );
 
-export const removeContent = createAction<string>("dashboard/remove-content");
+export const removeContent = createAction<undefined>("dashboard/remove-content");
 
 export const removeFileAction = createAction<string>("dashboard/remove-file");
 

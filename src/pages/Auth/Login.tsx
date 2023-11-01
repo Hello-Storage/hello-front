@@ -1,12 +1,10 @@
-import { LogoIcon, OTPModal } from "components";
+import { OTPModal } from "components";
 
-import shows from "@images/auth/shows.png";
 import ConnectWalletButton from "./components/ConnectWalletButton";
 import { useAppSelector } from "state";
 import { Navigate } from "react-router-dom";
 import { Spinner3 } from "components/Spinner";
 import GoogleLoginButton from "./components/GoogleLoginButton";
-import GithubLoginButton from "./components/GithubLoginButton";
 import { useAuth } from "hooks";
 import React, { useEffect, useState } from "react";
 import { useModal } from "components/Modal";
@@ -14,13 +12,11 @@ import LogoHello from "assets/images/beta.png";
 import useTitle from "hooks/useTitle";
 
 import { HiMail } from "react-icons/hi";
-import { CiLinkedin } from "react-icons/ci";
 import { FaGithubSquare } from "react-icons/fa";
 import { TbBrandTwitterFilled } from "react-icons/tb";
 import { PiTiktokLogoFill } from "react-icons/pi";
 import { BiLogoInstagramAlt } from "react-icons/bi";
 import { BsLinkedin } from 'react-icons/bs';
-import { formatUID } from "utils";
 import { Api } from "api";
 import { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
@@ -49,7 +45,6 @@ export default function Login() {
     e.preventDefault();
 
     const result = await startOTP(email);
-    console.log(result);
 
     if (result) onPresent();
   };
@@ -132,6 +127,7 @@ export default function Login() {
                   Email address
                 </label>
                 <input
+                  id="email"
                   type="email"
                   className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-4"
                   placeholder="example@email.com"
