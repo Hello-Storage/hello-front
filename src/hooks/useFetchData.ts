@@ -29,7 +29,6 @@ const useFetchData = () => {
       root = "/folder/" + location.pathname.split("/")[3];
     }
 
-
     Api.get<RootResponse>(root)
       .then(async (res) => {
         personalSignatureRef.current = sessionStorage.getItem("personal_signature") ?? undefined;
@@ -42,7 +41,6 @@ const useFetchData = () => {
             console.log(err);
           }
         );
-
 
         if (!decryptedPath) {
           toast.error("Failed to decrypt files");
@@ -79,13 +77,14 @@ const useFetchData = () => {
   }, [location.pathname]);
 
   const fetchUserDetail = useCallback(() => {
-    Api.get<UserDetailResponse>("/user/detail")
-      .then((res) => {
-        dispatch(loadUserDetail(res.data));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+		Api.get<UserDetailResponse>("/user/detail")
+			.then((res) => {
+				dispatch(loadUserDetail(res.data));
+			})
+			.catch((err) => {
+				console.log(err);
+				localStorage.removeItem("access_token");
+			});
   }, []);
 
   return {
