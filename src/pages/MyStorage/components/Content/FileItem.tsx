@@ -16,7 +16,7 @@ import {
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
-import { useDropdown, useFetchData } from "hooks";
+import { useDropdown } from "hooks";
 import { useRef, useState, Fragment } from "react";
 import copy from "copy-to-clipboard";
 import {
@@ -220,6 +220,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         console.error("Error deleting file:", err);
       });
   };
+
 
   if (view === "list")
     return (

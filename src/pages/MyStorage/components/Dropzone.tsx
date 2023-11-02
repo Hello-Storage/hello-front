@@ -210,11 +210,12 @@ const Dropzone = () => {
             // - put name_unencrypted to name
             // - put cid_original_unencrypted to cid_original_encrypted
             // - put mime_type_unencrypted to mime_type
+          console.log(filesFound);
 
             fileMap.customFile.id = fileFound?.id || 0;
             fileMap.customFile.uid = fileFound?.uid || "";
             fileMap.customFile.created_at = fileFound?.created_at || "";
-            fileMap.customFile.updated_at = fileFound?.updated_at || "";
+            fileMap.customFile.updated_at = fileFound? Date(fileFound.updated_at).toString() : "";
 
             fileMap.customFile.name = fileMap.customFile.name_unencrypted || "";
             fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || "";
@@ -222,6 +223,7 @@ const Dropzone = () => {
 
             if (!isFolder) dispatch(createFileAction(fileMap.customFile));
           }
+          console.log(fileMap.customFile);
 
         })
 

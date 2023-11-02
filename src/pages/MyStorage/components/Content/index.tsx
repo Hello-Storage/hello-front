@@ -5,7 +5,6 @@ import FileItem from "./FileItem";
 import "./spinner.css";
 import { useNavigate } from "react-router-dom";
 import { useFetchData } from "hooks";
-import { string } from "prop-types";
 import { RiFolderAddLine } from "react-icons/ri";
 import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
