@@ -28,7 +28,7 @@ import useFetchData from "hooks/useFetchData";
 // ];
 export default function Dashboard() {
 	const { fetchUserDetail } = useFetchData();
-	const [selectedRange, setselectedRange] = useState("Week")
+	const [selectedRange, setselectedRange] = useState("Day")
 
 	const { width, height, ref } = useResizeDetector();
 	const { uid } = useAppSelector((state) => state.user);
@@ -190,7 +190,7 @@ export default function Dashboard() {
 					</div>
 
 					<div className="w-full h-[90%] flex flex-col justify-center items-center">
-						<Chart totalUsedStorage={counttotalusedstorageuser} />
+						<Chart period={selectedRange.toLowerCase()}/>
 					</div>
 					<div className=" w-full flex justify-center items-center">
 						<p className="mr-2">
@@ -200,15 +200,15 @@ export default function Dashboard() {
 							id="timePeriod"
 							name="timePeriod"
 							className="block py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-							defaultValue="week"
+							defaultValue="day"
 							onChange={(e)=>{
 								const selected=e.target.querySelector('option:checked')?.textContent
 								setselectedRange(selected+"");
 							}}
 							>
+							<option value="day">Day</option>
 							<option value="week">Week</option>
 							<option value="month">Month</option>
-							<option value="year">Year</option>
 						</select>
 					</div>
 				</div>

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
-import { configureStore, combineReducers, getDefaultMiddleware } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 
 import userReducer from "./user/reducer";
 import userdetailReducer from "./userdetail/reducer";
@@ -13,7 +13,6 @@ import {persistStore, persistReducer} from "redux-persist";
 const mystoragePersistConfig = {
   key: 'mystorage',
   storage,
-  whitelist: ['mystorage'] // Only mystorage will be persisted
 };
 
 const rootReducer = combineReducers({

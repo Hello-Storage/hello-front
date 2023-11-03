@@ -54,17 +54,32 @@
 
 #column{
   &-name{
-    padding-left: 50px;
-    width: 39%;
+    padding-left: 5%;
+    width: 30%;
   }
   &-cid{
-    width: 14%;
+    width: 15%;
   }
   &-size{
     width: 12%;
   }
   &-type{
-    width: 13%;
+    width: 17%;
+  }
+  @media (min-width: 1400px) {
+    &-name{
+      padding-left: 5%;
+      width: 27%;
+    }
+    &-cid{
+      width: 16%;
+    }
+    &-size{
+      width: 14%;
+    }
+    &-type{
+      width: 15%;
+    }
   }
 }
 
