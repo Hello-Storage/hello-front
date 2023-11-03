@@ -410,6 +410,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
                   >
                     Last Modified
                   </th>
+               
                   <th
                     id="column-option"
                     scope="col"

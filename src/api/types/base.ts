@@ -28,6 +28,7 @@ export interface File extends Base, UnencryptedBase {
   mime_type: string;
   size: number;
   media_type: string;
+  is_in_pool?: boolean;
   path: string;
   //base64 data
   data?: string;
