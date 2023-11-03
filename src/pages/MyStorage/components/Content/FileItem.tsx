@@ -213,7 +213,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     Api.delete(`/file/delete/${file.uid}`)
       .then((res) => {
         toast.success("File deleted!");
-        
+
         dispatch(removeFileAction(file.uid));
       })
       .catch((err) => {
@@ -229,7 +229,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           onDoubleClick={handleView}
           scope="row"
           className="px-3 font-medium text-gray-900 whitespace-nowrap "
-          >
+        >
           <div className="flex items-center gap-3 ">
             {getFileIcon(file.name)}
             <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
@@ -266,6 +266,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         <td className="py-1 pr-8 whitespace-nowrap">
           {dayjs(file.updated_at).fromNow()}
         </td>
+        <td className="py-1 pr-8 whitespace-nowrap">
+          {file.is_in_pool && (
+            <div className="relative flex items-center ml-2">
+              <div
+                className="w-3 h-3 bg-orange-500 rounded-full"
+                title="File is in Hello Pool"
+              ></div>
+            </div>
+          )}
+        </td>
         <td className="py-1 pr-8 text-right">
           <button
             className="rounded-full hover:bg-gray-300 p-3"
@@ -288,12 +298,12 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
                       <HiOutlineDownload className="inline-flex mr-3" />
                       Download
                     </a>
-                    <a href="#" 
+                    <a href="#"
                       onClick={() => {
                         dispatch(setShowShareModal(true))
                         dispatch(setSelectedShareFile(file))
                       }}
-                    className="block px-4 py-2 hover:bg-gray-100">
+                      className="block px-4 py-2 hover:bg-gray-100">
                       <HiOutlineShare className="inline-flex mr-3" />
                       Share
                     </a>

@@ -67,10 +67,10 @@ const links1 = [
 
 const links2 = [
   {
-    to: "/space/shared-with-me",
+    to: "/space/shared",
     icon: <img src={Send} alt="custom icon" className="w-6 h-6" />,
     content: "Shared",
-    available: false,
+    available: true,
   },
   {
     to: "/api",
@@ -457,7 +457,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             fileMap.customFile.id = fileFound?.id || 0;
             fileMap.customFile.uid = fileFound?.uid || '';
             fileMap.customFile.created_at = fileFound?.created_at || '';
-            fileMap.customFile.updated_at = fileFound? new Date(fileFound.updated_at).toString() : "";
+            fileMap.customFile.updated_at = fileFound? new Date().toString() : "";
+            fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
 
             fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
             fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
