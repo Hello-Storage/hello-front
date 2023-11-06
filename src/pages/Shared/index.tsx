@@ -256,85 +256,174 @@ const Shared = (props: { shareType: string }) => {
     };
 
 
-    // Synthetic data (mock data)
-    const sharedWithMeFiles = [
-        { name: 'Document.pdf', mime_type: 'application/pdf', size: 1024 * 1024, updated_at: new Date(), created_at: new Date() },
-        // ... other files
-    ];
-
-    const sharedWithOthersFiles = [
-        { name: 'Image.png', mime_type: 'image/png', size: 2048 * 1024, updated_at: new Date(), created_at: new Date() },
-        // ... other files
-    ];
-
-
-
-    const FileTable = ({ files, title }: { files: typeof sharedWithMeFiles; title: string }) => {
-        return (
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 md:mx-0">
-                <header className="flex flex-row justify-between items-center p-6 bg-gray-600 rounded-t-lg">
-                    <h2 className="flex flex-row text-3xl font-semibold text-white">
-                        <p className="ml-2">{title}</p>
-                    </h2>
-                </header>
-                <div className="p-6">
-                    {files.map((file, index) => (
-                        <table key={index} className="w-full text-left mb-4">
-                            <tbody>
-                                <tr className="border-b">
-                                    <th className="py-2 font-semibold text-gray-600">Name</th>
-                                    <td className="py-2 text-gray-800">{file.name}</td>
-                                </tr>
-                                <tr className="border-b">
-                                    <th className="py-2 font-semibold text-gray-600">Type</th>
-                                    <td className="py-2 text-gray-800">{file.mime_type}</td>
-                                </tr>
-                                <tr className="border-b">
-                                    <th className="py-2 font-semibold text-gray-600">Size</th>
-                                    <td className="py-2 text-gray-800">{formatBytes(file.size)}</td>
-                                </tr>
-                                <tr className="border-b">
-                                    <th className="py-2 font-semibold text-gray-600">Last Modified</th>
-                                    <td className="py-2 text-gray-800">{dayjs(file.updated_at).fromNow()}</td>
-                                </tr>
-                                <tr>
-                                    <th className="py-2 font-semibold text-gray-600">Created At</th>
-                                    <td className="py-2 text-gray-800">{dayjs(file.created_at).toString()}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    ))}
-                </div>
-            </div>
-        );
-    };
 
     return (
-        <div className="flex justify-center items-center">
-            <div className="flex justify-center items-center flex-wrap">
-                <FileTable files={sharedWithMeFiles} title="Shared with Me" />
-                <FileTable files={sharedWithOthersFiles} title="Shared with Others" />
+      <>     
+        <section
+          className="custom-scrollbar position-sticky-left mb-[15px]"
+          id="scroll-visible-section"
+        >
+          <div id="width-section-helper"></div>
+        </section>
+        <section className="custom-scrollbar position-sticky-left">
+        <h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">Shared with Me</h4>
+          <div id="header-scroll-inv">
+            <table id="files-headers" className="w-full text-sm text-left text-gray-500 table-with-lines">
+              <thead className="text-xs text-gray-700 bg-gray-100">
+                <tr>
+                  <th
+                    id="column-name"
+                    scope="col"
+                    className="p-2.5 rounded-tl-lg rounded-bl-lg"
+                    onClick={(
+                      event: React.MouseEvent<
+                        HTMLTableCellElement
+                      >
+                    ) => {
+                      if (event.ctrlKey) {
+                       
+                        console.log(
+                          "Deleted selected items"
+                        );
+                      } else {
+                
+                      }
+                    }}
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="p-1"
+                    id="column-cid"
+                  >
+                    CID
+                  </th>
+                  <th
+                    scope="col"
+                    className="p-1"
+                    id="column-size"
+                  >
+                    Size
+                  </th>
+                  <th
+                    scope="col"
+                    className="py-1 px-3"
+                    id="column-type"
+                  >
+                    Type
+                  </th>
+                  <th
+                    scope="col"
+                    className="p-1 whitespace-nowrap"
+                    id="column-lm"
+                  >
+                    Last Modified
+                  </th>
+               
+                  <th
+                    id="column-option"
+                    scope="col"
+                    className="rounded-tr-lg rounded-br-lg"
+                  ></th>
+                </tr>
+              </thead>
+            </table>
+          </div>
 
-            </div>
+          <div id="table-row-div" className="table-div custom-scrollbar h-full scrollbar-color">
+            <table id="files-rows" className="w-full text-sm text-left text-gray-500 table-with-lines">
+              <tbody>
+                
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section
+          className="custom-scrollbar position-sticky-left mb-[15px]"
+          id="scroll-visible-section"
+        >
+          <div id="width-section-helper"></div>
+        </section>
+        <section className="custom-scrollbar position-sticky-left">
+        <h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">Shared with Others</h4>
+          <div id="header-scroll-inv">
+            <table id="files-headers" className="w-full text-sm text-left text-gray-500 table-with-lines">
+              <thead className="text-xs text-gray-700 bg-gray-100">
+                <tr>
+                  <th
+                    id="column-name"
+                    scope="col"
+                    className="p-2.5 rounded-tl-lg rounded-bl-lg"
+                    onClick={(
+                      event: React.MouseEvent<
+                        HTMLTableCellElement
+                      >
+                    ) => {
+                      if (event.ctrlKey) {
+                       
+                        console.log(
+                          "Deleted selected items"
+                        );
+                      } else {
+                
+                      }
+                    }}
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="p-1"
+                    id="column-cid"
+                  >
+                    CID
+                  </th>
+                  <th
+                    scope="col"
+                    className="p-1"
+                    id="column-size"
+                  >
+                    Size
+                  </th>
+                  <th
+                    scope="col"
+                    className="py-1 px-3"
+                    id="column-type"
+                  >
+                    Type
+                  </th>
+                  <th
+                    scope="col"
+                    className="p-1 whitespace-nowrap"
+                    id="column-lm"
+                  >
+                    Last Modified
+                  </th>
+               
+                  <th
+                    id="column-option"
+                    scope="col"
+                    className="rounded-tr-lg rounded-br-lg"
+                  ></th>
+                </tr>
+              </thead>
+            </table>
+          </div>
 
-            {/* Upload Info */}
-            {uploading && <UploadProgress />}
+          <div id="table-row-div" className="table-div custom-scrollbar h-full scrollbar-color">
+            <table id="files-rows" className="w-full text-sm text-left text-gray-500 table-with-lines">
+              <tbody>
+                
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-            {/* lightbox */}
-            <SlideshowLightbox
-                images={preview == undefined ? [] : [preview]}
-                showThumbnails={false}
-                showThumbnailIcon={false}
-                open={showPreview}
-                lightboxIdentifier="lbox1"
-                backgroundColor="#0f0f0fcc"
-                iconColor="#ffffff"
-                modalClose="clickOutside"
-                onClose={() => {
-                    dispatch(setImageViewAction({ show: false }));
-                }}
-            />
-        </div>
+        
+      </>
+
+      
     );
 }
 
