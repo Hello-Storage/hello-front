@@ -265,52 +265,55 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
       // Reconstruct the encrypted webkitRelativePath
       encryptedWebkitRelativePath = encryptedPathComponents.join("/");
-
-
-
-      for (let i = 0; i < fileArrayBuffer.length; i++) {
-        const arrayBuffer = fileArrayBuffer[i];
-        //transform arrayBuffer to Uint8Array
-        const uint8ArrayBuffer = new Uint8Array(arrayBuffer);
-
-
-        const {
-          cidOriginalStr,
-          cidOfEncryptedBufferStr,
-          encryptedFileBuffer,
-          encryptionTime,
-        } = await encryptFileBuffer(uint8ArrayBuffer);
-
-        cidOriginalStrs.push(cidOriginalStr);
-        cidOfEncryptedBufferStrs.push(cidOfEncryptedBufferStr);
-        fileEncryptionTime += encryptionTime;
-
-        const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
-        const cidOriginalEncryptedBuffer = await encryptBuffer(
-          cidOriginalBuffer,
-          personalSignature
-        );
-
-        if (!cidOriginalEncryptedBuffer) {
-          toast.error("Failed to encrypt buffer");
-          return null;
-        }
-        const cidOriginalEncryptedBase64Url = bufferToBase64Url(
-          cidOriginalEncryptedBuffer
-        );
-        cidOriginalEncryptedBase64Urls.push(cidOriginalEncryptedBase64Url);
-
-        const encryptedFileBlob = new Blob([encryptedFileBuffer]);
-        const encryptedFile = new File(
-          [encryptedFileBlob],
-          encryptedFilenameBase64Url,
-          { type: encryptedFiletypeHex, lastModified: fileLastModified }
-        );
-
-        fileParts.push(encryptedFile);
-
-      }
     }
+
+
+
+    for (let i = 0; i < fileArrayBuffer.length; i++) {
+      const arrayBuffer = fileArrayBuffer[i];
+      //transform arrayBuffer to Uint8Array
+      const uint8ArrayBuffer = new Uint8Array(arrayBuffer);
+
+
+      const {
+        cidOriginalStr,
+        cidOfEncryptedBufferStr,
+        encryptedFileBuffer,
+        encryptionTime,
+      } = await encryptFileBuffer(uint8ArrayBuffer);
+
+      cidOriginalStrs.push(cidOriginalStr);
+      cidOfEncryptedBufferStrs.push(cidOfEncryptedBufferStr);
+      fileEncryptionTime += encryptionTime;
+
+      const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
+      const cidOriginalEncryptedBuffer = await encryptBuffer(
+        cidOriginalBuffer,
+        personalSignature
+      );
+
+      if (!cidOriginalEncryptedBuffer) {
+        toast.error("Failed to encrypt buffer");
+        return null;
+      }
+      const cidOriginalEncryptedBase64Url = bufferToBase64Url(
+        cidOriginalEncryptedBuffer
+      );
+      cidOriginalEncryptedBase64Urls.push(cidOriginalEncryptedBase64Url);
+
+      const encryptedFileBlob = new Blob([encryptedFileBuffer]);
+      const encryptedFile = new File(
+        [encryptedFileBlob],
+        encryptedFilenameBase64Url,
+        { type: encryptedFiletypeHex, lastModified: fileLastModified }
+      );
+
+      fileParts.push(encryptedFile);
+
+    }
+    console.log("fileParts:")
+    console.log(fileParts)
+
 
 
     return {
@@ -321,6 +324,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       encryptedWebkitRelativePath,
       fileEncryptionTime,
     };
+
   };
 
 
@@ -394,6 +398,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         encryptionTimeTotal += fileEncryptionTime;
 
+        console.log(fileParts)
         const encryptedFile = fileParts[0];
 
 
@@ -401,6 +406,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         let customFile: FileType;
 
+        console.log("encryptedFile:")
+        console.log(encryptedFile)
         if (fileTooBig) {
           const cid = await getCidFromStrList(cidOfEncryptedBufferStrs);
 
@@ -425,7 +432,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             created_at: "",
             updated_at: "",
             deleted_at: "",
-            bigFile: true
+            big_file: true
           }
         } else {
           customFile = {
@@ -448,7 +455,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             created_at: "",
             updated_at: "",
             deleted_at: "",
-            bigFile: false
+            big_file: false
           }
 
         }
@@ -510,7 +517,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             created_at: "",
             updated_at: "",
             deleted_at: "",
-            bigFile: true
+            big_file: true
           }
         } else {
           customFile = {
@@ -528,7 +535,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             created_at: "",
             updated_at: "",
             deleted_at: "",
-            bigFile: false
+            big_file: false
           }
         }
 
@@ -574,7 +581,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     //get customFiles from filesMap
     const customFiles = filesMap.map(fileMap => fileMap.customFile);
-    alert(customFiles[0])
+    console.log(customFiles[0])
     let filesToUpload: { customFile: FileType, fileParts: File[] }[] = [];
 
     let folderRootUID = "";
@@ -588,6 +595,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
 
         // Dispatch actions for files that were found in S3.
+        console.log("filesFound:")
+        console.log(filesFound)
         filesToUpload = filesMap.filter((fileMap) => {
           const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
           return !fileInFilesFound;
@@ -599,15 +608,26 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         filesToUpload.forEach((fileMap, index) => {
           // Append the files that need to be uploaded to formData.
+          if (!fileMap.customFile.cid) {
+            toast.error("Failed to get CID");
+            return;
+          }
+          if (!fileMap.customFile.cid_original_encrypted_base64_url) {
+            toast.error("Failed to get cid_original_encrypted_base64_url");
+            return;
+          }
           if (fileMap.customFile.encryption_status === EncryptionStatus.Encrypted) {
-            formData.append("encryptedFiles", fileMap.file)
+            fileMap.fileParts.forEach((filePart, partIndex) => {
+              formData.append(`encryptedFiles[${index}][${partIndex}]`, filePart)
+            })
             formData.append(`cid[${index}]`, fileMap.customFile.cid)
-            if (fileMap.customFile.cid_original_encrypted_base64_url)
-              formData.append(`cidOriginalEncrypted[${index}]`, fileMap.customFile.cid_original_encrypted_base64_url)
+            formData.append(`cidOriginalEncrypted[${index}]`, fileMap.customFile.cid_original_encrypted_base64_url)
             formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
           } else {
             formData.append(`cid[${index}]`, fileMap.customFile.cid)
-            formData.append("files", fileMap.file)
+            fileMap.fileParts.forEach((filePart, partIndex) => {
+              formData.append(`files[${index}][${partIndex}]`, filePart)
+            })
           }
         })
 
@@ -686,6 +706,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               created_at: fileRes.created_at,
               updated_at: fileRes.updated_at,
               deleted_at: fileRes.deleted_at,
+              big_file: file.big_file,
             }
             if (!isFolder) dispatch(createFileAction(
               fileObject

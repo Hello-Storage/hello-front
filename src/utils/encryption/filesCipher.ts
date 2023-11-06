@@ -275,6 +275,10 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignature:
     const decrytpedFilesPromises = files.map(async (file) => {
         if (file.encryption_status === EncryptionStatus.Encrypted && !file.decrypted) {
             try {
+                if (!file.cid_original_encrypted) {
+                    toast.error("Missing encrypted cid for file " + file.name);
+                    return file;
+                }
                 const decryptionResult = await decryptMetadata(
                     file.name,
                     file.mime_type,

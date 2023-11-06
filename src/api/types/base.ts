@@ -37,7 +37,7 @@ export interface File extends Base, UnencryptedBase {
   data?: string;
   file_share_state?: ShareState;
   last_modified?: number;
-  bigFile: boolean;
+  big_file: boolean;
 }
 
 export interface Folder extends Base {
