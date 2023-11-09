@@ -4,5 +4,6 @@ export interface RootResponse {
   root: string;
   path: Folder[];
   files: File[];
+  sharedFiles: {sharedWithMe: File[], sharedByMe: File[]}
   folders: Folder[];
 }

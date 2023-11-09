@@ -26,6 +26,10 @@ const initialState: MyStorageProps = {
   root: "/",
   path: [],
   files: [],
+  sharedFiles: {
+    sharedWithMe: [],
+    sharedByMe: [],
+  },
   folders: [],
   preview: undefined,
   showPreview: false,

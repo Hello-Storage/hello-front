@@ -5,86 +5,82 @@ import { useAppDispatch } from "state";
 import { fetchContentAction } from "state/mystorage/actions";
 import { loadUserDetail } from "state/userdetail/actions";
 import { toast } from "react-toastify";
-import {
-  handleEncryptedFolders,
-} from "utils/encryption/filesCipher";
+import { handleEncryptedFolders } from "utils/encryption/filesCipher";
 
 const useFetchData = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const personalSignatureRef = useRef<string | undefined>();
 
+  const fetchRootContent = useCallback(
+    (setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
+      if (setLoading) setLoading(true);
+      let root = "/folder";
 
+      if (location.pathname.includes("/space/folder")) {
+        root = "/folder/" + location.pathname.split("/")[3];
+      }
 
-
-
-
-
-  const fetchRootContent = useCallback((setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
-    if (setLoading)
-      setLoading(true);
-    let root = "/folder";
-
-    if (location.pathname.includes("/space/folder")) {
-      root = "/folder/" + location.pathname.split("/")[3];
-    }
-
-    Api.get<RootResponse>(root)
-      .then(async (res) => {
-        personalSignatureRef.current = sessionStorage.getItem("personal_signature") ?? undefined;
-        if (!personalSignatureRef.current) {
-          toast.error("Failed to fetch root");
-          return;
-        }
-        const decryptedPath = await handleEncryptedFolders(res.data.path, personalSignatureRef.current).catch(
-          (err) => {
-            console.log(err);
+      Api.get<RootResponse>(root)
+        .then(async (res) => {
+          personalSignatureRef.current =
+            sessionStorage.getItem("personal_signature") ?? undefined;
+          if (!personalSignatureRef.current) {
+            toast.error("Failed to fetch root");
+            return;
           }
-        );
+          const decryptedPath = await handleEncryptedFolders(
+            res.data.path,
+            personalSignatureRef.current
+          ).catch((err) => {
+            console.log(err);
+          });
 
-        if (!decryptedPath) {
-          toast.error("Failed to decrypt files");
-          dispatch(fetchContentAction(res.data));
-          return;
-        }
-        
+          if (!decryptedPath) {
+            toast.error("Failed to decrypt files");
+            dispatch(fetchContentAction(res.data));
+            return;
+          }
 
-        const sortedFiles = res.data.files.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-        const sortedFolders = res.data.folders.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
+          const sortedFiles = res.data.files.sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          );
+          const sortedFolders = res.data.folders.sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          );
+          const resDataA = res.data;
 
-        dispatch(
-          fetchContentAction({
-            ...res.data,
-            files: sortedFiles,
-            folders: sortedFolders,
-            path: decryptedPath,
-          })
-        );
+          Api.get("/user/shared/general")
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              console.log(err);
+            })
+            .finally(() => {
+              if (setLoading) setLoading(false);
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    [location.pathname]
+  );
+
+  const fetchUserDetail = useCallback(() => {
+    Api.get<UserDetailResponse>("/user/detail")
+      .then((res) => {
+        dispatch(loadUserDetail(res.data));
       })
       .catch((err) => {
         console.log(err);
-      })
-      .finally(() => {
-        if (setLoading)
-          setLoading(false);
+        localStorage.removeItem("access_token");
       });
-  }, [location.pathname]);
-
-  const fetchUserDetail = useCallback(() => {
-		Api.get<UserDetailResponse>("/user/detail")
-			.then((res) => {
-				dispatch(loadUserDetail(res.data));
-			})
-			.catch((err) => {
-				console.log(err);
-				localStorage.removeItem("access_token");
-			});
   }, []);
 
   return {
@@ -94,4 +90,3 @@ const useFetchData = () => {
 };
 
 export default useFetchData;
-
