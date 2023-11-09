@@ -26,7 +26,7 @@ import {
 import React from "react";
 import { useAppDispatch } from "state";
 import { PreviewImage, setImageViewAction, setSelectedShareFile, setShowShareModal } from "state/mystorage/actions";
-import { truncate } from "utils/format";
+import { formatDate, truncate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { removeFileAction } from "state/mystorage/actions";
@@ -221,7 +221,6 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       });
   };
 
-
   if (view === "list")
     return (
       <>
@@ -264,7 +263,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           </div>
         </td>
         <td className="py-1 pr-8 whitespace-nowrap">
-          {dayjs(file.updated_at).fromNow()}
+          {dayjs(formatDate(file.updated_at)).fromNow()}
         </td>
         <td className="py-1 pr-8 whitespace-nowrap">
           {file.is_in_pool && (
