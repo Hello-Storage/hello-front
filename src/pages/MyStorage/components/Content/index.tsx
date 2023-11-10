@@ -16,9 +16,11 @@ interface ContentProps {
   folders: Folder[];
   files?: File[];
   view: "list" | "grid";
+  showFolders: boolean;
+  filesTitle: string;
 }
 
-const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
+const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle }) => {
   type itemInfo = {
     type: string;
     id: string;
@@ -311,7 +313,9 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   if (view === "list")
     return (
       <>
-        <div className="position-sticky-left">
+      {showFolders? 
+      <>
+      <div className="position-sticky-left">
           <h4 className="mb-[15px]">Folders</h4>
         </div>
         <div className="folders-div">
@@ -355,8 +359,13 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         >
           <div id="width-section-helper"></div>
         </section>
+      </>
+      :
+      <></>
+    }
+        
         <section className="custom-scrollbar position-sticky-left">
-          <h4 className="pt-1 pb-3">Files</h4>
+          <h4 className="pt-1 pb-3">{filesTitle}</h4>
           <div id="header-scroll-inv">
             <table id="files-headers" className="w-full text-sm text-left text-gray-500 table-with-lines">
               <thead className="text-xs text-gray-700 bg-gray-100">

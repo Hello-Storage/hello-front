@@ -13,6 +13,7 @@ import {
   removeFileAction,
   createFileAction,
   removeFolder,
+  updateDecryptedSharedFilesAction,
 } from "./actions";
 import { File as FileType, RootResponse } from "api";
 
@@ -71,6 +72,19 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
         return decryptedFile ? decryptedFile : file;
       });
     })
+    .addCase(updateDecryptedSharedFilesAction, (state, { payload }) => {
+      state.sharedFiles = {
+        sharedWithMe: state.sharedFiles.sharedWithMe.map(file => {
+          const decryptedFile = payload.sharedWithMe.find(pf => pf.id === file.id);
+          return decryptedFile ? decryptedFile : file;
+        }),
+        sharedByMe: state.sharedFiles.sharedByMe.map(file => {
+          const decryptedFile = payload.sharedByMe.find(pf => pf.id === file.id);
+          return decryptedFile ? decryptedFile : file;
+        }),
+      };
+    })
+    
     .addCase(updateDecryptedFoldersAction, (state, { payload }) => {
       state.folders = state.folders.map(folder => {
         const decryptedFolder = payload.find(pf => pf.id === folder.id);

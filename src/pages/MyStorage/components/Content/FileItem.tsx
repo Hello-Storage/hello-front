@@ -218,7 +218,6 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     Api.delete(`/file/delete/${file.uid}`)
       .then((res) => {
         toast.success("File deleted!");
-
         dispatch(removeFileAction(file.uid));
       })
       .catch((err) => {
@@ -236,7 +235,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         >
           <div className="flex items-center gap-3 ">
             {getFileIcon(file.name)}
-            <FaUserGroup style={{ color: "#FF6600" }} />
+            {file.is_in_pool && (
+              <FaUserGroup style={{ color: "#FF6600" }} />
+            )}
             <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
             <span className="inline md:hidden"> {truncate(file.name, 24)}</span>
           </div>
@@ -268,12 +269,6 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
             )}
           </div>
         </td>
-        <td className="py-1 pr-8 whitespace-nowrap">
-          {file.is_in_pool && (
-            <div className="relative flex items-center ml-2"></div>
-          )}
-        </td>
-
         <td className="py-1 pr-8 text-right">
           <button
             className="rounded-full hover:bg-gray-300 p-3"
@@ -346,6 +341,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           <div className="flex flex-col items-center gap-3">
             <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis flex items-center gap-2">
               <HiDocumentText className="w-4 h-4 flex-shrink-0" />
+            {file.is_in_pool && (
+              <FaUserGroup style={{ color: "#FF6600" }} />
+            )}
               <span className="hidden md:inline">
                 {truncate(file.name, 40)}
               </span>

@@ -7,3 +7,8 @@ export interface RootResponse {
   sharedFiles: {sharedWithMe: File[], sharedByMe: File[]}
   folders: Folder[];
 }
+
+export interface SharedResponse {
+  SharedWithMe: File[];
+  SharedByMe: File[];
+}
