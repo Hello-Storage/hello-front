@@ -270,6 +270,24 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         console.log("Error updating folder root:", err);
       });
   };
+  const handleResize = () => {
+    setWindowWidth(window.innerWidth);
+    const headerScroll = document.getElementById("files-headers_"+identifier);
+    const rowsScroll = document.getElementById("files-rows_"+identifier);
+    const tablerowdiv = document.getElementById("table-row-div_"+identifier);
+    const tableheaderdiv = document.getElementById("header-scroll-inv_"+identifier);
+    if (headerScroll && rowsScroll && tablerowdiv) {
+      headerScroll.style.width = rowsScroll.getBoundingClientRect().width + "px"
+      tablerowdiv.style.width = rowsScroll.getBoundingClientRect().width + "px"
+    }
+    if (tablerowdiv && tableheaderdiv) {
+      tablerowdiv.onscroll = function () {
+        if (headerScroll)
+        console.log("test");
+          tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
+      };
+    }
+  };
 
   useEffect(() => {
     const invScroll = document.getElementById("scroll-invisible-section");
@@ -287,30 +305,14 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
           invScroll.scrollLeft = visScroll.scrollLeft;
       };
     }
+    handleResize();
   }, [folders]);
 
   useLayoutEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-      const headerScroll = document.getElementById("files-headers_"+identifier);
-      const rowsScroll = document.getElementById("files-rows_"+identifier);
-      const tablerowdiv = document.getElementById("table-row-div_"+identifier);
-      const tableheaderdiv = document.getElementById("header-scroll-inv_"+identifier);
-      if (headerScroll && rowsScroll && tablerowdiv) {
-        headerScroll.style.width = rowsScroll.getBoundingClientRect().width + "px"
-        tablerowdiv.style.width = rowsScroll.getBoundingClientRect().width + "px"
-      }
-      if (tablerowdiv && tableheaderdiv) {
-        tablerowdiv.onscroll = function () {
-          if (headerScroll)
-          console.log("test");
-            tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
-        };
-      }
-    };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
 
   if (view === "list")
     return (
@@ -421,7 +423,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                   >
                     Last Modified
                   </th>
-               
                   <th
                     id="column-option"
                     scope="col"
@@ -468,7 +469,9 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                   </tr>
                 ) : (
                   <>
-                    {files?.map((v, i) => (
+                  {(files && files.length>0)?
+                  <>
+                  {files.map((v, i) => (
                       <tr
                         key={i}
                         id={v.id.toString()}
@@ -494,6 +497,21 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                         />
                       </tr>
                     ))}
+                  </>
+                  :
+                  <>
+                  <tr>
+                    <td>
+                      <div className="flex flex-col w-full h-full items-center justify-center text-center">
+                        <div className="mt-4 mb-4">
+                          No files found
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  </>
+                }
+                    
                   </>
                 )}
               </tbody>
