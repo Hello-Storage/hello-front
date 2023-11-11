@@ -140,7 +140,6 @@ export default function Home () {
           return;
         }
       }
-
       const decryptedFiles = await handleEncryptedFiles(
         currentEncryptedFiles,
         personalSignatureRef.current || "",
@@ -368,6 +367,9 @@ export default function Home () {
           files={filteredFiles}
           folders={filteredFolders}
           view={view}
+          showFolders={true}
+          filesTitle="Files"
+          identifier={1}
         />
       </section>
       {/* Sticky footer */}

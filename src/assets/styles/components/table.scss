@@ -86,10 +86,27 @@
 #header-scroll-inv{
   overflow: scroll;
 
-  &::-webkit-scrollbar {
+  &_1::-webkit-scrollbar,
+  &_2::-webkit-scrollbar,
+  &_3::-webkit-scrollbar,
+  &_4::-webkit-scrollbar,
+  &_5::-webkit-scrollbar,
+  &_6::-webkit-scrollbar {
     display: none;
   }
 }
+
+#table-row-div{
+  &_1::-webkit-scrollbar,
+  &_2::-webkit-scrollbar,
+  &_3::-webkit-scrollbar,
+  &_4::-webkit-scrollbar,
+  &_5::-webkit-scrollbar,
+  &_6::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 
 .file-name, .row-name{
   width: 39%;

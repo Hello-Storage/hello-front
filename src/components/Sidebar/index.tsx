@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import { HiPlus } from "react-icons/hi";
@@ -573,9 +573,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-3">
-          <label className="text-2xl font-semibold font-[Outfit]">
-            hello.app
-          </label>
+          <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]">
+                hello.app
+          </Link>
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
         </div>
 

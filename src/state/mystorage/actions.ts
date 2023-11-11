@@ -28,6 +28,10 @@ export const removeFile = createAction<string>("dashboard/remove-file");
 export const updateDecryptedFilesAction = createAction<FileType[]>(
   "mystorage/updateDecryptedFiles"
 );
+export const updateDecryptedSharedFilesAction = createAction<{
+  sharedByMe: FileType[];
+  sharedWithMe: FileType[];
+}>("mystorage/updateDecryptedSharedFiles");
 
 export const updateDecryptedFoldersAction = createAction<Folder[]>(
   "mystorage/updateDecryptedFolders"

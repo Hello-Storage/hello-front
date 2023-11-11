@@ -16,9 +16,12 @@ interface ContentProps {
   folders: Folder[];
   files?: File[];
   view: "list" | "grid";
+  showFolders: boolean;
+  filesTitle: string;
+  identifier: number;
 }
 
-const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
+const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier }) => {
   type itemInfo = {
     type: string;
     id: string;
@@ -289,21 +292,22 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   useLayoutEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
-      const headerScroll = document.getElementById("files-headers");
-      const rowsScroll = document.getElementById("files-rows");
-      const tablerowdiv = document.getElementById("table-row-div");
-      const tableheaderdiv = document.getElementById("header-scroll-inv");
-      if (headerScroll && rowsScroll) {
+      const headerScroll = document.getElementById("files-headers_"+identifier);
+      const rowsScroll = document.getElementById("files-rows_"+identifier);
+      const tablerowdiv = document.getElementById("table-row-div_"+identifier);
+      const tableheaderdiv = document.getElementById("header-scroll-inv_"+identifier);
+      if (headerScroll && rowsScroll && tablerowdiv) {
         headerScroll.style.width = rowsScroll.getBoundingClientRect().width + "px"
+        tablerowdiv.style.width = rowsScroll.getBoundingClientRect().width + "px"
       }
       if (tablerowdiv && tableheaderdiv) {
         tablerowdiv.onscroll = function () {
           if (headerScroll)
+          console.log("test");
             tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
         };
       }
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -311,7 +315,9 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   if (view === "list")
     return (
       <>
-        <div className="position-sticky-left">
+      {showFolders? 
+      <>
+      <div className="position-sticky-left">
           <h4 className="mb-[15px]">Folders</h4>
         </div>
         <div className="folders-div">
@@ -355,10 +361,15 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         >
           <div id="width-section-helper"></div>
         </section>
+      </>
+      :
+      <></>
+    }
+        
         <section className="custom-scrollbar position-sticky-left">
-          <h4 className="pt-1 pb-3">Files</h4>
-          <div id="header-scroll-inv">
-            <table id="files-headers" className="w-full text-sm text-left text-gray-500 table-with-lines">
+          <h4 className="pt-1 pb-3">{filesTitle}</h4>
+          <div id={"header-scroll-inv_"+identifier}>
+            <table id={"files-headers_"+identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <thead className="text-xs text-gray-700 bg-gray-100">
                 <tr>
                   <th
@@ -421,8 +432,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
             </table>
           </div>
 
-          <div id="table-row-div" className="table-div custom-scrollbar h-full scrollbar-color">
-            <table id="files-rows" className="w-full text-sm text-left text-gray-500 table-with-lines">
+          <div id={"table-row-div_"+identifier} className="table-div custom-scrollbar h-full scrollbar-color">
+            <table id={"files-rows_"+identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <tbody>
                 {loading ? (
                   <tr className="w-full h-64">
