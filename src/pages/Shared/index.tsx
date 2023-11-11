@@ -138,6 +138,7 @@ const Shared = (props: { shareType: string }) => {
 						view="list"
 						showFolders={false}
 						filesTitle="Files shared by me"
+						identifier={1}
 					/>
 
 				<Content
@@ -147,6 +148,7 @@ const Shared = (props: { shareType: string }) => {
 					view="list"
 					showFolders={false}
 					filesTitle="Files shared with me"
+					identifier={2}
 				/>
 			</div>
 			<div className="lg:hidden  w-fullflex-row justify-evenly items-center">
@@ -158,6 +160,7 @@ const Shared = (props: { shareType: string }) => {
 						view="list"
 						showFolders={false}
 						filesTitle="Files shared by me"
+						identifier={3}
 					/>
 				</div>
 				<div className="w-full">
@@ -168,6 +171,7 @@ const Shared = (props: { shareType: string }) => {
 						view="list"
 						showFolders={false}
 						filesTitle="Files shared with me"
+						identifier={4}
 					/>
 				</div>
 			</div>

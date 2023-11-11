@@ -369,6 +369,7 @@ export default function Home () {
           view={view}
           showFolders={true}
           filesTitle="Files"
+          identifier={1}
         />
       </section>
       {/* Sticky footer */}
