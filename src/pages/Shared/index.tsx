@@ -1,341 +1,199 @@
-import { getFileIcon, viewableExtensions } from "pages/MyStorage/components/Content/utils";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPublishedFile } from "./Utils/shareUtils";
-import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
-import { formatBytes } from "utils";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Api } from "api";
 import { useDispatch } from "react-redux";
-import { setUploadStatusAction } from "state/uploadstatus/actions";
-import { blobToArrayBuffer, decryptFileBuffer } from "utils/encryption/filesCipher";
-import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
-import UploadProgress from "pages/MyStorage/components/UploadProgress";
+import { handleEncryptedFiles } from "utils/encryption/filesCipher";
+import { updateDecryptedSharedFilesAction } from "state/mystorage/actions";
 import "lightbox.js-react/dist/index.css";
-import { SlideshowLightbox } from "lightbox.js-react";
 import { useAppSelector } from "state";
+import { File as FileType } from "api";
+import { useAuth, useFetchData } from "hooks";
+import getAccountType from "api/getAccountType";
+import getPersonalSignature from "api/getPersonalSignature";
+import Content from "pages/MyStorage/components/Content";
 dayjs.extend(relativeTime);
 
 const Shared = (props: { shareType: string }) => {
-    //get the hash from the url
-    const { hash } = useParams();
-    const shareType = props.shareType;
+	//get the hash from the url
+	const { hash } = useParams();
+	const shareType = props.shareType;
 
+	const dispatch = useDispatch();
 
+	const { sharedFiles, path } = useAppSelector((state) => state.mystorage);
 
-    const [metadata, setMetadata] = useState<PublicFile>();
+	const [SharedByMe, setSharedByMe] = useState<FileType[]>([]);
 
-    const dispatch = useDispatch();
+	const [SharedwithMe, setSharedwithMe] = useState<FileType[]>([]);
 
-    const { uploading } = useAppSelector((state) => state.uploadstatus);
+	const [loading, setLoading] = useState(false);
 
+	const personalSignatureRef = useRef<string | undefined>();
 
-    const viewRef = useRef(false);
+	const [currentPage, setCurrentPage] = useState(1);
 
-    const onDownloadProgress = (progressEvent: AxiosProgressEvent) => {
-        dispatch(
-            setUploadStatusAction({
-                info: `${viewRef.current ? "Loading" : "Downloading"} ` + metadata?.name,
-                uploading: true,
-            })
-        );
+	const { name } = useAppSelector((state) => state.user);
+	const { autoEncryptionEnabled } = useAppSelector(
+		(state) => state.userdetail
+	);
+	const { logout } = useAuth();
+	const accountType = getAccountType();
+	const { fetchRootContent } = useFetchData();
 
-        dispatch(
-            setUploadStatusAction({
-                read: progressEvent.loaded,
-                size: metadata?.size,
-            })
-        );
-    };
+	const [personalSignatureDefined, setPersonalSignatureDefined] = useState(
+		false
+	);
+	const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
 
+	useEffect(() => {
+		async function fetchContent() {
+			setLoading(true);
 
-    useEffect(() => {
+			if (
+				!personalSignatureRef.current &&
+				!hasCalledGetPersonalSignatureRef.current
+			) {
+				hasCalledGetPersonalSignatureRef.current = true;
 
-        //get file metadata from the hash
-        switch (shareType) {
-            case "public":
-                //get file metadata from the hash
-                if (hash && hash.length > 0)
-                    getPublishedFile(hash).then((res) => {
-                        if ((res as AxiosResponse).status === 200) {
-                            res = res as AxiosResponse
-                            const publishedFile = res.data as PublicFile;
-                            setMetadata(publishedFile);
-                        }
+				personalSignatureRef.current = await getPersonalSignature(
+					name,
+					autoEncryptionEnabled,
+					accountType
+				); //Promie<string | undefined>
+				if (!personalSignatureRef.current) {
+					toast.error("Failed to get personal signature");
+					logout();
+					return;
+				}
+			}
 
-                        if ((res as AxiosError).isAxiosError) {
-                            toast.error("An error occured while fetching the file metadata");
-                            if ((res as AxiosError).response?.status === 404 || (res as AxiosError).response?.status === 503) {
-                                return;
-                            }
-                        }
-                    }).catch((err) => {
-                        toast.error("An error occured while fetching the file metadata");
-                        console.log(err);
-                    });
+			const decryptedFilesSharedWithMe = await handleEncryptedFiles(
+				sharedFiles.sharedWithMe.slice(),
+				personalSignatureRef.current || "",
+				name,
+				autoEncryptionEnabled,
+				accountType,
+				logout
+			);
+			const decryptedFilesSharedByMe = await handleEncryptedFiles(
+				sharedFiles.sharedByMe.slice(),
+				personalSignatureRef.current || "",
+				name,
+				autoEncryptionEnabled,
+				accountType,
+				logout
+			);
 
-                break;
-            case "private":
-                //get file metadata from the hash
-                if (hash && hash.length > 0)
-                    alert("private")
-                break;
-            default:
-                break;
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+			if (
+				decryptedFilesSharedWithMe &&
+				decryptedFilesSharedByMe &&
+				decryptedFilesSharedWithMe.length > 0 &&
+				decryptedFilesSharedByMe.length > 0
+			) {
+				dispatch(
+					updateDecryptedSharedFilesAction({
+						sharedByMe: decryptedFilesSharedByMe,
+						sharedWithMe: decryptedFilesSharedWithMe,
+					})
+				);
+			}
 
+			setSharedByMe(decryptedFilesSharedByMe || []);
+			setSharedwithMe(decryptedFilesSharedWithMe || []);
 
-    const fileExtension = (metadata?.name.split('.').pop() || '').toLowerCase();
+			if (!decryptedFilesSharedByMe || !decryptedFilesSharedWithMe) {
+				toast.error("Failed to decrypt content");
+				fetchRootContent(setLoading);
+			}
+		}
+		fetchContent().then(() => {
+			setLoading(false);
+			setPersonalSignatureDefined(true);
+		});
+	}, [path, currentPage]);
+	useEffect(() => {
+		if (personalSignatureDefined) {
+			if (!personalSignatureRef.current) {
+				return;
+			}
 
-    const { showPreview, preview } = useAppSelector(
-        (state) => state.mystorage
-    );
+			fetchRootContent();
+			setCurrentPage(1);
+		}
+	}, [location, name, personalSignatureRef.current]);
 
-    const viewable = viewableExtensions.has(fileExtension); // check if the file is viewable
+	return (
+		<>
+			<div className="hidden lg:flex w-full">
+				<div className="w-full">
+					<h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">
+						Files shared by me
+					</h4>
 
-    const downloadHandler = () => {
-        switch (shareType) {
-            case "public":
-                //get file metadata from the hash
-                if (hash && hash.length > 0)
-                    downloadFile(metadata, 'public')
-                break;
-            case "private":
-                //get file metadata from the hash
-                if (hash && hash.length > 0)
-                    return () => alert("private")
-                break;
-            default:
-                return () => { "" };
-        }
-    }
+					<Content
+						loading={loading}
+						files={SharedByMe}
+						folders={[]}
+						view="list"
+						showFolders={false}
+						filesTitle=""
+						identifier={1}
+					/>
+				</div>
+				<div className="w-full">
+					<h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">
+						Files shared by me
+					</h4>
 
-    // Function to handle file download
-    const downloadFile = (metadata: PublicFile | undefined, shareType: string) => {
-        viewRef.current = false;
-        toast.info("Starting download for " + metadata?.name + "...");
-        // Make a request to download the file with responseType 'blob'
-        Api.get(`/file/download/${metadata?.file_uid}`, {
-            responseType: "blob",
-            onDownloadProgress: onDownloadProgress,
-        })
-            .then(async (res) => {
-                dispatch(
-                    setUploadStatusAction({
-                        info: "Finished downloading data",
-                        uploading: false,
-                    })
-                );
-                // Create a blob from the response data
-                let binaryData = res.data;
-                if (metadata?.cid_original_decrypted) {
-                    const originalCid = metadata?.cid_original_decrypted;
-                    binaryData = await blobToArrayBuffer(binaryData);
-                    binaryData = await decryptFileBuffer(
-                        binaryData,
-                        originalCid,
-                        (percentage) => {
-                            dispatch(
-                                setUploadStatusAction({
-                                    info: "Decrypting...",
-                                    read: percentage,
-                                    size: 100,
-                                    uploading: true,
-                                })
-                            );
-                        }
-                    ).catch((err) => {
-                        console.error("Error downloading file:", err);
-                    });
+					<Content
+						loading={loading}
+						files={SharedwithMe}
+						folders={[]}
+						view="list"
+						showFolders={false}
+						filesTitle=""
+						identifier={2}
+					/>
+				</div>
+			</div>
+			<div className="lg:hidden  w-fullflex-row justify-evenly items-center">
+				<div>
+					<h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">
+						Files shared by me
+					</h4>
 
-                    dispatch(
-                        setUploadStatusAction({
-                            info: "Decryption done",
-                            uploading: false,
-                        })
-                    );
-                } else {
-                    binaryData = await blobToArrayBuffer(binaryData);
-                }
-                const blob = new Blob([binaryData], { type: metadata?.mime_type });
+					<Content
+						loading={loading}
+						files={SharedByMe}
+						folders={[]}
+						view="list"
+						showFolders={false}
+						filesTitle=""
+						identifier={3}
+					/>
+				</div>
+				<div>
+					<h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">
+						Files shared with me
+					</h4>
 
-                // Create a link element and set the blob as its href
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = metadata?.name ? metadata?.name : ""; // Set the file name
-                a.click(); // Trigger the download
-                toast.success("Download complete!");
-
-                // Clean up
-                window.URL.revokeObjectURL(url);
-            })
-            .catch((err) => {
-                console.error("Error downloading file:", err);
-            });
-    };
-
-    const handleView = (metadata: PublicFile | undefined, shareType: string) => {
-        viewRef.current = true;
-
-        Api.get(`/file/download/${metadata?.file_uid}`, {
-            responseType: "blob",
-            onDownloadProgress: onDownloadProgress,
-        })
-            .then(async (res) => {
-                dispatch(
-                    setUploadStatusAction({
-                        info: "Finished downloading data",
-                        uploading: false,
-                    })
-                );
-                let binaryData = res.data;
-                if (metadata?.cid_original_decrypted) {
-                    const originalCid = metadata?.cid_original_decrypted;
-                    binaryData = await blobToArrayBuffer(binaryData);
-                    binaryData = await decryptFileBuffer(
-                        binaryData,
-                        originalCid,
-                        (percentage) => {
-                            dispatch(
-                                setUploadStatusAction({
-                                    info: "Decrypting...",
-                                    read: percentage,
-                                    size: 100,
-                                    uploading: true,
-                                })
-                            );
-                        }
-                    );
-
-                    dispatch(
-                        setUploadStatusAction({
-                            info: "Decryption done",
-                            uploading: false,
-                        })
-                    );
-                } else {
-                    binaryData = await blobToArrayBuffer(binaryData);
-                }
-                const blob = new Blob([binaryData], { type: metadata?.mime_type });
-                if (!blob) {
-                    console.error("Error downloading file: blob is null");
-                    return;
-                }
-                const url = window.URL.createObjectURL(blob);
-
-                let mediaItem: PreviewImage;
-                if (metadata?.mime_type.startsWith("video/")) {
-                    mediaItem = {
-                        type: "htmlVideo",
-                        videoSrc: url,
-                        alt: metadata?.name,
-                    };
-                } else if (
-                    metadata?.mime_type === "application/pdf" ||
-                    metadata?.mime_type === "text/plain"
-                ) {
-                    window.open(url, "_blank"); // PDF or TXT in a new tab
-                    return;
-                } else {
-                    mediaItem = {
-                        src: url,
-                        alt: metadata?.name ? metadata?.name : "",
-                    };
-                }
-
-                dispatch(setImageViewAction({ img: mediaItem, show: true }));
-            })
-            .catch((err) => {
-                console.error("Error downloading file:", err);
-            });
-    };
-
-
-    // Synthetic data (mock data)
-    const sharedWithMeFiles = [
-        { name: 'Document.pdf', mime_type: 'application/pdf', size: 1024 * 1024, updated_at: new Date(), created_at: new Date() },
-        // ... other files
-    ];
-
-    const sharedWithOthersFiles = [
-        { name: 'Image.png', mime_type: 'image/png', size: 2048 * 1024, updated_at: new Date(), created_at: new Date() },
-        // ... other files
-    ];
-
-
-
-    const FileTable = ({ files, title }: { files: typeof sharedWithMeFiles; title: string }) => {
-        return (
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 md:mx-0">
-                <header className="flex flex-row justify-between items-center p-6 bg-gray-600 rounded-t-lg">
-                    <h2 className="flex flex-row text-3xl font-semibold text-white">
-                        <p className="ml-2">{title}</p>
-                    </h2>
-                </header>
-                <div className="p-6">
-                    {files.map((file, index) => (
-                        <table key={index} className="w-full text-left mb-4">
-                            <tbody>
-                                <tr className="border-b">
-                                    <th className="py-2 font-semibold text-gray-600">Name</th>
-                                    <td className="py-2 text-gray-800">{file.name}</td>
-                                </tr>
-                                <tr className="border-b">
-                                    <th className="py-2 font-semibold text-gray-600">Type</th>
-                                    <td className="py-2 text-gray-800">{file.mime_type}</td>
-                                </tr>
-                                <tr className="border-b">
-                                    <th className="py-2 font-semibold text-gray-600">Size</th>
-                                    <td className="py-2 text-gray-800">{formatBytes(file.size)}</td>
-                                </tr>
-                                <tr className="border-b">
-                                    <th className="py-2 font-semibold text-gray-600">Last Modified</th>
-                                    <td className="py-2 text-gray-800">{dayjs(file.updated_at).fromNow()}</td>
-                                </tr>
-                                <tr>
-                                    <th className="py-2 font-semibold text-gray-600">Created At</th>
-                                    <td className="py-2 text-gray-800">{dayjs(file.created_at).toString()}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
-    return (
-        <div className="flex justify-center items-center">
-            <div className="flex justify-center items-center flex-wrap">
-                <FileTable files={sharedWithMeFiles} title="Shared with Me" />
-                <FileTable files={sharedWithOthersFiles} title="Shared with Others" />
-
-            </div>
-
-            {/* Upload Info */}
-            {uploading && <UploadProgress />}
-
-            {/* lightbox */}
-            <SlideshowLightbox
-                images={preview == undefined ? [] : [preview]}
-                showThumbnails={false}
-                showThumbnailIcon={false}
-                open={showPreview}
-                lightboxIdentifier="lbox1"
-                backgroundColor="#0f0f0fcc"
-                iconColor="#ffffff"
-                modalClose="clickOutside"
-                onClose={() => {
-                    dispatch(setImageViewAction({ show: false }));
-                }}
-            />
-        </div>
-    );
-}
+					<Content
+						loading={loading}
+						files={SharedwithMe}
+						folders={[]}
+						view="list"
+						showFolders={false}
+						filesTitle=""
+						identifier={4}
+					/>
+				</div>
+			</div>
+		</>
+	);
+};
 
 export default Shared;

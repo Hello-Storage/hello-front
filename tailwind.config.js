@@ -6,6 +6,9 @@ export default {
   mode: "jit",
   theme: {
     extend: {
+      screens: {
+        "min100": "100px",
+      },
       colors: {
         "primary-black": "#0D1117",
         "secondary-white": "#c7c7c7",

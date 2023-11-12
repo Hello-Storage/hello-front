@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import Sidebar from "components/Sidebar";
 import Appbar from "components/Appbar";
 import { SearchContext } from "../contexts/SearchContext";
@@ -71,9 +71,9 @@ export default function AppLayout() {
         {!sidebarOpen && (
           <div className="flex items-center justify-between sticky px-5 py-2 w-full bg-gray-100 lg:hidden">
             <div className="flex items-center gap-3">
-              <label className="text-xl font-semibold font-[Outfit]">
+              <Link to="/space/my-storage" className="text-xl font-semibold font-[Outfit]">
                 hello.app
-              </label>
+              </Link>
               <img src={LogoHello} alt="beta" className="w-10 h-5" />
             </div>
             <button onClick={() => setSidebarOpen(true)}>
