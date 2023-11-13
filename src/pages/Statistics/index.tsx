@@ -15,6 +15,7 @@ import FilesChart from "./Components/FilesChart";
 import UsersChart from "./Components/UsersChart";
 import { Link } from "react-router-dom";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import useTitle from "hooks/useTitle";
 
 import { HiMail } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
@@ -70,6 +71,13 @@ export default function Statistics() {
   const [totalusedstorage, settotalusedstorage] = useState<number>(0);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
 
+    useTitle("hello.app | Stats")
+
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const target = e.target as HTMLDivElement;
+        const nearBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 5;
+        setIsScrolledToBottom(nearBottom);
+    };
   const [loading, setLoading] = useState(true);
 
   function formatBytes(bytes: number): string {
@@ -127,7 +135,7 @@ export default function Statistics() {
 
   return (
     <div
-      className="text-black overflow-y-scroll"
+      className="text-black overflow-hidden"
       style={{
         backgroundColor: "white",
         height: "100vh",
@@ -137,11 +145,11 @@ export default function Statistics() {
         <div className="flex flex-row items-center justify-center">
           <Link
             to="/space/login"
-            className="text-xl font-semibold font-[Outfit]"
+            className="text-xl mr-2 font-semibold font-[Outfit]"
           >
             hello.app
           </Link>
-          <img src={LogoHello} alt="beta" className="w-10 h-5" />
+          <img src={LogoHello} alt="beta" className="mt-1 w-10 h-5" />
         </div>
 
         <Link
@@ -156,7 +164,7 @@ export default function Statistics() {
           Hello Storage Overview
         </h1>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-5 max-w-screen-xl xl:mx-auto mx-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-5 max-w-screen-xl xl:mx-auto mx-2">
       <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
           <img src={UserPlus_m} />
           <div className="flex items-center mb-2">
@@ -257,7 +265,7 @@ export default function Statistics() {
           {<UsersChart />}
         </div>
       </div>
-      <footer className="text-sm text-black mt-5 p-0 md:p-2 mx-5">
+      <footer className="text-sm absolute bottom-0 text-black mt-5 p-0 md:p-2 mx-5">
         <div className="flex flex-col items-start">
           <div className="flex space-x-4 p-0 md:p-0">
             <a
