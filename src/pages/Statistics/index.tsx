@@ -13,6 +13,8 @@ import Hotspot_m from "assets/images/Outline/Hotspot_m.png";
 import axios from "axios";
 import FilesChart from "./Components/FilesChart";
 import UsersChart from "./Components/UsersChart";
+import { Link } from "react-router-dom";
+import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 
 type IconWithTooltipProps = {
     IconComponent: React.ComponentType; // Esto es para componentes sin props
@@ -58,6 +60,14 @@ export default function Statistics() {
     const [publicfiles, setpublicfiles] = useState("");
     const [totalusers, settotalusers] = useState("");
     const [totalusedstorage, settotalusedstorage] = useState<number>(0);
+    const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
+
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const target = e.target as HTMLDivElement;
+        const nearBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 5;
+        setIsScrolledToBottom(nearBottom);
+    };
+
 
     const [loading, setLoading] = useState(true);
 
@@ -104,18 +114,45 @@ export default function Statistics() {
     }, []);
 
     return (
-        <div className="relative">
-            <div className="flex flex-col md:flex-row justify-center items-center">
+        <div
+            className="text-black relative h-full overflow-y-auto"
+            onScroll={handleScroll}
+            style={{
+                backgroundColor: "white",
+                maxHeight: "100vh",
+                paddingBottom: "45px",
+            }}
+        >
+            <div className="text-black flex flex-col m-2 md:flex-row justify-center items-center">
                 <h1 className="text-xl font-medium text-center mt-10 md:mr-4">
                     Hello Storage Overview
                 </h1>
-                <a
-                    href="https://hello.app"
+                <Link
+                    to="/space/login"
                     className="text-sm bg-blue-500 text-white py-1 px-3 rounded mt-4 md:mt-10 md:absolute md:top-3 md:right-4"
                 >
                     Go to Hello Staging
-                </a>
+                </Link>
+                <div className="md:hidden mt-2 lg:hidden flex justify-center mt-">
+                    <button
+                        type="button"
+                        className="bg-blue-300 p-2 rounded-full"
+                        onClick={() => {
+                            const container = document.querySelector(
+                                ".text-black.relative.h-full.overflow-y-auto"
+                            );
+                            if (isScrolledToBottom) {
+                                container?.scrollTo(0, 0);
+                            } else {
+                                container?.scrollTo(0, container?.scrollHeight);
+                            }
+                        }}
+                    >
+                        {isScrolledToBottom ? <FaArrowUp /> : <FaArrowDown />}
+                    </button>
+                </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-8 mx-auto max-w-screen-xl">
 
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
@@ -210,6 +247,27 @@ export default function Statistics() {
                         {totalusers}
                     </label>
                     {<UsersChart />}
+                </div>
+
+            </div>
+            <div className="mt-10 mb-10 flex justify-center">
+                {" "}
+                {/* Cambio aquí: de mb-5 a mb-10 */}
+                <div className="max-w-4xl w-full px-4 md:px-0">
+                    <h1 className="w-full text-2xl text-center mb-9">
+                        Welcome to the Hello Decentralized Infrastructure statistics page!
+                    </h1>
+
+                    <p className="text-xl text-justify">
+                        Here you can find all the important information about our
+                        infrastructure. As you can see from the columns above, we have a
+                        total of {formatBytes(totalusedstorage)} of files stored on our
+                        network. Out of these, {encryptedfiles} files are encrypted and{" "}
+                        {publicfiles} files are public. We take pride in our secure and
+                        decentralized infrastructure, and we're constantly working to
+                        improve it. Thank you for choosing Hello Decentralized
+                        Infrastructure!
+                    </p>
                 </div>
             </div>
             <div className="mt-10 mb-5 flex justify-center">

@@ -98,11 +98,14 @@ export default function Login() {
       <div className="flex flex-col md:flex-row gap-8 md:gap-0 h-full">
         <div className="flex items-center justify-center flex-1">
           <div className="md:min-w-[400px] mt-12 md:mt-0">
-            <h1 className="text-4xl font-semibold tracking-tighter">
+            <h1 className="text-center text-4xl font-semibold tracking-tighter">
               Welcome 👋
             </h1>
-            <h3 className="text-lg mt-4 tracking-tighter">
+            <h3 className="text-center text-lg mt-4 tracking-tighter">
               Select your favorite login option
+            </h3>
+            <h3 className="text-center text-lg mt-4 tracking-tighter">
+             Get your <b>100GB</b> free storage now! 
             </h3>
 
             <div className="mt-12 flex gap-[15px] flex-col justify-around">
