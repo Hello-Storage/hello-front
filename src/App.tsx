@@ -74,7 +74,9 @@ function App() {
       <Suspense fallback={<Spinner3 />}>
         <Routes>
           <Route path="/" element={<Navigate to="/space/my-storage" replace />} />
-          <Route path="/stats" element={<Statistics />} />
+          <Route path="/stats" element={
+            <Statistics />
+            } />
           <Route path="/ns" element={<Navigate to="/space/login?ref=ns" replace />} />
           <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Api />} />
