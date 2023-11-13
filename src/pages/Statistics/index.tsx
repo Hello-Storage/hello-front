@@ -15,6 +15,7 @@ import FilesChart from "./Components/FilesChart";
 import UsersChart from "./Components/UsersChart";
 import { Link } from "react-router-dom";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import useTitle from "hooks/useTitle";
 
 type IconWithTooltipProps = {
     IconComponent: React.ComponentType; // Esto es para componentes sin props
@@ -61,6 +62,8 @@ export default function Statistics() {
     const [totalusers, settotalusers] = useState("");
     const [totalusedstorage, settotalusedstorage] = useState<number>(0);
     const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
+
+    useTitle("hello.app | Stats")
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const target = e.target as HTMLDivElement;

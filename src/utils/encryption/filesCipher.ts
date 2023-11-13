@@ -51,6 +51,7 @@ const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv
     return await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, aesKey, cipherBytes).catch((err) => {
         console.log("Error decrypting buffer:")
         console.log(err)
+        toast.error("Error decrypting buffer")
         return new ArrayBuffer(0)
     });
 }
