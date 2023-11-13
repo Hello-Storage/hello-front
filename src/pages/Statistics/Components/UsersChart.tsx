@@ -90,12 +90,7 @@ export default function UsersChart() {
                 callbacks: {
                     label: (context: any) => {
                         return context.dataset.label + ": " + context.raw;
-                    },
-                    footer: (item: any) => {
-                        return [
-                            "Total Users: " + item[0].dataset.addition[item[0].dataIndex].newUsers,
-                        ];
-                    },
+                    }
                 },
             },
             legend: {
