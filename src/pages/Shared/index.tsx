@@ -72,7 +72,7 @@ const Shared = (props: { shareType: string }) => {
 			}
 
 			const decryptedFilesSharedWithMe = await handleEncryptedFiles(
-				sharedFiles.sharedWithMe.slice(),
+				sharedFiles.sharedWithMe? sharedFiles.sharedWithMe.slice() : [],
 				personalSignatureRef.current || "",
 				name,
 				autoEncryptionEnabled,
@@ -80,7 +80,7 @@ const Shared = (props: { shareType: string }) => {
 				logout
 			);
 			const decryptedFilesSharedByMe = await handleEncryptedFiles(
-				sharedFiles.sharedByMe.slice(),
+				sharedFiles.sharedByMe? sharedFiles.sharedByMe.slice() : [],
 				personalSignatureRef.current || "",
 				name,
 				autoEncryptionEnabled,
@@ -127,72 +127,57 @@ const Shared = (props: { shareType: string }) => {
 	}, [location, name, personalSignatureRef.current]);
 
 	return (
-		<>
+		<div>
+			<h3 className="text-xl py-2">Shared files</h3>
 			<div className="hidden lg:flex w-full">
 				<div className="w-full">
-					<h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">
-						Files shared by me
-					</h4>
-
 					<Content
 						loading={loading}
 						files={SharedByMe}
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle=""
+						filesTitle="Recived"
 						identifier={1}
 					/>
 				</div>
 				<div className="w-full">
-					<h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">
-						Files shared by me
-					</h4>
-
 					<Content
 						loading={loading}
 						files={SharedwithMe}
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle=""
+						filesTitle="Shared"
 						identifier={2}
 					/>
 				</div>
 			</div>
 			<div className="lg:hidden  w-fullflex-row justify-evenly items-center">
 				<div>
-					<h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">
-						Files shared by me
-					</h4>
-
 					<Content
 						loading={loading}
 						files={SharedByMe}
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle=""
+						filesTitle="Recived"
 						identifier={3}
 					/>
 				</div>
 				<div>
-					<h4 className="bg-gray-200 rounded py-2 my-3 mx-auto px-4 w-max">
-						Files shared with me
-					</h4>
-
 					<Content
 						loading={loading}
 						files={SharedwithMe}
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle=""
+						filesTitle="Shared"
 						identifier={4}
 					/>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 };
 

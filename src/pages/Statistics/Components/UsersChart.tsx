@@ -62,6 +62,7 @@ export default function UsersChart() {
 
     const options = {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
             x: {
                 border: {
@@ -89,12 +90,7 @@ export default function UsersChart() {
                 callbacks: {
                     label: (context: any) => {
                         return context.dataset.label + ": " + context.raw;
-                    },
-                    footer: (item: any) => {
-                        return [
-                            "New Users: " + item[0].dataset.addition[item[0].dataIndex].newUsers,
-                        ];
-                    },
+                    }
                 },
             },
             legend: {
@@ -110,7 +106,7 @@ export default function UsersChart() {
         labels,
         datasets: [
             {
-                label: "New Users",
+                label: "Total Users",
                 fill: true,
                 data: weeklyUserData.map((d) => d.total_users),
                 addition: weeklyUserData,
@@ -121,5 +117,13 @@ export default function UsersChart() {
         ],
     };
 
-    return <Line options={options} data={chartData} />;
+
+    return (
+        <div style={{
+          height: "230px",
+          width: "100%",
+        }}>
+          <Line options={options} data={chartData} />
+        </div>
+      );
 }
