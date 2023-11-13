@@ -164,10 +164,10 @@ export default function Statistics() {
             Hello Storage Overview
           </h1>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-5 max-w-screen-xl xl:mx-auto mx-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3 max-w-screen-xl xl:mx-auto mx-2">
           <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
             <img src={UserPlus_m} />
-            <div className="flex items-center mb-2">
+            <div className="flex items-center">
               <label className="block mr-2">Total Users</label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
@@ -180,7 +180,7 @@ export default function Statistics() {
           </div>
           <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
             <img src={Server_m} />
-            <div className="flex items-center mb-2">
+            <div className="flex items-center">
               <label className="block mr-2">Total Used Storage</label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
@@ -194,7 +194,7 @@ export default function Statistics() {
 
           <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
             <img src={FileUpload_m} />
-            <div className="flex items-center mb-2">
+            <div className="flex items-center">
               <label className="block mr-2">Files Uploaded</label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
@@ -208,7 +208,7 @@ export default function Statistics() {
 
           <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
             <img src={File_m} />
-            <div className="flex items-center mb-2">
+            <div className="flex items-center">
               <label className="block mr-2">Average File Size</label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
@@ -222,7 +222,7 @@ export default function Statistics() {
 
           <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
             <img src={Shield_m} />
-            <div className="flex items-center mb-2">
+            <div className="flex items-center">
               <label className="block mr-2">Encrypted Files </label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
@@ -236,7 +236,7 @@ export default function Statistics() {
 
           <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
             <img src={Hotspot_m} />
-            <div className="flex items-center mb-2">
+            <div className="flex items-center">
               <label className="block mr-2">Public Files</label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
@@ -248,7 +248,7 @@ export default function Statistics() {
             </label>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mt-5 max-w-screen-xl  xl:mx-auto mx-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mt-3 max-w-screen-xl  xl:mx-auto mx-2">
           <div className="border bg-blue-100 rounded-lg p-2.5 flex flex-col items-center justify-center">
             Storage Used
             <label className="text-1x8 font-semibold text-black block">
@@ -266,7 +266,7 @@ export default function Statistics() {
         </div>
       </section>
 
-      <footer className="text-sm text-black md:mx-12 mt-8 p-0 md:p-2">
+      <footer className="text-sm text-black md:mx-12 p-0 md:p-2">
         <div className="flex flex-col items-start">
           <div className="flex space-x-4 p-0 md:p-0">
             <a
