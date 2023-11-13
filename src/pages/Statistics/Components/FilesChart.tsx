@@ -71,6 +71,7 @@ export default function FilesChart() {
 
     const options = {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
             x: {
                 border: {
@@ -100,11 +101,6 @@ export default function FilesChart() {
                     footer: (item: any) => {
                         return [
                             "Used Storage: " + item[0].dataset.data[item[0].dataIndex] + " " + largestUnit,
-                            "Total Files: " + item[0].dataset.addition[item[0].dataIndex].total,
-                            "Public Files: " +
-                            item[0].dataset.addition[item[0].dataIndex].public,
-                            "Encrypted Files: " +
-                            item[0].dataset.addition[item[0].dataIndex].encrypted,
                         ];
                     },
                 },
@@ -159,5 +155,12 @@ export default function FilesChart() {
 
 
 
-    return <Line options={options} data={chartData} />;
+    return (
+      <div style={{
+        height: "230px",
+        width: "100%",
+      }}>
+        <Line options={options} data={chartData} />
+      </div>
+    );
 }
