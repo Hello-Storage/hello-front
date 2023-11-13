@@ -15,6 +15,7 @@ import FilesChart from "./Components/FilesChart";
 import UsersChart from "./Components/UsersChart";
 import { Link } from "react-router-dom";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import useTitle from "hooks/useTitle";
 
 import { HiMail } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
@@ -70,6 +71,13 @@ export default function Statistics() {
   const [totalusedstorage, settotalusedstorage] = useState<number>(0);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
 
+    useTitle("hello.app | Stats")
+
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const target = e.target as HTMLDivElement;
+        const nearBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 5;
+        setIsScrolledToBottom(nearBottom);
+    };
   const [loading, setLoading] = useState(true);
 
   function formatBytes(bytes: number): string {
