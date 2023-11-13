@@ -145,11 +145,11 @@ export default function Statistics() {
         <div className="flex flex-row items-center justify-center">
           <Link
             to="/space/login"
-            className="text-xl font-semibold font-[Outfit]"
+            className="text-xl mr-2 font-semibold font-[Outfit]"
           >
             hello.app
           </Link>
-          <img src={LogoHello} alt="beta" className="w-10 h-5" />
+          <img src={LogoHello} alt="beta" className="mt-1 w-10 h-5" />
         </div>
 
         <Link
