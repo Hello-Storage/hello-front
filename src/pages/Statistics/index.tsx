@@ -156,8 +156,20 @@ export default function Statistics() {
           Hello Storage Overview
         </h1>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-5 max-w-screen-xl xl:mx-auto mx-2">
+      <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
+          <img src={UserPlus_m} />
+          <div className="flex items-center mb-2">
+            <label className="block mr-2">Total Users</label>
+            <IconWithTooltip
+              IconComponent={GrCircleInformation}
+              tooltipText="The number of wallet addresses registered"
+            />
+          </div>
+          <label className="text-1x8 font-semibold text-black block">
+            {totalusers}
+          </label>
+        </div>
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
           <img src={Server_m} />
           <div className="flex items-center mb-2">
@@ -172,19 +184,7 @@ export default function Statistics() {
           </label>
         </div>
 
-        <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src={UserPlus_m} />
-          <div className="flex items-center mb-2">
-            <label className="block mr-2">Total Users</label>
-            <IconWithTooltip
-              IconComponent={GrCircleInformation}
-              tooltipText="The number of wallet addresses registered"
-            />
-          </div>
-          <label className="text-1x8 font-semibold text-black block">
-            {totalusers}
-          </label>
-        </div>
+       
         <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
           <img src={FileUpload_m} />
           <div className="flex items-center mb-2">
