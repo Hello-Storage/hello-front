@@ -11,6 +11,8 @@ import Shield_m from "assets/images/Outline/Shield_m.png";
 import Hotspot_m from "assets/images/Outline/Hotspot_m.png";
 /*import Chart from "./Components/Chart";*/
 import axios from "axios";
+import FilesChart from "./Components/FilesChart";
+import UsersChart from "./Components/UsersChart";
 
 type IconWithTooltipProps = {
     IconComponent: React.ComponentType; // Esto es para componentes sin props
@@ -96,7 +98,7 @@ export default function Statistics() {
         fetchData();
 
         // 15 seconds update interval
-        const intervalId = setInterval(fetchData, 15000);
+        const intervalId = setInterval(fetchData, 3000);
 
         return () => clearInterval(intervalId);
     }, []);
@@ -115,19 +117,6 @@ export default function Statistics() {
                 </a>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-8 mx-auto max-w-screen-xl">
-                <div className="border bg-blue-100 rounded-lg p-2.5 flex flex-col items-center justify-center">
-                    <img src={Server_m} className="mb-2" />
-                    <div className="flex items-center mb-2">
-                        <label className="block mr-2">Total Used Storage</label>
-                        <IconWithTooltip
-                            IconComponent={GrCircleInformation}
-                            tooltipText="Total data stored by all users"
-                        />
-                    </div>
-                    <label className="text-1x8 font-semibold text-black block">
-                        {formatBytes(totalusedstorage)}
-                    </label>
-                </div>
 
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img
@@ -146,22 +135,6 @@ export default function Statistics() {
                     </label>
                 </div>
 
-                <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-                    <img
-                        src={UserPlus_m}
-                        className="mb-2"
-                    />
-                    <div className="flex items-center mb-2">
-                        <label className="block mr-2">Total Users</label>
-                        <IconWithTooltip
-                            IconComponent={GrCircleInformation}
-                            tooltipText="The number of wallet addresses registered"
-                        />
-                    </div>
-                    <label className="text-1x8 font-semibold text-black block">
-                        {totalusers}
-                    </label>
-                </div>
 
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img src={File_m} className="mb-2" />
@@ -205,10 +178,42 @@ export default function Statistics() {
                     </label>
                 </div>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 mt-8 mx-auto max-w-screen-xl">
+                <div className="border bg-blue-100 rounded-lg p-2.5 flex flex-col items-center justify-center">
+                    <img src={Server_m} className="mb-2" />
+                    <div className="flex items-center mb-2">
+                        <label className="block mr-2">Total Used Storage</label>
+                        <IconWithTooltip
+                            IconComponent={GrCircleInformation}
+                            tooltipText="Total data stored by all users"
+                        />
+                    </div>
+                    <label className="text-1x8 font-semibold text-black block">
+                        {formatBytes(totalusedstorage)}
+                    </label>
+                    {"Storage Used"}
+                    <FilesChart />
+                </div>
+                <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
+                    <img
+                        src={UserPlus_m}
+                        className="mb-2"
+                    />
+                    <div className="flex items-center mb-2">
+                        <label className="block mr-2">Total Users</label>
+                        <IconWithTooltip
+                            IconComponent={GrCircleInformation}
+                            tooltipText="The number of wallet addresses registered"
+                        />
+                    </div>
+                    <label className="text-1x8 font-semibold text-black block">
+                        {totalusers}
+                    </label>
+                    {<UsersChart />}
+                </div>
+            </div>
             <div className="mt-10 mb-5 flex justify-center">
                 <div style={{ width: "70%" }}>
-                    {" "}
-                    {/*{/*<Chart />*/}
                 </div>
             </div>
         </div>
