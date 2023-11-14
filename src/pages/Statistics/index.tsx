@@ -154,15 +154,12 @@ export default function Statistics() {
             to="/space/login"
             className="text-sm bg-blue-500 text-white py-1 px-3 rounded"
           >
-            Go to Hello.app
+            Go to hello.app
           </Link>
         </div>
       </nav>
       <section>
         <div className="text-black flex flex-col m-2 md:flex-row justify-center items-center">
-          <h1 className="text-xl font-medium text-center">
-            Hello Storage Overview
-          </h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3 max-w-screen-xl xl:mx-auto mx-2">
           <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
