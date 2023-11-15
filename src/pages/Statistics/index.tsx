@@ -168,7 +168,7 @@ export default function Statistics() {
               <label className="block mr-2">Total Users</label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
-                tooltipText="The number of wallet addresses registered"
+                tooltipText="Total number of users registered"
               />
             </div>
             <label className="text-1x8 font-semibold text-black block">
