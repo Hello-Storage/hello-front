@@ -115,7 +115,6 @@ export default function Statistics() {
         setencryptedfiles(response.data.EncryptedFiles);
         setpublicfiles(response.data.PublicFiles);
         settotalusedstorage(response.data.TotalUsedStorage);
-        console.log(response.data);
         setLoading(false);
       })
       .catch((error) => {
