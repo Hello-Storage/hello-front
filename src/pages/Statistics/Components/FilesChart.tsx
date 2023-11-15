@@ -133,18 +133,84 @@ export default function FilesChart() {
     const fetchData = async () => {
         Api.get("/statistics/files/weekly-stats")
             .then((res) => {
-                const largestUnit = determineLargestUnit(res.data);
-                setLargestUnit(largestUnit);
-
-                console.log(res.data)
-                const formattedData = (res.data? res.data:[]).map((item: WeeklyData) => ({
-                    ...item,
-                    usedStorage: formatChartBytes(item.usedStorage, 2, largestUnit).value
-                }));
-                console.log("forrmatted sdatra:")
-                console.log(formattedData);
-                setWeeklyData(formattedData);
-
+                console.log("files/weekly-stats: ",res.data);
+                if (res.data) {
+                    const largestUnit = determineLargestUnit(res.data);
+                    setLargestUnit(largestUnit);
+                    const formattedData = (res.data).map((item: WeeklyData) => ({
+                        ...item,
+                        usedStorage: formatChartBytes(item.usedStorage, 2, largestUnit).value
+                    }));
+                    setWeeklyData(formattedData);
+                }else{
+                    setWeeklyData(
+                        [
+                            {
+                                week: "2023-09-20",
+                                usedStorage: 5.67,
+                                total: 651,
+                                public: 374,
+                                encrypted: 277
+                            },
+                            {
+                                week: "2023-09-27",
+                                usedStorage: 35.72,
+                                total: 4892,
+                                public: 1532,
+                                encrypted: 3360
+                            },
+                            {
+                                week: "2023-10-04",
+                                usedStorage: 87.48,
+                                total: 5203,
+                                public: 1557,
+                                encrypted: 3646
+                            },
+                            {
+                                week: "2023-10-11",
+                                usedStorage: 151.54,
+                                total: 5483,
+                                public: 1557,
+                                encrypted: 3926
+                            },
+                            {
+                                week: "2023-10-18",
+                                usedStorage: 193.76,
+                                total: 5745,
+                                public: 1557,
+                                encrypted: 4188
+                            },
+                            {
+                                week: "2023-10-25",
+                                usedStorage: 238.46,
+                                total: 7594,
+                                public: 1557,
+                                encrypted: 6037
+                            },
+                            {
+                                week: "2023-11-01",
+                                usedStorage: 274.8,
+                                total: 8070,
+                                public: 1557,
+                                encrypted: 6513
+                            },
+                            {
+                                week: "2023-11-08",
+                                usedStorage: 319.62,
+                                total: 8266,
+                                public: 1558,
+                                encrypted: 6708
+                            },
+                            {
+                                week: "2023-11-15",
+                                usedStorage: 375.79,
+                                total: 21155,
+                                public: 3163,
+                                encrypted: 17992
+                            }
+                        ]
+                    )
+                }
             })
             .catch((err) => {
                 console.error("Error fetching data:", err);
@@ -157,7 +223,7 @@ export default function FilesChart() {
         fetchData();
 
         // 15 seconds update interval
-        const intervalId = setInterval(fetchData, 1000);
+        const intervalId = setInterval(fetchData, 1500);
 
         return () => clearInterval(intervalId);
     }, []);
