@@ -13,7 +13,7 @@ import {
   HiOutlineLockOpen,
   HiLockClosed,
 } from "react-icons/hi";
-import { FaUserGroup } from "react-icons/fa6";
+import { GoAlertFill } from "react-icons/go";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
@@ -236,7 +236,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           <div className="flex items-center gap-3 ">
             {getFileIcon(file.name)}
             {file.is_in_pool && (
-              <FaUserGroup style={{ color: "#FF6600" }}
+              <GoAlertFill style={{ color: "#FF6600" }}
                 title="File is in Hello Pool" />
             )}
             <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
@@ -346,7 +346,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
             <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis flex items-center gap-2">
               <HiDocumentText className="w-4 h-4 flex-shrink-0" />
             {file.is_in_pool && (
-              <FaUserGroup style={{ color: "#FF6600" }} />
+              <GoAlertFill style={{ color: "#FF6600" }} />
             )}
               <span className="hidden md:inline">
                 {truncate(file.name, 40)}
