@@ -130,14 +130,13 @@ export default function FilesChart() {
         ],
     };
 
-
-
-    useEffect(() => {
+    const fetchData = async () => {
         Api.get("/statistics/files/weekly-stats")
             .then((res) => {
                 const largestUnit = determineLargestUnit(res.data);
                 setLargestUnit(largestUnit);
 
+                console.log(res.data)
                 const formattedData = res.data.map((item: WeeklyData) => ({
                     ...item,
                     usedStorage: formatChartBytes(item.usedStorage, 2, largestUnit).value
@@ -151,16 +150,24 @@ export default function FilesChart() {
                 console.error("Error fetching data:", err);
                 // Handle error appropriately
             });
-    }, []); // Empty dependency array ensures this runs once on mount
+    }
 
+    useEffect(() => {
+        document.title = "Hello Storage | Stats";
+        fetchData();
 
+        // 15 seconds update interval
+        const intervalId = setInterval(fetchData, 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
-      <div style={{
-        height: "230px",
-        width: "100%",
-      }}>
-        <Line options={options} data={chartData} />
-      </div>
+        <div style={{
+            height: "230px",
+            width: "100%",
+        }}>
+            <Line options={options} data={chartData} />
+        </div>
     );
 }
