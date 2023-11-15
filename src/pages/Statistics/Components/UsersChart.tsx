@@ -40,13 +40,9 @@ export default function UsersChart() {
     const fetchData = async () => {
         Api.get("/statistics/users/weekly-stats")
             .then((res) => {
-                const additionalData = {
-                    week: "0",
-                    total_users: 0,
-                };
                 console.log("users/weekly-stats: ", res.data);
                 if (res.data) {
-                    setWeeklyUserData([additionalData, ...res.data]);
+                    setWeeklyUserData(res.data);
                 } else {
                     setWeeklyUserData([
                         {
