@@ -433,7 +433,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
             </table>
           </div>
 
-          <div id={"table-row-div_"+identifier} className="table-div custom-scrollbar h-full scrollbar-color">
+          <div id={"table-row-div_"+identifier} className="table-div custom-scrollbar min-w-full h-full scrollbar-color">
             <table id={"files-rows_"+identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <tbody>
                 {loading ? (
@@ -500,9 +500,12 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                   </>
                   :
                   <>
-                  <tr>
-                    <td>
-                      <div className="flex flex-col w-full h-full items-center justify-center text-center">
+                  <tr
+                  >
+                    <td
+                    scope="row" 
+                    className="px-3 font-medium text-gray-900 whitespace-nowrap w-full">
+                      <div className="flex flex-col w-full h-full items-start lg:items-center justify-center text-center">
                         <div className="mt-4 mb-4">
                           No files found
                         </div>

@@ -137,7 +137,7 @@ export default function FilesChart() {
                 setLargestUnit(largestUnit);
 
                 console.log(res.data)
-                const formattedData = res.data.map((item: WeeklyData) => ({
+                const formattedData = (res.data? res.data:[]).map((item: WeeklyData) => ({
                     ...item,
                     usedStorage: formatChartBytes(item.usedStorage, 2, largestUnit).value
                 }));

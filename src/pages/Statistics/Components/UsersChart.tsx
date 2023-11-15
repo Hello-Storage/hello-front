@@ -41,7 +41,7 @@ export default function UsersChart() {
         Api.get("/statistics/users/weekly-stats")
             .then((res) => {
                 console.log(res.data)
-                setWeeklyUserData(res.data);
+                setWeeklyUserData(res.data? res.data:[]);
 
             })
             .catch((err) => {

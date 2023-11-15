@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getPublishedFile } from "./Utils/shareUtils";
-import { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useDispatch } from "react-redux";
 import { handleEncryptedFiles } from "utils/encryption/filesCipher";
-import { updateDecryptedSharedFilesAction } from "state/mystorage/actions";
+import {
+	setImageViewAction,
+	updateDecryptedSharedFilesAction,
+} from "state/mystorage/actions";
 import "lightbox.js-react/dist/index.css";
 import { useAppSelector } from "state";
 import { File as FileType } from "api";
@@ -15,16 +15,23 @@ import { useAuth, useFetchData } from "hooks";
 import getAccountType from "api/getAccountType";
 import getPersonalSignature from "api/getPersonalSignature";
 import Content from "pages/MyStorage/components/Content";
+import { FaSquareShareNodes } from "react-icons/fa6";
+import ShareModal from "./Components/ShareModal";
+import UploadShareModal from "./Components/UploadShareModal";
+import { SlideshowLightbox } from "lightbox.js-react";
 dayjs.extend(relativeTime);
 
 const Shared = (props: { shareType: string }) => {
-	//get the hash from the url
-	const { hash } = useParams();
-	const shareType = props.shareType;
-
+	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
 	const dispatch = useDispatch();
 
-	const { sharedFiles, path } = useAppSelector((state) => state.mystorage);
+	const {
+		sharedFiles,
+		path,
+		showShareModal,
+		preview,
+		showPreview,
+	} = useAppSelector((state) => state.mystorage);
 
 	const [SharedByMe, setSharedByMe] = useState<FileType[]>([]);
 
@@ -72,7 +79,9 @@ const Shared = (props: { shareType: string }) => {
 			}
 
 			const decryptedFilesSharedWithMe = await handleEncryptedFiles(
-				sharedFiles.sharedWithMe? sharedFiles.sharedWithMe.slice() : [],
+				sharedFiles.sharedWithMe
+					? sharedFiles.sharedWithMe.slice()
+					: [],
 				personalSignatureRef.current || "",
 				name,
 				autoEncryptionEnabled,
@@ -80,7 +89,7 @@ const Shared = (props: { shareType: string }) => {
 				logout
 			);
 			const decryptedFilesSharedByMe = await handleEncryptedFiles(
-				sharedFiles.sharedByMe? sharedFiles.sharedByMe.slice() : [],
+				sharedFiles.sharedByMe ? sharedFiles.sharedByMe.slice() : [],
 				personalSignatureRef.current || "",
 				name,
 				autoEncryptionEnabled,
@@ -128,9 +137,41 @@ const Shared = (props: { shareType: string }) => {
 
 	return (
 		<div>
-			<h3 className="text-xl py-2">Shared files</h3>
+			{isOpenShareUpload && (
+				<UploadShareModal
+					isOpen={isOpenShareUpload}
+					setIsopen={setisOpenShareUpload}
+				></UploadShareModal>
+			)}
+			{showShareModal && <ShareModal />}
+
+			<SlideshowLightbox
+				images={preview == undefined ? [] : [preview]}
+				showThumbnails={false}
+				showThumbnailIcon={false}
+				open={showPreview}
+				lightboxIdentifier="lbox1"
+				backgroundColor="#0f0f0fcc"
+				iconColor="#ffffff"
+				modalClose="clickOutside"
+				onClose={() => {
+					dispatch(setImageViewAction({ show: false }));
+				}}
+			/>
+			<h3 className="text-xl my-2">Shared files</h3>
+			<button
+				className="animated-bg-btn w-[230px] mb-2 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+				onClick={() => {
+					setisOpenShareUpload(!isOpenShareUpload);
+				}}
+			>
+				<span className="transition"></span>
+				<label className="justify-center text-white flex items-center w-full gap-2 text-sm">
+					<FaSquareShareNodes className="animated-btn-icon" /> Share Files
+				</label>
+			</button>
 			<div className="hidden lg:flex w-full">
-				<div className="w-full">
+				<div className="w-[99%]">
 					<Content
 						loading={loading}
 						files={SharedByMe}
@@ -141,7 +182,8 @@ const Shared = (props: { shareType: string }) => {
 						identifier={1}
 					/>
 				</div>
-				<div className="w-full">
+				<span className="w-[2%]"></span>
+				<div className="w-[99%]">
 					<Content
 						loading={loading}
 						files={SharedwithMe}
@@ -153,7 +195,7 @@ const Shared = (props: { shareType: string }) => {
 					/>
 				</div>
 			</div>
-			<div className="lg:hidden  w-fullflex-row justify-evenly items-center">
+			<div className="lg:hidden w-[99%] flex-row justify-evenly items-center">
 				<div>
 					<Content
 						loading={loading}
