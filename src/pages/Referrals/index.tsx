@@ -55,7 +55,7 @@ const Referrals = () => {
   }, [walletAddress]);
 
   const totalUsers = referredAddresses.length;
-  const maxUsers = 9;
+  const maxUsers = 19;
   const referredByAddress = referredBy;
 
   const onSubmit = (values: any, { setSubmitting }: any) => {
@@ -161,8 +161,8 @@ const Referrals = () => {
               You got {totalUsers * 10}GB/{maxUsers * 10}GB from {totalUsers}{" "}
               invited users
             </p>
-            <div className="grid grid-cols-9 gap-2">
-              {Array.from({ length: maxUsers }).map((_, index) => (
+            <div className="grid grid-cols-10 gap-2">
+              {Array.from({ length: maxUsers + 1 }).map((_, index) => (
                 <div
                   key={index}
                   className={`md:h-6 md:w-12 h-4 w-6 p-2 rounded ${index < totalUsers ? "bg-green-500" : "bg-red-200"
