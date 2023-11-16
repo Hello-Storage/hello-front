@@ -71,13 +71,14 @@ export default function Statistics() {
   const [totalusedstorage, settotalusedstorage] = useState<number>(0);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
 
-    useTitle("hello.app | Stats")
+  useTitle("hello.app | Stats");
 
-    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const target = e.target as HTMLDivElement;
-        const nearBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 5;
-        setIsScrolledToBottom(nearBottom);
-    };
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    const nearBottom =
+      target.scrollHeight - target.scrollTop <= target.clientHeight + 5;
+    setIsScrolledToBottom(nearBottom);
+  };
   const [loading, setLoading] = useState(true);
 
   function formatBytes(bytes: number): string {
@@ -114,7 +115,6 @@ export default function Statistics() {
         setencryptedfiles(response.data.EncryptedFiles);
         setpublicfiles(response.data.PublicFiles);
         settotalusedstorage(response.data.TotalUsedStorage);
-        console.log(response.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -124,7 +124,7 @@ export default function Statistics() {
   };
 
   useEffect(() => {
-    document.title = "Hello Storage | Statistics";
+    document.title = "hello.app | Stats";
     fetchData();
 
     // 15 seconds update interval
@@ -135,137 +135,134 @@ export default function Statistics() {
 
   return (
     <div
-      className="text-black overflow-hidden"
-      style={{
-        backgroundColor: "white",
-        height: "100vh",
-      }}
+      className="text-black overflow-auto flex bg-white h-screen flex-col justify-between p-[32px]"
     >
-      <div className="flex items-center p-5 justify-between">
-        <div className="flex flex-row items-center justify-center">
+      <nav>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-row items-center justify-center ">
+            <Link
+              to="/space/login"
+              className="text-2xl mr-3 font-semibold font-[Outfit]"
+            >
+              hello.app
+            </Link>
+            <img src={LogoHello} alt="beta" className="w-12 h-6" />
+          </div>
+
           <Link
             to="/space/login"
-            className="text-xl mr-2 font-semibold font-[Outfit]"
+            className="text-sm bg-blue-500 text-white py-1 px-3 rounded"
           >
-            hello.app
+            Go to hello.app
           </Link>
-          <img src={LogoHello} alt="beta" className="mt-1 w-10 h-5" />
         </div>
+      </nav>
+      <section>
+        <div className="text-black flex flex-col m-2 md:flex-row justify-center items-center">
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3 max-w-screen-xl xl:mx-auto mx-2">
+          <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
+            <img src={UserPlus_m} />
+            <div className="flex items-center">
+              <label className="block mr-2">Total Users</label>
+              <IconWithTooltip
+                IconComponent={GrCircleInformation}
+                tooltipText="Total number of users registered"
+              />
+            </div>
+            <label className="text-1x8 font-semibold text-black block">
+              {totalusers}
+            </label>
+          </div>
+          <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
+            <img src={Server_m} />
+            <div className="flex items-center">
+              <label className="block mr-2">Total Used Storage</label>
+              <IconWithTooltip
+                IconComponent={GrCircleInformation}
+                tooltipText="Total data stored by all users"
+              />
+            </div>
+            <label className="text-1x8 font-semibold text-black block">
+              {formatBytes(totalusedstorage)}
+            </label>
+          </div>
 
-        <Link
-          to="/space/login"
-          className="text-sm bg-blue-500 text-white py-1 px-3 rounded"
-        >
-          Go to Hello.app
-        </Link>
-      </div>
-      <div className="text-black flex flex-col m-2 md:flex-row justify-center items-center">
-        <h1 className="text-xl font-medium text-center">
-          Hello Storage Overview
-        </h1>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-5 max-w-screen-xl xl:mx-auto mx-2">
-      <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src={UserPlus_m} />
-          <div className="flex items-center mb-2">
-            <label className="block mr-2">Total Users</label>
-            <IconWithTooltip
-              IconComponent={GrCircleInformation}
-              tooltipText="The number of wallet addresses registered"
-            />
+          <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
+            <img src={FileUpload_m} />
+            <div className="flex items-center">
+              <label className="block mr-2">Files Uploaded</label>
+              <IconWithTooltip
+                IconComponent={GrCircleInformation}
+                tooltipText="The total amount of files uploaded"
+              />
+            </div>
+            <label className="text-1x8 font-semibold text-black block">
+              {upfile}
+            </label>
           </div>
-          <label className="text-1x8 font-semibold text-black block">
-            {totalusers}
-          </label>
-        </div>
-        <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src={Server_m} />
-          <div className="flex items-center mb-2">
-            <label className="block mr-2">Total Used Storage</label>
-            <IconWithTooltip
-              IconComponent={GrCircleInformation}
-              tooltipText="Total data stored by all users"
-            />
-          </div>
-          <label className="text-1x8 font-semibold text-black block">
-            {formatBytes(totalusedstorage)}
-          </label>
-        </div>
 
-       
-        <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src={FileUpload_m} />
-          <div className="flex items-center mb-2">
-            <label className="block mr-2">Files Uploaded</label>
-            <IconWithTooltip
-              IconComponent={GrCircleInformation}
-              tooltipText="The total amount of files uploaded"
-            />
+          <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
+            <img src={File_m} />
+            <div className="flex items-center">
+              <label className="block mr-2">Average File Size</label>
+              <IconWithTooltip
+                IconComponent={GrCircleInformation}
+                tooltipText="The total media of the files"
+              />
+            </div>
+            <label className="text-1x8 font-semibold text-black block">
+              {formatBytes(msize)}
+            </label>
           </div>
-          <label className="text-1x8 font-semibold text-black block">
-            {upfile}
-          </label>
-        </div>
 
-        <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src={File_m} />
-          <div className="flex items-center mb-2">
-            <label className="block mr-2">Average File Size</label>
-            <IconWithTooltip
-              IconComponent={GrCircleInformation}
-              tooltipText="The total media of the files"
-            />
+          <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
+            <img src={Shield_m} />
+            <div className="flex items-center">
+              <label className="block mr-2">Encrypted Files </label>
+              <IconWithTooltip
+                IconComponent={GrCircleInformation}
+                tooltipText="Total secure encrypted files"
+              />
+            </div>
+            <label className="text-1x8 font-semibold text-black block">
+              {encryptedfiles}
+            </label>
           </div>
-          <label className="text-1x8 font-semibold text-black block">
-            {formatBytes(msize)}
-          </label>
-        </div>
 
-        <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src={Shield_m} />
-          <div className="flex items-center mb-2">
-            <label className="block mr-2">Encrypted Files </label>
-            <IconWithTooltip
-              IconComponent={GrCircleInformation}
-              tooltipText="Total secure encrypted files"
-            />
+          <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
+            <img src={Hotspot_m} />
+            <div className="flex items-center">
+              <label className="block mr-2">Public Files</label>
+              <IconWithTooltip
+                IconComponent={GrCircleInformation}
+                tooltipText="The total amount of public files"
+              />
+            </div>
+            <label className="text-1x8 font-semibold text-black block">
+              {publicfiles}
+            </label>
           </div>
-          <label className="text-1x8 font-semibold text-black block">
-            {encryptedfiles}
-          </label>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mt-3 max-w-screen-xl  xl:mx-auto mx-2">
+          <div className="border bg-blue-100 rounded-lg p-2.5 flex flex-col items-center justify-center">
+            Storage Used
+            <label className="text-1x8 font-semibold text-black block">
+              {formatBytes(totalusedstorage)}
+            </label>
+            <FilesChart />
+          </div>
+          <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
+            Total Users
+            <label className="text-1x8 font-semibold text-black block">
+              {totalusers}
+            </label>
+            {<UsersChart />}
+          </div>
+        </div>
+      </section>
 
-        <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <img src={Hotspot_m} />
-          <div className="flex items-center mb-2">
-            <label className="block mr-2">Public Files</label>
-            <IconWithTooltip
-              IconComponent={GrCircleInformation}
-              tooltipText="The total amount of public files"
-            />
-          </div>
-          <label className="text-1x8 font-semibold text-black block">
-            {publicfiles}
-          </label>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mt-5 max-w-screen-xl  xl:mx-auto mx-2">
-        <div className="border bg-blue-100 rounded-lg p-2.5 flex flex-col items-center justify-center">
-          Storage Used
-          <label className="text-1x8 font-semibold text-black block">
-            {formatBytes(totalusedstorage)}
-          </label>
-          <FilesChart />
-        </div>
-        <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          Total Users
-          <label className="text-1x8 font-semibold text-black block">
-            {totalusers}
-          </label>
-          {<UsersChart />}
-        </div>
-      </div>
-      <footer className="text-sm absolute bottom-0 text-black mt-5 p-0 md:p-2 mx-5">
+      <footer className="text-sm text-black md:mx-12 p-0 md:p-2">
         <div className="flex flex-col items-start">
           <div className="flex space-x-4 p-0 md:p-0">
             <a
