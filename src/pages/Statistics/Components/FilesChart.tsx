@@ -29,9 +29,6 @@ ChartJS.register(
 interface WeeklyData {
     week: string;
     usedStorage: number;
-    total: number;
-    public: number;
-    encrypted: number;
 }
 
 
@@ -65,7 +62,7 @@ const determineLargestUnit = (data: WeeklyData[]) => {
 };
 
 export default function FilesChart() {
-    const [weeklyData, setWeeklyData] = useState<[WeeklyData]>([{ week: "", usedStorage: 0, total: 0, public: 0, encrypted: 0 }]);
+    const [weeklyData, setWeeklyData] = useState<[WeeklyData]>([{ week: "", usedStorage: 0 }]);
     const [largestUnit, setLargestUnit] = useState<string>('Bytes');
 
 
@@ -157,7 +154,7 @@ export default function FilesChart() {
         fetchData();
 
         // 15 seconds update interval
-        const intervalId = setInterval(fetchData, 1000);
+        const intervalId = setInterval(fetchData, 15000);
 
         return () => clearInterval(intervalId);
     }, []);

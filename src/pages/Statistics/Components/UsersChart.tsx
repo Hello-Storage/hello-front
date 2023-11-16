@@ -54,7 +54,7 @@ export default function UsersChart() {
         fetchData();
 
         // 15 seconds update interval
-        const intervalId = setInterval(fetchData, 3000);
+        const intervalId = setInterval(fetchData, 1000);
 
         return () => clearInterval(intervalId);
     }, []);
