@@ -15,11 +15,13 @@ import { Navigate } from "react-router-dom";
 const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
 const Referrals = lazy(() => import("pages/Referrals"));
+const SharedWithMe = lazy(() => import("pages/Shared/SharedWithMe"));
 const Shared = lazy(() => import("pages/Shared"));
 const Recent = lazy(() => import("pages/Recent"));
 const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));
 const Api = lazy(() => import("pages/Api"));
+const Statistics = lazy(() => import("pages/Statistics"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
 
@@ -72,14 +74,17 @@ function App() {
       <Suspense fallback={<Spinner3 />}>
         <Routes>
           <Route path="/" element={<Navigate to="/space/my-storage" replace />} />
+          <Route path="/stats" element={
+            <Statistics />
+            } />
           <Route path="/ns" element={<Navigate to="/space/login?ref=ns" replace />} />
           <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Api />} />
-            <Route path ="/space/shared/public/:hash" element={<Shared shareType="public" />} />
+            <Route path ="/space/shared/public/:hash" element={<SharedWithMe shareType="public" />} />
             <Route path="/space/dashboard" element={<Dashboard />} />
             <Route path="/space/my-storage" element={<MyStorage />} />
             <Route path="/space/folder/*" element={<MyStorage />} />
-            <Route path="/space/shared-with-me" element={<Shared shareType="public" />} />
+            <Route path="/space/shared" element={<Shared shareType="public" />} />
             <Route path="/space/recent" element={<Recent />} />
             <Route path="/space/referrals" element={<Referrals />} />
             <Route path="/space/deleted" element={<Deleted />} />

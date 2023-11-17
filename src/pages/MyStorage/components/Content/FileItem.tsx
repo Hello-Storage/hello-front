@@ -13,6 +13,7 @@ import {
   HiOutlineLockOpen,
   HiLockClosed,
 } from "react-icons/hi";
+import { GoAlertFill } from "react-icons/go";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
@@ -25,8 +26,13 @@ import {
 } from "utils/encryption/filesCipher";
 import React from "react";
 import { useAppDispatch } from "state";
-import { PreviewImage, setImageViewAction, setSelectedShareFile, setShowShareModal } from "state/mystorage/actions";
-import { truncate } from "utils/format";
+import {
+  PreviewImage,
+  setImageViewAction,
+  setSelectedShareFile,
+  setShowShareModal,
+} from "state/mystorage/actions";
+import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { removeFileAction } from "state/mystorage/actions";
@@ -44,7 +50,6 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const [open, setOpen] = useState(false);
   const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
   useDropdown(ref, open, setOpen);
-
 
   const onCopy = (event: React.MouseEvent) => {
     if (event.shiftKey) return;
@@ -150,7 +155,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         let binaryData = res.data;
         if (file.encryption_status === EncryptionStatus.Encrypted) {
           const originalCid = file.cid_original_encrypted;
-          console.log(originalCid)
+          console.log(originalCid);
           binaryData = await blobToArrayBuffer(binaryData);
           binaryData = await decryptFileBuffer(
             binaryData,
@@ -213,14 +218,12 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     Api.delete(`/file/delete/${file.uid}`)
       .then((res) => {
         toast.success("File deleted!");
-        
         dispatch(removeFileAction(file.uid));
       })
       .catch((err) => {
         console.error("Error deleting file:", err);
       });
   };
-
 
   if (view === "list")
     return (
@@ -229,9 +232,13 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           onDoubleClick={handleView}
           scope="row"
           className="px-3 font-medium text-gray-900 whitespace-nowrap "
-          >
+        >
           <div className="flex items-center gap-3 ">
             {getFileIcon(file.name)}
+            {file.is_in_pool && (
+              <GoAlertFill style={{ color: "#FF6600" }}
+                title="File is in Hello Pool" />
+            )}
             <span className="hidden md:inline"> {truncate(file.name, 40)}</span>
             <span className="inline md:hidden"> {truncate(file.name, 24)}</span>
           </div>
@@ -264,7 +271,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           </div>
         </td>
         <td className="py-1 pr-8 whitespace-nowrap">
-          {dayjs(file.updated_at).fromNow()}
+          {dayjs(formatDate(file.updated_at)).fromNow()}
         </td>
         <td className="py-1 pr-8 text-right">
           <button
@@ -288,12 +295,14 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
                       <HiOutlineDownload className="inline-flex mr-3" />
                       Download
                     </a>
-                    <a href="#" 
+                    <a
+                      href="#"
                       onClick={() => {
-                        dispatch(setShowShareModal(true))
-                        dispatch(setSelectedShareFile(file))
+                        dispatch(setShowShareModal(true));
+                        dispatch(setSelectedShareFile(file));
                       }}
-                    className="block px-4 py-2 hover:bg-gray-100">
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
                       <HiOutlineShare className="inline-flex mr-3" />
                       Share
                     </a>
@@ -336,6 +345,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           <div className="flex flex-col items-center gap-3">
             <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis flex items-center gap-2">
               <HiDocumentText className="w-4 h-4 flex-shrink-0" />
+            {file.is_in_pool && (
+              <GoAlertFill style={{ color: "#FF6600" }} />
+            )}
               <span className="hidden md:inline">
                 {truncate(file.name, 40)}
               </span>

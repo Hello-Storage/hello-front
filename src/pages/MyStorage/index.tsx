@@ -140,7 +140,6 @@ export default function Home () {
           return;
         }
       }
-
       const decryptedFiles = await handleEncryptedFiles(
         currentEncryptedFiles,
         personalSignatureRef.current || "",
@@ -257,6 +256,8 @@ export default function Home () {
     fetchUserDetail();
   }, []);
 
+  const filteredImages=filteredFiles.filter((file: FileType) => file.mime_type.includes("image"))
+  console.log(filteredImages);
 
   return (
     <div className="overflow-hidden flex flex-col table-main ">
@@ -368,6 +369,9 @@ export default function Home () {
           files={filteredFiles}
           folders={filteredFolders}
           view={view}
+          showFolders={true}
+          filesTitle="Files"
+          identifier={1}
         />
       </section>
       {/* Sticky footer */}

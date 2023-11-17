@@ -55,7 +55,8 @@ const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv
         alert("error decrypting buffer")
         console.log("Error decrypting buffer:")
         console.log(err)
-        throw err
+        toast.error("Error decrypting buffer")
+        return new ArrayBuffer(0)
     });
 }
 

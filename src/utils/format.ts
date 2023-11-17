@@ -1,3 +1,4 @@
+import moment from "moment";
 import { toChecksumAddress } from "web3-utils";
 
 export const formatName = (nameOrAddress: string, trunc?: number) => {
@@ -82,3 +83,11 @@ export function convertListToUnit(bytesList: number[], unit: string): number[] {
   });
 }
 
+/**
+ * Convierte una cadena de fecha en el formato especificado a un objeto de fecha.
+ * @param {string} date - La cadena de fecha en el formato "YYYY-MM-DD HH:mm:ss.SSSSSSS Z".
+ * @returns {Date} - Objeto de fecha resultante.
+ */
+export function formatDate(date: string): Date {
+  return new Date(moment(date, "YYYY-MM-DD HH:mm:ss.SSSSSSS Z").toLocaleString());
+}

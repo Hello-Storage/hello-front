@@ -1,5 +1,3 @@
-/** @format */
-
 import { Api } from "api";
 import {
 	Chart as ChartJS,
@@ -12,10 +10,9 @@ import {
 	Legend,
 	Filler,
 } from "chart.js";
-import { array } from "prop-types";
 
 import { useEffect, useState } from "react";
-import { Line, Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { useAppSelector } from "state";
 import { convertListToUnit } from "utils";
 
@@ -83,7 +80,6 @@ const Chart: React.FC<ChartProps> = ({ period }) => {
 	const ylim = formatBytes(
 		dailyStasts ? Math.max(...dailyStasts.CountDailyStorageUser) : 0
 	);
-	console.log(period);
 	const fetchData = () => {
 		Api.get("statistics/" + uid + "/" + period)
 			.then((response) => {
@@ -97,47 +93,63 @@ const Chart: React.FC<ChartProps> = ({ period }) => {
 	useEffect(() => {
 		fetchData();
 		const intervalId = setInterval(fetchData, 15000);
-
 		return () => clearInterval(intervalId);
-	}, []);
+	}, [period]);
 
+	let sizeDesc = 0;
 	//Get last 7 days wit day and month (text and abrebiated) reverse order
-	let labels: string[]=["","","","","","",""];
+	let labels: string[] = ["", "", "", "", "", "", ""];
 	switch (period) {
 		case "day":
-			labels=[...Array(7).keys()].map((i) => {
+			sizeDesc = 12;
+			labels = [...Array(12).keys()]
+				.map((i) => {
+					const date = new Date();
+					date.setHours(date.getHours() - i * 2);
+					const dayNumber = date.getDate();
+					const month = date.toLocaleString("default", {
+						month: "short",
+					});
+					return `${dayNumber}  ${month}  (${date.getHours()}h)`;
+				})
+				.reverse();
+			break;
+		case "week":
+			sizeDesc = 7;
+			labels = [...Array(7).keys()]
+				.map((i) => {
 					const date = new Date();
 					date.setDate(date.getDate() - i);
 					const month = date.toLocaleString("default", {
 						month: "short",
 					});
 					const dayNumber = date.getDate();
-					return `${dayNumber} ${month}`;
-				})
-				.reverse();
-			break;
-		case "week":
-			labels=[...Array(7).keys()].map((i) => {
-					const date = new Date();
-					date.setDate(date.getDate() - 7 * i);
-					const weekNumber = getWeekNumber(date);
-					return `Week ${weekNumber}`;
+					return `${dayNumber}  ${month}`;
 				})
 				.reverse();
 			break;
 		case "month":
-			labels=[...Array(7).keys()].map((i) => {
+			sizeDesc = 30;
+			labels = [...Array(30).keys()]
+				.map((i) => {
 					const date = new Date();
-					date.setMonth(date.getMonth() - i);
-					const year = date.getFullYear();
+					date.setDate(date.getDate() - i);
 					const month = date.toLocaleString("default", {
-						month: "long",
+						month: "short",
 					});
-					return `${month} ${year}`;
+					const dayNumber = date.getDate();
+					return `${dayNumber}  ${month}`;
 				})
 				.reverse();
 			break;
 	}
+
+	const data1 = dailyStasts
+		? convertListToUnit(
+				dailyStasts ? dailyStasts.CountDailyStorageUser : [],
+				ylim.unit
+		).reverse()
+		: [0, 0, 0, 0, 0, 0, 0];
 
 	const data = {
 		labels,
@@ -146,21 +158,20 @@ const Chart: React.FC<ChartProps> = ({ period }) => {
 				label: "Used Storage",
 				fill: true,
 				// get data from dailyStats.
-				data: dailyStasts
-					? convertListToUnit(
-							dailyStasts
-								? dailyStasts.CountDailyStorageUser
-								: [],
-							ylim.unit
-					).reverse()
-					: [0, 0, 0, 0, 0, 0, 0],
-
-				addition: [...Array(7)].map((_, i) => ({
-					total: dailyStasts?.CountDailyFilesUser.reverse()[i],
-					public: dailyStasts?.CountDailyPublicFilesUser.reverse()[i],
-					encrypted:
-						dailyStasts?.CountDailyEncryptedFilesUser.reverse()[i],
-				})),
+				data: data1,
+				addition: [...Array(sizeDesc)]
+					.map((_, i) => ({
+						total: dailyStasts
+							? dailyStasts.CountDailyFilesUser[i]
+							: [0, 0, 0, 0, 0, 0, 0][i],
+						public: dailyStasts
+							? dailyStasts.CountDailyPublicFilesUser[i]
+							: [0, 0, 0, 0, 0, 0, 0][i],
+						encrypted: dailyStasts
+							? dailyStasts.CountDailyEncryptedFilesUser[i]
+							: [0, 0, 0, 0, 0, 0, 0][i],
+					}))
+					.reverse(),
 				tension: 0.3,
 				borderColor: "#03BC47",
 				backgroundColor: "#03BC4740",
