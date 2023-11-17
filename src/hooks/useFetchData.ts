@@ -40,10 +40,6 @@ const useFetchData = () => {
             dispatch(fetchContentAction(res.data));
             return;
           }
-
-          console.log("files length:")
-          console.log(res.data.files.length)
-
           const sortedFiles = res.data.files.sort(
             (a, b) =>
               new Date(b.created_at).getTime() -
@@ -56,8 +52,20 @@ const useFetchData = () => {
               new Date(a.created_at).getTime()
           );
 
-          const resDataA = res.data;
+          const resDataA = {
+            ...res.data,
+            files: sortedFiles,
+            folders: sortedFolders,
+            path: decryptedPath,
+            sharedFiles: {
+              sharedWithMe: [],
+              sharedByMe: [],
+            }
+          };
 
+          dispatch(
+            fetchContentAction(resDataA)
+          );
           Api.get<SharedResponse>("/user/shared/general")
             .then((res) => {
 
@@ -77,26 +85,15 @@ const useFetchData = () => {
               dispatch(
                 fetchContentAction({
                   ...resDataA,
-                  files: sortedFiles,
                   sharedFiles: {
                     sharedWithMe: sortedFileSharedW,
                     sharedByMe: sortedFilesSharedB,
-                  },
-                  folders: sortedFolders,
-                  path: decryptedPath,
+                  }
                 })
               );
             })
             .catch((err) => {
               console.error("Error fetching data:", err);
-              dispatch(
-                fetchContentAction({
-                  ...resDataA,
-                  files: sortedFiles,
-                  folders: sortedFolders,
-                  path: decryptedPath,
-                })
-              );
             })
             .finally(() => {
               if (setLoading) setLoading(false);

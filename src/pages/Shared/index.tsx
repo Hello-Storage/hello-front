@@ -165,7 +165,7 @@ const Shared = (props: { shareType: string }) => {
 					setisOpenShareUpload(!isOpenShareUpload);
 				}}
 			>
-				<span className="transition"></span>
+				<span className="btn-transition"></span>
 				<label className="justify-center text-white flex items-center w-full gap-2 text-sm">
 					<FaSquareShareNodes className="animated-btn-icon" /> Share Files
 				</label>
@@ -195,7 +195,7 @@ const Shared = (props: { shareType: string }) => {
 					/>
 				</div>
 			</div>
-			<div className="lg:hidden w-[99%] flex-row justify-evenly items-center">
+			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-5">
 				<div>
 					<Content
 						loading={loading}
@@ -220,6 +220,7 @@ const Shared = (props: { shareType: string }) => {
 				</div>
 			</div>
 		</div>
+
 	);
 };
 
