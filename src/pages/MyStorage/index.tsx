@@ -240,11 +240,15 @@ export default function Home () {
       folder.uid.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  console.log(currentFiles[0]?.name);
+  console.log(currentFolders[0]?.title);
   const filteredFiles = currentFiles?.filter(
     (file) =>
       file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       file.cid.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  console.log(filteredFiles[0]?.name)
 
   const [view, setView] = useState<"list" | "grid">("list");
 
