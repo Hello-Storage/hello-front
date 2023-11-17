@@ -320,7 +320,7 @@ const Dropzone = () => {
         : `uploading ${files.length} files`;
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-    postData(formData, filesMap, outermostFolderTitle, isFolder, dispatch);
+    postData(formData, filesMap, outermostFolderTitle, isFolder, dispatch, onUploadProgress, fetchUserDetail, root, encryptionEnabled);
   };
 
   

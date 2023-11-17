@@ -1,7 +1,12 @@
 import { Api, EncryptionStatus, File as FileType } from "api";
+import { AxiosProgressEvent } from "axios";
+import { toast } from "react-toastify";
+import { AppDispatch } from "state";
+import { createFileAction, createFolderAction } from "state/mystorage/actions";
+import { setUploadStatusAction } from "state/uploadstatus/actions";
 
 
-export const postData = async (formData: FormData, filesMap: { customFile: FileType, file: File }[], outermostFolderTitle: string, isFolder: boolean, dispatch: any) => {
+export const postData = async (formData: FormData, filesMap: { customFile: FileType, file: File }[], outermostFolderTitle: string, isFolder: boolean, dispatch: AppDispatch, onUploadProgress: (progressEvent: AxiosProgressEvent) => void, fetchUserDetail: () => void, root: string, encryptionEnabled: boolean | undefined) => {
 
     //iterate over each file and make a get request to check if cid exists in Api
     //post file metadata to api
@@ -142,7 +147,7 @@ export const postData = async (formData: FormData, filesMap: { customFile: FileT
         dispatch(createFolderAction({
             title: outermostFolderTitle,
             uid: folderRootUID,
-            root: getRoot(),
+            root: root,
             created_at: "",
             updated_at: "",
             deleted_at: "",
