@@ -26,8 +26,7 @@ const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uint8Array
         iterations: 250000,
         hash: 'SHA-256',
     };
-
-    const aesKey = await window.crypto.subtle.deriveKey(keyDerivationParams, passwordKey, { name: 'AES-GCM', length: 256 }, false, usage);
+    const aesKey = await window.crypto.subtle.deriveKey(keyDerivationParams, passwordKey, { name: 'AES-GCM', length: 256 }, false, usage)
 
     return { aesKey, salt, iv };
 }
@@ -49,8 +48,10 @@ const getResultBytes = (cipherBytesArray: Uint8Array, salt: Uint8Array, iv: Uint
 const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> => {
 
     return await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, aesKey, cipherBytes).catch((err) => {
+        alert("error decrypting buffer")
         console.log("Error decrypting buffer:")
         console.log(err)
+        toast.error("Error decrypting buffer")
         return new ArrayBuffer(0)
     });
 }
@@ -95,7 +96,10 @@ export const decryptContent = async (cipherBytes: Uint8Array | string, personalS
     const salt = cipherBytes.slice(0, 16)
     const iv = cipherBytes.slice(16, 16 + 12)
     const data = cipherBytes.slice(16 + 12)
-    const { aesKey } = await getAesKey(personalSignature, ['decrypt'], salt, iv);
+
+
+
+    const { aesKey } = await getAesKey(personalSignature, ['decrypt'], salt, iv)
     return decryptContentUtil(data, aesKey, iv);
 }
 
@@ -109,13 +113,35 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
     const encryptedFiletypeBuffer = hexToBuffer(encryptedFiletypeBase64Url)
 
     const decryptValue = async (cipherBytes: Uint8Array) => {
+        const salt = cipherBytes.slice(0, 16)
+        const iv = cipherBytes.slice(16, 16 + 12)
+
+        //log salt and iv in case they are null, undefined or empty
+        if (!salt || !iv || salt.length === 0 || iv.length === 0) {
+            console.log("dencrypting metadata for file with cidOriginalEncrypted failed: " + cidOriginalEncrypted)
+            console.log("salt or iv are null, undefined or empty")
+            console.log(salt)
+            console.log(iv)
+        }
         const decryptedValueArrayBuffer = await decryptContent(cipherBytes, personalSignature);
         return new TextDecoder().decode(decryptedValueArrayBuffer);
     }
 
-    const decryptedFilename = await decryptValue(encryptedFilenameBuffer)
-    const decryptedCidOriginal = await decryptValue(encryptedCidOriginalBuffer)
-    const decryptedFiletype = await decryptValue(encryptedFiletypeBuffer)
+    const decryptedFilename = await decryptValue(encryptedFilenameBuffer).catch((err) => {
+        console.log("Error decrypting filename:")
+        console.log(err)
+        throw err
+    });
+    const decryptedCidOriginal = await decryptValue(encryptedCidOriginalBuffer).catch((err) => {
+        console.log("Error decrypting cid original:")
+        console.log(err)
+        throw err
+    });
+    const decryptedFiletype = await decryptValue(encryptedFiletypeBuffer).catch((err) => {
+        console.log("Error decrypting filetype:")
+        console.log(err)
+        throw err
+    });
 
     return { decryptedFilename, decryptedFiletype, decryptedCidOriginal };
 }
@@ -259,7 +285,7 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
 }
 
 export const handleEncryptedFiles = async (files: FileType[], personalSignature: string, name: string, autoEncryptionEnabled: boolean, accountType: string | undefined, logout: () => void) => {
-    
+
     if (personalSignature === undefined) {
         return;
     }

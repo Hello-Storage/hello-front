@@ -247,7 +247,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   };
 
 
-  const uploadFile = async (
+  const handleInputChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
     isFolder: boolean
   ) => {
@@ -559,14 +559,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    //handleInputChange(event, false);
+    handleInputChange(event, false);
     setSidebarOpen(false);
   };
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    //handleInputChange(event, true);
+    handleInputChange(event, true);
   };
 
   return (

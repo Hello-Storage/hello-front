@@ -40,21 +40,65 @@ export default function UsersChart() {
     const fetchData = async () => {
         Api.get("/statistics/users/weekly-stats")
             .then((res) => {
-                console.log(res.data)
-                setWeeklyUserData(res.data);
-
+                console.log("users/weekly-stats: ", res.data);
+                if (res.data) {
+                    setWeeklyUserData(res.data);
+                } else {
+                    setWeeklyUserData([
+                        {
+                            week: "2023-09-13",
+                            total_users: 87
+                        },
+                        {
+                            week: "2023-09-20",
+                            total_users: 674
+                        },
+                        {
+                            week: "2023-09-27",
+                            total_users: 1991
+                        },
+                        {
+                            week: "2023-10-04",
+                            total_users: 2550
+                        },
+                        {
+                            week: "2023-10-11",
+                            total_users: 3126
+                        },
+                        {
+                            week: "2023-10-18",
+                            total_users: 3308
+                        },
+                        {
+                            week: "2023-10-25",
+                            total_users: 3913
+                        },
+                        {
+                            week: "2023-11-01",
+                            total_users: 4598
+                        },
+                        {
+                            week: "2023-11-08",
+                            total_users: 5813
+                        },
+                        {
+                            week: "2023-11-15",
+                            total_users: 6937
+                        }
+                    ])
+                }
             })
             .catch((err) => {
                 console.error("Error fetching data:", err);
                 // Handle error appropriately
             });
-    }
+    };
 
     useEffect(() => {
         fetchData();
 
         // 15 seconds update interval
-        const intervalId = setInterval(fetchData, 3000);
+        const intervalId = setInterval(fetchData, 30000);
 
         return () => clearInterval(intervalId);
     }, []);
@@ -62,6 +106,7 @@ export default function UsersChart() {
 
     const options = {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
             x: {
                 border: {
@@ -89,12 +134,7 @@ export default function UsersChart() {
                 callbacks: {
                     label: (context: any) => {
                         return context.dataset.label + ": " + context.raw;
-                    },
-                    footer: (item: any) => {
-                        return [
-                            "New Users: " + item[0].dataset.addition[item[0].dataIndex].newUsers,
-                        ];
-                    },
+                    }
                 },
             },
             legend: {
@@ -110,7 +150,7 @@ export default function UsersChart() {
         labels,
         datasets: [
             {
-                label: "New Users",
+                label: "Total Users",
                 fill: true,
                 data: weeklyUserData.map((d) => d.total_users),
                 addition: weeklyUserData,
@@ -121,5 +161,13 @@ export default function UsersChart() {
         ],
     };
 
-    return <Line options={options} data={chartData} />;
+
+    return (
+        <div style={{
+            height: "230px",
+            width: "100%",
+        }}>
+            <Line options={options} data={chartData} />
+        </div>
+    );
 }

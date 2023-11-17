@@ -246,6 +246,8 @@ export default function Home () {
       file.cid.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  console.log(filteredFiles[0]?.name)
+
   const [view, setView] = useState<"list" | "grid">("list");
 
   const onRadioChange = (e: any) => {
@@ -256,6 +258,8 @@ export default function Home () {
     fetchUserDetail();
   }, []);
 
+  const filteredImages=filteredFiles.filter((file: FileType) => file.mime_type.includes("image"))
+  console.log(filteredImages);
 
   return (
     <div className="overflow-hidden flex flex-col table-main ">

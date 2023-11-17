@@ -10,7 +10,7 @@ const useFetchData = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const personalSignatureRef = useRef<string | undefined>();
-  
+
   const fetchRootContent = useCallback(
     (setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
       if (setLoading) setLoading(true);
@@ -41,16 +41,21 @@ const useFetchData = () => {
             return;
           }
 
+          console.log("files length:")
+          console.log(res.data.files.length)
+
           const sortedFiles = res.data.files.sort(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
+
           const sortedFolders = res.data.folders.sort(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
+
           const resDataA = res.data;
 
           Api.get<SharedResponse>("/user/shared/general")
@@ -84,6 +89,14 @@ const useFetchData = () => {
             })
             .catch((err) => {
               console.error("Error fetching data:", err);
+              dispatch(
+                fetchContentAction({
+                  ...resDataA,
+                  files: sortedFiles,
+                  folders: sortedFolders,
+                  path: decryptedPath,
+                })
+              );
             })
             .finally(() => {
               if (setLoading) setLoading(false);

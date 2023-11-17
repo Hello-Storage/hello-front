@@ -29,9 +29,6 @@ ChartJS.register(
 interface WeeklyData {
     week: string;
     usedStorage: number;
-    total: number;
-    public: number;
-    encrypted: number;
 }
 
 
@@ -65,12 +62,13 @@ const determineLargestUnit = (data: WeeklyData[]) => {
 };
 
 export default function FilesChart() {
-    const [weeklyData, setWeeklyData] = useState<[WeeklyData]>([{ week: "", usedStorage: 0, total: 0, public: 0, encrypted: 0 }]);
+    const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([{ week: "", usedStorage: 0 }]);
     const [largestUnit, setLargestUnit] = useState<string>('Bytes');
 
 
     const options = {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
             x: {
                 border: {
@@ -100,11 +98,6 @@ export default function FilesChart() {
                     footer: (item: any) => {
                         return [
                             "Used Storage: " + item[0].dataset.data[item[0].dataIndex] + " " + largestUnit,
-                            "Total Files: " + item[0].dataset.addition[item[0].dataIndex].total,
-                            "Public Files: " +
-                            item[0].dataset.addition[item[0].dataIndex].public,
-                            "Encrypted Files: " +
-                            item[0].dataset.addition[item[0].dataIndex].encrypted,
                         ];
                     },
                 },
@@ -134,30 +127,82 @@ export default function FilesChart() {
         ],
     };
 
-
-
-    useEffect(() => {
+    const fetchData = async () => {
         Api.get("/statistics/files/weekly-stats")
             .then((res) => {
-                const largestUnit = determineLargestUnit(res.data);
-                setLargestUnit(largestUnit);
-
-                const formattedData = res.data.map((item: WeeklyData) => ({
-                    ...item,
-                    usedStorage: formatChartBytes(item.usedStorage, 2, largestUnit).value
-                }));
-                console.log("forrmatted sdatra:")
-                console.log(formattedData);
-                setWeeklyData(formattedData);
-
+                console.log("files/weekly-stats: ",res.data);
+                if (res.data) {
+                    const largestUnit = determineLargestUnit(res.data);
+                    setLargestUnit(largestUnit);
+                    const formattedData = (res.data).map((item: WeeklyData) => ({
+                        ...item,
+                        usedStorage: formatChartBytes(item.usedStorage, 2, largestUnit).value
+                    }));
+                    setWeeklyData(formattedData);
+                }else{
+                    const temp: WeeklyData[] =[
+                        {
+                            week: "2023-09-20",
+                            usedStorage: 5.67,
+                        } as WeeklyData,
+                        {
+                            week: "2023-09-27",
+                            usedStorage: 35.72,
+                        },
+                        {
+                            week: "2023-10-04",
+                            usedStorage: 87.48,
+                        },
+                        {
+                            week: "2023-10-11",
+                            usedStorage: 151.54,
+                        },
+                        {
+                            week: "2023-10-18",
+                            usedStorage: 193.76,
+                        },
+                        {
+                            week: "2023-10-25",
+                            usedStorage: 238.46,
+                        },
+                        {
+                            week: "2023-11-01",
+                            usedStorage: 274.8,
+                        },
+                        {
+                            week: "2023-11-08",
+                            usedStorage: 319.62,
+                        },
+                        {
+                            week: "2023-11-15",
+                            usedStorage: 375.79,
+                        }
+                    ]
+                    setWeeklyData(temp);
+                }
             })
             .catch((err) => {
                 console.error("Error fetching data:", err);
                 // Handle error appropriately
             });
-    }, []); // Empty dependency array ensures this runs once on mount
+    }
 
+    useEffect(() => {
+        document.title = "Hello Storage | Stats";
+        fetchData();
 
+        // 15 seconds update interval
+        const intervalId = setInterval(fetchData, 30000);
 
-    return <Line options={options} data={chartData} />;
+        return () => clearInterval(intervalId);
+    }, []);
+
+    return (
+        <div style={{
+            height: "230px",
+            width: "100%",
+        }}>
+            <Line options={options} data={chartData} />
+        </div>
+    );
 }
