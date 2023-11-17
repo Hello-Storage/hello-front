@@ -749,7 +749,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             }}
             className="text-orange-500 cursor-pointer hover:underline"
           >
-            {formatBytes(storageAvailable, 2, false)} / 190 GiB
+            {formatBytes(storageAvailable, 2, false)} / 95 GiB
           </a>
         </label>
         <div className="mt-4 pb-1">
@@ -758,7 +758,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             onClick={() => navigate("/space/referrals")}
             disabled={storageAvailable >= Math.pow(1024, 3) * 100}
           >
-            Get {formatBytes(200 * Math.pow(1024, 3) - storageAvailable)} Free
+            Get {formatBytes(105 * Math.pow(1024, 3) - storageAvailable)} Free
             ✨
           </button>
         </div>

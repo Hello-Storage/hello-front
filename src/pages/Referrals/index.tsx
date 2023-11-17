@@ -81,7 +81,7 @@ const Referrals = () => {
         <div className="mb-4 flex items-center justify-center text-center w-full space-x-2">
           <GoPeople className="text-blue-600 w-7 h-7" />
           <h1 className="md:text-2xl text-lg select-none tracking-tighter text-center text-gray-700">
-            Get +10GB free for each referred user!
+            Get +5GB free for each referred user!
           </h1>
         </div>
         <div className="flex-grow flex flex-col md:mt-20 mt-12 items-center max-w-xl">
@@ -152,13 +152,13 @@ const Referrals = () => {
             </div>
             <div>
               <p className="px-4 text-lg font-medium">
-                {totalUsers * 10}GB/{maxUsers * 10}GB storage gained.
+                {totalUsers * 10}GB/{maxUsers * 5}GB storage gained.
               </p>
             </div>
           </div>
           <div className="w-full">
             <p className="pt-10 pb-4 w-full text-left">
-              You got {totalUsers * 10}GB/{maxUsers * 10}GB from {totalUsers}{" "}
+              You got {totalUsers * 5}GB/{maxUsers * 10}GB from {totalUsers}{" "}
               invited users
             </p>
             <div className="grid grid-cols-10 gap-2">
