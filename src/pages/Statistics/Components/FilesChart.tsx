@@ -62,7 +62,7 @@ const determineLargestUnit = (data: WeeklyData[]) => {
 };
 
 export default function FilesChart() {
-    const [weeklyData, setWeeklyData] = useState<[WeeklyData]>([{ week: "", usedStorage: 0 }]);
+    const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([{ week: "", usedStorage: 0 }]);
     const [largestUnit, setLargestUnit] = useState<string>('Bytes');
 
 
@@ -140,74 +140,45 @@ export default function FilesChart() {
                     }));
                     setWeeklyData(formattedData);
                 }else{
-                    const temp=[
+                    const temp: WeeklyData[] =[
                         {
-                            "week": "2023-09-20",
-                            "usedStorage": 5.67,
-                            "total": 651,
-                            "public": 374,
-                            "encrypted": 277
+                            week: "2023-09-20",
+                            usedStorage: 5.67,
+                        } as WeeklyData,
+                        {
+                            week: "2023-09-27",
+                            usedStorage: 35.72,
                         },
                         {
-                            "week": "2023-09-27",
-                            "usedStorage": 35.72,
-                            "total": 4892,
-                            "public": 1532,
-                            "encrypted": 3360
+                            week: "2023-10-04",
+                            usedStorage: 87.48,
                         },
                         {
-                            "week": "2023-10-04",
-                            "usedStorage": 87.48,
-                            "total": 5203,
-                            "public": 1557,
-                            "encrypted": 3646
+                            week: "2023-10-11",
+                            usedStorage: 151.54,
                         },
                         {
-                            "week": "2023-10-11",
-                            "usedStorage": 151.54,
-                            "total": 5483,
-                            "public": 1557,
-                            "encrypted": 3926
+                            week: "2023-10-18",
+                            usedStorage: 193.76,
                         },
                         {
-                            "week": "2023-10-18",
-                            "usedStorage": 193.76,
-                            "total": 5745,
-                            "public": 1557,
-                            "encrypted": 4188
+                            week: "2023-10-25",
+                            usedStorage: 238.46,
                         },
                         {
-                            "week": "2023-10-25",
-                            "usedStorage": 238.46,
-                            "total": 7594,
-                            "public": 1557,
-                            "encrypted": 6037
+                            week: "2023-11-01",
+                            usedStorage: 274.8,
                         },
                         {
-                            "week": "2023-11-01",
-                            "usedStorage": 274.8,
-                            "total": 8070,
-                            "public": 1557,
-                            "encrypted": 6513
+                            week: "2023-11-08",
+                            usedStorage: 319.62,
                         },
                         {
-                            "week": "2023-11-08",
-                            "usedStorage": 319.62,
-                            "total": 8266,
-                            "public": 1558,
-                            "encrypted": 6708
-                        },
-                        {
-                            "week": "2023-11-15",
-                            "usedStorage": 375.79,
-                            "total": 21155,
-                            "public": 3163,
-                            "encrypted": 17992
+                            week: "2023-11-15",
+                            usedStorage: 375.79,
                         }
                     ]
-                    setWeeklyData(
-                        temp
-                    )
+                    setWeeklyData(temp);
                 }
             })
             .catch((err) => {
