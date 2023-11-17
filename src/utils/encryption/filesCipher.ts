@@ -26,11 +26,7 @@ const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uint8Array
         iterations: 250000,
         hash: 'SHA-256',
     };
-
-    const aesKey = await window.crypto.subtle.deriveKey(keyDerivationParams, passwordKey, { name: 'AES-GCM', length: 256 }, false, usage).catch((err) => {
-        console.log("Error deriving aes key: ")
-        console.log(err)
-    });
+    const aesKey = await window.crypto.subtle.deriveKey(keyDerivationParams, passwordKey, { name: 'AES-GCM', length: 256 }, false, usage)
 
     return { aesKey, salt, iv };
 }
@@ -100,6 +96,9 @@ export const decryptContent = async (cipherBytes: Uint8Array | string, personalS
     const salt = cipherBytes.slice(0, 16)
     const iv = cipherBytes.slice(16, 16 + 12)
     const data = cipherBytes.slice(16 + 12)
+
+
+
     const { aesKey } = await getAesKey(personalSignature, ['decrypt'], salt, iv)
     return decryptContentUtil(data, aesKey, iv);
 }
@@ -114,6 +113,16 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
     const encryptedFiletypeBuffer = hexToBuffer(encryptedFiletypeBase64Url)
 
     const decryptValue = async (cipherBytes: Uint8Array) => {
+        const salt = cipherBytes.slice(0, 16)
+        const iv = cipherBytes.slice(16, 16 + 12)
+
+        //log salt and iv in case they are null, undefined or empty
+        if (!salt || !iv || salt.length === 0 || iv.length === 0) {
+            console.log("dencrypting metadata for file with cidOriginalEncrypted failed: " + cidOriginalEncrypted)
+            console.log("salt or iv are null, undefined or empty")
+            console.log(salt)
+            console.log(iv)
+        }
         const decryptedValueArrayBuffer = await decryptContent(cipherBytes, personalSignature);
         return new TextDecoder().decode(decryptedValueArrayBuffer);
     }
