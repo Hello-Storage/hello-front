@@ -154,7 +154,7 @@ export default function FilesChart() {
         fetchData();
 
         // 15 seconds update interval
-        const intervalId = setInterval(fetchData, 15000);
+        const intervalId = setInterval(fetchData, 30000);
 
         return () => clearInterval(intervalId);
     }, []);
