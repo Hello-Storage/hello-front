@@ -41,16 +41,27 @@ const useFetchData = () => {
             return;
           }
 
+          console.log("files length:")
+          console.log(res.data.files.length)
+
           const sortedFiles = res.data.files.sort(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
+          console.log("sorted files length:")
+          console.log(sortedFiles.length)
+          
+          console.log("folders length:")
+          console.log(res.data.folders.length)
           const sortedFolders = res.data.folders.sort(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
+          console.log("sorted folders length:")
+          console.log(sortedFolders.length)
+
           const resDataA = res.data;
 
           Api.get<SharedResponse>("/user/shared/general")
