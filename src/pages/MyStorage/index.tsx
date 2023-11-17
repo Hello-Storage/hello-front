@@ -120,6 +120,8 @@ export default function Home () {
       const filesStartIndex = Math.max(0, tempStartIndex);
 
       // Slice the files array based on the calculated start and end indices.
+      console.log("files length")
+      console.log(files.length)
       const currentEncryptedFiles = files.slice(
         filesStartIndex,
         filesStartIndex + itemsPerPage
