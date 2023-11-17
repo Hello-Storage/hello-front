@@ -158,7 +158,7 @@ const Referrals = () => {
           </div>
           <div className="w-full">
             <p className="pt-10 pb-4 w-full text-left">
-              You got {totalUsers * 5}GB/{maxUsers * 10}GB from {totalUsers}{" "}
+              You got {totalUsers * 5}GB/{maxUsers * 5}GB from {totalUsers}{" "}
               invited users
             </p>
             <div className="grid grid-cols-10 gap-2">
