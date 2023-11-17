@@ -10,7 +10,7 @@ const useFetchData = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const personalSignatureRef = useRef<string | undefined>();
-  
+
   const fetchRootContent = useCallback(
     (setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
       if (setLoading) setLoading(true);
@@ -49,18 +49,12 @@ const useFetchData = () => {
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
-          console.log("sorted files length:")
-          console.log(sortedFiles.length)
-          
-          console.log("folders length:")
-          console.log(res.data.folders.length)
+
           const sortedFolders = res.data.folders.sort(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
-          console.log("sorted folders length:")
-          console.log(sortedFolders.length)
 
           const resDataA = res.data;
 
@@ -95,6 +89,14 @@ const useFetchData = () => {
             })
             .catch((err) => {
               console.error("Error fetching data:", err);
+              dispatch(
+                fetchContentAction({
+                  ...resDataA,
+                  files: sortedFiles,
+                  folders: sortedFolders,
+                  path: decryptedPath,
+                })
+              );
             })
             .finally(() => {
               if (setLoading) setLoading(false);
