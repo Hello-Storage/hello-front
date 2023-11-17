@@ -393,27 +393,23 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
+    setSidebarOpen(false);
     postData(formData, filesMap, outermostFolderTitle, isFolder);
   };
 
   const postData = async (formData: FormData, filesMap: { customFile: FileType, file: File }[], outermostFolderTitle: string, isFolder: boolean) => {
-
     //iterate over each file and make a get request to check if cid exists in Api
     //post file metadata to api
-
     //get customFiles from filesMap
     const customFiles = filesMap.map(fileMap => fileMap.customFile);
     let filesToUpload: { customFile: FileType, file: File }[] = [];
 
     let folderRootUID = "";
     await Api.post(`/file/pool/check`, customFiles)
-
       .then((res) => {
         // CIDs of files that were FOUND in S3 and need to be dispatched.
         const filesFound: FileType[] = res.data.filesFound;
         folderRootUID = res.data.firstRootUID;
-
-
 
         // Dispatch actions for files that were found in S3.
         filesToUpload = filesMap.filter((fileMap) => {
@@ -482,7 +478,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       })
         .then((res) => {
           toast.success("upload Succeed!");
-          setSidebarOpen(false);
           dispatch(
             setUploadStatusAction({
               info: "Finished uploading data",
@@ -530,7 +525,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
     } else {
       toast.success("upload Succeed!");
-      setSidebarOpen(false);
       dispatch(
         setUploadStatusAction({
           info: "Finished uploading data",
