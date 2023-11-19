@@ -4,7 +4,6 @@ import FolderItem from "./FolderItem";
 import FileItem from "./FileItem";
 import "./spinner.css";
 import { useNavigate } from "react-router-dom";
-import { useFetchData } from "hooks";
 import { RiFolderAddLine } from "react-icons/ri";
 import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
@@ -19,16 +18,16 @@ interface ContentProps {
   showFolders: boolean;
   filesTitle: string;
   identifier: number;
+  setloaded: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier }) => {
+const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, setloaded }) => {
   type itemInfo = {
     type: string;
     id: string;
     uid: string;
   };
   const navigate = useNavigate();
-  const { fetchRootContent } = useFetchData();
   const cloneRef = useRef<HTMLDivElement | null>(null);
   const initialCoords = useRef({ x: 0, y: 0 });
 
@@ -42,7 +41,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     navigate(`/space/folder/${folderUID}`);
   };
 
-  
+
 
   // Event for select item
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
@@ -272,10 +271,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
   };
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
-    const headerScroll = document.getElementById("files-headers_"+identifier);
-    const rowsScroll = document.getElementById("files-rows_"+identifier);
-    const tablerowdiv = document.getElementById("table-row-div_"+identifier);
-    const tableheaderdiv = document.getElementById("header-scroll-inv_"+identifier);
+    const headerScroll = document.getElementById("files-headers_" + identifier);
+    const rowsScroll = document.getElementById("files-rows_" + identifier);
+    const tablerowdiv = document.getElementById("table-row-div_" + identifier);
+    const tableheaderdiv = document.getElementById("header-scroll-inv_" + identifier);
     if (headerScroll && rowsScroll && tablerowdiv) {
       headerScroll.style.width = rowsScroll.getBoundingClientRect().width + "px"
       tablerowdiv.style.width = rowsScroll.getBoundingClientRect().width + "px"
@@ -283,7 +282,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     if (tablerowdiv && tableheaderdiv) {
       tablerowdiv.onscroll = function () {
         if (headerScroll)
-        console.log("test");
           tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
       };
     }
@@ -317,61 +315,60 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
   if (view === "list")
     return (
       <>
-      {showFolders? 
-      <>
-      <div className="position-sticky-left">
-          <h4 className="mb-[15px]">Folders</h4>
-        </div>
-        <div className="folders-div">
-          <div
-            className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
-            onClick={onPresent}
-          >
-            <RiFolderAddLine className="h-6 w-6" />
-          </div>
-          {folders.map((v, i) => (
-            <div
-              key={i}
-              id={v.id.toString()}
-              aria-label={v.uid}
-              aria-valuetext="folder"
-              draggable
-              className={`cursor-pointer min-w-[220px] ${
-                draggingOverFolderId === v.id.toString()
-                  ? "bg-blue-200 border border-blue-500"
-                  : isItemSelected(v.id.toString())
-                  ? "bg-sky-100"
-                  : ""
-                } ${i < folders.length - 1 ? "mr-5" : ""}`}
-              onDrag={handleDrag}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onDoubleClick={() => onFolderDoubleClick(v.uid)}
-              onClick={handleOnClick}
-            >
-              <FolderItem folder={v} key={i} view="list" />
+        {showFolders ?
+          <>
+            <div className="position-sticky-left">
+              <h4 className="mb-[15px]">Folders</h4>
             </div>
-          ))}
-        </div>
+            <div className="folders-div">
+              <div
+                className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
+                onClick={onPresent}
+              >
+                <RiFolderAddLine className="h-6 w-6" />
+              </div>
+              {folders.map((v, i) => (
+                <div
+                  key={i}
+                  id={v.id.toString()}
+                  aria-label={v.uid}
+                  aria-valuetext="folder"
+                  draggable
+                  className={`cursor-pointer min-w-[220px] ${draggingOverFolderId === v.id.toString()
+                    ? "bg-blue-200 border border-blue-500"
+                    : isItemSelected(v.id.toString())
+                      ? "bg-sky-100"
+                      : ""
+                    } ${i < folders.length - 1 ? "mr-5" : ""}`}
+                  onDrag={handleDrag}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onDoubleClick={() => onFolderDoubleClick(v.uid)}
+                  onClick={handleOnClick}
+                >
+                  <FolderItem folder={v} key={i} view="list" />
+                </div>
+              ))}
+            </div>
 
-        <section
-          className="custom-scrollbar position-sticky-left mb-[15px]"
-          id="scroll-visible-section"
-        >
-          <div id="width-section-helper"></div>
-        </section>
-      </>
-      :
-      <></>
-    }
-        
+            <section
+              className="custom-scrollbar position-sticky-left mb-[15px]"
+              id="scroll-visible-section"
+            >
+              <div id="width-section-helper"></div>
+            </section>
+          </>
+          :
+          <></>
+        }
+
         <section className="custom-scrollbar position-sticky-left">
           <h4 className="pt-1 pb-3">{filesTitle}</h4>
-          <div id={"header-scroll-inv_"+identifier}>
-            <table id={"files-headers_"+identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
+          <div id={"header-scroll-inv_" + identifier}>
+            <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <thead className="text-xs text-gray-700 bg-gray-100">
                 <tr>
                   <th
@@ -433,8 +430,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
             </table>
           </div>
 
-          <div id={"table-row-div_"+identifier} className="table-div custom-scrollbar min-w-full max-w-full h-full scrollbar-color">
-            <table id={"files-rows_"+identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
+          <div id={"table-row-div_" + identifier} className="table-div custom-scrollbar min-w-full h-full scrollbar-color">
+            <table id={"files-rows_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <tbody>
                 {loading ? (
                   <tr className="w-full h-64">
@@ -469,52 +466,53 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                   </tr>
                 ) : (
                   <>
-                  {(files && files.length>0)?
-                  <>
-                  {files.map((v, i) => (
-                      <tr
-                        key={i}
-                        id={v.id.toString()}
-                        aria-label={v.uid}
-                        aria-valuetext="file"
-                        draggable
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                        onDrag={handleDrag}
-                        className={` cursor-pointer ${isItemSelected(
-                          v.id.toString()
-                        )
-                          ? "bg-sky-100"
-                          : "hover:bg-gray-100 bg-white"
-                          }`}
-                        // onDoubleClick={handleView}
-                        onClick={handleOnClick}
-                      >
-                        <FileItem
-                          file={v}
-                          key={i}
-                          view="list"
-                        />
-                      </tr>
-                    ))}
-                  </>
-                  :
-                  <>
-                  <tr
-                  >
-                    <td
-                    scope="row" 
-                    className="px-3 font-medium text-gray-900 whitespace-nowrap w-full">
-                      <div className="flex flex-col w-full h-full items-start lg:items-center justify-center text-center">
-                        <div className="mt-4 mb-4">
-                          No files found
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                  </>
-                }
-                    
+                    {(files && files.length > 0) ?
+                      <>
+                        {files.map((v, i) => (
+                          <tr
+                            key={i}
+                            id={v.id.toString()}
+                            aria-label={v.uid}
+                            aria-valuetext="file"
+                            draggable
+                            onDragStart={handleDragStart}
+                            onDragEnd={handleDragEnd}
+                            onDrag={handleDrag}
+                            className={` cursor-pointer ${isItemSelected(
+                              v.id.toString()
+                            )
+                              ? "bg-sky-100"
+                              : "hover:bg-gray-100 bg-white"
+                              }`}
+                            // onDoubleClick={handleView}
+                            onClick={handleOnClick}
+                          >
+                            <FileItem
+                              file={v}
+                              key={i}
+                              view="list"
+                              setloaded={setloaded}
+                            />
+                          </tr>
+                        ))}
+                      </>
+                      :
+                      <>
+                        <tr
+                        >
+                          <td
+                            scope="row"
+                            className="px-3 font-medium text-gray-900 whitespace-nowrap w-full">
+                            <div className="flex flex-col w-full h-full items-start lg:items-center justify-center text-center">
+                              <div className="mt-4 mb-4">
+                                No files found
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </>
+                    }
+
                   </>
                 )}
               </tbody>
@@ -574,7 +572,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
           <h3 className="my-3">Files</h3>
           <div className="grid grid-200 gap-3">
             {files?.map((v, i) => (
-              <FileItem file={v} key={i} view="grid" />
+              <FileItem file={v} key={i} view="grid"
+                setloaded={setloaded} />
             ))}
           </div>
         </section>

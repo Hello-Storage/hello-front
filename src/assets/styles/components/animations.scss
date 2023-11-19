@@ -32,23 +32,23 @@ $background-color_1: #166534;
 		-moz-transform: scale(1.05);
 		-ms-transform: scale(1.05);
 		-o-transform: scale(1.05);
-		.transition {
+		.btn-transition {
 			width: 16em;
 			height: 16em;
 		}
 	}
 }
-// .transition {
-// 	background-color: $background-color_1;
-// 	border-radius: 50%;
-// 	width: 0;
-// 	height: 0;
-// 	position: absolute;
-// 	left: 50%;
-// 	top: 50%;
-// 	transform: translate(-50%, -50%);
-// 	-webkit-transform: translate(-50%, -50%);
-// 	-moz-transform: translate(-50%, -50%);
-// 	-ms-transform: translate(-50%, -50%);
-// 	-o-transform: translate(-50%, -50%);
-// }
+.btn-transition {
+	background-color: $background-color_1;
+	border-radius: 50%;
+	width: 0;
+	height: 0;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	-o-transform: translate(-50%, -50%);
+}

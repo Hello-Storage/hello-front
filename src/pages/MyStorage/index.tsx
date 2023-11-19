@@ -6,7 +6,6 @@ import {
   HiOutlineViewGrid,
   HiOutlineViewList,
 } from "react-icons/hi";
-import { SlideshowLightbox } from "lightbox.js-react";
 import Content from "./components/Content";
 import Breadcrumb from "./components/Breadcrumb";
 import Dropzone from "./components/Dropzone";
@@ -16,9 +15,8 @@ import { useSearchContext } from "contexts/SearchContext";
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
 import {
-  setImageViewAction,
   updateDecryptedFilesAction,
-  updateDecryptedFoldersAction,
+  updateDecryptedFoldersAction
 } from "state/mystorage/actions";
 import { File as FileType, Folder } from "api";
 
@@ -33,9 +31,12 @@ import { toast } from "react-toastify";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useNavigate } from "react-router-dom";
 import ShareModal from "pages/Shared/Components/ShareModal";
+import Imageview from "components/ImageView/Imageview";
 
 
-export default function Home () {
+export default function Home() {
+
+  const [loaded, setloaded] = useState(false);
 
   const dispatch = useAppDispatch();
   const { uploading } = useAppSelector((state) => state.uploadstatus);
@@ -44,10 +45,6 @@ export default function Home () {
   const { logout } = useAuth();
   const accountType = getAccountType();
   const navigate = useNavigate();
-  const onClick = (url: string) => {
-    navigate(url);
-  };
-
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(ref, open, setOpen);
@@ -76,7 +73,7 @@ export default function Home () {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { folders, files, showPreview, path, preview, showShareModal } = useAppSelector(
+  const { folders, files, showPreview, path, showShareModal } = useAppSelector(
     (state) => state.mystorage
   );
 
@@ -246,8 +243,6 @@ export default function Home () {
       file.cid.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  console.log(filteredFiles[0]?.name)
-
   const [view, setView] = useState<"list" | "grid">("list");
 
   const onRadioChange = (e: any) => {
@@ -258,8 +253,6 @@ export default function Home () {
     fetchUserDetail();
   }, []);
 
-  const filteredImages=filteredFiles.filter((file: FileType) => file.mime_type.includes("image"))
-  console.log(filteredImages);
 
   return (
     <div className="overflow-hidden flex flex-col table-main ">
@@ -374,6 +367,7 @@ export default function Home () {
           showFolders={true}
           filesTitle="Files"
           identifier={1}
+          setloaded={setloaded}
         />
       </section>
       {/* Sticky footer */}
@@ -386,8 +380,8 @@ export default function Home () {
           <div className="flex items-center space-x-2">
             <button
               className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-gray-200"
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
                 }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
@@ -399,8 +393,8 @@ export default function Home () {
             </button>
             <button
               className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-gray-200"
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-200"
                 }`}
               onClick={() =>
                 setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
@@ -418,19 +412,12 @@ export default function Home () {
       {uploading && <UploadProgress />}
 
       {/* lightbox */}
-      <SlideshowLightbox
-        images={preview == undefined ? [] : [preview]}
-        showThumbnails={false}
-        showThumbnailIcon={false}
-        open={showPreview}
-        lightboxIdentifier="lbox1"
-        backgroundColor="#0f0f0fcc"
-        iconColor="#ffffff"
-        modalClose="clickOutside"
-        onClose={() => {
-          dispatch(setImageViewAction({ show: false }));
-        }}
-      />
+      <Imageview
+        isOpen={showPreview}
+        files={filteredFiles}
+        loaded={loaded}
+        setloaded={setloaded}
+      ></Imageview>
     </div>
   );
 }
