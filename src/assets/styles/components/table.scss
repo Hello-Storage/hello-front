@@ -4,8 +4,7 @@
   margin: 10px;
 }*/
 
-
-@media  only screen and (min-width: 1024px){
+@media only screen and (min-width: 1024px) {
 	.table-div {
 		overflow-y: scroll;
 		min-height: calc(100vh - 530px);
@@ -21,7 +20,7 @@
 	}
 }
 
-@media only screen and (min-width: 640px)  and (max-width: 768px) {
+@media only screen and (min-width: 640px) and (max-width: 768px) {
 	.table-div {
 		overflow-y: scroll;
 		min-height: calc(100vh - 635px);

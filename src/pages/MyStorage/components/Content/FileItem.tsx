@@ -27,10 +27,8 @@ import {
 import React from "react";
 import { useAppDispatch } from "state";
 import {
-  PreviewImage,
-  setImageViewAction,
-  setSelectedShareFile,
-  setShowShareModal,
+  setFileViewAction, setImageViewAction, setSelectedShareFile,
+  setShowShareModal
 } from "state/mystorage/actions";
 import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
@@ -42,9 +40,10 @@ dayjs.extend(relativeTime);
 interface FileItemProps {
   file: FileType;
   view: "list" | "grid";
+	setloaded: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
   const dispatch = useAppDispatch();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -141,76 +140,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const handleView = () => {
     viewRef.current = true;
 
-    Api.get(`/file/download/${file.uid}`, {
-      responseType: "blob",
-      onDownloadProgress: onDownloadProgress,
-    })
-      .then(async (res) => {
-        dispatch(
-          setUploadStatusAction({
-            info: "Finished downloading data",
-            uploading: false,
-          })
-        );
-        let binaryData = res.data;
-        if (file.encryption_status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          console.log(originalCid);
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(
-            binaryData,
-            originalCid,
-            (percentage) => {
-              dispatch(
-                setUploadStatusAction({
-                  info: "Decrypting...",
-                  read: percentage,
-                  size: 100,
-                  uploading: true,
-                })
-              );
-            }
-          );
+    dispatch(setFileViewAction({ file: undefined }));
+    dispatch(setImageViewAction({ show: false }));
+    setloaded(false)
 
-          dispatch(
-            setUploadStatusAction({
-              info: "Decryption done",
-              uploading: false,
-            })
-          );
-        }
-        const blob = new Blob([binaryData], { type: file.mime_type });
-        if (!blob) {
-          console.error("Error downloading file:", file);
-          return;
-        }
-        const url = window.URL.createObjectURL(blob);
-
-        let mediaItem: PreviewImage;
-        if (file.mime_type.startsWith("video/")) {
-          mediaItem = {
-            type: "htmlVideo",
-            videoSrc: url,
-            alt: file.name,
-          };
-        } else if (
-          file.mime_type === "application/pdf" ||
-          file.mime_type === "text/plain"
-        ) {
-          window.open(url, "_blank"); // PDF or TXT in a new tab
-          return;
-        } else {
-          mediaItem = {
-            src: url,
-            alt: file.name,
-          };
-        }
-
-        dispatch(setImageViewAction({ img: mediaItem, show: true }));
-      })
-      .catch((err) => {
-        console.error("Error downloading file:", err);
-      });
+    dispatch(setFileViewAction({
+      file: file
+    }))
+    dispatch(setImageViewAction({
+      show: true
+    }))
   };
 
   const handleDelete = () => {
@@ -345,9 +284,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           <div className="flex flex-col items-center gap-3">
             <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis flex items-center gap-2">
               <HiDocumentText className="w-4 h-4 flex-shrink-0" />
-            {file.is_in_pool && (
-              <GoAlertFill style={{ color: "#FF6600" }} />
-            )}
+              {file.is_in_pool && (
+                <GoAlertFill style={{ color: "#FF6600" }} />
+              )}
               <span className="hidden md:inline">
                 {truncate(file.name, 40)}
               </span>

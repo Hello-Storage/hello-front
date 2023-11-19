@@ -1,101 +1,83 @@
 import { Api } from "api";
 import { AxiosProgressEvent } from "axios";
 import { EncryptionStatus, File as FileType } from "api/types";
-import { Spinner3 } from "components/Spinner";
 import { SlideshowLightbox } from "lightbox.js-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "state";
-import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
+import { PreviewImage, setFileViewAction, setImageViewAction } from "state/mystorage/actions";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import {
 	blobToArrayBuffer,
 	decryptFileBuffer,
 } from "utils/encryption/filesCipher";
+import Spinner4 from "components/Spinner/Spinner4";
 
 interface ImageviewProps {
 	isOpen: boolean;
-	setIsopen: React.Dispatch<React.SetStateAction<boolean>>;
-	file: FileType;
 	files: FileType[];
+	loaded: boolean;
+	setloaded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Imageview: React.FC<ImageviewProps> = ({ isOpen, setIsopen, file, files }) => {
+const Imageview: React.FC<ImageviewProps> = ({ isOpen, files, loaded, setloaded }) => {
 	const dispatch = useAppDispatch();
-	const { preview } = useAppSelector((state) => state.mystorage);
-	const [loaded, setloaded] = useState(false);
-	const closeShareModal = () => {
-		setIsopen(false);
-	};
+	const [preview, setpreview] = useState<void | PreviewImage[]>([]);
+	const { selectedShowFile } = useAppSelector((state) => state.mystorage);
+
+	// Estado para la caché de blobs descargadas
+	const [cache, setCache] = useState<Record<string, Blob>>({});
 
 	const onDownloadProgress = (progressEvent: AxiosProgressEvent) => {
 		dispatch(
 			setUploadStatusAction({
-				info: `${"Loading"} ` + file.name,
+				info: `${"Loading"} ` + selectedShowFile?.name,
 				uploading: true,
 			})
 		);
-
 		dispatch(
 			setUploadStatusAction({
 				read: progressEvent.loaded,
-				size: file.size,
+				size: selectedShowFile?.size,
 			})
 		);
 	};
 
-    function findIndex(lista: FileType[], uid: string): number {
-        for (let i = 0; i < lista.length; i++) {
-            if (lista[i].uid === uid) {
-                return i;
-            }
-        }
-        return -1;
-    }
+	function isInList(list: FileType[], file: FileType): boolean {
+		for (const x of list) {
+			if (x.uid === file.uid) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-	const handleView = () => {
-		Api.get(`/file/download/${file.uid}`, {
-			responseType: "blob",
-			onDownloadProgress: onDownloadProgress,
-		})
-			.then(async (res) => {
-				dispatch(
-					setUploadStatusAction({
-						info: "Finished downloading data",
-						uploading: false,
-					})
-				);
-				let binaryData = res.data;
-				if (file.encryption_status === EncryptionStatus.Encrypted) {
-					const originalCid = file.cid_original_encrypted;
-					console.log(originalCid);
-					binaryData = await blobToArrayBuffer(binaryData);
-					binaryData = await decryptFileBuffer(
-						binaryData,
-						originalCid,
-						(percentage) => {
-							dispatch(
-								setUploadStatusAction({
-									info: "Decrypting...",
-									read: percentage,
-									size: 100,
-									uploading: true,
-								})
-							);
-						}
-					);
+	const handleView = async (selectedShowFiles: FileType[] | undefined) => {
+		if (selectedShowFiles && selectedShowFiles.length > 0 && selectedShowFile) {
+			const originalOrder: PreviewImage[] = [];
 
-					dispatch(
-						setUploadStatusAction({
-							info: "Decryption done",
-							uploading: false,
-						})
-					);
-				}
-				const blob = new Blob([binaryData], { type: file.mime_type });
-				if (!blob) {
-					console.error("Error downloading file:", file);
-					return;
-				}
+			if (selectedShowFiles.length > 0) {
+				const selectedShowFile = selectedShowFiles[0];
+				await downloadAndProcessFile(selectedShowFile, originalOrder);
+			}
+
+			setloaded(true);
+
+			const otherFiles = selectedShowFiles.slice(1);
+			const promises = otherFiles.map((file) => downloadAndProcessFile(file, originalOrder));
+
+			await Promise.all(promises);
+
+			const filteredMediaItems = originalOrder.filter((item) => item !== undefined);
+			setpreview(filteredMediaItems);
+		}
+	};
+
+	const downloadAndProcessFile = async (file: FileType, originalOrder: PreviewImage[]) => {
+		try {
+			// Verificar si el archivo está en la caché
+			if (cache[file.uid]) {
+				// Usar la versión en caché en lugar de descargar
+				const blob = cache[file.uid];
 				const url = window.URL.createObjectURL(blob);
 
 				let mediaItem: PreviewImage;
@@ -105,11 +87,10 @@ const Imageview: React.FC<ImageviewProps> = ({ isOpen, setIsopen, file, files })
 						videoSrc: url,
 						alt: file.name,
 					};
-				} else if (
-					file.mime_type === "application/pdf" ||
-					file.mime_type === "text/plain"
-				) {
-					window.open(url, "_blank"); // PDF or TXT in a new tab
+				} else if (file.mime_type === "application/pdf" || file.mime_type === "text/plain") {
+					window.open(url, "_blank"); // PDF or TXT en una nueva pestaña
+					dispatch(setFileViewAction({ file: undefined }));
+					dispatch(setImageViewAction({ show: false }));
 					return;
 				} else {
 					mediaItem = {
@@ -117,42 +98,135 @@ const Imageview: React.FC<ImageviewProps> = ({ isOpen, setIsopen, file, files })
 						alt: file.name,
 					};
 				}
-                setloaded(true)
-				dispatch(setImageViewAction({ img: mediaItem, show: true }));
-			})
-			.catch((err) => {
-				console.error("Error downloading file:", err);
+
+				originalOrder.push(mediaItem);
+				return mediaItem;
+			}
+
+			// Si no está en caché, realizar la descarga
+			const res = await Api.get(`/file/download/${file.uid}`, {
+				responseType: "blob",
+				onDownloadProgress: onDownloadProgress,
 			});
+
+			dispatch(
+				setUploadStatusAction({
+					info: "Finished downloading data",
+					uploading: false,
+				})
+			);
+
+			let binaryData = res.data;
+
+			if (file.encryption_status === EncryptionStatus.Encrypted) {
+				const originalCid = file.cid_original_encrypted;
+				binaryData = await blobToArrayBuffer(binaryData);
+				binaryData = await decryptFileBuffer(binaryData, originalCid, (percentage) => {
+					dispatch(
+						setUploadStatusAction({
+							info: "Decrypting...",
+							read: percentage,
+							size: 100,
+							uploading: true,
+						})
+					);
+				});
+
+				dispatch(
+					setUploadStatusAction({
+						info: "Decryption done",
+						uploading: false,
+					})
+				);
+			}
+
+			const blob = new Blob([binaryData], { type: file.mime_type });
+
+			if (!blob) {
+				console.error("Error downloading file:", file);
+				return;
+			}
+
+			// Almacenar la blob en la caché
+			setCache((prevCache) => ({
+				...prevCache,
+				[file.uid]: blob,
+			}));
+
+			const url = window.URL.createObjectURL(blob);
+
+			let mediaItem: PreviewImage;
+			if (file.mime_type.startsWith("video/")) {
+				mediaItem = {
+					type: "htmlVideo",
+					videoSrc: url,
+					alt: file.name,
+				};
+			} else if (file.mime_type === "application/pdf" || file.mime_type === "text/plain") {
+				window.open(url, "_blank"); // PDF or TXT en una nueva pestaña
+				dispatch(setFileViewAction({ file: undefined }));
+				dispatch(setImageViewAction({ show: false }));
+				return;
+			} else {
+				mediaItem = {
+					src: url,
+					alt: file.name,
+				};
+			}
+
+			originalOrder.push(mediaItem);
+			return mediaItem;
+		} catch (err) {
+			console.error("Error downloading file:", err);
+		}
 	};
-    
-    const index=findIndex(files,file.uid)
+
+	useEffect(() => {
+		dispatch(setFileViewAction({ file: undefined }));
+		dispatch(setImageViewAction({ show: false }));
+		setloaded(false);
+		setpreview([]);
+		// Limpiar la caché al montar el componente
+		setCache({});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
+		setpreview([]);
+		if (isOpen && selectedShowFile && !loaded) {
+			if (selectedShowFile.mime_type.startsWith("video/") || selectedShowFile.mime_type.startsWith("image/")) {
+				const tempList = [];
+				tempList.push(selectedShowFile);
+				for (const file of files) {
+					if (!isInList(tempList, file) && (file.mime_type.startsWith("video/") || file.mime_type.startsWith("image/"))) {
+						tempList.push(file);
+					}
+				}
+				handleView(tempList);
+			} else {
+				handleView([selectedShowFile]);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedShowFile, isOpen, loaded]);
 
 	if (!isOpen) {
 		return <></>;
+	} else if (!loaded || !preview || preview.length === 0) {
+		return <Spinner4 />;
 	} else {
-		if (!loaded) {
-			return <Spinner3 />;
-		} else {
-			return (
-				<>
-					<div>prev</div>
-					<div>next</div>
-					<SlideshowLightbox
-						images={[preview]}
-						showThumbnails={false}
-						showThumbnailIcon={false}
-						open={isOpen}
-						lightboxIdentifier="lbox1"
-						backgroundColor="#0f0f0fcc"
-						iconColor="#ffffff"
-						modalClose="clickOutside"
-						onClose={() => {
-							dispatch(setImageViewAction({ show: false }));
-						}}
-					/>
-				</>
-			);
-		}
+		return (
+			<SlideshowLightbox
+				images={preview}
+				showThumbnails={true}
+				showThumbnailIcon={true}
+				open={loaded}
+				lightboxIdentifier="lbox1"
+				backgroundColor="#0f0f0fcc"
+				iconColor="#ffffff"
+				modalClose="button"
+			/>
+		);
 	}
 };
 
