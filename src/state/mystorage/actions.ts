@@ -38,11 +38,12 @@ export const updateDecryptedFoldersAction = createAction<Folder[]>(
 );
 
 export const setImageViewAction = createAction<{
+  img?: PreviewImage
   show?: boolean;
 }>("mystorage/image-view");
 
 export const setFileViewAction = createAction<{
-  file?: FileType;
+  file?: FileType ;
 }>("mystorage/file-view");
 
 

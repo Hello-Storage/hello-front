@@ -24,7 +24,6 @@ const Imageview: React.FC<ImageviewProps> = ({ isOpen, files, loaded, setloaded 
 	const [preview, setpreview] = useState<void | PreviewImage[]>([]);
 	const { selectedShowFile } = useAppSelector((state) => state.mystorage);
 
-	// Estado para la caché de blobs descargadas
 	const [cache, setCache] = useState<Record<string, Blob>>({});
 
 	const onDownloadProgress = (progressEvent: AxiosProgressEvent) => {
@@ -74,9 +73,7 @@ const Imageview: React.FC<ImageviewProps> = ({ isOpen, files, loaded, setloaded 
 
 	const downloadAndProcessFile = async (file: FileType, originalOrder: PreviewImage[]) => {
 		try {
-			// Verificar si el archivo está en la caché
 			if (cache[file.uid]) {
-				// Usar la versión en caché en lugar de descargar
 				const blob = cache[file.uid];
 				const url = window.URL.createObjectURL(blob);
 
@@ -103,7 +100,6 @@ const Imageview: React.FC<ImageviewProps> = ({ isOpen, files, loaded, setloaded 
 				return mediaItem;
 			}
 
-			// Si no está en caché, realizar la descarga
 			const res = await Api.get(`/file/download/${file.uid}`, {
 				responseType: "blob",
 				onDownloadProgress: onDownloadProgress,
@@ -147,7 +143,6 @@ const Imageview: React.FC<ImageviewProps> = ({ isOpen, files, loaded, setloaded 
 				return;
 			}
 
-			// Almacenar la blob en la caché
 			setCache((prevCache) => ({
 				...prevCache,
 				[file.uid]: blob,
