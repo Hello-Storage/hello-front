@@ -19,6 +19,7 @@ import {
 import { File as FileType, RootResponse } from "api";
 
 interface MyStorageProps extends RootResponse {
+  preview: PreviewImage | undefined;
   showPreview: boolean;
   showShareModal: boolean;
   selectedShareFile?: FileType;
@@ -32,6 +33,7 @@ const initialState: MyStorageProps = {
     sharedWithMe: [],
     sharedByMe: [],
   },
+  preview: undefined,
   folders: [],
   showPreview: false,
   showShareModal: false,
@@ -50,6 +52,7 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
     }))
     .addCase(setImageViewAction, (state, { payload }) => ({
       ...state,
+      preview: payload.img,
       showPreview: payload.show == undefined ? false : payload.show,
     }))
     .addCase(removeFileAction, (state, { payload }) => ({
