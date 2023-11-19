@@ -2,7 +2,7 @@ import { createReducer } from "@reduxjs/toolkit";
 
 import { loadUser, loadingUser, loadUserFail, logoutUser, setRedirectUrl } from "./actions";
 
-interface User {
+export interface User {
   uid: string;
   name: string;
   role: string;
