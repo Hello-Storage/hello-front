@@ -17,9 +17,10 @@ const getPasswordBytes = (signature: string): Uint8Array => {
 const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uint8Array, iv?: Uint8Array): Promise<{ aesKey: CryptoKey, salt: Uint8Array, iv: Uint8Array }> => {
     const passwordBytes = getPasswordBytes(signature);
     const passwordKey = await window.crypto.subtle.importKey('raw', passwordBytes, 'PBKDF2', false, ['deriveKey']);
-    salt = salt || window.crypto.getRandomValues(new Uint8Array(16));
-    iv = iv || window.crypto.getRandomValues(new Uint8Array(12));
-
+    //salt = salt || window.crypto.getRandomValues(new Uint8Array(16));
+    //iv = iv || window.crypto.getRandomValues(new Uint8Array(12));
+    salt = salt || new Uint8Array(16).fill(0);
+    iv = iv || new Uint8Array(12).fill(0);
     const keyDerivationParams = {
         name: 'PBKDF2',
         salt: salt,
@@ -66,7 +67,11 @@ export const encryptMetadata = async (file: File, personalSignature: string | un
         logoutUser();
         return;
     }
-    const { aesKey, salt, iv } = await getAesKey(personalSignature, ['encrypt']);
+    const salt = new Uint8Array(16).fill(0);
+    const iv = new Uint8Array(12).fill(0);
+    //salt = salt || window.crypto.getRandomValues(new Uint8Array(16));
+    //iv = iv || window.crypto.getRandomValues(new Uint8Array(12));
+    const { aesKey } = await getAesKey(personalSignature, ['encrypt'], salt, iv);
 
 
     const encryptValue = async (value: string): Promise<Uint8Array> => {

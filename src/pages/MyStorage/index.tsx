@@ -257,7 +257,6 @@ export default function Home () {
   }, []);
 
   const filteredImages=filteredFiles.filter((file: FileType) => file.mime_type.includes("image"))
-  console.log(filteredImages);
 
   return (
     <div className="overflow-hidden flex flex-col table-main ">

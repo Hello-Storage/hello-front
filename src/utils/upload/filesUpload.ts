@@ -9,11 +9,11 @@ import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { User } from "state/user/reducer";
 import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, getCid } from "utils/encryption/filesCipher";
 
+
 const handleEncryption = async (
     file: File,
     personalSignature: string | undefined,
     isFolder: boolean,
-    encryptedPathsMapping: { [path: string]: string }
 ): Promise<{
     encryptedFile: File;
     cidOfEncryptedBufferStr: string;
@@ -23,6 +23,7 @@ const handleEncryption = async (
     encryptionTime: number;
 } | null> => {
     const fileArrayBuffer = await file.arrayBuffer();
+    const encryptedPathsMapping: { [path: string]: string } = {};
 
     const encryptedMetadataResult = await encryptMetadata(
         file,
@@ -42,7 +43,9 @@ const handleEncryption = async (
     } = await encryptFileBuffer(fileArrayBuffer);
 
     const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
+    console.log("encrypted filename base64 url: ", encryptedFilenameBase64Url)
     const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
+    console.log("encrypted filetype hex: ", encryptedFiletypeHex)
     const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
     const cidOriginalEncryptedBuffer = await encryptBuffer(
         cidOriginalBuffer,
@@ -100,6 +103,54 @@ const handleEncryption = async (
     };
 };
 
+const handleBackendEncryption = async (
+    file: File,
+    personalSignature: string | undefined,
+    isFolder: boolean,
+    root: string,
+): Promise<{
+    cidOfEncryptedBufferStr: string;
+    cidOriginalStr?: string;
+    cidOriginalEncryptedBase64Url: string;
+    encryptedWebkitRelativePath: string;
+    encryptionTime: number;
+} | null> => {
+    if (!personalSignature) {
+        toast.error("Failed to get personal signature");
+        return null;
+    }
+
+
+    const fileForm = new FormData();
+    fileForm.append("file", file);
+    fileForm.append("personalSignature", personalSignature);
+    fileForm.append("isFolder", isFolder.toString());
+    fileForm.append("root", root);
+
+    try {
+        const response = await Api.post(`/file/encrypt`, fileForm, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        })
+
+        return response.data;
+    } catch (error) {
+        console.log("Error during backend encryption:", error)
+        return null
+    }
+
+
+    return {
+        cidOfEncryptedBufferStr: "",
+        cidOriginalStr: "",
+        cidOriginalEncryptedBase64Url: "",
+        encryptedWebkitRelativePath: "",
+        encryptionTime: 0,
+    };
+
+};
+
 export const fileUpload = async (
     files: File[] | FileList | null,
     isFolder: boolean,
@@ -147,83 +198,95 @@ export const fileUpload = async (
     for (let i = 0; i < files.length; i++) {
         let file = files[i];
 
-        if (encryptionEnabled) {
-            const originalFile = file;
+        // if file size is bigger than 10 KB:
+        if (file.size > 10000) {
             const infoText = `Encrypting file ${i + 1} of ${files.length}`;
             dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-            const encryptedResult = await handleEncryption(
+            const encryptedResult = await handleBackendEncryption(
                 file,
                 personalSignature,
                 isFolder,
-                encryptedPathsMapping
-            );
-            if (!encryptedResult) {
-                toast.error("Failed to encrypt file");
-                return;
-            }
-            const {
-                encryptedFile,
-                cidOfEncryptedBufferStr,
-                cidOriginalStr,
-                cidOriginalEncryptedBase64Url,
-                encryptedWebkitRelativePath,
-                encryptionTime,
-            } = encryptedResult;
-
-            file = encryptedFile;
-
-
-
-            encryptionTimeTotal += encryptionTime;
-
-            const customFile: FileType = {
-                name: encryptedFile.name,
-                name_unencrypted: originalFile.name,
-                cid: cidOfEncryptedBufferStr || "",
-                id: 0,
-                uid: "",
-                cid_original_encrypted: cidOriginalEncryptedBase64Url || "",
-                cid_original_unencrypted: cidOriginalStr || "",
-                cid_original_encrypted_base64_url: cidOriginalEncryptedBase64Url,
-                size: encryptedFile.size,
-                root: root,
-                mime_type: encryptedFile.type,
-                mime_type_unencrypted: originalFile.type,
-                media_type: encryptedFile.type.split("/")[0],
-                path: encryptedWebkitRelativePath,
-                encryption_status: EncryptionStatus.Encrypted,
-                created_at: "",
-                updated_at: "",
-                deleted_at: "",
-            }
-
-            filesMap.push({ customFile, file });
-
+                root
+            )
+            console.log(encryptedResult)
         } else {
-            const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
-            const cidStr = await getCid(uint8ArrayBuffer);
+            if (encryptionEnabled) {
+                const originalFile = file;
+                const infoText = `Encrypting file ${i + 1} of ${files.length}`;
+                dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
+                const encryptedResult = await handleEncryption(
+                    file,
+                    personalSignature,
+                    isFolder,
+                );
+                if (!encryptedResult) {
+                    toast.error("Failed to encrypt file");
+                    return;
+                }
+                const {
+                    encryptedFile,
+                    cidOfEncryptedBufferStr,
+                    cidOriginalStr,
+                    cidOriginalEncryptedBase64Url,
+                    encryptedWebkitRelativePath,
+                    encryptionTime,
+                } = encryptedResult;
 
-            const customFile: FileType = {
-                name: file.name,
-                name_unencrypted: file.name,
-                cid: cidStr,
-                id: 0,
-                uid: "",
-                cid_original_encrypted: "",
-                size: file.size,
-                root: root,
-                mime_type: file.type,
-                mime_type_unencrypted: file.type,
-                media_type: file.type.split("/")[0],
-                path: file.webkitRelativePath,
-                encryption_status: EncryptionStatus.Public,
-                created_at: "",
-                updated_at: "",
-                deleted_at: "",
+                file = encryptedFile;
+
+
+
+                encryptionTimeTotal += encryptionTime;
+
+                const customFile: FileType = {
+                    name: encryptedFile.name,
+                    name_unencrypted: originalFile.name,
+                    cid: cidOfEncryptedBufferStr || "",
+                    id: 0,
+                    uid: "",
+                    cid_original_encrypted: cidOriginalEncryptedBase64Url || "",
+                    cid_original_unencrypted: cidOriginalStr || "",
+                    cid_original_encrypted_base64_url: cidOriginalEncryptedBase64Url,
+                    size: encryptedFile.size,
+                    root: root,
+                    mime_type: encryptedFile.type,
+                    mime_type_unencrypted: originalFile.type,
+                    media_type: encryptedFile.type.split("/")[0],
+                    path: encryptedWebkitRelativePath,
+                    encryption_status: EncryptionStatus.Encrypted,
+                    created_at: "",
+                    updated_at: "",
+                    deleted_at: "",
+                }
+
+                filesMap.push({ customFile, file });
+
+            } else {
+                const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
+                const cidStr = await getCid(uint8ArrayBuffer);
+
+                const customFile: FileType = {
+                    name: file.name,
+                    name_unencrypted: file.name,
+                    cid: cidStr,
+                    id: 0,
+                    uid: "",
+                    cid_original_encrypted: "",
+                    size: file.size,
+                    root: root,
+                    mime_type: file.type,
+                    mime_type_unencrypted: file.type,
+                    media_type: file.type.split("/")[0],
+                    path: file.webkitRelativePath,
+                    encryption_status: EncryptionStatus.Public,
+                    created_at: "",
+                    updated_at: "",
+                    deleted_at: "",
+                }
+
+                filesMap.push({ customFile, file });
+
             }
-
-            filesMap.push({ customFile, file });
-
         }
     }
 
@@ -252,7 +315,7 @@ export const fileUpload = async (
             : `uploading ${files.length} files`;
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-    postData(formData, filesMap, outermostFolderTitle, isFolder, dispatch, onUploadProgress, fetchUserDetail, root, encryptionEnabled);
+    //postData(formData, filesMap, outermostFolderTitle, isFolder, dispatch, onUploadProgress, fetchUserDetail, root, encryptionEnabled);
 };
 
 export const postData = async (formData: FormData, filesMap: { customFile: FileType, file: File }[], outermostFolderTitle: string, isFolder: boolean, dispatch: AppDispatch, onUploadProgress: (progressEvent: AxiosProgressEvent) => void, fetchUserDetail: () => void, root: string, encryptionEnabled: boolean | undefined) => {

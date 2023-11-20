@@ -283,7 +283,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     if (tablerowdiv && tableheaderdiv) {
       tablerowdiv.onscroll = function () {
         if (headerScroll)
-        console.log("test");
           tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
       };
     }
