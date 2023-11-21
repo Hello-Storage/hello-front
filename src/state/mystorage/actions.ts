@@ -54,3 +54,7 @@ export const setShowShareModal = createAction<boolean>(
 export const setSelectedShareFile = createAction<FileType | undefined>(
   "mystorage/set-selected-share-file"
 );
+
+export const setSelectedSharedFiles = createAction<FileType[] | undefined>(
+  "mystorage/set-selected-shared-files"
+);

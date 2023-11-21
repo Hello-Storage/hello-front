@@ -15,6 +15,7 @@ import {
   removeFolder,
   updateDecryptedSharedFilesAction,
   setFileViewAction,
+  setSelectedSharedFiles,
 } from "./actions";
 import { File as FileType, RootResponse } from "api";
 
@@ -24,6 +25,7 @@ interface MyStorageProps extends RootResponse {
   showShareModal: boolean;
   selectedShareFile?: FileType;
   selectedShowFile?: FileType;
+  selectedSharedFiles?: FileType[];
 }
 const initialState: MyStorageProps = {
   root: "/",
@@ -38,6 +40,7 @@ const initialState: MyStorageProps = {
   showPreview: false,
   showShareModal: false,
   selectedShareFile: undefined,
+  selectedSharedFiles: undefined,
 };
 
 export default createReducer<MyStorageProps>(initialState, (builder) => {
@@ -90,7 +93,6 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
         }),
       };
     })
-
     .addCase(updateDecryptedFoldersAction, (state, { payload }) => {
       state.folders = state.folders.map(folder => {
         const decryptedFolder = payload.find(pf => pf.id === folder.id);
@@ -108,5 +110,9 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
     .addCase(setSelectedShareFile, (state, { payload }) => ({
       ...state,
       selectedShareFile: payload,
+    }))
+    .addCase(setSelectedSharedFiles, (state, { payload }) => ({
+      ...state,
+      selectedSharedFiles: payload,
     }));
 });
