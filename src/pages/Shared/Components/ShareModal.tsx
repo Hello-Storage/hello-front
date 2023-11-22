@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 //import { baseName } from "../../constants";
 //import { logOut } from "../../requests/clientRequests";
-import { Api, File } from "api";
+import { Api } from "api";
 import {
 	setSelectedShareFile,
 	setShowShareModal,
@@ -17,6 +17,10 @@ import { useAppSelector } from "state";
 import { toast } from "react-toastify";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
 import { useNavigate } from "react-router-dom";
+// type IconWithTooltipProps = {
+// 	IconComponent: any; // Esto es para componentes sin props
+// 	tooltipText: string;
+// };
 import { logoutUser } from "state/user/actions";
 
 //can be public, one time, address restricted, password restricted, temporary link or subscription
@@ -30,9 +34,9 @@ const ShareModal = () => {
 	//const selectedFile: File | null = props.selectedFile;
 	const [fileSharedState, setFileSharedState] = useState<ShareState>();
 
-	const [showDescriptionIndex, setShowDescriptionIndex] = useState<
-		number | null
-	>(null);
+	// const [showDescriptionIndex, setShowDescriptionIndex] = useState<
+	// 	number | null
+	// >(null);
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
 		number | null
 	>(null);
@@ -144,91 +148,87 @@ const ShareModal = () => {
 		dispatch(setShowShareModal(!showShareModal));
 	};
 
-	const handleShareChange = (type: string) => async (
-		e: React.ChangeEvent<HTMLInputElement>
-	) => {
-		const shareTypeObject = shareDetails.find((st) => st.type === type);
-		if (!shareTypeObject || !selectedShareFile) {
-			setShareError("Invalid share type");
-		} else if (selectedShareFile.decrypted === false) {
-			setShareError("File is not decrypted yet");
-		} else if (shareTypeObject.state === "disabled") {
-			setShareError("This share type is not available yet");
-		} else {
-			setShareError("");
-			if (e.target.checked) {
-				//handle sharing from shareRequests.ts
-
-				shareFile(selectedShareFile, type)
-					.then((res) => {
-						//if res is AxiosResponse:
-						if ((res as AxiosResponse).status === 200) {
-							res = res as AxiosResponse;
-							const shareState = res?.data as ShareState;
-							setFileSharedState(shareState);
-							if (shareState.public_file.id !== 0) {
-								setSelectedShareTypes((prevTypes) => [
-									...prevTypes,
-									"public",
-								]);
-							}
-							toast.success("File shared successfully");
-						}
-						if ((res as AxiosError).isAxiosError) {
-							toast.error("Error sharing file");
-						}
-					})
-					.catch((err) => {
-						setShareError(err.message);
-					});
+	const handleShareChange =
+		(type: string) => async (e: React.ChangeEvent<HTMLInputElement>) => {
+			const shareTypeObject = shareDetails.find((st) => st.type === type);
+			if (!shareTypeObject || !selectedShareFile) {
+				setShareError("Invalid share type");
+			} else if (selectedShareFile.decrypted === false) {
+				setShareError("File is not decrypted yet");
+			} else if (shareTypeObject.state === "disabled") {
+				setShareError("This share type is not available yet");
 			} else {
-				unshareFile(selectedShareFile, type)
-					.then((res) => {
-						//if res is AxiosResponse:
-						if ((res as AxiosResponse).status === 200) {
-							res = res as AxiosResponse;
-							const shareState = res?.data as ShareState;
-							setFileSharedState(shareState);
-							//if public_file.id is 0, remove public from selectedShareTypes
-							if (shareState.public_file.id === 0) {
-								setSelectedShareTypes((prevTypes) =>
-									prevTypes.filter((st) => st !== "public")
-								);
-							}
-						}
-						if ((res as AxiosError).isAxiosError) {
-							toast.error("Error unsharing file");
-						}
-					})
-					.catch((err) => {
-						setShareError(err.message);
-					});
+				setShareError("");
+				if (e.target.checked) {
+					//handle sharing from shareRequests.ts
 
-				setSelectedShareTypes((prevTypes) => [...prevTypes, type]);
+					shareFile(selectedShareFile, type)
+						.then((res) => {
+							//if res is AxiosResponse:
+							if ((res as AxiosResponse).status === 200) {
+								res = res as AxiosResponse;
+								const shareState = res?.data as ShareState;
+								setFileSharedState(shareState);
+								if (shareState.public_file.id !== 0) {
+									setSelectedShareTypes((prevTypes) => [
+										...prevTypes,
+										"public",
+									]);
+								}
+								toast.success("File shared successfully");
+							}
+							if ((res as AxiosError).isAxiosError) {
+								toast.error("Error sharing file");
+							}
+						})
+						.catch((err) => {
+							setShareError(err.message);
+						});
+				} else {
+					unshareFile(selectedShareFile, type)
+						.then((res) => {
+							//if res is AxiosResponse:
+							if ((res as AxiosResponse).status === 200) {
+								res = res as AxiosResponse;
+								const shareState = res?.data as ShareState;
+								setFileSharedState(shareState);
+								//if public_file.id is 0, remove public from selectedShareTypes
+								if (shareState.public_file.id === 0) {
+									setSelectedShareTypes((prevTypes) =>
+										prevTypes.filter((st) => st !== "public")
+									);
+								}
+							}
+							if ((res as AxiosError).isAxiosError) {
+								toast.error("Error unsharing file");
+							}
+						})
+						.catch((err) => {
+							setShareError(err.message);
+						});
+
+					setSelectedShareTypes((prevTypes) => [...prevTypes, type]);
+				}
 			}
-		}
-	};
+		};
 
 	const handleClickOutside = (
 		event: React.MouseEvent<HTMLDivElement, MouseEvent>
 	) => {
-		if (
-			modalRef.current &&
-			!modalRef.current.contains(event.target as Node)
-		) {
+		if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
 			closeShareModal();
 		}
 	};
 
 	const navigate = useNavigate();
 	/*
-		//shareType useEffect listener
-		useEffect(() => {
-			if (selectedShareTypes.length > 0) {
-				setShareError("");
-			}
-		}, [selectedShareTypes])
-	*/
+		  //shareType useEffect listener
+		  useEffect(() => {
+			  if (selectedShareTypes.length > 0) {
+				  setShareError("");
+			  }
+		  }, [selectedShareTypes])
+	  */
 	return (
 		<>
 			{showShareModal && selectedShareFile && (
@@ -267,8 +267,7 @@ const ShareModal = () => {
 										</h3>
 										<div className="mt-2">
 											<p className="mb-4">
-												File name:{" "}
-												{selectedShareFile.name}
+												File name: {selectedShareFile.name}
 											</p>
 											{shareDetails.map((sd, index) => {
 												return (
@@ -276,24 +275,11 @@ const ShareModal = () => {
 														className="col-12 form-check form-switch"
 														key={index}
 													>
-														{/*<input className="form-check-input" type="checkbox" id={`flexSwitch${sd.type}`} checked={selectedShareTypes.includes(sd.type)} onChange={handleShareChange(sd.type)} disabled={sd.state === "disabled"} /> */}
 														<label
 															className="form-check-label"
 															htmlFor={`flexSwitch${sd.type}`}
 														>
-															<div
-																onMouseEnter={() =>
-																	setShowDescriptionIndex(
-																		index
-																	)
-																}
-																onMouseLeave={() =>
-																	setShowDescriptionIndex(
-																		null
-																	)
-																}
-																className="flex flex-col"
-															>
+															<div className="flex flex-col">
 																<div className="flex flex-row items-center">
 																	<input
 																		type="checkbox"
@@ -301,76 +287,42 @@ const ShareModal = () => {
 																		checked={selectedShareTypes.includes(
 																			sd.type
 																		)}
-																		onChange={handleShareChange(
-																			sd.type
-																		)}
-																		disabled={
-																			sd.state ===
-																			"disabled"
-																		}
+																		onChange={handleShareChange(sd.type)}
+																		disabled={sd.state === "disabled"}
 																	/>
 																	<span className="ml-2 text-gray-700">
-																		{
-																			sd.title
-																		}
+																		{sd.title}
 																	</span>
 																	<span
 																		className="ml-2 text-gray-500 cursor-pointer"
 																		onClick={() =>
-																			pinnedDescriptionIndex ===
-																				index
-																				? setPinnedDescriptionIndex(
-																					null
-																				)
-																				: setPinnedDescriptionIndex(
-																					index
-																				)
+																			pinnedDescriptionIndex === index
+																				? setPinnedDescriptionIndex(null)
+																				: setPinnedDescriptionIndex(index)
 																		}
 																	>
-																		<i
-																			className={`fas fa-thin fa-question-circle p-2 me-2`}
-																		></i>
+																		<i className="p-2 fas fa-thin fa-question-circle me-2"></i>
 																	</span>
 																</div>
 
-																{(showDescriptionIndex ===
-																	index ||
-																	pinnedDescriptionIndex ===
-																	index) && (
-																		<span
-																			id="description"
-																			className="flex p-2 ml-2 text-sm bg-gray-200 rounded"
-																		>
-																			{
-																				sd.description
-																			}
-																		</span>
-																	)}
+																{pinnedDescriptionIndex === index && (
+																	<span
+																		id="description"
+																		className="flex p-2 ml-2 text-sm bg-gray-200 rounded"
+																	>
+																		{sd.description}
+																	</span>
+																)}
 															</div>
-															{/*
-                                                <OverlayTrigger
-                                                    key={`tooltip-${index}`}
-                                                    placement="top"
-                                                    overlay={
-                                                        <Tooltip id={`tooltip-${index}`}>
-                                                            {sd.description}
-                                                        </Tooltip>
-                                                    }
-                                                >
-                                                </OverlayTrigger>
-                                                */}
 														</label>
 														{sd.type === "public" &&
-															fileSharedState
-																?.public_file
-																.id !== 0 && (
+															fileSharedState?.public_file.id !== 0 && (
 																<div className="flex flex-col">
 																	<label
 																		htmlFor="shareLink"
 																		className="form-label"
 																	>
-																		Share
-																		link
+																		Share link
 																	</label>
 																	<div className="">
 																		<input
@@ -413,10 +365,7 @@ const ShareModal = () => {
 							</div>
 
 							{shareError && (
-								<div
-									className="alert alert-danger"
-									role="alert"
-								>
+								<div className="alert alert-danger" role="alert">
 									{shareError}
 								</div>
 							)}
@@ -435,6 +384,7 @@ const ShareModal = () => {
 			)}
 		</>
 	);
+
 };
 
 export default ShareModal;
