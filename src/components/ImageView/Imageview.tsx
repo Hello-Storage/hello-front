@@ -15,6 +15,8 @@ import {
 	decryptFileBuffer,
 } from "utils/encryption/filesCipher";
 import Spinner4 from "components/Spinner/Spinner4";
+import { logoutUser } from "state/user/actions";
+import { toast } from "react-toastify";
 
 // Props interface for the Imageview component.
 interface ImageviewProps {
@@ -29,9 +31,9 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 		const maxSize = 5000000; // Maximum file size for preview.
 
 		const dispatch = useAppDispatch();
+		const [file, setfile] = useState<FileType>();
 		const [preview, setpreview] = useState<void | PreviewImage[]>([]);
 		const { selectedShowFile } = useAppSelector((state) => state.mystorage);
-		const [acepted, setAcepted] = useState<boolean>(false);
 		const [aceptDownload, setAceptDownload] = useState<boolean>(false);
 		const [selectedName, setselectedName] = useState<string>("");
 		const [cache, setCache] = useState<Record<string, Blob>>({});
@@ -145,7 +147,8 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 				// Process the first file in the unique list if it meets the size criteria
 				if (uniqueFiles.length > 0) {
 					const selectedShowFile = uniqueFiles[0];
-					if (selectedShowFile.size < maxSize || aceptDownload) {
+					if (selectedShowFile.size < maxSize || aceptDownload ||
+						cache[selectedShowFile.uid]) {
 						// Download and process the first file
 						await downloadAndProcessFile(
 							selectedShowFile,
@@ -325,8 +328,28 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 					originalOrder.push(mediaItem);
 					return mediaItem;
 				}
-			} catch (err) {
-				console.error("Error downloading file:", err);
+			} catch (err: any) {
+				const error = err.response?.data.error;
+
+				if (
+					!localStorage.getItem("access_token") &&
+					err.response?.status === 401 &&
+					error &&
+					[
+						"authorization header is not provided",
+						"token has expired",
+					].includes(error)
+				) {
+					dispatch(logoutUser());
+				}
+				clear()
+				dispatch(setFileViewAction({ file: undefined }));
+				dispatch(
+					setUploadStatusAction({
+						uploading: false,
+					})
+				);
+				toast.error(err.message)
 			}
 		};
 
@@ -334,16 +357,12 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 		 * Function to clear the component state.
 		 */
 		function clear() {
-			dispatch(setFileViewAction({ file: undefined }));
 			dispatch(setImageViewAction({ show: false }));
-			setloaded(false);
-			setAcepted(false);
-			setAceptDownload(false);
-			setpreview([]);
 		}
 
 		// useEffect to clear states and cache.
 		useEffect(() => {
+			dispatch(setFileViewAction({ file: undefined }));
 			clear();
 			setCache({});
 			// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -352,7 +371,6 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 		// useEffect to reset states on selected file change.
 		useEffect(() => {
 			setloaded(false);
-			setAcepted(false);
 			setAceptDownload(false);
 			setpreview([]);
 			// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -361,6 +379,7 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 		// useEffect to handle opening of image view and file selection logic.
 		useEffect(() => {
 			if (selectedShowFile && !loaded) {
+				setfile(selectedShowFile)
 				setselectedName(selectedShowFile.name);
 				if (isOpen && !aceptDownload) {
 					if (
@@ -373,7 +392,6 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 						) {
 							setAceptDownload(true);
 						}
-						setAcepted(true);
 						if (
 							selectedShowFile.mime_type.startsWith("video/") ||
 							selectedShowFile.mime_type.startsWith("image/")
@@ -422,7 +440,7 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 
 		if (!isOpen) {
 			return <></>;
-		} else if (isOpen && !acepted) {
+		} else if (!aceptDownload && file && file.size >= maxSize) {
 			// Warning message for large files...
 			return (
 				<div className="h-screen w-screen flex flex-col z-40 justify-center items-center fixed top-0 left-0 bg-[#0f0f0fcc]">
@@ -447,7 +465,6 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 							<button
 								className="p-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
 								onClick={() => {
-									setAcepted(true);
 									setAceptDownload(true);
 								}}
 							>

@@ -9,6 +9,7 @@ import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
 import { useAppDispatch } from "state";
 import { removeFileAction } from "state/mystorage/actions";
+import { logoutUser } from "state/user/actions";
 
 interface ContentProps {
   loading: boolean;
@@ -266,6 +267,19 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         dispatch(removeFileAction(payload.Uid));
       })
       .catch((err) => {
+        const error = err.response?.data.error;
+
+        if (
+          !localStorage.getItem("access_token") &&
+          err.response?.status === 401 &&
+          error &&
+          [
+            "authorization header is not provided",
+            "token has expired",
+          ].includes(error)
+        ) {
+          dispatch(logoutUser());
+        }
         console.log("Error updating folder root:", err);
       });
   };
@@ -325,7 +339,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                 className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
                 onClick={onPresent}
               >
-                <RiFolderAddLine className="h-6 w-6" />
+                <RiFolderAddLine className="w-6 h-6" />
               </div>
               {folders.map((v, i) => (
                 <div
@@ -408,7 +422,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                   </th>
                   <th
                     scope="col"
-                    className="py-1 px-3"
+                    className="px-3 py-1"
                     id="column-type"
                   >
                     Type
@@ -430,19 +444,19 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
             </table>
           </div>
 
-          <div id={"table-row-div_" + identifier} className="table-div custom-scrollbar min-w-full h-full scrollbar-color">
+          <div id={"table-row-div_" + identifier} className="h-full min-w-full table-div custom-scrollbar scrollbar-color">
             <table id={"files-rows_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <tbody>
                 {loading ? (
                   <tr className="w-full h-64">
                     <td colSpan={6}>
-                      <div className="flex flex-col w-full h-full items-center justify-center text-center">
-                        <div className="text-xl font-semibold mb-4">
+                      <div className="flex flex-col items-center justify-center w-full h-full text-center">
+                        <div className="mb-4 text-xl font-semibold">
                           Decrypting
                         </div>
                         {/* SVG Spinner */}
                         <svg
-                          className="animate-spin h-12 w-12 text-violet-500 mb-4"
+                          className="w-12 h-12 mb-4 animate-spin text-violet-500"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -502,8 +516,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                         >
                           <td
                             scope="row"
-                            className="px-3 font-medium text-gray-900 whitespace-nowrap w-full">
-                            <div className="flex flex-col w-full h-full items-start lg:items-center justify-center text-center">
+                            className="w-full px-3 font-medium text-gray-900 whitespace-nowrap">
+                            <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
                               <div className="mt-4 mb-4">
                                 No files found
                               </div>
@@ -532,7 +546,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
             className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
             onClick={onPresent}
           >
-            <RiFolderAddLine className="h-6 w-6" />
+            <RiFolderAddLine className="w-6 h-6" />
           </div>
           {folders.map((v, i) => (
             <div
@@ -570,7 +584,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
         <section className="custom-scrollbar position-sticky-left">
           <h3 className="my-3">Files</h3>
-          <div className="grid grid-200 gap-3">
+          <div className="grid gap-3 grid-200">
             {files?.map((v, i) => (
               <FileItem file={v} key={i} view="grid"
                 setloaded={setloaded} />

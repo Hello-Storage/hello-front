@@ -41,6 +41,7 @@ import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import { createFileAction, createFolderAction } from "state/mystorage/actions";
+import { logoutUser } from "state/user/actions";
 
 const links1 = [
   {
@@ -455,8 +456,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
             fileMap.customFile.id = fileFound?.id || 0;
             fileMap.customFile.uid = fileFound?.uid || '';
-            fileMap.customFile.created_at = fileFound? fileFound.created_at.toString() : "";
-            fileMap.customFile.updated_at = fileFound? fileFound.updated_at.toString() : "";
+            fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
+            fileMap.customFile.updated_at = fileFound ? fileFound.updated_at.toString() : "";
             fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
 
             fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
@@ -469,7 +470,20 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         })
       })
-      .catch((err) => {
+      .catch((err: any) => {
+        const error = err.response?.data.error;
+
+        if (
+          !localStorage.getItem("access_token") &&
+          err.response?.status === 401 &&
+          error &&
+          [
+            "authorization header is not provided",
+            "token has expired",
+          ].includes(error)
+        ) {
+          dispatch(logoutUser());
+        }
         console.log(err);
       });
 
@@ -523,8 +537,21 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           }
 
         })
-        .catch((err) => {
+        .catch((err: any) => {
           console.log(err);
+          const error = err.response?.data.error;
+
+          if (
+            !localStorage.getItem("access_token") &&
+            err.response?.status === 401 &&
+            error &&
+            [
+              "authorization header is not provided",
+              "token has expired",
+            ].includes(error)
+          ) {
+            dispatch(logoutUser());
+          }
           toast.error("upload failed!");
         })
         .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
@@ -574,7 +601,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]">
-                hello.app
+            hello.app
           </Link>
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
         </div>

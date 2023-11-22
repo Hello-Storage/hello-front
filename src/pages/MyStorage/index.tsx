@@ -44,7 +44,6 @@ export default function Home() {
   const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
   const { logout } = useAuth();
   const accountType = getAccountType();
-  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(ref, open, setOpen);
@@ -177,11 +176,12 @@ export default function Home() {
       if (!personalSignatureRef.current) {
         return;
       }
-
+      console.log(location.pathname);
       fetchRootContent();
       setCurrentPage(1)
     }
-  }, [location, name, personalSignatureRef.current]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, name, personalSignatureRef.current]);
 
   const paginateContent = async () => {
     const itemsPerPage = 10;
@@ -251,11 +251,18 @@ export default function Home() {
 
   useEffect(() => {
     fetchUserDetail();
+		if (personalSignatureDefined) {
+			if (!personalSignatureRef.current) {
+				return;
+			}
+			fetchRootContent();
+		}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
   return (
-    <div className="overflow-hidden flex flex-col table-main ">
+    <div className="flex flex-col overflow-hidden table-main ">
       {showShareModal && <ShareModal />}
       <div className="flex justify-between mb-[15px]">
         <Breadcrumb />
@@ -275,7 +282,7 @@ export default function Home() {
                     <div className="flex items-center justify-between p-2">
                       <label
                         htmlFor="all"
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                        className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
                       >
                         All
                       </label>
@@ -294,7 +301,7 @@ export default function Home() {
                     <div className="flex items-center justify-between p-2">
                       <label
                         htmlFor="public"
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                        className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
                       >
                         Public
                       </label>
@@ -313,7 +320,7 @@ export default function Home() {
                     <div className="flex items-center justify-between p-2">
                       <label
                         htmlFor="encrypted"
-                        className="cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                        className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
                       >
                         Encrypted
                       </label>
@@ -358,7 +365,7 @@ export default function Home() {
         <Dropzone />
       </div>
 
-      <section className="custom-scrollbar invisible-scrollbar flex-grow" id="scroll-invisible-section">
+      <section className="flex-grow custom-scrollbar invisible-scrollbar" id="scroll-invisible-section">
         <Content
           loading={loading}
           files={filteredFiles}
@@ -372,7 +379,7 @@ export default function Home() {
       </section>
       {/* Sticky footer */}
       <div className="flex-shrink-0">
-        <div className="flex justify-between items-center text-sm mt-3 py-2 bg-white border-t border-gray-200">
+        <div className="flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200">
           <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
             {Math.min(endIndex, totalItems)} of {totalItems} results
@@ -388,8 +395,8 @@ export default function Home() {
               }
               disabled={currentPage === 1}
             >
-              <HiChevronLeft className="h-5 w-5" />
-              <span className="md:inline hidden">Prev</span>
+              <HiChevronLeft className="w-5 h-5" />
+              <span className="hidden md:inline">Prev</span>
             </button>
             <button
               className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
@@ -401,8 +408,8 @@ export default function Home() {
               }
               disabled={totalPages === 0 || currentPage === totalPages}
             >
-              <span className="md:inline hidden">Next</span>{" "}
-              <HiChevronRight className="h-5 w-5" />
+              <span className="hidden md:inline">Next</span>{" "}
+              <HiChevronRight className="w-5 h-5" />
             </button>
           </div>
         </div>

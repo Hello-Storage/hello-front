@@ -40,8 +40,6 @@ const Shared = (props: { shareType: string }) => {
 
 	const personalSignatureRef = useRef<string | undefined>();
 
-	const [currentPage, setCurrentPage] = useState(1);
-
 	const { name } = useAppSelector((state) => state.user);
 	const { autoEncryptionEnabled } = useAppSelector(
 		(state) => state.userdetail
@@ -122,7 +120,8 @@ const Shared = (props: { shareType: string }) => {
 			setLoading(false);
 			setPersonalSignatureDefined(true);
 		});
-	}, [path, currentPage]);
+	}, [path]);
+
 	useEffect(() => {
 		if (personalSignatureDefined) {
 			if (!personalSignatureRef.current) {
@@ -130,9 +129,17 @@ const Shared = (props: { shareType: string }) => {
 			}
 
 			fetchRootContent();
-			setCurrentPage(1);
 		}
-	}, [location, name, personalSignatureRef.current]);
+	}, [location.pathname, name, personalSignatureRef.current]);
+
+	useEffect(() => {
+		if (personalSignatureDefined) {
+			if (!personalSignatureRef.current) {
+				return;
+			}
+			fetchRootContent();
+		}
+	}, []);
 
 	return (
 		<div>
@@ -151,7 +158,7 @@ const Shared = (props: { shareType: string }) => {
 				loaded={loaded}
 				setloaded={setloaded}
 			></Imageview>
-			<h3 className="text-xl my-2">Shared files</h3>
+			<h3 className="my-2 text-xl">Shared files</h3>
 			<button
 				className="animated-bg-btn w-[230px] mb-2 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
 				onClick={() => {
@@ -159,11 +166,11 @@ const Shared = (props: { shareType: string }) => {
 				}}
 			>
 				<span className="btn-transition"></span>
-				<label className="justify-center text-white flex items-center w-full gap-2 text-sm">
+				<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
 					<FaSquareShareNodes className="animated-btn-icon" /> Share Files
 				</label>
 			</button>
-			<div className="hidden lg:flex w-full">
+			<div className="hidden w-full lg:flex">
 				<div className="w-[99%]">
 					<Content
 						loading={loading}
