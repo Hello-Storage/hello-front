@@ -18,6 +18,7 @@ import { Api, EncryptionStatus, File as FileType } from "api";
 import { useAppDispatch, useAppSelector } from "state";
 import { AxiosProgressEvent } from "axios";
 import { createFileAction, createFolderAction } from "state/mystorage/actions";
+import { logoutUser } from "state/user/actions";
 
 const getColor = (
   isFocused: boolean,
@@ -174,7 +175,7 @@ const Dropzone = () => {
     let filesToUpload: { customFile: FileType, file: File }[] = [];
 
     let folderRootUID = "";
-    let failed=false;
+    let failed = false;
 
     await Api.post("/file/pool/check", customFiles)
       .then((res) => {
@@ -210,12 +211,12 @@ const Dropzone = () => {
             // - put name_unencrypted to name
             // - put cid_original_unencrypted to cid_original_encrypted
             // - put mime_type_unencrypted to mime_type
-          console.log(filesFound);
+            console.log(filesFound);
 
             fileMap.customFile.id = fileFound?.id || 0;
             fileMap.customFile.uid = fileFound?.uid || "";
-            fileMap.customFile.created_at = fileFound? fileFound.created_at.toString() : "";
-            fileMap.customFile.updated_at = fileFound? fileFound.updated_at.toString() : "";
+            fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
+            fileMap.customFile.updated_at = fileFound ? fileFound.updated_at.toString() : "";
             fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
 
             fileMap.customFile.name = fileMap.customFile.name_unencrypted || "";
@@ -231,10 +232,23 @@ const Dropzone = () => {
       })
       .catch((err) => {
         console.log(err);
-        failed=true;
+        const error = err.response?.data.error;
+
+        if (
+          !localStorage.getItem("access_token") &&
+          err.response?.status === 401 &&
+          error &&
+          [
+            "authorization header is not provided",
+            "token has expired",
+          ].includes(error)
+        ) {
+          dispatch(logoutUser());
+        }
+        failed = true;
         toast.error("upload failed!");
       })
-      .finally(() =>{
+      .finally(() => {
         if (!failed) {
           dispatch(setUploadStatusAction({ uploading: false }))
         }
@@ -284,6 +298,20 @@ const Dropzone = () => {
         })
         .catch((err) => {
           console.log(err);
+
+          const error = err.response?.data.error;
+
+          if (
+            !localStorage.getItem("access_token") &&
+            err.response?.status === 401 &&
+            error &&
+            [
+              "authorization header is not provided",
+              "token has expired",
+            ].includes(error)
+          ) {
+            dispatch(logoutUser());
+          }
           toast.error("upload failed!");
 
         })

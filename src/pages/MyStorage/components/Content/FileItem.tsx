@@ -34,13 +34,14 @@ import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { removeFileAction } from "state/mystorage/actions";
+import { logoutUser } from "state/user/actions";
 
 dayjs.extend(relativeTime);
 
 interface FileItemProps {
   file: FileType;
   view: "list" | "grid";
-	setloaded: React.Dispatch<React.SetStateAction<boolean>>
+  setloaded: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
@@ -110,6 +111,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
             }
           ).catch((err) => {
             console.error("Error downloading file:", err);
+            const error = err.response?.data.error;
+
+            if (
+              !localStorage.getItem("access_token") &&
+              err.response?.status === 401 &&
+              error &&
+              [
+                "authorization header is not provided",
+                "token has expired",
+              ].includes(error)
+            ) {
+              dispatch(logoutUser());
+            }
           });
 
           dispatch(
@@ -133,6 +147,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
         window.URL.revokeObjectURL(url);
       })
       .catch((err) => {
+        const error = err.response?.data.error;
+
+        if (
+          !localStorage.getItem("access_token") &&
+          err.response?.status === 401 &&
+          error &&
+          [
+            "authorization header is not provided",
+            "token has expired",
+          ].includes(error)
+        ) {
+          dispatch(logoutUser());
+        }
         console.error("Error downloading file:", err);
       });
   };
@@ -161,6 +188,18 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
       })
       .catch((err) => {
         console.error("Error deleting file:", err);
+        const error = err.response?.data.error;
+        if (
+          !localStorage.getItem("access_token") &&
+          err.response?.status === 401 &&
+          error &&
+          [
+            "authorization header is not provided",
+            "token has expired",
+          ].includes(error)
+        ) {
+          dispatch(logoutUser());
+        }
       });
   };
 
@@ -214,7 +253,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
         </td>
         <td className="py-1 pr-8 text-right">
           <button
-            className="rounded-full hover:bg-gray-300 p-3"
+            className="p-3 rounded-full hover:bg-gray-300"
             onClick={() => setOpen(!open)}
           >
             <HiDotsVertical />
@@ -222,7 +261,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
               {open && (
                 <div
                   id="dropdown"
-                  className="absolute right-6 z-50 mt-2 shadow-lg text-left w-36 divide-y border top-0 "
+                  className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-36 "
                   style={{ bottom: "100%" }}
                 >
                   <ul className="py-2 bg-white">
@@ -277,13 +316,13 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
   else
     return (
       <div
-        className="bg-gray-50 p-4 rounded-lg mb-3 border border-gray-200 hover:cursor-pointer hover:bg-gray-100"
+        className="p-4 mb-3 border border-gray-200 rounded-lg bg-gray-50 hover:cursor-pointer hover:bg-gray-100"
         onClick={handleView}
       >
         <div>
           <div className="flex flex-col items-center gap-3">
-            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis flex items-center gap-2">
-              <HiDocumentText className="w-4 h-4 flex-shrink-0" />
+            <div className="flex items-center w-full gap-2 overflow-hidden font-medium text-center text-gray-900 whitespace-nowrap overflow-ellipsis">
+              <HiDocumentText className="flex-shrink-0 w-4 h-4" />
               {file.is_in_pool && (
                 <GoAlertFill style={{ color: "#FF6600" }} />
               )}
@@ -297,7 +336,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
           </div>
         </div>
         <div
-          className="text-center text-xs flex items-center justify-left gap-1 select-none hover:text-blue-500 mt-4"
+          className="flex items-center gap-1 mt-4 text-xs text-center select-none justify-left hover:text-blue-500"
           onClick={(e) => {
             e.stopPropagation(); // Prevent triggering the parent's onClick
             onCopy(e);

@@ -17,6 +17,7 @@ import { useAppSelector } from "state";
 import { toast } from "react-toastify";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "state/user/actions";
 
 //can be public, one time, address restricted, password restricted, temporary link or subscription
 
@@ -77,6 +78,18 @@ const ShareModal = () => {
 					}
 				})
 				.catch((err) => {
+					const error = err.response?.data.error;
+					if (
+						!localStorage.getItem("access_token") &&
+						err.response?.status === 401 &&
+						error &&
+						[
+							"authorization header is not provided",
+							"token has expired",
+						].includes(error)
+					) {
+						dispatch(logoutUser());
+					}
 					toast.error(err.message);
 					//setShareError(err.message);
 				});
@@ -209,26 +222,26 @@ const ShareModal = () => {
 
 	const navigate = useNavigate();
 	/*
-        //shareType useEffect listener
-        useEffect(() => {
-            if (selectedShareTypes.length > 0) {
-                setShareError("");
-            }
-        }, [selectedShareTypes])
-    */
+		//shareType useEffect listener
+		useEffect(() => {
+			if (selectedShareTypes.length > 0) {
+				setShareError("");
+			}
+		}, [selectedShareTypes])
+	*/
 	return (
 		<>
 			{showShareModal && selectedShareFile && (
 				<div
-					className="fixed z-10 inset-0 overflow-y-auto"
+					className="fixed inset-0 z-10 overflow-y-auto"
 					aria-labelledby="modal-title"
 					role="dialog"
 					aria-modal="true"
 				>
-					<div className="items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center flex sm:p-0">
+					<div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
 						<div
 							onClick={handleClickOutside}
-							className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+							className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
 							aria-hidden="true"
 						></div>
 
@@ -243,11 +256,11 @@ const ShareModal = () => {
 							ref={modalRef}
 							className="ml-[10%] flex flex-col justify-center align-center align-bottom top-5 bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg "
 						>
-							<div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+							<div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
 								<div className="sm:flex sm:items-start">
 									<div className="mt-3 text-left sm:mt-0 sm:text-left">
 										<h3
-											className="text-lg leading-6 font-medium text-gray-900"
+											className="text-lg font-medium leading-6 text-gray-900"
 											id="modal-title"
 										>
 											Share content
@@ -284,7 +297,7 @@ const ShareModal = () => {
 																<div className="flex flex-row items-center">
 																	<input
 																		type="checkbox"
-																		className="form-checkbox h-5 w-5 text-blue-600"
+																		className="w-5 h-5 text-blue-600 form-checkbox"
 																		checked={selectedShareTypes.includes(
 																			sd.type
 																		)}
@@ -305,12 +318,12 @@ const ShareModal = () => {
 																		className="ml-2 text-gray-500 cursor-pointer"
 																		onClick={() =>
 																			pinnedDescriptionIndex ===
-																			index
+																				index
 																				? setPinnedDescriptionIndex(
-																						null
+																					null
 																				)
 																				: setPinnedDescriptionIndex(
-																						index
+																					index
 																				)
 																		}
 																	>
@@ -323,16 +336,16 @@ const ShareModal = () => {
 																{(showDescriptionIndex ===
 																	index ||
 																	pinnedDescriptionIndex ===
-																		index) && (
-																	<span
-																		id="description"
-																		className="flex ml-2 p-2 text-sm bg-gray-200 rounded"
-																	>
-																		{
-																			sd.description
-																		}
-																	</span>
-																)}
+																	index) && (
+																		<span
+																			id="description"
+																			className="flex p-2 ml-2 text-sm bg-gray-200 rounded"
+																		>
+																			{
+																				sd.description
+																			}
+																		</span>
+																	)}
 															</div>
 															{/*
                                                 <OverlayTrigger
@@ -362,7 +375,7 @@ const ShareModal = () => {
 																	<div className="">
 																		<input
 																			type="email"
-																			className="form-control mb-2 text-cyan-600 text-ellipsis underline"
+																			className="mb-2 underline form-control text-cyan-600 text-ellipsis"
 																			id="shareLink"
 																			aria-describedby="shareLink"
 																			value={`${window.location.origin}/space/shared/public/${fileSharedState?.public_file.share_hash}`}
@@ -378,7 +391,7 @@ const ShareModal = () => {
 																			readOnly
 																		/>
 																		<button
-																			className="btn btn-primary ml-2"
+																			className="ml-2 btn btn-primary"
 																			onClick={() =>
 																				navigate(
 																					`/space/shared/public/${fileSharedState?.public_file.share_hash}`
@@ -407,10 +420,10 @@ const ShareModal = () => {
 									{shareError}
 								</div>
 							)}
-							<div className="bg-gray-50 px-4 py-3 sm:px-6">
+							<div className="px-4 py-3 bg-gray-50 sm:px-6">
 								<button
 									type="button"
-									className="w-full sm:w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:text-sm"
+									className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-blue-500 border border-transparent rounded-md shadow-sm sm:w-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:text-sm"
 									onClick={closeShareModal}
 								>
 									Close
