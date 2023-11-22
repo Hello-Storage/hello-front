@@ -27,24 +27,24 @@ import {
 import React from "react";
 import { useAppDispatch } from "state";
 import {
-  PreviewImage,
-  setImageViewAction,
-  setSelectedShareFile,
-  setShowShareModal,
+  setFileViewAction, setImageViewAction, setSelectedShareFile,
+  setShowShareModal
 } from "state/mystorage/actions";
 import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { removeFileAction } from "state/mystorage/actions";
+import { logoutUser } from "state/user/actions";
 
 dayjs.extend(relativeTime);
 
 interface FileItemProps {
   file: FileType;
   view: "list" | "grid";
+  setloaded: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
   const dispatch = useAppDispatch();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -111,6 +111,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
             }
           ).catch((err) => {
             console.error("Error downloading file:", err);
+            const error = err.response?.data.error;
+
+            if (
+              !localStorage.getItem("access_token") &&
+              err.response?.status === 401 &&
+              error &&
+              [
+                "authorization header is not provided",
+                "token has expired",
+              ].includes(error)
+            ) {
+              dispatch(logoutUser());
+            }
           });
 
           dispatch(
@@ -134,6 +147,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         window.URL.revokeObjectURL(url);
       })
       .catch((err) => {
+        const error = err.response?.data.error;
+
+        if (
+          !localStorage.getItem("access_token") &&
+          err.response?.status === 401 &&
+          error &&
+          [
+            "authorization header is not provided",
+            "token has expired",
+          ].includes(error)
+        ) {
+          dispatch(logoutUser());
+        }
         console.error("Error downloading file:", err);
       });
   };
@@ -141,76 +167,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   const handleView = () => {
     viewRef.current = true;
 
-    Api.get(`/file/download/${file.uid}`, {
-      responseType: "blob",
-      onDownloadProgress: onDownloadProgress,
-    })
-      .then(async (res) => {
-        dispatch(
-          setUploadStatusAction({
-            info: "Finished downloading data",
-            uploading: false,
-          })
-        );
-        let binaryData = res.data;
-        if (file.encryption_status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          console.log(originalCid);
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(
-            binaryData,
-            originalCid,
-            (percentage) => {
-              dispatch(
-                setUploadStatusAction({
-                  info: "Decrypting...",
-                  read: percentage,
-                  size: 100,
-                  uploading: true,
-                })
-              );
-            }
-          );
+    dispatch(setFileViewAction({ file: undefined }));
+    dispatch(setImageViewAction({ show: false }));
+    setloaded(false)
 
-          dispatch(
-            setUploadStatusAction({
-              info: "Decryption done",
-              uploading: false,
-            })
-          );
-        }
-        const blob = new Blob([binaryData], { type: file.mime_type });
-        if (!blob) {
-          console.error("Error downloading file:", file);
-          return;
-        }
-        const url = window.URL.createObjectURL(blob);
-
-        let mediaItem: PreviewImage;
-        if (file.mime_type.startsWith("video/")) {
-          mediaItem = {
-            type: "htmlVideo",
-            videoSrc: url,
-            alt: file.name,
-          };
-        } else if (
-          file.mime_type === "application/pdf" ||
-          file.mime_type === "text/plain"
-        ) {
-          window.open(url, "_blank"); // PDF or TXT in a new tab
-          return;
-        } else {
-          mediaItem = {
-            src: url,
-            alt: file.name,
-          };
-        }
-
-        dispatch(setImageViewAction({ img: mediaItem, show: true }));
-      })
-      .catch((err) => {
-        console.error("Error downloading file:", err);
-      });
+    dispatch(setFileViewAction({
+      file: file
+    }))
+    dispatch(setImageViewAction({
+      show: true
+    }))
   };
 
   const handleDelete = () => {
@@ -222,6 +188,18 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
       })
       .catch((err) => {
         console.error("Error deleting file:", err);
+        const error = err.response?.data.error;
+        if (
+          !localStorage.getItem("access_token") &&
+          err.response?.status === 401 &&
+          error &&
+          [
+            "authorization header is not provided",
+            "token has expired",
+          ].includes(error)
+        ) {
+          dispatch(logoutUser());
+        }
       });
   };
 
@@ -275,7 +253,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
         </td>
         <td className="py-1 pr-8 text-right">
           <button
-            className="rounded-full hover:bg-gray-300 p-3"
+            className="p-3 rounded-full hover:bg-gray-300"
             onClick={() => setOpen(!open)}
           >
             <HiDotsVertical />
@@ -283,7 +261,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
               {open && (
                 <div
                   id="dropdown"
-                  className="absolute right-6 z-50 mt-2 shadow-lg text-left w-36 divide-y border top-0 "
+                  className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-36 "
                   style={{ bottom: "100%" }}
                 >
                   <ul className="py-2 bg-white">
@@ -338,16 +316,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   else
     return (
       <div
-        className="bg-gray-50 p-4 rounded-lg mb-3 border border-gray-200 hover:cursor-pointer hover:bg-gray-100"
+        className="p-4 mb-3 border border-gray-200 rounded-lg bg-gray-50 hover:cursor-pointer hover:bg-gray-100"
         onClick={handleView}
       >
         <div>
           <div className="flex flex-col items-center gap-3">
-            <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis flex items-center gap-2">
-              <HiDocumentText className="w-4 h-4 flex-shrink-0" />
-            {file.is_in_pool && (
-              <GoAlertFill style={{ color: "#FF6600" }} />
-            )}
+            <div className="flex items-center w-full gap-2 overflow-hidden font-medium text-center text-gray-900 whitespace-nowrap overflow-ellipsis">
+              <HiDocumentText className="flex-shrink-0 w-4 h-4" />
+              {file.is_in_pool && (
+                <GoAlertFill style={{ color: "#FF6600" }} />
+              )}
               <span className="hidden md:inline">
                 {truncate(file.name, 40)}
               </span>
@@ -358,7 +336,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           </div>
         </div>
         <div
-          className="text-center text-xs flex items-center justify-left gap-1 select-none hover:text-blue-500 mt-4"
+          className="flex items-center gap-1 mt-4 text-xs text-center select-none justify-left hover:text-blue-500"
           onClick={(e) => {
             e.stopPropagation(); // Prevent triggering the parent's onClick
             onCopy(e);

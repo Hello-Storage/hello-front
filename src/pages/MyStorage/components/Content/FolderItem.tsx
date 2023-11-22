@@ -149,6 +149,19 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         });
       })
       .catch((err) => {
+        const error = err.response?.data.error;
+
+        if (
+          !localStorage.getItem("access_token") &&
+          err.response?.status === 401 &&
+          error &&
+          [
+            "authorization header is not provided",
+            "token has expired",
+          ].includes(error)
+        ) {
+          dispatch(logoutUser());
+        }
         console.error("Error downloading folder:", err);
       });
   };
@@ -169,6 +182,20 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         })
         .catch((err) => {
           console.error("Error deleting folder:", err);
+
+          const error = err.response?.data.error;
+
+          if (
+            !localStorage.getItem("access_token") &&
+            err.response?.status === 401 &&
+            error &&
+            [
+              "authorization header is not provided",
+              "token has expired",
+            ].includes(error)
+          ) {
+            dispatch(logoutUser());
+          }
           // Show an error message
           toast.error("Error deleting folder!");
         });
@@ -179,18 +206,18 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
     return (
       <>
         <div className="bg-gray-50 hover:bg-gray-100 px-5 py-3 w-[220px] rounded-lg relative overflow-visible">
-          <div className="flex flex-row items-center justify-between relative">
+          <div className="relative flex flex-row items-center justify-between">
             <FaFolder
-              className="inline-block align-middle mr-2"
+              className="inline-block mr-2 align-middle"
               size={24}
               color="#272727"
             />
-            <div className="flex flex-row justify-between items-center w-full relative">
-              <label className="font-medium cursor-pointer text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
+            <div className="relative flex flex-row items-center justify-between w-full">
+              <label className="w-full overflow-hidden font-medium text-gray-900 cursor-pointer whitespace-nowrap overflow-ellipsis">
                 {truncate(folder.title, 12)}
               </label>
               <button
-                className="rounded-lg hover:bg-gray-100 p-1"
+                className="p-1 rounded-lg hover:bg-gray-100"
                 onClick={() => setOpen(!open)}
               >
                 <HiDotsVertical className="align-middle" />{" "}
@@ -198,7 +225,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                   {open && (
                     <div
                       id="dropdown"
-                      className="z-50 absolute origin-top-right right-0 mt-2 bg-white shadow text-left w-36 divide-y borde r"
+                      className="absolute right-0 z-50 mt-2 text-left origin-top-right bg-white divide-y shadow w-36 borde r"
                     >
                       <ul className="py-2">
                         <a
@@ -242,16 +269,16 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
       <div className="bg-gray-50 hover:bg-gray-100 px-5 py-3 w-[220px] rounded-lg relative">
         <div className="flex flex-row items-center justify-between">
           <FaFolder
-            className="inline-block align-middle mr-2"
+            className="inline-block mr-2 align-middle"
             size={24}
             color="#272727"
           />
-          <div className="flex flex-row justify-between items-center w-full">
-            <label className="font-medium cursor-pointer text-gray-900 w-full overflow-hidden whitespace-nowrap overflow-ellipsis">
+          <div className="flex flex-row items-center justify-between w-full">
+            <label className="w-full overflow-hidden font-medium text-gray-900 cursor-pointer whitespace-nowrap overflow-ellipsis">
               {truncate(folder.title, 12)}
             </label>
             <button
-              className="rounded-lg hover:bg-gray-100 p-1"
+              className="p-1 rounded-lg hover:bg-gray-100"
               onClick={() => setOpen(!open)}
             >
               <HiDotsVertical className="align-middle" />{" "}
@@ -259,7 +286,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                 {open && (
                   <div
                     id="dropdown"
-                    className="absolute right-6 z-10 mt-2 bg-white shadow text-left w-36 divide-y border"
+                    className="absolute z-10 mt-2 text-left bg-white border divide-y shadow right-6 w-36"
                   >
                     <ul className="py-2">
                       <a
