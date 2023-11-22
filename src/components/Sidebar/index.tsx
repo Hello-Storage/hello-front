@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import { HiPlus } from "react-icons/hi";
@@ -9,6 +9,7 @@ import FolderLock from "assets/images/Outline/Folder-lock.png";
 import Layout from "assets/images/Outline/Layout.png";
 import Send from "assets/images/Outline/Send.png";
 import Book from "assets/images/Outline/Book.png";
+import Box from "assets/images/Outline/Box.png";
 import Key from "assets/images/Outline/Key.png";
 import Cloud from "assets/images/Outline/Cloud-upload.png";
 import { FiX } from "react-icons/fi";
@@ -455,8 +456,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
             fileMap.customFile.id = fileFound?.id || 0;
             fileMap.customFile.uid = fileFound?.uid || '';
-            fileMap.customFile.created_at = fileFound? fileFound.created_at.toString() : "";
-            fileMap.customFile.updated_at = fileFound? fileFound.updated_at.toString() : "";
+            fileMap.customFile.created_at = fileFound?.created_at || '';
+            fileMap.customFile.updated_at = fileFound? new Date().toString() : "";
             fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
 
             fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
@@ -573,9 +574,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-3">
-          <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]">
-                hello.app
-          </Link>
+          <label className="text-2xl font-semibold font-[Outfit]">
+            hello.app
+          </label>
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
         </div>
 
@@ -748,7 +749,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             }}
             className="text-orange-500 cursor-pointer hover:underline"
           >
-            {formatBytes(storageAvailable, 2, false)} / 100 GiB
+            {formatBytes(storageAvailable, 2, false)} / 95 GiB
           </a>
         </label>
         <div className="mt-4 pb-1">
