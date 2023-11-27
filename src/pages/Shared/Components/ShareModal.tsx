@@ -89,6 +89,7 @@ const ShareModal = () => {
 
 	const shareDetails: ShareDetails[] = [
 		{
+			id: 1,
 			type: "public",
 			title: "Public",
 			description:

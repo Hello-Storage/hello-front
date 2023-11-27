@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import getAccountType from "api/getAccountType";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAuth, useDropdown, useFetchData } from "hooks";
@@ -75,8 +76,8 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		},
 		{
 			id: 2,
-			type: "public",
-			title: "Public",
+			type: "test",
+			title: "test",
 			description:
 				"Generate a public URL that anyone you share it to can access. This URL will be valid until you disable it. Deletion of the file from the entire Internet is not granted.",
 			state: "enabled",
@@ -122,8 +123,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		e: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const shareTypeObject = shareDetails.find((st) => st.type === type);
-		setFileSharedState([]);
-		const aux: ShareState[] = [];
 		if (selectedSharedFiles) {
 			for (const selectedShareFile of selectedSharedFiles) {
 				if (!shareTypeObject || !selectedShareFile) {
@@ -143,7 +142,11 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								if ((res as AxiosResponse).status === 200) {
 									res = res as AxiosResponse;
 									const shareState = res?.data as ShareState;
-									aux.push(shareState);
+									const updatedStates = fileSharedState.filter(
+										(state) => state.id !== shareState.id
+									);
+									updatedStates.push(shareState);
+									setFileSharedState(updatedStates);
 									toast.success("File shared successfully");
 								}
 								if ((res as AxiosError).isAxiosError) {
@@ -154,13 +157,13 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								setShareError(err.message);
 							});
 					} else {
+						setSelectedShareTypes("");
 						unshareFile(selectedShareFile, type)
 							.then((res) => {
 								//if res is AxiosResponse:
 								if ((res as AxiosResponse).status === 200) {
 									res = res as AxiosResponse;
-									const shareState = res?.data as ShareState;
-									aux.push(shareState);
+									setFileSharedState([]);
 								}
 								if ((res as AxiosError).isAxiosError) {
 									toast.error("Error unsharing file");
@@ -170,7 +173,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								setShareError(err.message);
 							});
 					}
-					setFileSharedState(aux);
 				}
 			}
 		}
@@ -668,6 +670,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 					if ((res as AxiosResponse).status === 200) {
 						res = res as AxiosResponse;
 						const shareState = res?.data as ShareState[];
+
 						setFileSharedState(shareState);
 					} else {
 						toast.error(JSON.stringify(res));
@@ -679,7 +682,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		}
 	}, [selectedSharedFiles]);
 
-	const test = useShareGroup(fileSharedState, selectedShareTypes);
+	const groupID = useShareGroup(fileSharedState);
 
 	if (!isOpen) {
 		return <></>;
@@ -730,9 +733,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								)}
 								{uploaded ? (
 									<>
-										<p className="px-2 my-3">
-											Files names:
-										</p>
+										<p className="px-2 my-3">File names:</p>
 										<ul>
 											{selectedSharedFiles &&
 												selectedSharedFiles.map(
@@ -778,16 +779,20 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 																</span>
 																<span
 																	className="ml-2 text-gray-500 cursor-pointer"
-																	onClick={() =>
-																		pinnedDescriptionIndex ===
-																		index
-																			? setPinnedDescriptionIndex(
-																					null
-																			)
-																			: setPinnedDescriptionIndex(
-																					index
-																			)
-																	}
+																	onClick={() => {
+																		if (
+																			pinnedDescriptionIndex ===
+																			index
+																		) {
+																			setPinnedDescriptionIndex(
+																				null
+																			);
+																		} else {
+																			setPinnedDescriptionIndex(
+																				index
+																			);
+																		}
+																	}}
 																>
 																	<i
 																		className={`fas fa-thin fa-question-circle p-2 me-2`}
@@ -807,78 +812,53 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 																</span>
 															)}
 														</div>
-														{/*
-                                                <OverlayTrigger
-                                                    key={`tooltip-${index}`}
-                                                    placement="top"
-                                                    overlay={
-                                                        <Tooltip id={`tooltip-${index}`}>
-                                                            {sd.description}
-                                                        </Tooltip>
-                                                    }
-                                                >
-                                                </OverlayTrigger>
-                                                */}
 													</label>
-													{fileSharedState &&
-														fileSharedState.map(
-															(
-																fileSharedStatex
-															) => (
-																<div
-																	key={
-																		fileSharedStatex.id
-																	}
-																>
-																	{sd.type ===
-																		"public" &&
-																		fileSharedStatex
-																			?.public_file
-																			.id !==
-																			0 && (
-																			<div className="flex flex-col my-3">
-																				<label
-																					htmlFor="shareLink"
-																					className="form-label"
-																				>
-																					Share
-																					link
-																				</label>
-																				<div className="">
-																					<input
-																						type="email"
-																						className="mb-2 underline form-control text-cyan-600 text-ellipsis"
-																						id="shareLink"
-																						aria-describedby="shareLink"
-																						value={`${window.location.origin}/space/shared/public/${fileSharedStatex?.public_file.share_hash}`}
-																						onClick={() => {
-																							//copy to clipboard
-																							navigator.clipboard.writeText(
-																								`${window.location.origin}/space/shared/public/${fileSharedStatex?.public_file.share_hash}`
-																							);
-																							toast.success(
-																								"Link copied to clipboard"
-																							);
-																						}}
-																						readOnly
-																					/>
-																					<button
-																						className="ml-2 btn btn-primary"
-																						onClick={() =>
-																							navigate(
-																								`/space/shared/public/${fileSharedStatex?.public_file.share_hash}`
-																							)
-																						}
-																					>
-																						<i className="fas fa-external-link-alt"></i>{" "}
-																						Go
-																					</button>
-																				</div>
-																			</div>
-																		)}
+													{groupID && (
+														<>
+															{sd.type ===
+																"public" && (
+																<div className="flex flex-col my-3">
+																	<label
+																		htmlFor="shareLink"
+																		className="form-label"
+																	>
+																		Share
+																		link
+																	</label>
+																	<div className="">
+																		<input
+																			type="email"
+																			className="mb-2 underline form-control text-cyan-600 text-ellipsis"
+																			id="shareLink"
+																			aria-describedby="shareLink"
+																			value={`${window.location.origin}/space/shared/public/${groupID}`}
+																			onClick={() => {
+																				//copy to clipboard
+																				navigator.clipboard.writeText(
+																					`${window.location.origin}/space/shared/public/${groupID}`
+																				);
+																				toast.success(
+																					"Link copied to clipboard"
+																				);
+																			}}
+																			readOnly
+																		/>
+																		<button
+																			className="ml-2 btn btn-primary"
+																			onClick={() =>
+																				navigate(
+																					`/space/shared/public/${groupID}`
+																				)
+																			}
+																		>
+																			<i className="fas fa-external-link-alt"></i>{" "}
+																			Go
+																		</button>
+																	</div>
 																</div>
-															)
-														)}
+															)}
+														</>
+													)}
 												</div>
 											);
 										})}

@@ -1,24 +1,39 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect } from "react";
+import { Api } from "api";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
-export function useShareGroup(fileSharedState: ShareState[], selectedShareTypes: string) {
+export function useShareGroup(fileSharedState: ShareState[]) {
 	const shareHashReady = useCallback(
 		(sharestateList: ShareState[]): boolean => {
-			return sharestateList.every(sharestate => sharestate.public_file.share_hash !== "")
+			return sharestateList.every(sharestate => sharestate.public_file.share_hash !== "");
 		},
 		[],
-	)
+	);
+
+	const [groupId, setGroupId] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (fileSharedState && fileSharedState.length > 0) {
-			console.log(fileSharedState);
-			console.log(shareHashReady(fileSharedState));
-			if (shareHashReady(fileSharedState)) {
-				console.log("aca llamare a la api para agrupar archivos");
+		const createShareGroup = async () => {
+			if (fileSharedState && fileSharedState.length > 0 && shareHashReady(fileSharedState)) {
+				try {
+					const shareHashList = fileSharedState.map(sharestate => sharestate.public_file.share_hash);
+					const response = await Api.post("/file/share/group", {
+						share_hashes: shareHashList,
+					});
+					const { share_group: groupIdFromResponse } = response.data;
+					setGroupId(groupIdFromResponse);
+				} catch (error) {
+					console.error("Error creating share group:", error);
+					toast.error("Error creating share group");
+				}
+			}else{
+				setGroupId(null);
 			}
-		}
-	}, [selectedShareTypes]);
+		};
 
-	return null;
+		createShareGroup();
+	}, [fileSharedState]);
+
+	return groupId;
 }
-
