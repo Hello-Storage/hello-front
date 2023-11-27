@@ -21,7 +21,6 @@ import { useNavigate } from "react-router-dom";
 // 	IconComponent: any; // Esto es para componentes sin props
 // 	tooltipText: string;
 // };
-import { logoutUser } from "state/user/actions";
 
 //can be public, one time, address restricted, password restricted, temporary link or subscription
 
@@ -82,18 +81,6 @@ const ShareModal = () => {
 					}
 				})
 				.catch((err) => {
-					const error = err.response?.data.error;
-					if (
-						!localStorage.getItem("access_token") &&
-						err.response?.status === 401 &&
-						error &&
-						[
-							"authorization header is not provided",
-							"token has expired",
-						].includes(error)
-					) {
-						dispatch(logoutUser());
-					}
 					toast.error(err.message);
 					//setShareError(err.message);
 				});

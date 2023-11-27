@@ -14,11 +14,11 @@ export const Api = axios.create({
 
 Api.interceptors.response.use(
 	(res) => res,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(err: any) => {
+		console.log(err.response);
 		const error = err.response?.data.error;
-
 		if (
-			!localStorage.getItem("access_token") &&
 			err.response?.status === 401 &&
 			error &&
 			[

@@ -8,7 +8,6 @@ import { useAppDispatch, useAppSelector } from "state";
 import { createFolderAction } from "state/mystorage/actions";
 import { bufferToHex, encryptBuffer } from "utils/encryption/filesCipher";
 import { useAuth } from "hooks";
-import { logoutUser } from "state/user/actions";
 
 export default function CreateFolderModal() {
   const [, onDismiss] = useModal(<></>);
@@ -27,6 +26,7 @@ export default function CreateFolderModal() {
       ? window.location.pathname.split("/")[3]
       : "/";
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onChange: ChangeEventHandler = (e: any) => {
     setTitle(e.target.value);
   };
@@ -69,22 +69,8 @@ export default function CreateFolderModal() {
           dispatch(createFolderAction(resp.data));
         }
       })
-      .catch((err: any) => {
-        const error = err.response?.data.error;
-
-        if (
-          !localStorage.getItem("access_token") &&
-          err.response?.status === 401 &&
-          error &&
-          [
-            "authorization header is not provided",
-            "token has expired",
-          ].includes(error)
-        ) {
-          dispatch(logoutUser());
-        }
+      .catch(() => {
         toast.error("failed!");
-        console.log(err);
       })
       .finally(() => {
         setLoading(false);

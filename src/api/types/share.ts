@@ -1,4 +1,5 @@
 interface ShareDetails {
+    id: number,
     type: string;
     title: string;
     description?: string;

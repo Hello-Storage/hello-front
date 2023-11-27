@@ -15,10 +15,15 @@ import {
 	encryptMetadata,
 	getCid,
 } from "utils/encryption/filesCipher";
-import { createFileAction, createFolderAction, setSelectedSharedFiles } from "state/mystorage/actions";
+import {
+	createFileAction,
+	createFolderAction,
+	setSelectedSharedFiles,
+} from "state/mystorage/actions";
 import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
+import { useShareGroup } from "hooks/useShareGroup";
 
 interface UploadShareModalProps {
 	isOpen: boolean;
@@ -50,9 +55,9 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 	const dispatch = useAppDispatch();
 
-	const [showDescriptionIndex, setShowDescriptionIndex] = useState<
-		number | null
-	>(null);
+	// const [showDescriptionIndex, setShowDescriptionIndex] = useState<
+	// 	number | null
+	// >(null);
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
 		number | null
 	>(null);
@@ -61,6 +66,15 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 	const shareDetails: ShareDetails[] = [
 		{
+			id: 1,
+			type: "public",
+			title: "Public",
+			description:
+				"Generate a public URL that anyone you share it to can access. This URL will be valid until you disable it. Deletion of the file from the entire Internet is not granted.",
+			state: "enabled",
+		},
+		{
+			id: 2,
 			type: "public",
 			title: "Public",
 			description:
@@ -101,15 +115,15 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 	const navigate = useNavigate();
 	const [shareError, setShareError] = useState("");
-	const [selectedShareTypes, setSelectedShareTypes] = useState<string[]>([]);
+	const [selectedShareTypes, setSelectedShareTypes] = useState<string>("");
 	const { selectedSharedFiles } = useAppSelector((state) => state.mystorage);
 
 	const handleShareChange = (type: string) => async (
 		e: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const shareTypeObject = shareDetails.find((st) => st.type === type);
-		setFileSharedState([])
-		const aux: ShareState[] = []
+		setFileSharedState([]);
+		const aux: ShareState[] = [];
 		if (selectedSharedFiles) {
 			for (const selectedShareFile of selectedSharedFiles) {
 				if (!shareTypeObject || !selectedShareFile) {
@@ -120,6 +134,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 					setShareError("This share type is not available yet");
 				} else {
 					setShareError("");
+					setSelectedShareTypes(type);
 					if (e.target.checked) {
 						//handle sharing from shareRequests.ts
 						shareFile(selectedShareFile, type)
@@ -128,13 +143,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								if ((res as AxiosResponse).status === 200) {
 									res = res as AxiosResponse;
 									const shareState = res?.data as ShareState;
-									aux.push(shareState)
-									if (shareState.public_file.id !== 0) {
-										setSelectedShareTypes((prevTypes) => [
-											...prevTypes,
-											"public",
-										]);
-									}
+									aux.push(shareState);
 									toast.success("File shared successfully");
 								}
 								if ((res as AxiosError).isAxiosError) {
@@ -151,13 +160,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								if ((res as AxiosResponse).status === 200) {
 									res = res as AxiosResponse;
 									const shareState = res?.data as ShareState;
-									aux.push(shareState)
-									//if public_file.id is 0, remove public from selectedShareTypes
-									if (shareState.public_file.id === 0) {
-										setSelectedShareTypes((prevTypes) =>
-											prevTypes.filter((st) => st !== "public")
-										);
-									}
+									aux.push(shareState);
 								}
 								if ((res as AxiosError).isAxiosError) {
 									toast.error("Error unsharing file");
@@ -166,7 +169,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							.catch((err) => {
 								setShareError(err.message);
 							});
-						setSelectedShareTypes((prevTypes) => [...prevTypes, type]);
 					}
 					setFileSharedState(aux);
 				}
@@ -421,8 +423,8 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		const infoText = isFolder
 			? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
 			: files.length === 1
-				? files[0].name
-				: `uploading ${files.length} files`;
+			? files[0].name
+			: `uploading ${files.length} files`;
 
 		dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
@@ -437,6 +439,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	) => {
 		//iterate over each file and make a get request to check if cid exists in Api
 		//post file metadata to api
+		const filesuploaded: FileType[] = [];
 
 		//get customFiles from filesMap
 		const customFiles = filesMap.map((fileMap) => fileMap.customFile);
@@ -525,8 +528,8 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 						fileMap.customFile.mime_type =
 							fileMap.customFile.mime_type_unencrypted || "";
 
-						if (!isFolder)
-							dispatch(createFileAction(fileMap.customFile));
+						if (!isFolder) filesuploaded.push(fileMap.customFile);
+						dispatch(createFileAction(fileMap.customFile));
 					}
 				});
 			})
@@ -552,7 +555,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 					//getAll files and encryptedFils into a single files variable from formData
 					const filesRes = res.data.files;
-					const filesuploaded: FileType[] = []
 
 					for (let i = 0; i < filesRes.length; i++) {
 						//get file at index from formdata
@@ -578,18 +580,16 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							updated_at: fileRes.updated_at,
 							deleted_at: fileRes.deleted_at,
 						};
-						filesuploaded.push(fileObject)
+						filesuploaded.push(fileObject);
 						if (!isFolder) dispatch(createFileAction(fileObject));
 					}
-					dispatch(setSelectedSharedFiles(filesuploaded))
 				})
-				.catch((err) => {
-					console.log(err);
+				.catch(() => {
 					toast.error("upload failed!");
 				})
-				.finally(() =>
-					dispatch(setUploadStatusAction({ uploading: false }))
-				);
+				.finally(() => {
+					dispatch(setUploadStatusAction({ uploading: false }));
+				});
 		} else {
 			toast.success("upload Succeed!");
 			dispatch(
@@ -599,6 +599,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 				})
 			);
 		}
+		dispatch(setSelectedSharedFiles(filesuploaded));
 		if (isFolder && folderRootUID !== "" && outermostFolderTitle !== "") {
 			dispatch(
 				createFolderAction({
@@ -643,9 +644,9 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	};
 
 	useEffect(() => {
-		dispatch(setSelectedSharedFiles())
+		dispatch(setSelectedSharedFiles());
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, []);
 
 	useEffect(() => {
 		if (selectedSharedFiles) {
@@ -653,14 +654,14 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		} else {
 			setuploaded(false);
 		}
-	}, [selectedSharedFiles])
+	}, [selectedSharedFiles]);
 
 	useEffect(() => {
 		if (selectedSharedFiles && selectedSharedFiles.length > 0) {
-			const uids = selectedSharedFiles.map((file) => file.uid)
+			const uids = selectedSharedFiles.map((file) => file.uid);
 			//fetch file shared state
 			const params = new URLSearchParams();
-			uids.forEach(uid => params.append('file_uids', uid));
+			uids.forEach((uid) => params.append("file_uids", uid));
 			Api.get("/file/share/states", { params })
 				.then((res) => {
 					//if res is AxiosResponse:
@@ -668,31 +669,17 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 						res = res as AxiosResponse;
 						const shareState = res?.data as ShareState[];
 						setFileSharedState(shareState);
-						if (shareState) {
-							for (const shareStatex of shareState) {
-								if (shareStatex.public_file.id !== 0) {
-									setSelectedShareTypes((prevTypes) => [
-										...prevTypes,
-										"public",
-									]);
-								}
-							}
-						}
-						//dispatch(setLoading(false));
-						//dispatch(setToastMessage("File shared successfully"));
-						//dispatch(setShowToast(true));
 					} else {
-						//dispatch(setLoading(false));
 						toast.error(JSON.stringify(res));
-						//dispatch(setShowToast(true));
 					}
 				})
 				.catch((err) => {
 					toast.error(err.message);
-					//setShareError(err.message);
 				});
 		}
 	}, [selectedSharedFiles]);
+
+	const test = useShareGroup(fileSharedState, selectedShareTypes);
 
 	if (!isOpen) {
 		return <></>;
@@ -732,7 +719,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							ref={modalRef}
 							className="lg:ml-[20%] p-5 flex flex-col justify-center align-center align-bottom top-5 bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg "
 						>
-							<div className="flex flex-col items-center justify-center w-full h-full">
+							<div className="flex flex-col items-center justify-center w-full h-full min-w-[300px]">
 								{shareError && (
 									<div
 										className="alert alert-danger"
@@ -743,45 +730,41 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								)}
 								{uploaded ? (
 									<>
-										<p className="px-2 my-3">Files names:</p>
+										<p className="px-2 my-3">
+											Files names:
+										</p>
 										<ul>
-											{selectedSharedFiles && selectedSharedFiles.map((file) => {
-												return <li
-													key={file.id}
-												>{file.name}</li>;
-											})}
+											{selectedSharedFiles &&
+												selectedSharedFiles.map(
+													(file) => {
+														return (
+															<li key={file.id}>
+																{file.name}
+															</li>
+														);
+													}
+												)}
 										</ul>
 										{shareDetails.map((sd, index) => {
 											return (
 												<div
+													key={sd.id}
 													className="my-3 col-12 form-check form-switch"
-													key={index}
 												>
 													{/*<input className="form-check-input" type="checkbox" id={`flexSwitch${sd.type}`} checked={selectedShareTypes.includes(sd.type)} onChange={handleShareChange(sd.type)} disabled={sd.state === "disabled"} /> */}
 													<label
 														className="form-check-label"
 														htmlFor={`flexSwitch${sd.type}`}
 													>
-														<div
-															onMouseEnter={() =>
-																setShowDescriptionIndex(
-																	index
-																)
-															}
-															onMouseLeave={() =>
-																setShowDescriptionIndex(
-																	null
-																)
-															}
-															className="flex flex-col"
-														>
+														<div className="flex flex-col">
 															<div className="flex flex-row items-center">
 																<input
 																	type="checkbox"
 																	className="w-5 h-5 text-blue-600 form-checkbox"
-																	checked={selectedShareTypes.includes(
+																	checked={
+																		selectedShareTypes ===
 																		sd.type
-																	)}
+																	}
 																	onChange={handleShareChange(
 																		sd.type
 																	)}
@@ -797,12 +780,12 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 																	className="ml-2 text-gray-500 cursor-pointer"
 																	onClick={() =>
 																		pinnedDescriptionIndex ===
-																			index
+																		index
 																			? setPinnedDescriptionIndex(
-																				null
+																					null
 																			)
 																			: setPinnedDescriptionIndex(
-																				index
+																					index
 																			)
 																	}
 																>
@@ -812,19 +795,17 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 																</span>
 															</div>
 
-															{(showDescriptionIndex ===
-																index ||
-																pinnedDescriptionIndex ===
-																index) && (
-																	<span
-																		id="description"
-																		className="flex p-2 ml-2 text-sm bg-gray-200 rounded"
-																	>
-																		{
-																			sd.description
-																		}
-																	</span>
-																)}
+															{pinnedDescriptionIndex ===
+																index && (
+																<span
+																	id="description"
+																	className="flex p-2 ml-2 text-sm bg-gray-200 rounded"
+																>
+																	{
+																		sd.description
+																	}
+																</span>
+															)}
 														</div>
 														{/*
                                                 <OverlayTrigger
@@ -839,61 +820,74 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
                                                 </OverlayTrigger>
                                                 */}
 													</label>
-													{fileSharedState && fileSharedState.map((fileSharedStatex) => (
-														<>
-															{sd.type === "public" &&
+													{fileSharedState &&
+														fileSharedState.map(
+															(
 																fileSharedStatex
-																	?.public_file.id !==
-																0 && (
-																	<div className="flex flex-col my-3">
-																		<label
-																			htmlFor="shareLink"
-																			className="form-label"
-																		>
-																			Share link
-																		</label>
-																		<div className="">
-																			<input
-																				type="email"
-																				className="mb-2 underline form-control text-cyan-600 text-ellipsis"
-																				id="shareLink"
-																				aria-describedby="shareLink"
-																				value={`${window.location.origin}/space/shared/public/${fileSharedStatex?.public_file.share_hash}`}
-																				onClick={() => {
-																					//copy to clipboard
-																					navigator.clipboard.writeText(
-																						`${window.location.origin}/space/shared/public/${fileSharedStatex?.public_file.share_hash}`
-																					);
-																					toast.success(
-																						"Link copied to clipboard"
-																					);
-																				}}
-																				readOnly
-																			/>
-																			<button
-																				className="ml-2 btn btn-primary"
-																				onClick={() =>
-																					navigate(
-																						`/space/shared/public/${fileSharedStatex?.public_file.share_hash}`
-																					)
-																				}
-																			>
-																				<i className="fas fa-external-link-alt"></i>{" "}
-																				Go
-																			</button>
-																		</div>
-																	</div>
-																)}
-														</>
-													))}
-
+															) => (
+																<div
+																	key={
+																		fileSharedStatex.id
+																	}
+																>
+																	{sd.type ===
+																		"public" &&
+																		fileSharedStatex
+																			?.public_file
+																			.id !==
+																			0 && (
+																			<div className="flex flex-col my-3">
+																				<label
+																					htmlFor="shareLink"
+																					className="form-label"
+																				>
+																					Share
+																					link
+																				</label>
+																				<div className="">
+																					<input
+																						type="email"
+																						className="mb-2 underline form-control text-cyan-600 text-ellipsis"
+																						id="shareLink"
+																						aria-describedby="shareLink"
+																						value={`${window.location.origin}/space/shared/public/${fileSharedStatex?.public_file.share_hash}`}
+																						onClick={() => {
+																							//copy to clipboard
+																							navigator.clipboard.writeText(
+																								`${window.location.origin}/space/shared/public/${fileSharedStatex?.public_file.share_hash}`
+																							);
+																							toast.success(
+																								"Link copied to clipboard"
+																							);
+																						}}
+																						readOnly
+																					/>
+																					<button
+																						className="ml-2 btn btn-primary"
+																						onClick={() =>
+																							navigate(
+																								`/space/shared/public/${fileSharedStatex?.public_file.share_hash}`
+																							)
+																						}
+																					>
+																						<i className="fas fa-external-link-alt"></i>{" "}
+																						Go
+																					</button>
+																				</div>
+																			</div>
+																		)}
+																</div>
+															)
+														)}
 												</div>
 											);
 										})}
 									</>
 								) : (
 									<>
-										<p className="px-2 my-3">Choose the Files you want to share</p>
+										<p className="px-2 my-3">
+											Choose the Files you want to share
+										</p>
 										<button
 											className="p-3 my-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
 											onClick={handleFileUpload}

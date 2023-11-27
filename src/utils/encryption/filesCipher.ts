@@ -2,7 +2,6 @@ import { CID } from "multiformats/cid"
 import { sha256 } from "multiformats/hashes/sha2"
 import { logoutUser } from "state/user/actions";
 import { EncryptionStatus, File as FileType, Folder } from "api";
-import getPersonalSignature from "api/getPersonalSignature";
 import { toast } from "react-toastify";
 
 const RAW_CODEC = 0x55
@@ -112,6 +111,8 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
     const encryptedCidOriginalBuffer = base64UrlToBuffer(cidOriginalEncrypted)
     const encryptedFiletypeBuffer = hexToBuffer(encryptedFiletypeBase64Url)
 
+    //TODO: check if the file is encrypted before trying to decrypt, this causes problems
+
     const decryptValue = async (cipherBytes: Uint8Array) => {
         const salt = cipherBytes.slice(0, 16)
         const iv = cipherBytes.slice(16, 16 + 12)
@@ -198,7 +199,7 @@ export function base64UrlToBuffer(base64Url: string): Uint8Array {
         while (base64.length % 4 !== 0) {
             base64 += '=';
         }
-
+        console.log("base64: " + base64);
         const str = atob(base64);
         const buffer = new Uint8Array(str.length);
         for (let i = 0; i < str.length; i++) {
