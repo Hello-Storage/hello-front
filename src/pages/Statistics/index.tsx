@@ -227,7 +227,7 @@ export default function Statistics() {
               <label className="block mr-2">Average File Size</label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
-                tooltipText="The total media of the files"
+                tooltipText="Average file size"
               />
             </div>
             <label className="text-1x8 font-semibold text-black block">
@@ -241,7 +241,7 @@ export default function Statistics() {
               <label className="block mr-2">Encrypted Files </label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
-                tooltipText="Total secure encrypted files"
+                tooltipText="Total amount of encrypted files "
               />
             </div>
             <label className="text-1x8 font-semibold text-black block">
@@ -255,7 +255,7 @@ export default function Statistics() {
               <label className="block mr-2">Public Files</label>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
-                tooltipText="The total amount of public files"
+                tooltipText="Total amount of public files"
               />
             </div>
             <label className="text-1x8 font-semibold text-black block">
@@ -274,7 +274,7 @@ export default function Statistics() {
         </div>
       </section>
 
-      <footer className="text-sm text-black md:mx-12 p-0 md:p-2">
+      <footer className="text-sm text-black md:mx-12 p-3 md:p-2">
         <div className="flex flex-col items-start">
           <div className="flex space-x-4 p-0 md:p-0">
             <a
