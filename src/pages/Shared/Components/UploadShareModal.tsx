@@ -21,10 +21,12 @@ import {
 	createFolderAction,
 	setSelectedSharedFiles,
 } from "state/mystorage/actions";
-import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
+import { AxiosProgressEvent, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
-import { useShareGroup } from "hooks/useShareGroup";
+import { shareDetails } from "./shareDetails";
+import { useShareGroup } from "../Utils/useShareGroup";
+import { Spinner5 } from "components/Spinner";
 
 interface UploadShareModalProps {
 	isOpen: boolean;
@@ -40,6 +42,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
 		(state) => state.userdetail
 	);
+	const [Procesing, setProcesing] = useState(false);
 	const { fetchUserDetail } = useFetchData();
 	const { name } = useAppSelector((state) => state.user);
 	const accountType = getAccountType();
@@ -49,8 +52,10 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const dropRef = useRef<HTMLDivElement>(null);
 	const [open, setOpen] = useState(false);
 	useDropdown(dropRef, open, setOpen);
+	const fileInput = useRef<HTMLInputElement>(null);
 
 	const closeShareModal = () => {
+		setProcesing(false);
 		setIsopen(false);
 	};
 
@@ -64,55 +69,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	>(null);
 
 	const modalRef = useRef<HTMLDivElement>(null);
-
-	const shareDetails: ShareDetails[] = [
-		{
-			id: 1,
-			type: "public",
-			title: "Public",
-			description:
-				"Generate a public URL that anyone you share it to can access. This URL will be valid until you disable it. Deletion of the file from the entire Internet is not granted.",
-			state: "enabled",
-		},
-		{
-			id: 2,
-			type: "test",
-			title: "test",
-			description:
-				"Generate a public URL that anyone you share it to can access. This URL will be valid until you disable it. Deletion of the file from the entire Internet is not granted.",
-			state: "enabled",
-		},
-		// {
-		//     type: "one-time",
-		//     title: "One-time only",
-		//     description: "Generate an obfuscated URL that can be accessed only once. Once visited, the URL will self-destroy.",
-		//     state: "disabled"
-		// },
-		// {
-		//     type: "address-restricted",
-		//     title: "Address restricted",
-		//     description: "Generate a URL that can be accessed only from a specific wallet address that has to be verified with a provider's signature.",
-		//     state: "disabled"
-		// },
-		// {
-		//     type: "password-protected",
-		//     title: "Password protected",
-		//     description: "Generate a URL that can be accessed only by providing a password. The password' hash will be stored in the blockchain and will be required to access the file.",
-		//     state: "disabled"
-		// },
-		// {
-		//     type: "temporary-link",
-		//     title: "Temporary link",
-		//     description: "Generate a URL that can be accessed only for a limited time. The URL will self-destroy after the time expires.",
-		//     state: "disabled"
-		// },
-		// {
-		//     type: "subscription",
-		//     title: "Subscription based",
-		//     description: "Not implememnted yet. This feature will allow you to generate a URL for the content that can be accessed only by paying a subscription.",
-		//     state: "disabled"
-		// }
-	];
 
 	const navigate = useNavigate();
 	const [shareError, setShareError] = useState("");
@@ -135,22 +91,23 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 					setShareError("");
 					setSelectedShareTypes(type);
 					if (e.target.checked) {
-						//handle sharing from shareRequests.ts
+						// Handle sharing from shareRequests.ts
 						shareFile(selectedShareFile, type)
 							.then((res) => {
-								//if res is AxiosResponse:
-								if ((res as AxiosResponse).status === 200) {
-									res = res as AxiosResponse;
-									const shareState = res?.data as ShareState;
-									const updatedStates = fileSharedState.filter(
-										(state) => state.id !== shareState.id
-									);
-									updatedStates.push(shareState);
-									setFileSharedState(updatedStates);
+								res = res as AxiosResponse;
+								if (res.status === 200) {
+									const shareState = res.data as ShareState;
+									setFileSharedState((prevStates) => {
+										// Update the specific share state without replacing the entire array
+										const updatedStates = prevStates.map(
+											(state) =>
+												state.id === shareState.id
+													? shareState
+													: state
+										);
+										return updatedStates;
+									});
 									toast.success("File shared successfully");
-								}
-								if ((res as AxiosError).isAxiosError) {
-									toast.error("Error sharing file");
 								}
 							})
 							.catch((err) => {
@@ -160,13 +117,15 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 						setSelectedShareTypes("");
 						unshareFile(selectedShareFile, type)
 							.then((res) => {
-								//if res is AxiosResponse:
-								if ((res as AxiosResponse).status === 200) {
-									res = res as AxiosResponse;
-									setFileSharedState([]);
-								}
-								if ((res as AxiosError).isAxiosError) {
-									toast.error("Error unsharing file");
+								res = res as AxiosResponse;
+								if (res.status === 200) {
+									setFileSharedState((prevStates) =>
+										prevStates.filter(
+											(state) =>
+												state.id !==
+												selectedShareFile.id
+										)
+									);
 								}
 							})
 							.catch((err) => {
@@ -289,6 +248,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		event: React.ChangeEvent<HTMLInputElement>,
 		isFolder: boolean
 	) => {
+		setProcesing(true);
 		const root = "/";
 		const files = event.target.files;
 
@@ -626,6 +586,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const handleClickOutside = (
 		event: React.MouseEvent<HTMLDivElement, MouseEvent>
 	) => {
+		setProcesing(false);
 		if (
 			modalRef.current &&
 			!modalRef.current.contains(event.target as Node)
@@ -634,7 +595,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		}
 	};
 
-	const fileInput = useRef<HTMLInputElement>(null);
 	const handleFileUpload = () => {
 		fileInput.current?.click();
 	};
@@ -647,12 +607,14 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 	useEffect(() => {
 		dispatch(setSelectedSharedFiles());
+		setProcesing(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
 		if (selectedSharedFiles) {
 			setuploaded(true);
+			setProcesing(false);
 		} else {
 			setuploaded(false);
 		}
@@ -670,7 +632,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 					if ((res as AxiosResponse).status === 200) {
 						res = res as AxiosResponse;
 						const shareState = res?.data as ShareState[];
-
 						setFileSharedState(shareState);
 					} else {
 						toast.error(JSON.stringify(res));
@@ -831,11 +792,11 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 																			className="mb-2 underline form-control text-cyan-600 text-ellipsis"
 																			id="shareLink"
 																			aria-describedby="shareLink"
-																			value={`${window.location.origin}/space/shared/public/${groupID}`}
+																			value={`${window.location.origin}/space/shared/group/${groupID}`}
 																			onClick={() => {
 																				//copy to clipboard
 																				navigator.clipboard.writeText(
-																					`${window.location.origin}/space/shared/public/${groupID}`
+																					`${window.location.origin}/space/shared/group/${groupID}`
 																				);
 																				toast.success(
 																					"Link copied to clipboard"
@@ -847,7 +808,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 																			className="ml-2 btn btn-primary"
 																			onClick={() =>
 																				navigate(
-																					`/space/shared/public/${groupID}`
+																					`/space/shared/group/${groupID}`
 																				)
 																			}
 																		>
@@ -868,6 +829,13 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 										<p className="px-2 my-3">
 											Choose the Files you want to share
 										</p>
+										{Procesing ? (
+											<div className="w-full h-3 m-4">
+												<Spinner5></Spinner5>
+											</div>
+										) : (
+											<></>
+										)}
 										<button
 											className="p-3 my-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
 											onClick={handleFileUpload}

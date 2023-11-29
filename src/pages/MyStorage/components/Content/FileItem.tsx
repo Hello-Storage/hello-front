@@ -146,6 +146,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 	const handleView = () => {
 		viewRef.current = true;
 
+		toast.info("Loading Files");
 		dispatch(setFileViewAction({ file: undefined }));
 		dispatch(setImageViewAction({ show: false }));
 		setloaded(false);

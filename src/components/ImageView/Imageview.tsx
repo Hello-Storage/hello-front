@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Api } from "api";
 import { AxiosProgressEvent } from "axios";
 import { EncryptionStatus, File as FileType } from "api/types";
@@ -25,12 +26,13 @@ interface ImageviewProps {
 	setloaded: React.Dispatch<React.SetStateAction<boolean>>; // Function to set the 'loaded' state.
 }
 
+
+//TODO: this component needs to be optimized
 const Imageview: React.FC<ImageviewProps> = React.memo(
 	({ isOpen, files, loaded, setloaded }) => {
 		const maxSize = 5000000; // Maximum file size for preview.
 
 		const dispatch = useAppDispatch();
-		const [file, setfile] = useState<FileType>();
 		const [preview, setpreview] = useState<void | PreviewImage[]>([]);
 		const { selectedShowFile } = useAppSelector((state) => state.mystorage);
 		const [cache, setCache] = useState<Record<string, Blob>>({});
@@ -322,7 +324,6 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 					originalOrder.push(mediaItem);
 					return mediaItem;
 				}
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			} catch (err: any) {
 				clear();
 				dispatch(setFileViewAction({ file: undefined }));
@@ -360,7 +361,6 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 		// useEffect to handle opening of image view and file selection logic.
 		useEffect(() => {
 			if (selectedShowFile && !loaded) {
-				setfile(selectedShowFile);
 				if (isOpen) {
 					if (
 						selectedShowFile.mime_type.startsWith("video/") ||
