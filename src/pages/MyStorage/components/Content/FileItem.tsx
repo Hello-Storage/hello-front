@@ -271,7 +271,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
           </div>
         </td>
         <td className="py-1 pr-8 whitespace-nowrap">
-          {dayjs(formatDate(file.updated_at)).fromNow()}
+          {dayjs(formatDate(file.created_at)).fromNow()}
         </td>
         <td className="py-1 pr-8 text-right">
           <button

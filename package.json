@@ -24,6 +24,7 @@
     "dayjs": "^1.11.9",
     "formik": "^2.4.4",
     "framer-motion": "^10.12.17",
+    "hash-wasm": "^4.11.0",
     "highcharts": "^11.1.0",
     "highcharts-react-official": "^3.2.1",
     "jszip": "^3.10.1",

@@ -5,7 +5,12 @@ import { EncryptionStatus, File as FileType, Folder } from "api";
 import getPersonalSignature from "api/getPersonalSignature";
 import { toast } from "react-toastify";
 
-const RAW_CODEC = 0x55
+const RAW_CODEC = sha256.code
+
+import { createSHA256, sha256 as sha256wasm } from "hash-wasm";
+import * as digest from 'multiformats/hashes/digest'
+import { AppDispatch } from "state";
+import { setUploadStatusAction } from "state/uploadstatus/actions";
 
 
 // Utility Functions
@@ -14,7 +19,7 @@ const getPasswordBytes = (signature: string): Uint8Array => {
     return new TextEncoder().encode(signature);
 }
 
-const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uint8Array, iv?: Uint8Array): Promise<{ aesKey: CryptoKey, salt: Uint8Array, iv: Uint8Array }> => {
+export const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uint8Array, iv?: Uint8Array): Promise<{ aesKey: CryptoKey, salt: Uint8Array, iv: Uint8Array }> => {
     const passwordBytes = getPasswordBytes(signature);
     const passwordKey = await window.crypto.subtle.importKey('raw', passwordBytes, 'PBKDF2', false, ['deriveKey']);
     //salt = salt || window.crypto.getRandomValues(new Uint8Array(16));
@@ -33,13 +38,13 @@ const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uint8Array
     return { aesKey, salt, iv };
 }
 
-const getCipherBytes = async (content: ArrayBuffer | Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<Uint8Array> => {
+export const getCipherBytes = async (content: ArrayBuffer | Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<Uint8Array> => {
     const cipherBytes = await window.crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, aesKey, content);
     return new Uint8Array(cipherBytes);
 }
 
 
-const getResultBytes = (cipherBytesArray: Uint8Array, salt: Uint8Array, iv: Uint8Array): Uint8Array => {
+export const getResultBytes = (cipherBytesArray: Uint8Array, salt: Uint8Array, iv: Uint8Array): Uint8Array => {
     const resultBytes = new Uint8Array(cipherBytesArray.byteLength + salt.byteLength + iv.byteLength);
     resultBytes.set(salt, 0);
     resultBytes.set(iv, salt.byteLength);
@@ -47,11 +52,11 @@ const getResultBytes = (cipherBytesArray: Uint8Array, salt: Uint8Array, iv: Uint
     return resultBytes;
 }
 
-const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> => {
+export const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> => {
 
     return await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, aesKey, cipherBytes).catch((err) => {
         console.log("Error decrypting buffer:")
-        console.log(err)
+        console.log(JSON.stringify(err))
         toast.error("Error decrypting buffer")
         return new ArrayBuffer(0)
     });
@@ -140,10 +145,79 @@ export const encryptBuffer = async (buffer: ArrayBuffer, personalSignature: stri
 
 }
 
-export const getCid = async (buffer: Uint8Array): Promise<string> => {
-    const uint8FileBuffer = new Uint8Array(buffer)
-    const hash = await sha256.digest(uint8FileBuffer)
-    const cid = CID.create(1, sha256.code, hash)
+export async function generateFileCID(file: File, dispatch: AppDispatch): Promise<string> {
+    const chunkSize = 100 << 20; // 100 MB
+    //make 1KB chunksize:
+    let offset = 0;
+    const hasher = await createSHA256();
+
+    dispatch(setUploadStatusAction({
+        info: "Hashing file...",
+        size: file.size,
+    }))
+
+
+    return new Promise((resolve, reject) => {
+        const readChunk = () => {
+            const fileSlice = file.slice(offset, offset + chunkSize);
+            const reader = new FileReader();
+
+            reader.onload = async (e) => {
+                try {
+                    if (e.target?.result) {
+                        const arrayBuffer = e.target.result as ArrayBuffer;
+                        hasher.update(new Uint8Array(arrayBuffer)); //this is the line that makes it take a lot of time
+                    }
+
+                    offset += chunkSize;
+
+                    const loaded = offset;
+
+                    dispatch(setUploadStatusAction({
+                        read: loaded,
+                    }))
+
+
+                    if (offset < file.size) {
+                        readChunk();
+                    } else {
+                        const hashBytes = hasher.digest('binary'); //(property) digest: (outputType?: "hex" | undefined) => string (+1 overload)
+                        const mhdigest = digest.create(sha256.code, hashBytes);
+                        const cid = CID.create(1, sha256.code, mhdigest); //(method) CID.create(version: CIDVersion, code: number, digest: MultihashDigest<number>): CID
+
+
+
+
+
+                        resolve(cid.toString());
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            reader.onerror = () => {
+                reject(reader.error);
+            };
+
+            reader.readAsArrayBuffer(fileSlice);
+        };
+
+        readChunk();
+    })
+}
+
+export const getCid = async (buffer: ArrayBuffer | File, dispatch: AppDispatch): Promise<string> => {
+    let cid = "";
+    if (buffer instanceof ArrayBuffer) {
+        dispatch(setUploadStatusAction({
+            info: "Hashing file...",
+        }));
+        const hash = await sha256.digest(new Uint8Array(buffer))
+        cid = CID.create(1, RAW_CODEC, hash).toString()
+    } else {
+        cid = await generateFileCID(buffer, dispatch).catch((err) => { toast.error("Error generating CID: " + err); throw err })
+    }
 
     return cid.toString()
 }
@@ -193,12 +267,11 @@ export function base64UrlToBuffer(base64Url: string): Uint8Array {
     }
 }
 
-export const encryptFileBuffer = async (fileArrayBuffer: ArrayBuffer) => {
+export const encryptFileBuffer = async (fileArrayBuffer: ArrayBuffer, dispatch: AppDispatch) => {
     try {
 
-        const uint8FileBuffer = new Uint8Array(fileArrayBuffer)
 
-        const cidOriginalStr = await getCid(uint8FileBuffer);
+        const cidOriginalStr = await getCid(fileArrayBuffer, dispatch);
 
         const emptySalt = new Uint8Array(16)
 
@@ -208,7 +281,7 @@ export const encryptFileBuffer = async (fileArrayBuffer: ArrayBuffer) => {
 
         const start = performance.now();
 
-        const cipherBytes = await getCipherBytes(uint8FileBuffer, aesKey, iv)
+        const cipherBytes = await getCipherBytes(fileArrayBuffer, aesKey, iv)
 
         const end = performance.now();
         const encryptionTime = end - start || 0;
@@ -218,6 +291,7 @@ export const encryptFileBuffer = async (fileArrayBuffer: ArrayBuffer) => {
 
 
         const resultBytes = getResultBytes(cipherBytes, salt, iv)
+
 
         const encryptedHash = await sha256.digest(resultBytes)
         const cidOfEncryptedBuffer = CID.create(1, RAW_CODEC, encryptedHash)
@@ -251,7 +325,12 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
         const iv = cipherBytes.slice(16, 16 + 12)
         onProgress(40)
         const data = cipherBytes.slice(16 + 12)
+        
         onProgress(55)
+        console.log("salt:")
+        console.log(salt)
+        console.log("iv:")
+        console.log(iv)
         const { aesKey } = await getAesKey(originalCid, ['decrypt'], salt, iv)
         onProgress(70)
         const decryptedContent = await decryptContentUtil(data, aesKey, iv)
@@ -265,7 +344,7 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
 }
 
 export const handleEncryptedFiles = async (files: FileType[], personalSignature: string, name: string, autoEncryptionEnabled: boolean, accountType: string | undefined, logout: () => void) => {
-    
+
     if (personalSignature === undefined) {
         return;
     }

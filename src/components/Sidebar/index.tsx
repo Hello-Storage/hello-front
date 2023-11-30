@@ -13,7 +13,7 @@ import Cloud from "assets/images/Outline/Cloud-upload.png";
 import { FiX } from "react-icons/fi";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
-import { AccountType } from "api";
+import { AccountType, Api } from "api";
 import { useFetchData, useDropdown, useAuth } from "hooks";
 import {
   toggleEncryption,
@@ -31,6 +31,12 @@ import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import { fileUpload } from "utils/upload/filesUpload";
+import { toast } from "react-toastify";
+import { blobToArrayBuffer, decryptContentUtil, decryptFileBuffer, getAesKey, getCid, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
+import { logoutUser } from "state/user/actions";
+import { Uint } from "web3";
+
+
 
 const links1 = [
   {
@@ -108,6 +114,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   useDropdown(dropRef, open, setOpen);
 
   const fileInput = useRef<HTMLInputElement>(null);
+  const chunkInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
   const [onPresent] = useModal(<CreateFolderModal />);
 
@@ -131,6 +138,10 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     fileInput.current?.click();
   };
 
+  const handleChunkUpload = () => {
+    chunkInput.current?.click();
+  };
+
   const handleFolderUpload = () => {
     folderInput.current?.click();
   };
@@ -138,7 +149,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   useEffect(() => {
     fetchUserDetail();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getRoot = () =>
@@ -155,6 +166,178 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const root = getRoot();
     fileUpload(files, false, root, encryptionEnabled, name, logout, dispatch, onUploadProgress, fetchUserDetail);
   };
+
+  const handleChunkInputChange: ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    setSidebarOpen(false);
+    const files = event.target.files;
+    const root = getRoot();
+    if (!files) return;
+    uploadFileMultipart(files[0]).then(() => {
+      fetchUserDetail();
+      toast.success('File chunks uploaded successfully')
+    }).catch((error) => {
+      toast.error('Error uploading file chunks: ' + error)
+    });
+
+
+
+  };
+  const AES_GCM_TAG_LENGTH = 16;
+
+  const uploadFileMultipart = async (file: File) => {
+    const cid = await getCid(file, dispatch)
+    const { aesKey, salt, iv } = await getAesKey(cid, ['encrypt']);
+    alert("multipart cid: " + cid)
+
+    const chunkSize = 5 * 1024 * 1024; // 5KB
+    let offset = 0;
+
+    while (offset < file.size) {
+      const end = Math.min(file.size, offset + chunkSize - AES_GCM_TAG_LENGTH);
+      let chunk = file.slice(offset, end);
+      const isLastChunk = end >= file.size;
+
+      const chunkArrayBuffer = await chunk.arrayBuffer();
+      if (encryptionEnabled) {
+        let encryptedChunk = await getCipherBytes(chunkArrayBuffer, aesKey, iv);
+        if (offset === 0) {
+          //get result bytes
+          encryptedChunk = getResultBytes(encryptedChunk, salt, iv);
+        }
+        chunk = new Blob([encryptedChunk]);
+      }
+
+      console.log("starting uploading chunk")
+      await uploadChunk(chunk, offset, cid, isLastChunk);
+      console.log("uploaded chunk")
+      offset = isLastChunk ? file.size : end;
+      console.log("upload offset: " + offset)
+    }
+
+  }
+
+
+  const uploadChunk = async (chunk: Blob, offset: number, cid: string, isLastChunk: boolean) => {
+    const formData = new FormData();
+    formData.append('chunk', chunk);
+    formData.append('cid', cid);
+    formData.append('offset', offset.toString());
+    formData.append('isLastChunk', isLastChunk.toString());
+
+    try {
+      const response = await Api.post('/file/upload/multipart', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      console.log(response.data)
+    } catch (error) {
+      toast.error('Error uploading chunk: ' + error)
+    }
+  }
+
+  const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+
+  const downloadMultipart = async () => {
+    const cid = "baejbeifnki6ktu7xsnwik4eotkdgryirtfk3oxx266rqiioll4unncwc6y";
+    const apiEndpoint = import.meta.env.VITE_API_ENDPOINT + `/file/download/multipart/${cid}`;
+    if (!localStorage.getItem("access_token")) {
+      logoutUser();
+    }
+
+
+    const response = await fetch(apiEndpoint, {
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Authorization": "Bearer " + localStorage.getItem("access_token"),
+      }
+    });
+
+    const stream = new ReadableStream({
+      async pull(controller) {
+        if (!response.ok || !response.body) {
+          logoutUser();
+          const message = `An error has occured: ${response.status}`;
+          throw new Error(message);
+        }
+        const reader = response.body.getReader();
+        let isFirstChunk = true;
+        let aesKey: CryptoKey | undefined;
+        let iv, accumulated = new Uint8Array();
+
+        const shouldContinue = true;
+        while (shouldContinue) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          // Append new data to the accumulated buffer
+          const tempBuffer = new Uint8Array(accumulated.length + value.length);
+          tempBuffer.set(accumulated);
+          tempBuffer.set(value, accumulated.length);
+          accumulated = tempBuffer;
+
+
+          // Process first chunk separately
+          if (isFirstChunk) {
+            if (accumulated.length >= 28) {
+              const salt = accumulated.slice(0, 16);
+              iv = accumulated.slice(16, 28);
+              const keyInfo = await getAesKey(cid, ['decrypt'], salt, iv);
+              aesKey = keyInfo.aesKey;
+              isFirstChunk = false;
+              accumulated = accumulated.slice(28);
+            }
+          }
+
+          // Decrypt when we have enough data or it's the last chunk
+          while (aesKey && iv && accumulated.length >= CHUNK_SIZE) {
+            const chunk = accumulated.slice(0, CHUNK_SIZE);
+            accumulated = accumulated.slice(CHUNK_SIZE);
+
+            // Decrypt the chunk
+            const decryptedChunk = await decryptContentUtil(chunk, aesKey, iv);
+            controller.enqueue(new Uint8Array(decryptedChunk));
+          }
+        }
+
+        // Enqueue any remaining data
+        if (aesKey && iv && accumulated.length > 0) {
+          const decryptedChunk = await decryptContentUtil(accumulated, aesKey, iv);
+          controller.enqueue(new Uint8Array(decryptedChunk));
+        }
+
+        controller.close();
+      }
+    });
+
+    // Create blob for download
+    const responseBlob = new Response(stream);
+    const blob = await responseBlob.blob();
+    triggerDownload(blob, "decrypted_file.png");
+  };
+
+
+
+
+  const triggerDownload = (blob: Blob, filename: string) => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    toast.success("Download complete!");
+    window.URL.revokeObjectURL(url);
+  };
+
+
+
+
+
+
+
+
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (
     event
@@ -223,6 +406,18 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <hr className="my-3" />
 
         <div className="relative" ref={dropRef}>
+          <button
+            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
+            onClick={handleChunkUpload}
+          >
+            <HiPlus /> Upload file by chunks
+          </button>
+          <button
+            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
+            onClick={downloadMultipart}
+          >
+            <HiPlus /> Download multipart
+          </button>
           <button
             className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
             onClick={handleFileUpload}
@@ -364,6 +559,15 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           type="file"
           id="file"
           onChange={handleFileInputChange}
+          multiple={true}
+          accept="*/*"
+          hidden
+        />
+        <input
+          ref={chunkInput}
+          type="file"
+          id="file"
+          onChange={handleChunkInputChange}
           multiple={true}
           accept="*/*"
           hidden
