@@ -16,12 +16,9 @@ interface ContentProps {
   folders: Folder[];
   files?: File[];
   view: "list" | "grid";
-  showFolders: boolean;
-  filesTitle: string;
-  identifier: number;
 }
 
-const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier }) => {
+const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   type itemInfo = {
     type: string;
     id: string;
@@ -42,11 +39,22 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     navigate(`/space/folder/${folderUID}`);
   };
 
-  
+  const [seleccionMultipleActivada, setSeleccionMultipleActivada] = useState(false);
+
+  const handleButtonClick = () => {
+    // Turns multiple selection on or off when you click the button
+    setSeleccionMultipleActivada((prev) => !prev);
+
+    if (seleccionMultipleActivada) {
+      setSelectedItems([]);
+    }
+  };
+
+  const buttonText = seleccionMultipleActivada ? "CANCEL" : "SELECT";
 
   // Event for select item
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
-    if (!event.ctrlKey) {
+    if (!seleccionMultipleActivada || event.ctrlKey) {
       return;
     }
     const selInfo = {
@@ -213,6 +221,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       type: "folder",
     };
 
+    
+
     // Check if selectedItems is empty
     if (selectedItems.length === 0) {
       if (dropInfo.id == dragInfoReceived.id) {
@@ -270,24 +280,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         console.log("Error updating folder root:", err);
       });
   };
-  const handleResize = () => {
-    setWindowWidth(window.innerWidth);
-    const headerScroll = document.getElementById("files-headers_"+identifier);
-    const rowsScroll = document.getElementById("files-rows_"+identifier);
-    const tablerowdiv = document.getElementById("table-row-div_"+identifier);
-    const tableheaderdiv = document.getElementById("header-scroll-inv_"+identifier);
-    if (headerScroll && rowsScroll && tablerowdiv) {
-      headerScroll.style.width = rowsScroll.getBoundingClientRect().width + "px"
-      tablerowdiv.style.width = rowsScroll.getBoundingClientRect().width + "px"
-    }
-    if (tablerowdiv && tableheaderdiv) {
-      tablerowdiv.onscroll = function () {
-        if (headerScroll)
-        console.log("test");
-          tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
-      };
-    }
-  };
 
   useEffect(() => {
     const invScroll = document.getElementById("scroll-invisible-section");
@@ -305,21 +297,34 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
           invScroll.scrollLeft = visScroll.scrollLeft;
       };
     }
-    handleResize();
   }, [folders]);
 
   useLayoutEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      const headerScroll = document.getElementById("files-headers");
+      const rowsScroll = document.getElementById("files-rows");
+      const tablerowdiv = document.getElementById("table-row-div");
+      const tableheaderdiv = document.getElementById("header-scroll-inv");
+      if (headerScroll && rowsScroll) {
+        headerScroll.style.width = rowsScroll.getBoundingClientRect().width + "px"
+      }
+      if (tablerowdiv && tableheaderdiv) {
+        tablerowdiv.onscroll = function () {
+          if (headerScroll)
+            tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
+        };
+      }
+    };
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
   if (view === "list")
     return (
       <>
-      {showFolders? 
-      <>
-      <div className="position-sticky-left">
+        <div className="position-sticky-left">
           <h4 className="mb-[15px]">Folders</h4>
         </div>
         <div className="folders-div">
@@ -363,15 +368,17 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         >
           <div id="width-section-helper"></div>
         </section>
-      </>
-      :
-      <></>
-    }
-        
         <section className="custom-scrollbar position-sticky-left">
-          <h4 className="pt-1 pb-3">{filesTitle}</h4>
-          <div id={"header-scroll-inv_"+identifier}>
-            <table id={"files-headers_"+identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
+
+          <div style={{ display: 'flex', padding: '10px' }}>
+            <h4 className="pt-1 pb-3">Files</h4>
+            <div style={{ marginLeft: 'auto' }}>
+              <button style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px'}} onClick={handleButtonClick}>{buttonText}</button>
+            </div>
+          </div>
+
+          <div id="header-scroll-inv">
+            <table id="files-headers" className="w-full text-sm text-left text-gray-500 table-with-lines">
               <thead className="text-xs text-gray-700 bg-gray-100">
                 <tr>
                   <th
@@ -423,6 +430,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                   >
                     Last Modified
                   </th>
+               
                   <th
                     id="column-option"
                     scope="col"
@@ -433,8 +441,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
             </table>
           </div>
 
-          <div id={"table-row-div_"+identifier} className="table-div custom-scrollbar min-w-full max-w-full h-full scrollbar-color">
-            <table id={"files-rows_"+identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
+          <div id="table-row-div" className="table-div custom-scrollbar h-full scrollbar-color">
+            <table id="files-rows" className="w-full text-sm text-left text-gray-500 table-with-lines">
               <tbody>
                 {loading ? (
                   <tr className="w-full h-64">
@@ -469,9 +477,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                   </tr>
                 ) : (
                   <>
-                  {(files && files.length>0)?
-                  <>
-                  {files.map((v, i) => (
+                    {files?.map((v, i) => (
                       <tr
                         key={i}
                         id={v.id.toString()}
@@ -498,24 +504,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                       </tr>
                     ))}
                   </>
-                  :
-                  <>
-                  <tr
-                  >
-                    <td
-                    scope="row" 
-                    className="px-3 font-medium text-gray-900 whitespace-nowrap w-full">
-                      <div className="flex flex-col w-full h-full items-start lg:items-center justify-center text-center">
-                        <div className="mt-4 mb-4">
-                          No files found
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                  </>
-                }
-                    
-                  </>
                 )}
               </tbody>
             </table>
@@ -524,6 +512,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       </>
     );
   else
+  // marcador 
     return (
       <Fragment>
         <div className="position-sticky-left">
@@ -536,6 +525,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
           >
             <RiFolderAddLine className="h-6 w-6" />
           </div>
+          
           {folders.map((v, i) => (
             <div
               key={i}
@@ -571,11 +561,28 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         </section>
 
         <section className="custom-scrollbar position-sticky-left">
-          <h3 className="my-3">Files</h3>
+        <div style={{ display: 'flex', padding: '10px' }}>
+            <h4 className="pt-1 pb-3">Files</h4>
+            <div style={{ marginLeft: 'auto' }}>
+              <button style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px'}} onClick={handleButtonClick}>{buttonText}</button>
+            </div>
+          </div>
           <div className="grid grid-200 gap-3">
-            {files?.map((v, i) => (
-              <FileItem file={v} key={i} view="grid" />
-            ))}
+          {files?.map((v, i) => (
+                  <div
+                    key={i}
+                    id={v.id.toString()}
+                    aria-label={v.uid}
+                    aria-valuetext="file"
+                    className={`cursor-pointer ${isItemSelected(v.id.toString())
+                      ? "bg-sky-100"
+                      : "hover:bg-gray-100 bg-white"
+                      }`}
+                      onClick={handleOnClick}
+                  >
+                    <FileItem file={v} key={i} view="grid" />
+                  </div>
+                ))}
           </div>
         </section>
       </Fragment>
