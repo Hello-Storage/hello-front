@@ -9,14 +9,16 @@ const useFetchGroupHashes = (shareGroupID: string) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const response = await Api.get(`/file/share/group/${shareGroupID}`);
-                const fetchedHashes = response.data.share_hashes;
-                setGroupHashes(fetchedHashes);
-            } catch (error: any) {
-                toast.error(error);
-            } finally {
-                setLoading(false);
+            if (shareGroupID !== "") {
+                try {
+                    const response = await Api.get(`/file/share/group/${shareGroupID}`);
+                    const fetchedHashes = response.data.share_hashes;
+                    setGroupHashes(fetchedHashes);
+                } catch (error: any) {
+                    toast.error(error);
+                } finally {
+                    setLoading(false);
+                }
             }
         };
 

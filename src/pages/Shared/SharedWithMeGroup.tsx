@@ -78,15 +78,22 @@ const ShareSharedWithMeGroupdWithMe = () => {
 	useEffect(() => {
 		//get file metadata from the hash
 		if (metadataList && metadataList.length == 0) {
+			if(!grouphashes){
+				toast.error("Group not found")
+				return
+			}
+			if(!group_id){
+				toast.error("Group not provided")
+				return
+			}
+			
 			if (
-				group_id &&
 				group_id.length > 0 &&
 				grouphashes.length > 0 &&
 				!loading
 			) {
 				// Create a temporary array to store metadata
 				const tempMetadataList: PublicFile[] = [];
-
 				// Use Promise.all to handle multiple asynchronous requests concurrently
 				Promise.all(
 					grouphashes.map((hash) => {

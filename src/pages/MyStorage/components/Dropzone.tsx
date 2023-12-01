@@ -209,12 +209,6 @@ const Dropzone = () => {
           if (filesFound) {
             const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
 
-            // replace for customFile in fileMap values:
-            // - put name_unencrypted to name
-            // - put cid_original_unencrypted to cid_original_encrypted
-            // - put mime_type_unencrypted to mime_type
-            console.log(filesFound);
-
             fileMap.customFile.id = fileFound?.id || 0;
             fileMap.customFile.uid = fileFound?.uid || "";
             fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
