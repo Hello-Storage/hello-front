@@ -86,7 +86,7 @@ function App() {
             <Route path="/space/dashboard" element={<Dashboard />} />
             <Route path="/space/my-storage" element={<MyStorage />} />
             <Route path="/space/folder/*" element={<MyStorage />} />
-            <Route path="/space/shared" element={<Shared shareType="public" />} />
+            <Route path="/space/shared" element={<Shared />} />
             <Route path="/space/recent" element={<Recent />} />
             <Route path="/space/referrals" element={<Referrals />} />
             <Route path="/space/deleted" element={<Deleted />} />
