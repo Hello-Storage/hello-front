@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -18,9 +19,8 @@ import { FaSquareShareNodes } from "react-icons/fa6";
 import ShareModal from "./Components/ShareModal";
 import UploadShareModal from "./Components/UploadShareModal";
 import Imageview from "components/ImageView/Imageview";
-dayjs.extend(relativeTime);
 
-const Shared = (props: { shareType: string }) => {
+const Shared = () => {
 	const [loaded, setloaded] = useState(false);
 	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
 	const dispatch = useDispatch();
@@ -178,7 +178,7 @@ const Shared = (props: { shareType: string }) => {
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle="Recived"
+						filesTitle="Shared"
 						identifier={1}
 						setloaded={setloaded}
 					/>
@@ -191,7 +191,7 @@ const Shared = (props: { shareType: string }) => {
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle="Shared"
+						filesTitle="Recived"
 						identifier={2}
 						setloaded={setloaded}
 					/>
@@ -205,7 +205,7 @@ const Shared = (props: { shareType: string }) => {
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle="Recived"
+						filesTitle="Shared"
 						identifier={3}
 						setloaded={setloaded}
 					/>
@@ -217,7 +217,7 @@ const Shared = (props: { shareType: string }) => {
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle="Shared"
+						filesTitle="Recived"
 						identifier={4}
 						setloaded={setloaded}
 					/>

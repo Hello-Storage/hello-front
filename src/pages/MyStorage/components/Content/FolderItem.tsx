@@ -12,7 +12,7 @@ import {
   HiOutlineShare,
   HiOutlineTrash,
 } from "react-icons/hi";
-import copy from "copy-to-clipboard";
+// import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import {
   decryptContent,
@@ -46,11 +46,11 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
   const accountType = getAccountType();
   useDropdown(ref, open, setOpen);
 
-  const onCopy = (event: React.MouseEvent) => {
-    if (!event.ctrlKey) return;
-    copy(`https://hello.app/space/folder/${folder.uid}`);
-    toast.success("copied CID");
-  };
+  // const onCopy = (event: React.MouseEvent) => {
+  //   if (!event.ctrlKey) return;
+  //   copy(`https://hello.app/space/folder/${folder.uid}`);
+  //   toast.success("copied CID");
+  // };
 
   const handleDownload = async () => {
     const personalSignature = await getPersonalSignature(
@@ -149,20 +149,8 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         });
       })
       .catch((err) => {
-        const error = err.response?.data.error;
-
-        if (
-          !localStorage.getItem("access_token") &&
-          err.response?.status === 401 &&
-          error &&
-          [
-            "authorization header is not provided",
-            "token has expired",
-          ].includes(error)
-        ) {
-          dispatch(logoutUser());
-        }
         console.error("Error downloading folder:", err);
+        toast.error("Error downloading folder");
       });
   };
 
@@ -182,20 +170,6 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
         })
         .catch((err) => {
           console.error("Error deleting folder:", err);
-
-          const error = err.response?.data.error;
-
-          if (
-            !localStorage.getItem("access_token") &&
-            err.response?.status === 401 &&
-            error &&
-            [
-              "authorization header is not provided",
-              "token has expired",
-            ].includes(error)
-          ) {
-            dispatch(logoutUser());
-          }
           // Show an error message
           toast.error("Error deleting folder!");
         });

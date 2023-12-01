@@ -10,6 +10,7 @@ import PrivateRoute from "components/PrivateRoute";
 import { Spinner3 } from "components/Spinner";
 
 import { Navigate } from "react-router-dom";
+import ShareSharedWithMeGroupdWithMe from "pages/Shared/SharedWithMeGroup";
 
 
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -81,6 +82,7 @@ function App() {
           <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Api />} />
             <Route path ="/space/shared/public/:hash" element={<SharedWithMe shareType="public" />} />
+            <Route path ="/space/shared/group/:group_id" element={<ShareSharedWithMeGroupdWithMe />} />
             <Route path="/space/dashboard" element={<Dashboard />} />
             <Route path="/space/my-storage" element={<MyStorage />} />
             <Route path="/space/folder/*" element={<MyStorage />} />

@@ -16,7 +16,6 @@ import UploadProgress from "pages/MyStorage/components/UploadProgress";
 import "lightbox.js-react/dist/index.css";
 import { SlideshowLightbox } from "lightbox.js-react";
 import { useAppSelector } from "state";
-import { logoutUser } from "state/user/actions";
 dayjs.extend(relativeTime);
 
 const SharedWithMe = (props: { shareType: string }) => {
@@ -74,18 +73,6 @@ const SharedWithMe = (props: { shareType: string }) => {
             }
           }).catch((err) => {
             toast.error("An error occured while fetching the file metadata");
-            const error = err.response?.data.error;
-            if (
-              !localStorage.getItem("access_token") &&
-              err.response?.status === 401 &&
-              error &&
-              [
-                "authorization header is not provided",
-                "token has expired",
-              ].includes(error)
-            ) {
-              dispatch(logoutUser());
-            }
             console.log(err);
           });
 
@@ -115,7 +102,7 @@ const SharedWithMe = (props: { shareType: string }) => {
       case "public":
         //get file metadata from the hash
         if (hash && hash.length > 0)
-          downloadFile(metadata, 'public')
+          downloadFile(metadata)
         break;
       case "private":
         //get file metadata from the hash
@@ -128,7 +115,7 @@ const SharedWithMe = (props: { shareType: string }) => {
   }
 
   // Function to handle file download
-  const downloadFile = (metadata: PublicFile | undefined, shareType: string) => {
+  const downloadFile = (metadata: PublicFile | undefined) => {
     viewRef.current = false;
     toast.info("Starting download for " + metadata?.name + "...");
     // Make a request to download the file with responseType 'blob'
@@ -188,23 +175,12 @@ const SharedWithMe = (props: { shareType: string }) => {
         window.URL.revokeObjectURL(url);
       })
       .catch((err) => {
-        const error = err.response?.data.error;
-        if (
-          !localStorage.getItem("access_token") &&
-          err.response?.status === 401 &&
-          error &&
-          [
-            "authorization header is not provided",
-            "token has expired",
-          ].includes(error)
-        ) {
-          dispatch(logoutUser());
-        }
+        toast.error("Error downloading file");
         console.error("Error downloading file:", err);
       });
   };
 
-  const handleView = (metadata: PublicFile | undefined, shareType: string) => {
+  const handleView = (metadata: PublicFile | undefined) => {
     viewRef.current = true;
 
     Api.get(`/file/download/${metadata?.file_uid}`, {
@@ -276,18 +252,7 @@ const SharedWithMe = (props: { shareType: string }) => {
         dispatch(setImageViewAction({ img: mediaItem, show: true }));
       })
       .catch((err) => {
-        const error = err.response?.data.error;
-        if (
-          !localStorage.getItem("access_token") &&
-          err.response?.status === 401 &&
-          error &&
-          [
-            "authorization header is not provided",
-            "token has expired",
-          ].includes(error)
-        ) {
-          dispatch(logoutUser());
-        }
+        toast.error("Error downloading file");
         console.error("Error downloading file:", err);
       });
   };
@@ -329,7 +294,7 @@ const SharedWithMe = (props: { shareType: string }) => {
         </div>
         <div className="flex items-center justify-between p-6 bg-gray-100 rounded-b-lg">
           <a href="#" onClick={() => downloadHandler()} className="px-6 py-2 text-white transition duration-200 ease-in-out bg-blue-600 rounded-md hover:bg-blue-700">Download</a>
-          {viewable && <button onClick={() => handleView(metadata, "public")} className="px-6 py-2 text-white transition duration-200 ease-in-out bg-blue-600 rounded-md hover:bg-blue-700">
+          {viewable && <button onClick={() => handleView(metadata)} className="px-6 py-2 text-white transition duration-200 ease-in-out bg-blue-600 rounded-md hover:bg-blue-700">
             <i className="mr-1 fas fa-eye"></i> View
           </button>}
         </div>

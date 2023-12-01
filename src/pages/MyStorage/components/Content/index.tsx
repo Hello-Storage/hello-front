@@ -9,7 +9,7 @@ import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
 import { useAppDispatch } from "state";
 import { removeFileAction } from "state/mystorage/actions";
-import { logoutUser } from "state/user/actions";
+import { toast } from "react-toastify";
 
 interface ContentProps {
   loading: boolean;
@@ -33,6 +33,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
   const initialCoords = useRef({ x: 0, y: 0 });
 
   const [selectedItems, setSelectedItems] = React.useState<itemInfo[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [draggingOverFolderId, setDraggingOverFolderId] = useState<
     string | null
@@ -166,7 +167,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     initialCoords.current = { x: event.clientX, y: event.clientY };
   };
 
-  const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
+  const handleDragEnd = () => {
     if (cloneRef.current) {
       document.body.removeChild(cloneRef.current);
       cloneRef.current = null;
@@ -250,6 +251,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   const handleDropSingle = (
     event: React.DragEvent<HTMLTableRowElement>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any,
     itemType: string
   ) => {
@@ -267,20 +269,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         dispatch(removeFileAction(payload.Uid));
       })
       .catch((err) => {
-        const error = err.response?.data.error;
-
-        if (
-          !localStorage.getItem("access_token") &&
-          err.response?.status === 401 &&
-          error &&
-          [
-            "authorization header is not provided",
-            "token has expired",
-          ].includes(error)
-        ) {
-          dispatch(logoutUser());
-        }
         console.log("Error updating folder root:", err);
+        toast.error("Error updating folder root");
       });
   };
   const handleResize = () => {
@@ -318,11 +308,13 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       };
     }
     handleResize();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folders]);
 
   useLayoutEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 

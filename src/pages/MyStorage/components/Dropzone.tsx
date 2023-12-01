@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
@@ -18,7 +21,6 @@ import { Api, EncryptionStatus, File as FileType } from "api";
 import { useAppDispatch, useAppSelector } from "state";
 import { AxiosProgressEvent } from "axios";
 import { createFileAction, createFolderAction } from "state/mystorage/actions";
-import { logoutUser } from "state/user/actions";
 
 const getColor = (
   isFocused: boolean,
@@ -230,21 +232,7 @@ const Dropzone = () => {
         })
 
       })
-      .catch((err) => {
-        console.log(err);
-        const error = err.response?.data.error;
-
-        if (
-          !localStorage.getItem("access_token") &&
-          err.response?.status === 401 &&
-          error &&
-          [
-            "authorization header is not provided",
-            "token has expired",
-          ].includes(error)
-        ) {
-          dispatch(logoutUser());
-        }
+      .catch(() => {
         failed = true;
         toast.error("upload failed!");
       })
@@ -296,24 +284,8 @@ const Dropzone = () => {
 
           }
         })
-        .catch((err) => {
-          console.log(err);
-
-          const error = err.response?.data.error;
-
-          if (
-            !localStorage.getItem("access_token") &&
-            err.response?.status === 401 &&
-            error &&
-            [
-              "authorization header is not provided",
-              "token has expired",
-            ].includes(error)
-          ) {
-            dispatch(logoutUser());
-          }
+        .catch(() => {
           toast.error("upload failed!");
-
         })
         .finally(() => dispatch(setUploadStatusAction({ uploading: false })))
     } else {

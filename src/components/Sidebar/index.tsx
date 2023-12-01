@@ -41,7 +41,6 @@ import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import { createFileAction, createFolderAction } from "state/mystorage/actions";
-import { logoutUser } from "state/user/actions";
 
 const links1 = [
   {
@@ -149,6 +148,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   useEffect(() => {
     fetchUserDetail();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getRoot = () =>
@@ -470,20 +470,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         })
       })
-      .catch((err: any) => {
-        const error = err.response?.data.error;
-
-        if (
-          !localStorage.getItem("access_token") &&
-          err.response?.status === 401 &&
-          error &&
-          [
-            "authorization header is not provided",
-            "token has expired",
-          ].includes(error)
-        ) {
-          dispatch(logoutUser());
-        }
+      .catch((err) => {
         console.log(err);
       });
 
@@ -537,21 +524,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           }
 
         })
-        .catch((err: any) => {
-          console.log(err);
-          const error = err.response?.data.error;
-
-          if (
-            !localStorage.getItem("access_token") &&
-            err.response?.status === 401 &&
-            error &&
-            [
-              "authorization header is not provided",
-              "token has expired",
-            ].includes(error)
-          ) {
-            dispatch(logoutUser());
-          }
+        .catch(() => {
           toast.error("upload failed!");
         })
         .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
