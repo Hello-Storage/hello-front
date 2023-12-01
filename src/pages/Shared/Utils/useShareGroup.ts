@@ -2,7 +2,7 @@ import { Api } from "api";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-export function useShareGroup(fileSharedState: ShareState[]) {
+export function useShareGroup(fileSharedState: ShareState[], selectedShareTypes: string) {
 	const [isReady, setIsReady] = useState(false);
 	const [requestMade, setRequestMade] = useState(false);
 	const [groupId, setGroupId] = useState(null);
@@ -39,13 +39,18 @@ export function useShareGroup(fileSharedState: ShareState[]) {
 
 	useEffect(() => {
 		setIsReady(fileSharedState && fileSharedState.length > 0 && shareHashReady(fileSharedState));
-	}, [fileSharedState, shareHashReady]);
+	}, [fileSharedState, shareHashReady, selectedShareTypes]);
 
 	useEffect(() => {
 		if (isReady && !requestMade) {
 			createShareGroup();
 		}
 	}, [isReady, requestMade, createShareGroup]);
+
+	useEffect(() => {
+		setRequestMade(false);
+		setIsReady(false);
+	}, [selectedShareTypes])
 
 	return groupId;
 }

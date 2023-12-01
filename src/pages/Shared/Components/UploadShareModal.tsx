@@ -9,9 +9,7 @@ import { Api, EncryptionStatus, File as FileType } from "api";
 import { toast } from "react-toastify";
 import { PiShareFatFill } from "react-icons/pi";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
-import {
-	getCid
-} from "utils/encryption/filesCipher";
+import { getCid } from "utils/encryption/filesCipher";
 import {
 	createFileAction,
 	createFolderAction,
@@ -54,6 +52,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const closeShareModal = () => {
 		setProcesing(false);
 		setIsopen(false);
+		fetchRootContent();
 	};
 	const dispatch = useAppDispatch();
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
@@ -63,6 +62,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const [user, setuser] = useState<string | undefined>(undefined);
 	const [userList, setuserList] = useState<User[]>([]);
 	const [readyToshare, setreadyToshare] = useState<boolean>(false);
+	const { fetchRootContent } = useFetchData();
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	const navigate = useNavigate();
@@ -114,13 +114,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							.then((res) => {
 								res = res as AxiosResponse;
 								if (res.status === 200) {
-									setFileSharedState((prevStates) =>
-										prevStates.filter(
-											(state) =>
-												state.id !==
-												selectedShareFile.id
-										)
-									);
+									toast.info("Successfully unshared");
 								}
 							})
 							.catch((err) => {
@@ -463,7 +457,10 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	}, [selectedSharedFiles]);
 
 	useEffect(() => {
-		if (selectedSharedFiles && selectedSharedFiles.length > 0) {
+		if (
+			selectedSharedFiles &&
+			selectedSharedFiles.length > 0
+		) {
 			const uids = selectedSharedFiles.map((file) => file.uid);
 			const params = new URLSearchParams();
 			uids.forEach((uid) => params.append("file_uids", uid));
@@ -472,7 +469,9 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 					if ((res as AxiosResponse).status === 200) {
 						res = res as AxiosResponse;
 						const shareState = res?.data as ShareState[];
-						setFileSharedState(shareState);
+						if (shareState) {
+							setFileSharedState(shareState);
+						}
 					} else {
 						toast.error(JSON.stringify(res));
 					}
@@ -551,7 +550,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		}
 	}, [readyToshare]);
 
-	const groupID = useShareGroup(fileSharedState);
+	const groupID = useShareGroup(fileSharedState, selectedShareTypes);
 
 	if (!isOpen) {
 		return <></>;
