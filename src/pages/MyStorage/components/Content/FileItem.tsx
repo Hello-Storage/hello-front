@@ -164,6 +164,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 	};
 
 	const handleDelete = () => {
+		toast.info("Deleting file...");
 		// Make a request to delete the file with response code 200
 		Api.delete(`/file/delete/${file.uid}`)
 			.then(() => {

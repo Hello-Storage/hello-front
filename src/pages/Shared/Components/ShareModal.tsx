@@ -150,7 +150,7 @@ const ShareModal = () => {
 				if (e.target.checked) {
 					//handle sharing from shareRequests.ts
 
-					shareFile(selectedShareFile, type)
+					shareFile(selectedShareFile, type, undefined)
 						.then((res) => {
 							//if res is AxiosResponse:
 							if ((res as AxiosResponse).status === 200) {

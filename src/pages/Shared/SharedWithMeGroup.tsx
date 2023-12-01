@@ -5,7 +5,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPublishedFile } from "./Utils/shareUtils";
-import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
+import { AxiosProgressEvent, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { formatBytes } from "utils";
 import dayjs from "dayjs";
@@ -77,42 +77,31 @@ const ShareSharedWithMeGroupdWithMe = () => {
 
 	useEffect(() => {
 		//get file metadata from the hash
-		if (
-			group_id &&
-			group_id.length > 0 &&
-			grouphashes.length > 0 &&
-			!loading
-		) {
-			// Create a temporary array to store metadata
-			const tempMetadataList: PublicFile[] = [];
+		if (metadataList && metadataList.length == 0) {
+			if (
+				group_id &&
+				group_id.length > 0 &&
+				grouphashes.length > 0 &&
+				!loading
+			) {
+				// Create a temporary array to store metadata
+				const tempMetadataList: PublicFile[] = [];
 
-			// Use Promise.all to handle multiple asynchronous requests concurrently
-			Promise.all(
-				grouphashes.map((hash) => {
-					return getPublishedFile(hash)
-						.then((res) => {
+				// Use Promise.all to handle multiple asynchronous requests concurrently
+				Promise.all(
+					grouphashes.map((hash) => {
+						return getPublishedFile(hash).then((res) => {
 							res = res as AxiosResponse;
 							if (res && res.status === 200) {
 								const publishedFile = res.data as PublicFile;
 								tempMetadataList.push(publishedFile);
-							} else {
-								// Handle other status codes if needed
 							}
-						})
-						.catch((err) => {
-							// Handle errors for each request
-							console.error(err);
 						});
-				})
-			)
-				.then(() => {
-					// All requests completed successfully, update the state
+					})
+				).then(() => {
 					setMetadataList(tempMetadataList);
-				})
-				.catch((error) => {
-					// Handle errors for the Promise.all
-					console.error(error);
 				});
+			}
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -287,10 +276,11 @@ const ShareSharedWithMeGroupdWithMe = () => {
 	};
 
 	return (
-		<div className="flex justify-center overflow-auto"
-		style={{
-			maxHeight: "calc(100vh - 100px)",
-		}}
+		<div
+			className="flex justify-center overflow-auto"
+			style={{
+				maxHeight: "calc(100vh - 100px)",
+			}}
 		>
 			<div className="w-full max-w-md mx-4 bg-white md:mx-0">
 				{metadataList.map((metadata, index) => (
