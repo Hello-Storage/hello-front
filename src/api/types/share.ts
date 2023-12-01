@@ -30,3 +30,8 @@ interface ShareState {
     updated_at: Date;
     deleted_at?: Date;
 }
+
+interface User {
+	email: string;
+	color: string;
+}
