@@ -11,6 +11,7 @@ import { createSHA256, sha256 as sha256wasm } from "hash-wasm";
 import * as digest from 'multiformats/hashes/digest'
 import { AppDispatch } from "state";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
+import { string } from "yargs";
 
 
 // Utility Functions
@@ -222,6 +223,15 @@ export const getCid = async (buffer: ArrayBuffer | File, dispatch: AppDispatch):
     return cid.toString()
 }
 
+export const getHashString = async (string: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(string);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
+
 export function bufferToBase64Url(buffer: Uint8Array): string {
     const str = String.fromCharCode(...buffer);
     let base64 = btoa(str);
@@ -325,7 +335,7 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
         const iv = cipherBytes.slice(16, 16 + 12)
         onProgress(40)
         const data = cipherBytes.slice(16 + 12)
-        
+
         onProgress(55)
         console.log("salt:")
         console.log(salt)

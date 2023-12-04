@@ -191,7 +191,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const { aesKey, salt, iv } = await getAesKey(cid, ['encrypt']);
     alert("multipart cid: " + cid)
 
-    const chunkSize = 5 * 1024 * 1024; // 5KB
+    const chunkSize = 5 * 1024 * 1024; // 5MB
     let offset = 0;
 
     while (offset < file.size) {
