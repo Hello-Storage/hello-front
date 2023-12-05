@@ -10,104 +10,110 @@ import { bufferToHex, encryptBuffer } from "utils/encryption/filesCipher";
 import { useAuth } from "hooks";
 
 export default function CreateFolderModal() {
-  const [, onDismiss] = useModal(<></>);
-  const [title, setTitle] = useState("");
-  const [loading, setLoading] = useState(false);
-  const dispatch = useAppDispatch();
-  const { walletAddress } = useAppSelector((state) => state.user);
-  const accountType = getAccountType();
-  const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
-    (state) => state.userdetail
-  );
-  const { logout } = useAuth();
+	const [, onDismiss] = useModal(<></>);
+	const [title, setTitle] = useState("");
+	const [loading, setLoading] = useState(false);
+	const dispatch = useAppDispatch();
+	const { walletAddress } = useAppSelector((state) => state.user);
+	const accountType = getAccountType();
+	const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
+		(state) => state.userdetail
+	);
+	const { logout } = useAuth();
 
-  const getRoot = () =>
-    window.location.pathname.includes("/space/folder")
-      ? window.location.pathname.split("/")[3]
-      : "/";
+	const getRoot = () =>
+		window.location.pathname.includes("/space/folder")
+			? window.location.pathname.split("/")[3]
+			: "/";
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onChange: ChangeEventHandler = (e: any) => {
-    setTitle(e.target.value);
-  };
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const onChange: ChangeEventHandler = (e: any) => {
+		setTitle(e.target.value);
+	};
 
-  const handleCreateNewFolder = async () => {
-    const root = getRoot();
-    let titleFinal = title;
+	const handleCreateNewFolder = async () => {
+		const root = getRoot();
+		if (title === "") {
+			toast.error("Please enter a title");
+			return;
+		}
+		let titleFinal = title;
 
-    let encryption_status = EncryptionStatus.Public;
+		let encryption_status = EncryptionStatus.Public;
 
-    setLoading(true);
-    if (encryptionEnabled) {
-      const personalSignature = await getPersonalSignature(
-        walletAddress,
-        autoEncryptionEnabled,
-        accountType,
-        logout
-      );
-      const encryptedTitleBuffer = await encryptBuffer(
-        new TextEncoder().encode(title),
-        personalSignature
-      );
-      if (!encryptedTitleBuffer) {
-        toast.error("Failed to encrypt buffer");
-        return null;
-      }
-      titleFinal = bufferToHex(encryptedTitleBuffer);
-      encryption_status = EncryptionStatus.Encrypted;
-    }
-    Api.post("/folder/create", {
-      root: root,
-      title: titleFinal,
-      encryption_status: encryption_status,
-    })
-      .then((resp) => {
-        toast.success("folder created!");
-        if (encryptionEnabled) {
-          dispatch(createFolderAction({ ...resp.data, title: title }));
-        } else {
-          dispatch(createFolderAction(resp.data));
-        }
-      })
-      .catch(() => {
-        toast.error("failed!");
-      })
-      .finally(() => {
-        setLoading(false);
-        onDismiss();
-      });
-  };
-  return (
-    <Modal className="p-5 bg-white rounded-lg w-80">
-      <label className="text-xl">New Folder</label>
-      <div className="mt-3">
-        <input
-          type="text"
-          className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg lock focus:border-blue-500 focus:outline-none"
-          placeholder="input folder name"
-          value={title}
-          onChange={onChange}
-        />
-      </div>
+		setLoading(true);
+		if (encryptionEnabled) {
+			const personalSignature = await getPersonalSignature(
+				walletAddress,
+				autoEncryptionEnabled,
+				accountType,
+				logout
+			);
+			const encryptedTitleBuffer = await encryptBuffer(
+				new TextEncoder().encode(title),
+				personalSignature
+			);
+			if (!encryptedTitleBuffer) {
+				toast.error("Failed to encrypt buffer");
+				return null;
+			}
+			titleFinal = bufferToHex(encryptedTitleBuffer);
+			encryption_status = EncryptionStatus.Encrypted;
+		}
+		Api.post("/folder/create", {
+			root: root,
+			title: titleFinal,
+			encryption_status: encryption_status,
+		})
+			.then((resp) => {
+				toast.success("folder created!");
+				if (encryptionEnabled) {
+					dispatch(
+						createFolderAction({ ...resp.data, title: title })
+					);
+				} else {
+					dispatch(createFolderAction(resp.data));
+				}
+			})
+			.catch(() => {
+				toast.error("failed!");
+			})
+			.finally(() => {
+				setLoading(false);
+				onDismiss();
+			});
+	};
+	return (
+		<Modal className="p-5 bg-white rounded-lg w-80">
+			<label className="text-xl">New Folder</label>
+			<div className="mt-3">
+				<input
+					type="text"
+					className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg lock focus:border-blue-500 focus:outline-none"
+					placeholder="input folder name"
+					value={title}
+					onChange={onChange}
+				/>
+			</div>
 
-      <div className="mt-3 text-right">
-        <button
-          type="button"
-          className="text-blue-700 bg-transparent hover:bg-gray-200 focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
-          disabled={loading}
-          onClick={onDismiss}
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          className="text-blue-700 bg-transparent hover:bg-gray-200 focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
-          disabled={loading}
-          onClick={handleCreateNewFolder}
-        >
-          Create
-        </button>
-      </div>
-    </Modal>
-  );
+			<div className="mt-3 text-right">
+				<button
+					type="button"
+					className="text-blue-700 bg-transparent hover:bg-gray-200 focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+					disabled={loading}
+					onClick={onDismiss}
+				>
+					Cancel
+				</button>
+				<button
+					type="button"
+					className="text-blue-700 bg-transparent hover:bg-gray-200 focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+					disabled={loading}
+					onClick={handleCreateNewFolder}
+				>
+					Create
+				</button>
+			</div>
+		</Modal>
+	);
 }
