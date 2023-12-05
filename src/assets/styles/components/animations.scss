@@ -9,6 +9,7 @@ $background-color_1: #166534;
 	-ms-transition: all 0.3s ease;
 	-o-transition: all 0.3s ease;
 	* {
+		cursor: pointer !important;
 		transition: all 0.3s ease;
 		-webkit-transition: all 0.3s ease;
 		-moz-transition: all 0.3s ease;
@@ -27,18 +28,19 @@ $background-color_1: #166534;
 			-ms-transform: scale(1.2);
 			-o-transform: scale(1.2);
 		}
-		transform: scale(1.05);
-		-webkit-transform: scale(1.05);
-		-moz-transform: scale(1.05);
-		-ms-transform: scale(1.05);
-		-o-transform: scale(1.05);
-		.transition {
+		transform: scale(1.03);
+		-webkit-transform: scale(1.03);
+		-moz-transform: scale(1.03);
+		-ms-transform: scale(1.03);
+		-o-transform: scale(1.03);
+		.btn-transition {
 			width: 16em;
 			height: 16em;
 		}
 	}
 }
-.transition {
+
+.btn-transition {
 	background-color: $background-color_1;
 	border-radius: 50%;
 	width: 0;

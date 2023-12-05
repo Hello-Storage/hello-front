@@ -102,7 +102,7 @@ const SharedWithMe = (props: { shareType: string }) => {
       case "public":
         //get file metadata from the hash
         if (hash && hash.length > 0)
-          downloadFile(metadata, 'public')
+          downloadFile(metadata)
         break;
       case "private":
         //get file metadata from the hash
@@ -115,7 +115,7 @@ const SharedWithMe = (props: { shareType: string }) => {
   }
 
   // Function to handle file download
-  const downloadFile = (metadata: PublicFile | undefined, shareType: string) => {
+  const downloadFile = (metadata: PublicFile | undefined) => {
     viewRef.current = false;
     toast.info("Starting download for " + metadata?.name + "...");
     // Make a request to download the file with responseType 'blob'
@@ -175,11 +175,12 @@ const SharedWithMe = (props: { shareType: string }) => {
         window.URL.revokeObjectURL(url);
       })
       .catch((err) => {
+        toast.error("Error downloading file");
         console.error("Error downloading file:", err);
       });
   };
 
-  const handleView = (metadata: PublicFile | undefined, shareType: string) => {
+  const handleView = (metadata: PublicFile | undefined) => {
     viewRef.current = true;
 
     Api.get(`/file/download/${metadata?.file_uid}`, {
@@ -251,14 +252,15 @@ const SharedWithMe = (props: { shareType: string }) => {
         dispatch(setImageViewAction({ img: mediaItem, show: true }));
       })
       .catch((err) => {
+        toast.error("Error downloading file");
         console.error("Error downloading file:", err);
       });
   };
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 md:mx-0">
-        <header className="flex flex-row justify-between items-center p-6 bg-gray-600 rounded-t-lg">
+    <div className="flex items-center justify-center">
+      <div className="w-full max-w-md mx-4 bg-white rounded-lg shadow-xl md:mx-0">
+        <header className="flex flex-row items-center justify-between p-6 bg-gray-600 rounded-t-lg">
           <h2 className="flex flex-row text-3xl font-semibold text-white">
             {metadata?.name && getFileIcon(metadata?.name)}
             <p className="ml-2">{shareType.toUpperCase()} File</p>
@@ -290,32 +292,32 @@ const SharedWithMe = (props: { shareType: string }) => {
             </tbody>
           </table>
         </div>
-        <div className="p-6 bg-gray-100 rounded-b-lg flex justify-between items-center">
-          <a href="#" onClick={() => downloadHandler()} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 ease-in-out">Download</a>
-          {viewable && <button onClick={() => handleView(metadata, "public")} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 ease-in-out">
-            <i className="fas fa-eye mr-1"></i> View
+        <div className="flex items-center justify-between p-6 bg-gray-100 rounded-b-lg">
+          <a href="#" onClick={() => downloadHandler()} className="px-6 py-2 text-white transition duration-200 ease-in-out bg-blue-600 rounded-md hover:bg-blue-700">Download</a>
+          {viewable && <button onClick={() => handleView(metadata)} className="px-6 py-2 text-white transition duration-200 ease-in-out bg-blue-600 rounded-md hover:bg-blue-700">
+            <i className="mr-1 fas fa-eye"></i> View
           </button>}
         </div>
-        </div>
-        {/* Upload Info */}
-        {uploading && <UploadProgress />}
-
-        {/* lightbox */}
-        <SlideshowLightbox
-          images={preview == undefined ? [] : [preview]}
-          showThumbnails={false}
-          showThumbnailIcon={false}
-          open={showPreview}
-          lightboxIdentifier="lbox1"
-          backgroundColor="#0f0f0fcc"
-          iconColor="#ffffff"
-          modalClose="clickOutside"
-          onClose={() => {
-            dispatch(setImageViewAction({ show: false }));
-          }}
-        />
       </div>
-      );
+      {/* Upload Info */}
+      {uploading && <UploadProgress />}
+
+      {/* lightbox */}
+      <SlideshowLightbox
+        images={preview == undefined ? [] : [preview]}
+        showThumbnails={false}
+        showThumbnailIcon={false}
+        open={showPreview}
+        lightboxIdentifier="lbox1"
+        backgroundColor="#0f0f0fcc"
+        iconColor="#ffffff"
+        modalClose="clickOutside"
+        onClose={() => {
+          dispatch(setImageViewAction({ show: false }));
+        }}
+      />
+    </div>
+  );
 }
 
-      export default SharedWithMe;
+export default SharedWithMe;

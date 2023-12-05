@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
@@ -174,7 +177,7 @@ const Dropzone = () => {
     let filesToUpload: { customFile: FileType, file: File }[] = [];
 
     let folderRootUID = "";
-    let failed=false;
+    let failed = false;
 
     await Api.post("/file/pool/check", customFiles)
       .then((res) => {
@@ -206,16 +209,10 @@ const Dropzone = () => {
           if (filesFound) {
             const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
 
-            // replace for customFile in fileMap values:
-            // - put name_unencrypted to name
-            // - put cid_original_unencrypted to cid_original_encrypted
-            // - put mime_type_unencrypted to mime_type
-          console.log(filesFound);
-
             fileMap.customFile.id = fileFound?.id || 0;
             fileMap.customFile.uid = fileFound?.uid || "";
-            fileMap.customFile.created_at = fileFound? fileFound.created_at.toString() : "";
-            fileMap.customFile.updated_at = fileFound? fileFound.updated_at.toString() : "";
+            fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
+            fileMap.customFile.updated_at = fileFound ? fileFound.updated_at.toString() : "";
             fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
 
             fileMap.customFile.name = fileMap.customFile.name_unencrypted || "";
@@ -229,12 +226,11 @@ const Dropzone = () => {
         })
 
       })
-      .catch((err) => {
-        console.log(err);
-        failed=true;
+      .catch(() => {
+        failed = true;
         toast.error("upload failed!");
       })
-      .finally(() =>{
+      .finally(() => {
         if (!failed) {
           dispatch(setUploadStatusAction({ uploading: false }))
         }
@@ -282,10 +278,8 @@ const Dropzone = () => {
 
           }
         })
-        .catch((err) => {
-          console.log(err);
+        .catch(() => {
           toast.error("upload failed!");
-
         })
         .finally(() => dispatch(setUploadStatusAction({ uploading: false })))
     } else {
