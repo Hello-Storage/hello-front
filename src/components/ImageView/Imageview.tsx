@@ -402,7 +402,7 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 					lightboxIdentifier="lbox1"
 					backgroundColor="#0f0f0fcc"
 					iconColor="#ffffff"
-					modalClose="button"
+					modalClose="clickOutside"
 				/>
 			);
 		}
