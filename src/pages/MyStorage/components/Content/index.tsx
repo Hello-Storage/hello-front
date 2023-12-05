@@ -40,7 +40,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
   >(null);
   const [onPresent] = useModal(<CreateFolderModal />);
   const onFolderDoubleClick = (folderUID: string) => {
-    navigate(`/space/folder/${folderUID}`);
+    navigate(`/space/folder/${folderUID}`); 
   };
 
   const [seleccionMultipleActivada, setSeleccionMultipleActivada] = useState(false);
@@ -58,45 +58,61 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   // Event for select item
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
-    if (!seleccionMultipleActivada || event.ctrlKey) {
-      return;
-    }
-    const selInfo = {
-      type: event.currentTarget.ariaValueText?.toString() || "",
-      id: event.currentTarget.id.toString(),
-      uid: event.currentTarget.ariaLabel?.toString() || "",
-    };
-    const isAlreadySelected = selectedItems.some(
-      (item) => item.id === selInfo.id
-    );
-    if (isAlreadySelected) {
-      event.currentTarget.classList.remove("selected");
-    } else {
-      event.currentTarget.classList.add("selected");
-    }
-    if (isAlreadySelected) {
-      // Remove the item from the array
-      setSelectedItems(
-        selectedItems.filter((item) => item.id !== selInfo.id)
+    const ctrlPressed = event.ctrlKey || event.metaKey;
+  
+    if (seleccionMultipleActivada || ctrlPressed) {
+      event.preventDefault();
+  
+      const selInfo = {
+        type: event.currentTarget.ariaValueText?.toString() || "",
+        id: event.currentTarget.id.toString(),
+        uid: event.currentTarget.ariaLabel?.toString() || "",
+      };
+  
+      const isAlreadySelected = selectedItems.some(
+        (item) => item.id === selInfo.id
       );
+  
+      if (isAlreadySelected) {
+        event.currentTarget.classList.remove("selected");
+      } else {
+        event.currentTarget.classList.add("selected");
+      }
+  
+      const updatedSelection = isAlreadySelected
+        ? selectedItems.filter((item) => item.id !== selInfo.id)
+        : [...selectedItems, selInfo];
+  
+      setSelectedItems(updatedSelection);
     } else {
-      // Add the item to the array
-      setSelectedItems([...selectedItems, selInfo]);
-    }
-    // console.log(selInfo);
-    // Check if the item is already selected
-    if (selectedItems.some((item) => item.id === selInfo.id)) {
-      // Remove the item from the array
-      console.log("Removing item");
-      setSelectedItems(
-        selectedItems.filter((item) => item.id !== selInfo.id)
-      );
-    } else {
-      // Add the item to the array
-      console.log("Adding item");
-      setSelectedItems([...selectedItems, selInfo]);
+      if (!seleccionMultipleActivada || event.ctrlKey) {
+        const selInfo = {
+          type: event.currentTarget.ariaValueText?.toString() || "",
+          id: event.currentTarget.id.toString(),
+          uid: event.currentTarget.ariaLabel?.toString() || "",
+        };
+        const isAlreadySelected = selectedItems.some(
+          (item) => item.id === selInfo.id
+        );
+        if (isAlreadySelected) {
+          event.currentTarget.classList.remove("selected");
+        } else {
+          event.currentTarget.classList.add("selected");
+        }
+        if (isAlreadySelected) {
+          setSelectedItems(
+            selectedItems.filter((item) => item.id !== selInfo.id)
+          );
+        } else {
+          setSelectedItems([...selectedItems, selInfo]);
+        }
+      }
     }
   };
+  
+
+
+
   const isItemSelected = (id: string): boolean => {
     return selectedItems.some((item) => item.id === id);
   };
