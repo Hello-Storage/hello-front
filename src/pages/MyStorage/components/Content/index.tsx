@@ -16,9 +16,13 @@ interface ContentProps {
   folders: Folder[];
   files?: File[];
   view: "list" | "grid";
+  showFolders: boolean;
+  filesTitle: string;
+  identifier: number;
+  setloaded: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
+  const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, setloaded }) => {
   type itemInfo = {
     type: string;
     id: string;
@@ -221,7 +225,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
       type: "folder",
     };
 
-    
+
 
     // Check if selectedItems is empty
     if (selectedItems.length === 0) {
@@ -324,61 +328,60 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
   if (view === "list")
     return (
       <>
-        <div className="position-sticky-left">
-          <h4 className="mb-[15px]">Folders</h4>
-        </div>
-        <div className="folders-div">
-          <div
-            className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
-            onClick={onPresent}
-          >
-            <RiFolderAddLine className="h-6 w-6" />
-          </div>
-          {folders.map((v, i) => (
-            <div
-              key={i}
-              id={v.id.toString()}
-              aria-label={v.uid}
-              aria-valuetext="folder"
-              draggable
-              className={`cursor-pointer min-w-[220px] ${
-                draggingOverFolderId === v.id.toString()
-                  ? "bg-blue-200 border border-blue-500"
-                  : isItemSelected(v.id.toString())
-                  ? "bg-sky-100"
-                  : ""
-                } ${i < folders.length - 1 ? "mr-5" : ""}`}
-              onDrag={handleDrag}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onDoubleClick={() => onFolderDoubleClick(v.uid)}
-              onClick={handleOnClick}
+        {showFolders ?
+          <>
+            <div className="position-sticky-left">
+              <h4 className="mb-[15px]">Folders</h4>
+            </div>
+            <div className="folders-div">
+              <div
+                className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
+                onClick={onPresent}
+              >
+                <RiFolderAddLine className="w-6 h-6" />
+              </div>
+              {folders.map((v, i) => (
+                <div
+                  key={i}
+                  id={v.id.toString()}
+                  aria-label={v.uid}
+                  aria-valuetext="folder"
+                  draggable
+                  className={`cursor-pointer min-w-[220px] ${draggingOverFolderId === v.id.toString()
+                    ? "bg-blue-200 border border-blue-500"
+                    : isItemSelected(v.id.toString())
+                      ? "bg-sky-100"
+                      : ""
+                    } ${i < folders.length - 1 ? "mr-5" : ""}`}
+                  onDrag={handleDrag}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onDoubleClick={() => onFolderDoubleClick(v.uid)}
+                  onClick={handleOnClick}
+                >
+                  <FolderItem folder={v} key={i} view="list" />
+                </div>
+              ))}
+            </div>
+
+            <section
+              className="custom-scrollbar position-sticky-left mb-[15px]"
+              id="scroll-visible-section"
             >
-              <FolderItem folder={v} key={i} view="list" />
-            </div>
-          ))}
-        </div>
+              <div id="width-section-helper"></div>
+            </section>
+          </>
+          :
+          <></>
+        }
 
-        <section
-          className="custom-scrollbar position-sticky-left mb-[15px]"
-          id="scroll-visible-section"
-        >
-          <div id="width-section-helper"></div>
-        </section>
         <section className="custom-scrollbar position-sticky-left">
-
-          <div style={{ display: 'flex', padding: '10px' }}>
-            <h4 className="pt-1 pb-3">Files</h4>
-            <div style={{ marginLeft: 'auto' }}>
-              <button style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px'}} onClick={handleButtonClick}>{buttonText}</button>
-            </div>
-          </div>
-
-          <div id="header-scroll-inv" style={{ overflow: 'hidden' }}>
-            <table id="files-headers" className="w-full text-sm text-left text-gray-500 table-with-lines">
+          <h4 className="pt-1 pb-3">{filesTitle}</h4>
+          <div id={"header-scroll-inv_" + identifier}>
+            <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <thead className="text-xs text-gray-700 bg-gray-100">
                 <tr>
                   <th
@@ -418,7 +421,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
                   </th>
                   <th
                     scope="col"
-                    className="py-1 px-3"
+                    className="px-3 py-1"
                     id="column-type"
                   >
                     Type
@@ -430,7 +433,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
                   >
                     Last Modified
                   </th>
-               
                   <th
                     id="column-option"
                     scope="col"
@@ -441,19 +443,19 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
             </table>
           </div>
 
-          <div id="table-row-div" className="table-div custom-scrollbar h-full scrollbar-color">
-            <table id="files-rows" className="w-full text-sm text-left text-gray-500 table-with-lines">
+          <div id={"table-row-div_" + identifier} className="h-full min-w-full table-div custom-scrollbar scrollbar-color">
+            <table id={"files-rows_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <tbody>
                 {loading ? (
                   <tr className="w-full h-64">
                     <td colSpan={6}>
-                      <div className="flex flex-col w-full h-full items-center justify-center text-center">
-                        <div className="text-xl font-semibold mb-4">
+                      <div className="flex flex-col items-center justify-center w-full h-full text-center">
+                        <div className="mb-4 text-xl font-semibold">
                           Decrypting
                         </div>
                         {/* SVG Spinner */}
                         <svg
-                          className="animate-spin h-12 w-12 text-violet-500 mb-4"
+                          className="w-12 h-12 mb-4 animate-spin text-violet-500"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -477,32 +479,53 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
                   </tr>
                 ) : (
                   <>
-                    {files?.map((v, i) => (
-                      <tr
-                        key={i}
-                        id={v.id.toString()}
-                        aria-label={v.uid}
-                        aria-valuetext="file"
-                        draggable
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                        onDrag={handleDrag}
-                        className={` cursor-pointer ${isItemSelected(
-                          v.id.toString()
-                        )
-                          ? "bg-sky-100"
-                          : "hover:bg-gray-100 bg-white"
-                          }`}
-                        // onDoubleClick={handleView}
-                        onClick={handleOnClick}
-                      >
-                        <FileItem
-                          file={v}
-                          key={i}
-                          view="list"
-                        />
-                      </tr>
-                    ))}
+                    {(files && files.length > 0) ?
+                      <>
+                        {files.map((v, i) => (
+                          <tr
+                            key={i}
+                            id={v.id.toString()}
+                            aria-label={v.uid}
+                            aria-valuetext="file"
+                            draggable
+                            onDragStart={handleDragStart}
+                            onDragEnd={handleDragEnd}
+                            onDrag={handleDrag}
+                            className={` cursor-pointer ${isItemSelected(
+                              v.id.toString()
+                            )
+                              ? "bg-sky-100"
+                              : "hover:bg-gray-100 bg-white"
+                              }`}
+                            // onDoubleClick={handleView}
+                            onClick={handleOnClick}
+                          >
+                            <FileItem
+                              file={v}
+                              key={i}
+                              view="list"
+                              setloaded={setloaded}
+                            />
+                          </tr>
+                        ))}
+                      </>
+                      :
+                      <>
+                        <tr
+                        >
+                          <td
+                            scope="row"
+                            className="w-full px-3 font-medium text-gray-900 whitespace-nowrap">
+                            <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
+                              <div className="mt-4 mb-4">
+                                No files found
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </>
+                    }
+
                   </>
                 )}
               </tbody>
@@ -512,7 +535,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
       </>
     );
   else
-  // marcador 
     return (
       <Fragment>
         <div className="position-sticky-left">
@@ -523,9 +545,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
             className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
             onClick={onPresent}
           >
-            <RiFolderAddLine className="h-6 w-6" />
+            <RiFolderAddLine className="w-6 h-6" />
           </div>
-          
           {folders.map((v, i) => (
             <div
               key={i}
@@ -561,28 +582,12 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files }) => {
         </section>
 
         <section className="custom-scrollbar position-sticky-left">
-        <div style={{ display: 'flex', padding: '10px' }}>
-            <h4 className="pt-1 pb-3">Files</h4>
-            <div style={{ marginLeft: 'auto' }}>
-              <button style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px'}} onClick={handleButtonClick}>{buttonText}</button>
-            </div>
-          </div>
-          <div className="grid grid-200 gap-3">
-          {files?.map((v, i) => (
-                  <div
-                    key={i}
-                    id={v.id.toString()}
-                    aria-label={v.uid}
-                    aria-valuetext="file"
-                    className={`cursor-pointer ${isItemSelected(v.id.toString())
-                      ? "bg-sky-100"
-                      : "hover:bg-gray-100 bg-white"
-                      }`}
-                      onClick={handleOnClick}
-                  >
-                    <FileItem file={v} key={i} view="grid" />
-                  </div>
-                ))}
+          <h3 className="my-3">Files</h3>
+          <div className="grid gap-3 grid-200">
+            {files?.map((v, i) => (
+              <FileItem file={v} key={i} view="grid"
+                setloaded={setloaded} />
+            ))}
           </div>
         </section>
       </Fragment>

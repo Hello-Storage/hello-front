@@ -136,6 +136,7 @@ export default function Home() {
           return;
         }
       }
+
       const decryptedFiles = await handleEncryptedFiles(
         currentEncryptedFiles,
         personalSignatureRef.current || "",

@@ -13,13 +13,13 @@ import {
 	HiOutlineLockOpen,
 	HiLockClosed,
 } from "react-icons/hi";
-import { GoAlertFill } from "react-icons/go";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
 import { useDropdown } from "hooks";
 import { useRef, useState, Fragment } from "react";
 import copy from "copy-to-clipboard";
+import { GoAlertFill } from "react-icons/go";
 import {
 	blobToArrayBuffer,
 	decryptFileBuffer,
