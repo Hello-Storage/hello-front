@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 import state from "state";
 import { logoutUser } from "state/user/actions";
 
@@ -26,6 +27,7 @@ Api.interceptors.response.use(
 				"token has expired",
 			].includes(error)
 		) {
+			toast.error("Sesion Expired")
 			state.dispatch(logoutUser());
 		}
 		return Promise.reject(err);

@@ -285,6 +285,24 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       });
   };
 
+  const handleResize = () => {
+    setWindowWidth(window.innerWidth);
+    const headerScroll = document.getElementById("files-headers_" + identifier);
+    const rowsScroll = document.getElementById("files-rows_" + identifier);
+    const tablerowdiv = document.getElementById("table-row-div_" + identifier);
+    const tableheaderdiv = document.getElementById("header-scroll-inv_" + identifier);
+    if (headerScroll && rowsScroll && tablerowdiv) {
+      headerScroll.style.width = rowsScroll.getBoundingClientRect().width + "px"
+      tablerowdiv.style.width = rowsScroll.getBoundingClientRect().width + "px"
+    }
+    if (tablerowdiv && tableheaderdiv) {
+      tablerowdiv.onscroll = function () {
+        if (headerScroll)
+          tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
+      };
+    }
+  };
+
   useEffect(() => {
     const invScroll = document.getElementById("scroll-invisible-section");
     const visScroll = document.getElementById("scroll-visible-section");
@@ -301,29 +319,16 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
           invScroll.scrollLeft = visScroll.scrollLeft;
       };
     }
+    handleResize();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folders]);
 
   useLayoutEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-      const headerScroll = document.getElementById("files-headers");
-      const rowsScroll = document.getElementById("files-rows");
-      const tablerowdiv = document.getElementById("table-row-div");
-      const tableheaderdiv = document.getElementById("header-scroll-inv");
-      if (headerScroll && rowsScroll) {
-        headerScroll.style.width = rowsScroll.getBoundingClientRect().width + "px"
-      }
-      if (tablerowdiv && tableheaderdiv) {
-        tablerowdiv.onscroll = function () {
-          if (headerScroll)
-            tableheaderdiv.scrollLeft = tablerowdiv.scrollLeft;
-        };
-      }
-    };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   if (view === "list")
     return (
@@ -334,12 +339,12 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
               <h4 className="mb-[15px]">Folders</h4>
             </div>
             <div className="folders-div">
-              <div
+              <button
                 className="bg-gray-50 cursor-pointer hover:bg-gray-100 px-5 py-3 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
                 onClick={onPresent}
               >
                 <RiFolderAddLine className="w-6 h-6" />
-              </div>
+              </button>
               {folders.map((v, i) => (
                 <div
                   key={i}
@@ -379,15 +384,11 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         }
 
         <section className="custom-scrollbar position-sticky-left">
-
-          <div style={{ display: 'flex', padding: '10px' }}>
-            <h4 className="pt-1 pb-3">Files</h4>
-            <div style={{ marginLeft: 'auto' }}>
-              <button style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px' }} onClick={handleButtonClick}>{buttonText}</button>
-            </div>
+          <div className="sticky left-0 flex flex-row items-center justify-between mb-[15px]">
+            <h4 className="pt-1 pb-3">{filesTitle}</h4>
+              <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" onClick={handleButtonClick}>{buttonText}</button>
           </div>
-
-          <h4 className="pt-1 pb-3">{filesTitle}</h4>
+          
           <div id={"header-scroll-inv_" + identifier}>
             <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <thead className="text-xs text-gray-700 bg-gray-100">
@@ -596,7 +597,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
               <button style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px' }} onClick={handleButtonClick}>{buttonText}</button>
             </div>
           </div>
-          <div className="grid grid-200 gap-3">
+          <div className="grid gap-3 grid-200">
             {files?.map((v, i) => (
               <FileItem file={v} key={i} view="grid"
                 setloaded={setloaded} />
