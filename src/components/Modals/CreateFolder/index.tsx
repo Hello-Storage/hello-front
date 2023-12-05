@@ -19,13 +19,14 @@ export default function CreateFolderModal() {
   const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
     (state) => state.userdetail
   );
-  const {logout} = useAuth();
+  const { logout } = useAuth();
 
   const getRoot = () =>
     window.location.pathname.includes("/space/folder")
       ? window.location.pathname.split("/")[3]
       : "/";
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onChange: ChangeEventHandler = (e: any) => {
     setTitle(e.target.value);
   };
@@ -68,9 +69,8 @@ export default function CreateFolderModal() {
           dispatch(createFolderAction(resp.data));
         }
       })
-      .catch((err) => {
+      .catch(() => {
         toast.error("failed!");
-        console.log(err);
       })
       .finally(() => {
         setLoading(false);
@@ -83,14 +83,14 @@ export default function CreateFolderModal() {
       <div className="mt-3">
         <input
           type="text"
-          className="lock w-full px-3 py-2 text-sm text-gray-900 border border-gray-200 rounded-lg bg-white focus:border-blue-500 focus:outline-none"
+          className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg lock focus:border-blue-500 focus:outline-none"
           placeholder="input folder name"
           value={title}
           onChange={onChange}
         />
       </div>
 
-      <div className="text-right mt-3">
+      <div className="mt-3 text-right">
         <button
           type="button"
           className="text-blue-700 bg-transparent hover:bg-gray-200 focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"

@@ -89,9 +89,11 @@ export default function AppLayout() {
           } lg:hidden`}
           onClick={() => setSidebarOpen(false)}
         ></div>
-        <div className="flex flex-grow">
+        <div className="flex flex-grow lg:h-screen" style={{
+          height: "calc(100vh - 50px)"
+        }}>
           <div
-            className={`h-screen overflow-y-auto w-5/6 md:w-72 z-20 bg-white ${
+            className={`overflow-y-auto w-5/6 md:w-72 z-20 bg-white ${
               sidebarOpen ? "block" : "hidden"
             } lg:block`}
           >
@@ -99,7 +101,7 @@ export default function AppLayout() {
           </div>
           <div
 
-            className={`flex flex-col flex-1 md:px-10 px-5 py-4 overflow-y-hidden ${
+            className={`flex flex-col flex-1 md:px-10 px-5 py-4 overflow-y-scroll h-full ${
               sidebarOpen ? "md:ml-72 overflow-hidden w-full blur-sm" : ""
             }`}
           >

@@ -1,4 +1,5 @@
 interface ShareDetails {
+    id: number,
     type: string;
     title: string;
     description?: string;
@@ -28,4 +29,9 @@ interface ShareState {
     created_at: Date;
     updated_at: Date;
     deleted_at?: Date;
+}
+
+interface User {
+	email: string;
+	color: string;
 }
