@@ -22,7 +22,7 @@ interface ContentProps {
   setloaded: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-  const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, setloaded }) => {
+const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, setloaded }) => {
   type itemInfo = {
     type: string;
     id: string;
@@ -379,6 +379,14 @@ interface ContentProps {
         }
 
         <section className="custom-scrollbar position-sticky-left">
+
+          <div style={{ display: 'flex', padding: '10px' }}>
+            <h4 className="pt-1 pb-3">Files</h4>
+            <div style={{ marginLeft: 'auto' }}>
+              <button style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px' }} onClick={handleButtonClick}>{buttonText}</button>
+            </div>
+          </div>
+
           <h4 className="pt-1 pb-3">{filesTitle}</h4>
           <div id={"header-scroll-inv_" + identifier}>
             <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
@@ -582,8 +590,13 @@ interface ContentProps {
         </section>
 
         <section className="custom-scrollbar position-sticky-left">
-          <h3 className="my-3">Files</h3>
-          <div className="grid gap-3 grid-200">
+          <div style={{ display: 'flex', padding: '10px' }}>
+            <h3 className="my-3">Files</h3>
+            <div style={{ marginLeft: 'auto' }}>
+              <button style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px' }} onClick={handleButtonClick}>{buttonText}</button>
+            </div>
+          </div>
+          <div className="grid grid-200 gap-3">
             {files?.map((v, i) => (
               <FileItem file={v} key={i} view="grid"
                 setloaded={setloaded} />
