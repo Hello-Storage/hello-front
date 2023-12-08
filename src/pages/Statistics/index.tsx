@@ -334,13 +334,4 @@ export default function Statistics() {
   );
 }
 
-{/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mt-3 max-w-screen-xl xl:mx-auto mx-2">
-  <div className="flex justify-center">
-    <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
-      Total Users
-      <label className="text-1x8 font-semibold text-black block">
-        {totalusers}
-      </label>
-      {<UsersChart />}
-    </div>
-  </div> */}
+

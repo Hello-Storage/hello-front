@@ -265,10 +265,10 @@ export default function Home() {
   return (
     <div className="flex flex-col overflow-hidden table-main ">
       {showShareModal && <ShareModal />}
-      <div className="flex justify-between mb-[15px]">
+      <div className="flex justify-between items-center mb-[15px]">
         <Breadcrumb />
-        <div className="flex gap-3">
-          <div className="relative" ref={ref}>
+        <div className="flex flex-row items-center justify-evenly min-w-fit">
+          <div ref={ref}>
             <button
               className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
               onClick={() => setOpen(!open)}
