@@ -19,15 +19,16 @@ Api.interceptors.response.use(
 	(err: any) => {
 		console.log(err.response);
 		const error = err.response?.data.error;
+		console.log(document.location.pathname)
 		if (
-			err.response?.status === 401 &&
 			error &&
+			err.response?.status === 401 &&
 			[
 				"authorization header is not provided",
 				"token has expired",
-			].includes(error)
+			].includes(error) && !(document.location.pathname.endsWith("/login") || document.location.pathname.endsWith("/stats"))
 		) {
-			toast.error("Sesion Expired")
+			toast.error("Session Expired")
 			state.dispatch(logoutUser());
 		}
 		return Promise.reject(err);
