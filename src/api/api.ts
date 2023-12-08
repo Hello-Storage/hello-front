@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 import state from "state";
 import { logoutUser } from "state/user/actions";
 
@@ -14,11 +15,11 @@ export const Api = axios.create({
 
 Api.interceptors.response.use(
 	(res) => res,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(err: any) => {
+		console.log(err.response);
 		const error = err.response?.data.error;
-
 		if (
-			!localStorage.getItem("access_token") &&
 			err.response?.status === 401 &&
 			error &&
 			[
@@ -26,6 +27,7 @@ Api.interceptors.response.use(
 				"token has expired",
 			].includes(error)
 		) {
+			toast.error("Sesion Expired")
 			state.dispatch(logoutUser());
 		}
 		return Promise.reject(err);

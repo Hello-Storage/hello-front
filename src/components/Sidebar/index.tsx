@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import Toggle from "react-toggle";
 import { toast } from "react-toastify";
 import { HiPlus } from "react-icons/hi";
@@ -9,7 +9,6 @@ import FolderLock from "assets/images/Outline/Folder-lock.png";
 import Layout from "assets/images/Outline/Layout.png";
 import Send from "assets/images/Outline/Send.png";
 import Book from "assets/images/Outline/Book.png";
-import Box from "assets/images/Outline/Box.png";
 import Key from "assets/images/Outline/Key.png";
 import Cloud from "assets/images/Outline/Cloud-upload.png";
 import { FiX } from "react-icons/fi";
@@ -149,6 +148,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   useEffect(() => {
     fetchUserDetail();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getRoot = () =>
@@ -179,7 +179,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       toast.error("Failed to encrypt metadata");
       return null;
     }
-    const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } =
+    const { encryptedFilename, encryptedFiletype, fileLastModified } =
       encryptedMetadataResult;
     const {
       cidOriginalStr,
@@ -456,8 +456,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
             fileMap.customFile.id = fileFound?.id || 0;
             fileMap.customFile.uid = fileFound?.uid || '';
-            fileMap.customFile.created_at = fileFound?.created_at || '';
-            fileMap.customFile.updated_at = fileFound? new Date().toString() : "";
+            fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
+            fileMap.customFile.updated_at = fileFound ? fileFound.updated_at.toString() : "";
             fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
 
             fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
@@ -524,8 +524,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           }
 
         })
-        .catch((err) => {
-          console.log(err);
+        .catch(() => {
           toast.error("upload failed!");
         })
         .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
@@ -574,9 +573,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-3">
-          <label className="text-2xl font-semibold font-[Outfit]">
+          <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]">
             hello.app
-          </label>
+          </Link>
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
         </div>
 
@@ -629,28 +628,28 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         <div className="relative" ref={dropRef}>
           <button
-            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
+            className="flex items-center justify-center w-full gap-2 p-3 mt-3 text-sm text-white rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
             onClick={handleFileUpload}
           >
             <HiPlus /> Upload files
           </button>
-          <div className="flex gap-4 items-center mt-4">
+          <div className="flex items-center gap-4 mt-4">
             <Tippy content="Create Folder">
               <button
-                className="flex items-center justify-center p-2 w-full rounded-xl text-xs bg-gray-200 hover:bg-gray-300 text-gray-800"
+                className="flex items-center justify-center w-full p-2 text-xs text-gray-800 bg-gray-200 rounded-xl hover:bg-gray-300"
                 onClick={onPresent}
               >
                 <div title="Upload folder">
-                  <RiFolderAddLine className="h-6 w-6" />
+                  <RiFolderAddLine className="w-6 h-6" />
                 </div>
               </button>
             </Tippy>
             <Tippy content="Upload Folder">
               <button
-                className="flex items-center justify-center txt-gray-800 p-2 w-full rounded-xl text-xs bg-gray-200 hover:bg-gray-300 text-gray-800"
+                className="flex items-center justify-center w-full p-2 text-xs text-gray-800 bg-gray-200 txt-gray-800 rounded-xl hover:bg-gray-300"
                 onClick={handleFolderUpload}
               >
-                <RiFolderUploadLine className="h-6 w-6" />
+                <RiFolderUploadLine className="w-6 h-6" />
               </button>
             </Tippy>
           </div>
@@ -681,7 +680,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                   </label>
                 </div>
                 {!v.available && !v.img ? (
-                  <label className="text-sm bg-gray-200 px-2 rounded-full">
+                  <label className="px-2 text-sm bg-gray-200 rounded-full">
                     soon
                   </label>
                 ) : (
@@ -719,7 +718,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                   </label>
                 </div>
                 {!v.available && (
-                  <label className="text-sm bg-gray-200 px-2 rounded-full">
+                  <label className="px-2 text-sm bg-gray-200 rounded-full">
                     soon
                   </label>
                 )}
@@ -752,9 +751,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             {formatBytes(storageAvailable, 2, false)} / 95 GiB
           </a>
         </label>
-        <div className="mt-4 pb-1">
+        <div className="pb-1 mt-4">
           <button
-            className="text-white w-full p-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
+            className="w-full p-3 text-white rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
             onClick={() => navigate("/space/referrals")}
             disabled={storageAvailable >= Math.pow(1024, 3) * 100}
           >
@@ -781,9 +780,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           hidden
         />
       </div>
-      <div className="mt-4 md:hidden absolute top-2 right-24">
+      <div className="absolute mt-4 md:hidden top-2 right-24">
         <button
-          className="p-1 border rounded-xl bg-white"
+          className="p-1 bg-white border rounded-xl"
           onClick={() => setSidebarOpen(false)}
         >
           <FiX size={24} />

@@ -1,36 +1,27 @@
 import { AxiosError, AxiosResponse } from "axios";
 
-import { Api, File as FileType, RootResponse } from "api";
+import { Api, File as FileType } from "api";
+import { toast } from "react-toastify";
 
-export const shareFile = async (selectedFile: FileType | null, type: string): Promise<AxiosResponse | AxiosError | undefined> => {
+export const shareFile = async (selectedFile: FileType | null, type: string, user: string | undefined): Promise<AxiosResponse | AxiosError | undefined> => {
     let response: AxiosResponse | AxiosError | undefined;
     if (selectedFile) {
         switch (type) {
             case "public":
-                //publish file and get sharing URL from server
-                response = await publishFile(selectedFile)
-                break;
             case "one-time":
-                //response = await requestFileOneTime(selectedFile, true)
+            case "monthly":
+                //publish file and get sharing URL from server
+                response = await publishFile(selectedFile, `/file/share/custom-type/` + type)
                 break;
-            case "address-restricted":
-                console.log(type)
-                break;
-            case "password-restricted":
-                console.log(type)
-                break;
-            case "time-restricted":
-                console.log(type)
-                break;
-            case "subscription":
-                console.log(type)
+            case "email":
+            case "wallet":
+                response = await publishFile(selectedFile, `/file/share/${type}/` + user)
                 break;
             default:
                 alert("Error: Invalid share type")
                 break;
         }
     }
-
     return response;
 }
 
@@ -39,23 +30,18 @@ export const unshareFile = async (selectedFile: FileType | null, type: string): 
     if (selectedFile) {
         switch (type) {
             case "public":
+            case "one-time":
+            case "monthly":
                 //unpublish file and get sharing URL from server
                 response = await unpublishFile(selectedFile)
                 break;
-            case "one-time":
-                //response = await requestFileOneTime(selectedFile, false)
+            case "email":
+                // response = await unpublishEmailSharedFile(selectedFile)
+                toast.error("Can't unShare in this method")
                 break;
-            case "address-restricted":
-                console.log(type)
-                break;
-            case "password-restricted":
-                console.log(type)
-                break;
-            case "time-restricted":
-                console.log(type)
-                break;
-            case "subscription":
-                console.log(type)
+            case "wallet":
+                // response = await unpublishWalletSharedFile(selectedFile)
+                toast.error("Can't unShare in this method")
                 break;
             default:
                 alert("Error: Invalid share type")
@@ -67,14 +53,13 @@ export const unshareFile = async (selectedFile: FileType | null, type: string): 
 }
 
 
-const publishFile = async (selectedShareFile: FileType): Promise<AxiosError | AxiosResponse | undefined> => {
-    const responseLink = await Api.post(`/file/share/publish`, selectedShareFile
+const publishFile = async (selectedShareFile: FileType, apiUrl: string): Promise<AxiosError | AxiosResponse | undefined> => {
+    const responseLink = await Api.post(apiUrl, selectedShareFile
     ).then((response: AxiosResponse) => {
         return response;
     }).catch((error: AxiosError) => {
         return error;
     })
-
     return responseLink;
 }
 
@@ -89,12 +74,22 @@ const unpublishFile = async (selectedShareFile: FileType): Promise<AxiosError | 
     return responseLink;
 }
 
+// const unpublishEmailSharedFile = async (selectedShareFile: FileType): Promise<AxiosError | AxiosResponse | undefined> => {
+
+// }
+
+// const unpublishWalletSharedFile = async (selectedShareFile: FileType): Promise<AxiosError | AxiosResponse | undefined> => {
+
+// }
+
+
 
 export const getPublishedFile = async (hash: string): Promise<AxiosResponse | AxiosError | undefined> => {
     try {
         const response = await Api.get(`/file/share/published/${hash}`);
         return response;
-    } catch (error) {
-        return error as AxiosError;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+        toast.error(error.response?.data.error)
     }
 }

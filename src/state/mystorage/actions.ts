@@ -38,9 +38,14 @@ export const updateDecryptedFoldersAction = createAction<Folder[]>(
 );
 
 export const setImageViewAction = createAction<{
-  img?: PreviewImage;
+  img?: PreviewImage
   show?: boolean;
 }>("mystorage/image-view");
+
+export const setFileViewAction = createAction<{
+  file?: FileType ;
+}>("mystorage/file-view");
+
 
 export const setShowShareModal = createAction<boolean>(
   "mystorage/set-show-share-modal"
@@ -48,4 +53,8 @@ export const setShowShareModal = createAction<boolean>(
 
 export const setSelectedShareFile = createAction<FileType | undefined>(
   "mystorage/set-selected-share-file"
+);
+
+export const setSelectedSharedFiles = createAction<FileType[] | undefined>(
+  "mystorage/set-selected-shared-files"
 );
