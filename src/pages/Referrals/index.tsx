@@ -35,6 +35,25 @@ const Referrals = () => {
     email: "",
   };
 
+  const {
+    storageUsed,
+    storageAvailable,
+    encryptionEnabled,
+    autoEncryptionEnabled,
+  } = useAppSelector((state) => state.userdetail);
+
+  const formatBytes = (bytes: number, decimals = 2, symbol = true) => {
+    if (!+bytes) return "0 Bytes";
+  
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+  
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${symbol ? sizes[i] : ""}`;
+  };
+
   useEffect(() => {
     Api.get(`/referrals/${walletAddress}`)
       .then((res) => {
@@ -152,15 +171,12 @@ const Referrals = () => {
             </div>
             <div>
               <p className="px-4 text-lg font-medium">
-                {totalUsers * 10}GB/{maxUsers * 5}GB storage gained.
+              {formatBytes(storageAvailable, 2, false)} / 95 GB storage gained.
               </p>
             </div>
           </div>
           <div className="w-full">
-            <p className="pt-10 pb-4 w-full text-left">
-              You got {totalUsers * 5}GB/{maxUsers * 5}GB from {totalUsers}{" "}
-              invited users
-            </p>
+            
             <div className="grid grid-cols-10 gap-2">
               {Array.from({ length: maxUsers + 1 }).map((_, index) => (
                 <div
