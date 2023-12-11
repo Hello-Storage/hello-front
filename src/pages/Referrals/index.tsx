@@ -72,7 +72,6 @@ const Referrals = () => {
   } = useAppSelector((state) => state.userdetail);
 
   const totalUsers = parseInt(formatBytes(storageAvailable, 0, false)) / 5;
-  // const totalUsers = 2;
   const maxUsers = 19;
   const referredByAddress = referredBy;
 
