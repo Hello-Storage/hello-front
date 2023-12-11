@@ -36,6 +36,8 @@ import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { removeFileAction } from "state/mystorage/actions";
+import { downloadMultipart, viewMultipart } from "utils/upload/filesDownload";
+const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB or 10000 bytes
 
 dayjs.extend(relativeTime);
 
@@ -80,137 +82,153 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     viewRef.current = false;
     toast.info("Starting download for " + file.name + "...");
     // Make a request to download the file with responseType 'blob'
-    Api.get(`/file/download/${file.uid}`, {
-      responseType: "blob",
-      onDownloadProgress: onDownloadProgress,
-    })
-      .then(async (res) => {
-        dispatch(
-          setUploadStatusAction({
-            info: "Finished downloading data",
-            uploading: false,
-          })
-        );
-        // Create a blob from the response data
-        let binaryData = res.data;
-        if (file.encryption_status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(
-            binaryData,
-            originalCid,
-            (percentage) => {
-              dispatch(
-                setUploadStatusAction({
-                  info: "Decrypting...",
-                  read: percentage,
-                  size: 100,
-                  uploading: true,
-                })
-              );
-            }
-          ).catch((err) => {
-            console.error("Error downloading file:", err);
-          });
-
+    if (file.size > MULTIPART_THRESHOLD) {
+      downloadMultipart(file, dispatch)
+    } else {
+      Api.get(`/file/download/${file.uid}`, {
+        responseType: "blob",
+        onDownloadProgress: onDownloadProgress,
+      })
+        .then(async (res) => {
           dispatch(
             setUploadStatusAction({
-              info: "Decryption done",
+              info: "Finished downloading data",
               uploading: false,
             })
           );
-        }
-        const blob = new Blob([binaryData], { type: file.mime_type });
+          // Create a blob from the response data
+          let binaryData = res.data;
+          if (file.encryption_status === EncryptionStatus.Encrypted) {
+            const originalCid = file.cid_original_encrypted;
+            binaryData = await blobToArrayBuffer(binaryData);
+            binaryData = await decryptFileBuffer(
+              binaryData,
+              originalCid,
+              (percentage) => {
+                dispatch(
+                  setUploadStatusAction({
+                    info: "Decrypting...",
+                    read: percentage,
+                    size: 100,
+                    uploading: true,
+                  })
+                );
+              }
+            ).catch((err) => {
+              console.error("Error downloading file:", err);
+            });
 
-        // Create a link element and set the blob as its href
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.name; // Set the file name
-        a.click(); // Trigger the download
-        toast.success("Download complete!");
+            dispatch(
+              setUploadStatusAction({
+                info: "Decryption done",
+                uploading: false,
+              })
+            );
+          }
+          const blob = new Blob([binaryData], { type: file.mime_type });
 
-        // Clean up
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((err) => {
-        console.error("Error downloading file:", err);
-      });
+          // Create a link element and set the blob as its href
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = file.name; // Set the file name
+          a.click(); // Trigger the download
+          toast.success("Download complete!");
+
+          // Clean up
+          window.URL.revokeObjectURL(url);
+        })
+        .catch((err) => {
+          console.error("Error downloading file:", err);
+        });
+    }
   };
 
   const handleView = () => {
     viewRef.current = true;
 
-    Api.get(`/file/download/${file.uid}`, {
-      responseType: "blob",
-      onDownloadProgress: onDownloadProgress,
-    })
-      .then(async (res) => {
-        dispatch(
-          setUploadStatusAction({
-            info: "Finished downloading data",
-            uploading: false,
-          })
-        );
-        let binaryData = res.data;
-        if (file.encryption_status === EncryptionStatus.Encrypted) {
-          const originalCid = file.cid_original_encrypted;
-          console.log(originalCid);
-          binaryData = await blobToArrayBuffer(binaryData);
-          binaryData = await decryptFileBuffer(
-            binaryData,
-            originalCid,
-            (percentage) => {
-              dispatch(
-                setUploadStatusAction({
-                  info: "Decrypting...",
-                  read: percentage,
-                  size: 100,
-                  uploading: true,
-                })
-              );
-            }
+    if (file.size > MULTIPART_THRESHOLD) {
+      viewMultipart(file, dispatch)
+    } else {
+      Api.get(`/file/download/${file.uid}`, {
+        responseType: "blob",
+        onDownloadProgress: onDownloadProgress,
+      })
+        .then(async (res) => {
+          dispatch(
+            setUploadStatusAction({
+              info: "Finished downloading data",
+              uploading: false,
+            })
           );
+          let binaryData = res.data;
+          if (file.encryption_status === EncryptionStatus.Encrypted) {
+            const originalCid = file.cid_original_encrypted;
+            console.log(originalCid);
+            binaryData = await blobToArrayBuffer(binaryData);
+            binaryData = await decryptFileBuffer(
+              binaryData,
+              originalCid,
+              (percentage) => {
+                dispatch(
+                  setUploadStatusAction({
+                    info: "Decrypting...",
+                    read: percentage,
+                    size: 100,
+                    uploading: true,
+                  })
+                );
+              }
+            );
 
+            dispatch(
+              setUploadStatusAction({
+                info: "Decryption done",
+                uploading: false,
+              })
+            );
+          }
+          const blob = new Blob([binaryData], { type: file.mime_type });
+          if (!blob) {
+            console.error("Error downloading file:", file);
+            return;
+          }
+          const url = window.URL.createObjectURL(blob);
+
+          let mediaItem: PreviewImage;
+          if (file.mime_type.startsWith("video/")) {
+            mediaItem = {
+              type: "htmlVideo",
+              videoSrc: url,
+              alt: file.name,
+            };
+          } else if (
+            file.mime_type === "application/pdf" ||
+            file.mime_type === "text/plain"
+          ) {
+            window.open(url, "_blank"); // PDF or TXT in a new tab
+            return;
+          } else {
+            mediaItem = {
+              src: url,
+              alt: file.name,
+            };
+          }
+
+          dispatch(setImageViewAction({ img: mediaItem, show: true }));
+        })
+        .catch((err) => {
           dispatch(
             setUploadStatusAction({
               info: "Decryption done",
               uploading: false,
             })
           );
-        }
-        const blob = new Blob([binaryData], { type: file.mime_type });
-        if (!blob) {
-          console.error("Error downloading file:", file);
-          return;
-        }
-        const url = window.URL.createObjectURL(blob);
+          console.error("Error downloading file:", err);
+        });
+    }
 
-        let mediaItem: PreviewImage;
-        if (file.mime_type.startsWith("video/")) {
-          mediaItem = {
-            type: "htmlVideo",
-            videoSrc: url,
-            alt: file.name,
-          };
-        } else if (
-          file.mime_type === "application/pdf" ||
-          file.mime_type === "text/plain"
-        ) {
-          window.open(url, "_blank"); // PDF or TXT in a new tab
-          return;
-        } else {
-          mediaItem = {
-            src: url,
-            alt: file.name,
-          };
-        }
 
-        dispatch(setImageViewAction({ img: mediaItem, show: true }));
-      })
-      .catch((err) => {
-        console.error("Error downloading file:", err);
-      });
   };
 
   const handleDelete = () => {
@@ -229,7 +247,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     return (
       <>
         <td
-          onDoubleClick={handleView}
+          onDoubleClick={viewableExtensions.has(fileExtension) ? handleView : undefined}
           scope="row"
           className="px-3 font-medium text-gray-900 whitespace-nowrap "
         >
@@ -338,16 +356,17 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   else
     return (
       <div
+
         className="bg-gray-50 p-4 rounded-lg mb-3 border border-gray-200 hover:cursor-pointer hover:bg-gray-100"
-        onClick={handleView}
+        onClick={viewableExtensions.has(fileExtension) ? handleView : undefined}
       >
         <div>
           <div className="flex flex-col items-center gap-3">
             <div className="font-medium text-gray-900 text-center overflow-hidden whitespace-nowrap w-full overflow-ellipsis flex items-center gap-2">
               <HiDocumentText className="w-4 h-4 flex-shrink-0" />
-            {file.is_in_pool && (
-              <GoAlertFill style={{ color: "#FF6600" }} />
-            )}
+              {file.is_in_pool && (
+                <GoAlertFill style={{ color: "#FF6600" }} />
+              )}
               <span className="hidden md:inline">
                 {truncate(file.name, 40)}
               </span>

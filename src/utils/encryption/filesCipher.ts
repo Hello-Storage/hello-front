@@ -73,10 +73,10 @@ export const encryptMetadata = async (file: File, personalSignature: string | un
         logoutUser();
         return;
     }
-    const salt = new Uint8Array(16).fill(0);
-    const iv = new Uint8Array(12).fill(0);
-    //salt = salt || window.crypto.getRandomValues(new Uint8Array(16));
-    //iv = iv || window.crypto.getRandomValues(new Uint8Array(12));
+    //const salt = new Uint8Array(16).fill(0);
+    //const iv = new Uint8Array(12).fill(0);
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
     const { aesKey } = await getAesKey(personalSignature, ['encrypt'], salt, iv);
 
 
@@ -137,7 +137,9 @@ export const encryptBuffer = async (buffer: ArrayBuffer, personalSignature: stri
         logoutUser();
         return;
     }
-    const { aesKey, salt, iv } = await getAesKey(personalSignature, ['encrypt']);
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const { aesKey } = await getAesKey(personalSignature, ['encrypt'], salt, iv);
 
     const cipherBytesArray = await getCipherBytes(buffer, aesKey, iv);
 
@@ -153,8 +155,9 @@ export async function generateFileCID(file: File, dispatch: AppDispatch): Promis
     const hasher = await createSHA256();
 
     dispatch(setUploadStatusAction({
-        info: "Hashing file...",
+        info: "Generating CID...",
         size: file.size,
+        read: 0,
     }))
 
 
@@ -172,10 +175,10 @@ export async function generateFileCID(file: File, dispatch: AppDispatch): Promis
 
                     offset += chunkSize;
 
-                    const loaded = offset;
+                    const actualProcessed = Math.min(offset, file.size);
 
                     dispatch(setUploadStatusAction({
-                        read: loaded,
+                        read: actualProcessed,
                     }))
 
 
@@ -191,6 +194,81 @@ export async function generateFileCID(file: File, dispatch: AppDispatch): Promis
 
 
                         resolve(cid.toString());
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            reader.onerror = () => {
+                reject(reader.error);
+            };
+
+            reader.readAsArrayBuffer(fileSlice);
+        };
+
+        readChunk();
+    })
+}
+
+
+export async function generateEncryptedFileCID(file: File, dispatch: AppDispatch, cidOriginal: string): Promise<{ cidOfEncryptedBufferStr: string, totalEncryptionTime: number }> {
+    const chunkSize = 100 << 20; // 100 MB
+    //make 1KB chunksize:
+    let offset = 0;
+    const hasher = await createSHA256();
+    let totalEncryptionTime = 0;
+    const { aesKey, salt, iv } = await getAesKey(cidOriginal, ['encrypt']);
+
+    dispatch(setUploadStatusAction({
+        info: "Hashing file...",
+        size: file.size,
+        read: 0,
+    }))
+
+
+    return new Promise((resolve, reject) => {
+        const readChunk = () => {
+            const fileSlice = file.slice(offset, offset + chunkSize);
+            const reader = new FileReader();
+
+            reader.onload = async (e) => {
+                try {
+                    if (e.target?.result) {
+                        const chunkArrayBuffer = e.target.result as ArrayBuffer;
+
+                        const start = performance.now();
+                        let encryptedChunk = await getCipherBytes(chunkArrayBuffer, aesKey, iv);
+                        if (offset === 0) {
+                            //get result bytes
+                            encryptedChunk = getResultBytes(encryptedChunk, salt, iv);
+                        }
+                        const end = performance.now();
+                        totalEncryptionTime += end - start;
+                        hasher.update(new Uint8Array(encryptedChunk));
+
+                    }
+
+                    offset += chunkSize;
+
+                    const actualProcessed = Math.min(offset, file.size);
+
+                    dispatch(setUploadStatusAction({
+                        read: actualProcessed,
+                    }))
+
+                    if (offset < file.size) {
+                        readChunk();
+                    } else {
+                        const hashBytes = hasher.digest('binary'); //(property) digest: (outputType?: "hex" | undefined) => string (+1 overload)
+                        const mhdigest = digest.create(sha256.code, hashBytes);
+                        const cidOfEncryptedBufferStr = CID.create(1, sha256.code, mhdigest).toString(); //(method) CID.create(version: CIDVersion, code: number, digest: MultihashDigest<number>): CID
+
+
+
+
+
+                        resolve({ cidOfEncryptedBufferStr, totalEncryptionTime });
                     }
                 } catch (error) {
                     reject(error);
@@ -337,10 +415,6 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
         const data = cipherBytes.slice(16 + 12)
 
         onProgress(55)
-        console.log("salt:")
-        console.log(salt)
-        console.log("iv:")
-        console.log(iv)
         const { aesKey } = await getAesKey(originalCid, ['decrypt'], salt, iv)
         onProgress(70)
         const decryptedContent = await decryptContentUtil(data, aesKey, iv)
