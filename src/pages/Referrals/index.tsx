@@ -67,7 +67,6 @@ const Referrals = () => {
   };
 
   const {
-    storageUsed,
     storageAvailable,
   } = useAppSelector((state) => state.userdetail);
 
