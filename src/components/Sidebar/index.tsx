@@ -40,7 +40,7 @@ import { AxiosProgressEvent } from "axios";
 import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
-import { createFileAction, createFolderAction } from "state/mystorage/actions";
+import { createFileAction, createFolderAction, refreshAction } from "state/mystorage/actions";
 
 const links1 = [
   {
@@ -106,7 +106,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     autoEncryptionEnabled,
   } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
-  const { fetchUserDetail } = useFetchData();
+  const { fetchUserDetail, fetchRootContent, fetchSharedContent } = useFetchData();
   const { name } = useAppSelector((state) => state.user);
   const accountType = getAccountType();
   const navigate = useNavigate();
@@ -148,7 +148,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   useEffect(() => {
     fetchUserDetail();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getRoot = () =>
@@ -569,11 +569,41 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     handleInputChange(event, true);
   };
 
+  const [isLinkDisabled, setLinkDisabled] = useState(false);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleLinkClick = (v: any) => {
+
+    setLinkDisabled(true);
+
+    if (v.content === "My storage") {
+      if (isLinkDisabled) {
+        return;
+      }
+      if(!window.location.href.endsWith("/space/my-storage")){
+        return
+      }
+      dispatch(refreshAction(true));
+      fetchRootContent();
+    } else if (v.content === "Shared") {
+      if (isLinkDisabled) {
+        return;
+      }
+      dispatch(refreshAction(true));
+      fetchSharedContent();
+    }
+
+    setTimeout(() => {
+      setLinkDisabled(false);
+    }, 1500);
+  };
+
   return (
     <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-3">
-          <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]">
+          <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]"
+          >
             hello.app
           </Link>
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
@@ -661,6 +691,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           {links1.map((v, i) => (
             <NavLink
               to={v.to}
+              onClick={() => handleLinkClick(v)}
               className={({ isActive }) =>
                 `${isActive ? "bg-gray-200" : ""} hover:bg-gray-200 rounded-xl`
               }
@@ -696,6 +727,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex flex-col gap-0.5">
           {links2.map((v, i) => (
             <NavLink
+              onClick={() => handleLinkClick(v)}
               to={v.to}
               target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>

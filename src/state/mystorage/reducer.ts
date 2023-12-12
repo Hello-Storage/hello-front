@@ -16,6 +16,8 @@ import {
   updateDecryptedSharedFilesAction,
   setFileViewAction,
   setSelectedSharedFiles,
+  fetchSharedContentAction,
+  refreshAction,
 } from "./actions";
 import { File as FileType, RootResponse } from "api";
 
@@ -26,7 +28,10 @@ interface MyStorageProps extends RootResponse {
   selectedShareFile?: FileType;
   selectedShowFile?: FileType;
   selectedSharedFiles?: FileType[];
+  sharedFiles: { sharedWithMe: FileType[], sharedByMe: FileType[] };
+  refresh: boolean;
 }
+
 const initialState: MyStorageProps = {
   root: "/",
   path: [],
@@ -41,6 +46,7 @@ const initialState: MyStorageProps = {
   showShareModal: false,
   selectedShareFile: undefined,
   selectedSharedFiles: undefined,
+  refresh: false,
 };
 
 export default createReducer<MyStorageProps>(initialState, (builder) => {
@@ -49,9 +55,17 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
       ...state,
       ...payload,
     }))
+    .addCase(fetchSharedContentAction, (state, { payload }) => ({
+      ...state,
+      ...payload,
+    }))
     .addCase(createFolderAction, (state, { payload }) => ({
       ...state,
       folders: [...state.folders, payload],
+    }))
+    .addCase(refreshAction, (state, { payload }) => ({
+      ...state,
+      refresh: payload,
     }))
     .addCase(setImageViewAction, (state, { payload }) => ({
       ...state,

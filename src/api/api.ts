@@ -19,7 +19,6 @@ Api.interceptors.response.use(
 	(err: any) => {
 		console.log(err.response);
 		const error = err.response?.data.error;
-		console.log(document.location.pathname)
 		if (
 			error &&
 			err.response?.status === 401 &&
@@ -28,7 +27,10 @@ Api.interceptors.response.use(
 				"token has expired",
 			].includes(error) && !(document.location.pathname.endsWith("/login") || document.location.pathname.endsWith("/stats"))
 		) {
-			toast.error("Session Expired")
+			if (localStorage.getItem("access_token")) {
+				toast.error("Session Expired")
+				localStorage.removeItem("access_token")
+			}
 			state.dispatch(logoutUser());
 		}
 		return Promise.reject(err);

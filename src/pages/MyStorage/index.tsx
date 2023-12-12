@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
 import {
   HiChevronLeft,
   HiChevronRight,
@@ -15,6 +14,7 @@ import { useSearchContext } from "contexts/SearchContext";
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
 import {
+  refreshAction,
   updateDecryptedFilesAction,
   updateDecryptedFoldersAction
 } from "state/mystorage/actions";
@@ -29,7 +29,6 @@ import {
 } from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
 import getPersonalSignature from "api/getPersonalSignature";
-import { useNavigate } from "react-router-dom";
 import ShareModal from "pages/Shared/Components/ShareModal";
 import Imageview from "components/ImageView/Imageview";
 
@@ -47,8 +46,6 @@ export default function Home() {
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   useDropdown(ref, open, setOpen);
-
-  const location = useLocation();
 
   const { fetchRootContent, fetchUserDetail } = useFetchData();
   const personalSignatureRef = useRef<string | undefined>();
@@ -72,7 +69,7 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { folders, files, showPreview, path, showShareModal } = useAppSelector(
+  const { folders, files, showPreview, path, showShareModal, refresh } = useAppSelector(
     (state) => state.mystorage
   );
 
@@ -93,96 +90,115 @@ export default function Home() {
   const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
   const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
 
+  async function fetchContent() {
+    setLoading(true);
 
-  useEffect(() => {
-    async function fetchContent() {
-      setLoading(true);
+    const itemsPerPage = 10;
 
-      const itemsPerPage = 10;
+    const totalItemsTemp = files.length;
+    const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
+    setTotalItems(totalItemsTemp);
+    setTotalPages(totalPagesTemp);
 
-      const totalItemsTemp = files.length;
-      const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
-      setTotalItems(totalItemsTemp);
-      setTotalPages(totalPagesTemp);
+    const tempStartIndex =
+      currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
+    const tempEndIndex = tempStartIndex + itemsPerPage;
 
-      const tempStartIndex =
-        currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
-      const tempEndIndex = tempStartIndex + itemsPerPage;
+    setStartIndex(tempStartIndex);
+    setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
 
-      setStartIndex(tempStartIndex);
-      setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
+    // Calculate starting index for files based on the number of folders taken.
+    const filesStartIndex = Math.max(0, tempStartIndex);
 
-      // Calculate starting index for files based on the number of folders taken.
-      const filesStartIndex = Math.max(0, tempStartIndex);
-
-      // Slice the files array based on the calculated start and end indices.
-      const currentEncryptedFiles = files.slice(
-        filesStartIndex,
-        filesStartIndex + itemsPerPage
-      );
+    // Slice the files array based on the calculated start and end indices.
+    const currentEncryptedFiles = files.slice(
+      filesStartIndex,
+      filesStartIndex + itemsPerPage
+    );
 
 
-      if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
-        hasCalledGetPersonalSignatureRef.current = true;
+    if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
+      hasCalledGetPersonalSignatureRef.current = true;
 
-        personalSignatureRef.current = await getPersonalSignature(
-          name,
-          autoEncryptionEnabled,
-          accountType
-        );//Promie<string | undefined>
-        if (!personalSignatureRef.current) {
-          toast.error("Failed to get personal signature");
-          logout();
-          return;
-        }
-      }
-
-      const decryptedFiles = await handleEncryptedFiles(
-        currentEncryptedFiles,
-        personalSignatureRef.current || "",
+      personalSignatureRef.current = await getPersonalSignature(
         name,
         autoEncryptionEnabled,
-        accountType,
-        logout
-      );
-
-      if (decryptedFiles && decryptedFiles.length > 0) {
-        dispatch(updateDecryptedFilesAction(decryptedFiles));
-      }
-
-      setCurrentFiles(decryptedFiles || []);
-
-      const decryptedFolders = await handleEncryptedFolders(
-        folders,
-        personalSignatureRef.current || "",
-      );
-
-      if (decryptedFolders && decryptedFolders.length > 0) {
-        dispatch(updateDecryptedFoldersAction(decryptedFolders));
-      }
-      setCurrentFolders(decryptedFolders || []);
-
-      if (!currentFiles || !currentFolders) {
-        toast.error("Failed to decrypt content");
-        fetchRootContent(setLoading);
+        accountType
+      );//Promie<string | undefined>
+      if (!personalSignatureRef.current) {
+        toast.error("Failed to get personal signature");
+        logout();
+        return;
       }
     }
+
+    const decryptedFiles = await handleEncryptedFiles(
+      currentEncryptedFiles,
+      personalSignatureRef.current || "",
+      name,
+      autoEncryptionEnabled,
+      accountType,
+      logout
+    );
+
+    if (decryptedFiles && decryptedFiles.length > 0) {
+      dispatch(updateDecryptedFilesAction(decryptedFiles));
+    }
+
+    setCurrentFiles(decryptedFiles || []);
+
+    const decryptedFolders = await handleEncryptedFolders(
+      folders,
+      personalSignatureRef.current || "",
+    );
+
+    if (decryptedFolders && decryptedFolders.length > 0) {
+      dispatch(updateDecryptedFoldersAction(decryptedFolders));
+    }
+    setCurrentFolders(decryptedFolders || []);
+
+    if (!currentFiles || !currentFolders) {
+      toast.error("Failed to decrypt content");
+      fetchRootContent(setLoading);
+    }
+  }
+
+  
+  useEffect(() => {
+    fetchContent().then(() => {
+      setLoading(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folders.length]);
+
+  useEffect(() => {
     fetchContent().then(() => {
       setLoading(false);
       setPersonalSignatureDefined(true);
-    });
-  }, [path, currentPage]);
-  useEffect(() => {
-    if (personalSignatureDefined) {
-      if (!personalSignatureRef.current) {
-        return;
-      }
-      console.log(location.pathname);
-      fetchRootContent();
       setCurrentPage(1)
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [path]);
+
+  useEffect(() => {
+    if(window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder")){
+      fetchRootContent()
+      dispatch(refreshAction(true))
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, name, personalSignatureRef.current]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [window.location.href]);
+
+  useEffect(() => {
+    if (refresh) {
+      fetchContent().then(() => {
+        setLoading(false);
+        setPersonalSignatureDefined(true);
+        setCurrentPage(1)
+        dispatch(refreshAction(false))
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh]);
 
   const paginateContent = async () => {
     const itemsPerPage = 10;
@@ -214,19 +230,17 @@ export default function Home() {
     }
 
     setCurrentFiles(currentFiles);
-
     setCurrentFolders(currentFolders);
-
   }
 
   useEffect(() => {
     setCurrentFolders(folders);
-  }, [folders.length]);
+  }, [folders.length, folders]);
 
   useEffect(() => {
     paginateContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files.length])
-
 
   const [filter, setFilter] = useState("all");
 
@@ -246,19 +260,20 @@ export default function Home() {
 
   const [view, setView] = useState<"list" | "grid">("list");
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
   };
 
   useEffect(() => {
     fetchUserDetail();
-		if (personalSignatureDefined) {
-			if (!personalSignatureRef.current) {
-				return;
-			}
-			fetchRootContent();
-		}
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (personalSignatureDefined) {
+      if (!personalSignatureRef.current) {
+        return;
+      }
+      fetchRootContent();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 

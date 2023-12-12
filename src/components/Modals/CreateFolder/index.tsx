@@ -67,13 +67,7 @@ export default function CreateFolderModal() {
 		})
 			.then((resp) => {
 				toast.success("folder created!");
-				if (encryptionEnabled) {
-					dispatch(
-						createFolderAction({ ...resp.data, title: title })
-					);
-				} else {
-					dispatch(createFolderAction(resp.data));
-				}
+				dispatch(createFolderAction(resp.data));
 			})
 			.catch(() => {
 				toast.error("failed!");
