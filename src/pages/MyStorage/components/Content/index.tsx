@@ -4,7 +4,6 @@ import FolderItem from "./FolderItem";
 import FileItem from "./FileItem";
 import "./spinner.css";
 import { useNavigate } from "react-router-dom";
-import { useFetchData } from "hooks";
 import { RiFolderAddLine } from "react-icons/ri";
 import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
@@ -29,7 +28,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     uid: string;
   };
   const navigate = useNavigate();
-  const { fetchRootContent } = useFetchData();
   const cloneRef = useRef<HTMLDivElement | null>(null);
   const initialCoords = useRef({ x: 0, y: 0 });
 
@@ -109,9 +107,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       }
     }
   };
-  
-
-
 
   const isItemSelected = (id: string): boolean => {
     return selectedItems.some((item) => item.id === id);
@@ -194,7 +189,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     initialCoords.current = { x: event.clientX, y: event.clientY };
   };
 
-  const handleDragEnd = (event: React.DragEvent<HTMLTableRowElement>) => {
+  const handleDragEnd = () => {
     if (cloneRef.current) {
       document.body.removeChild(cloneRef.current);
       cloneRef.current = null;
@@ -280,6 +275,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   const handleDropSingle = (
     event: React.DragEvent<HTMLTableRowElement>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any,
     itemType: string
   ) => {
@@ -610,7 +606,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
           <div style={{ display: 'flex', padding: '10px' }}>
             <h3 className="my-3">Files</h3>
             <div style={{ marginLeft: 'auto' }}>
-              <button style={{ padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px' }} onClick={handleButtonClick}>{buttonText}</button>
+              <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" onClick={handleButtonClick}>{buttonText}</button>
             </div>
           </div>
           <div className="grid gap-3 grid-200">

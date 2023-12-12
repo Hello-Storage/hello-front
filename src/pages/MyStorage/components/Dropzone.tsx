@@ -20,7 +20,7 @@ import { Api, EncryptionStatus, File as FileType } from "api";
 
 import { useAppDispatch, useAppSelector } from "state";
 import { AxiosProgressEvent } from "axios";
-import { createFileAction, createFolderAction } from "state/mystorage/actions";
+import { createFileAction, createFolderAction, refreshAction } from "state/mystorage/actions";
 
 const getColor = (
   isFocused: boolean,
@@ -57,8 +57,8 @@ const Dropzone = () => {
   }, [autoEncryptionEnabled, encryptionEnabled])
 
 
-  const { name } = useAppSelector((state) => state.user);
   const { fetchRootContent, fetchUserDetail } = useFetchData();
+  const { name } = useAppSelector((state) => state.user);
 
   const { logout } = useAuth();
   const dispatch = useAppDispatch();
@@ -221,8 +221,6 @@ const Dropzone = () => {
 
             if (!isFolder) dispatch(createFileAction(fileMap.customFile));
           }
-          console.log(fileMap.customFile);
-
         })
 
       })
@@ -292,17 +290,8 @@ const Dropzone = () => {
       );
     }
     if (isFolder) {
-      dispatch(createFolderAction({
-        title: outermostFolderTitle,
-        uid: folderRootUID,
-        root: getRoot(),
-        created_at: "",
-        updated_at: "",
-        deleted_at: "",
-        id: 0,
-        path: "/",
-        encryption_status: thisEncryptionEnabledRef.current ? EncryptionStatus.Encrypted : EncryptionStatus.Public,
-      }))
+      fetchRootContent()
+      dispatch(refreshAction(true))
     }
 
     fetchUserDetail();

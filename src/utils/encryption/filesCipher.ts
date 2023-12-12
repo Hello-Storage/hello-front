@@ -197,7 +197,6 @@ export function base64UrlToBuffer(base64Url: string): Uint8Array {
         while (base64.length % 4 !== 0) {
             base64 += '=';
         }
-        console.log("base64: " + base64);
         const str = atob(base64);
         const buffer = new Uint8Array(str.length);
         for (let i = 0; i < str.length; i++) {
