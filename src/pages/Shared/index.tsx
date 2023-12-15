@@ -133,7 +133,7 @@ const Shared = () => {
 	}, [refresh]);
 
 	return (
-		<div>
+		<section>
 			{isOpenShareUpload && (
 				<UploadShareModal
 					isOpen={isOpenShareUpload}
@@ -188,7 +188,7 @@ const Shared = () => {
 					/>
 				</div>
 			</div>
-			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-5">
+			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
 				<div>
 					<Content
 						loading={loading}
@@ -214,7 +214,7 @@ const Shared = () => {
 					/>
 				</div>
 			</div>
-		</div>
+		</section>
 
 	);
 };

@@ -278,7 +278,7 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col overflow-hidden table-main ">
+    <div className="flex flex-col overflow-hidden table-main " id="content">
       {showShareModal && <ShareModal />}
       <div className="flex justify-between items-center mb-[15px]">
         <Breadcrumb />
@@ -394,7 +394,7 @@ export default function Home() {
         />
       </section>
       {/* Sticky footer */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 mb-[50px] sm:mb-0">
         <div className="flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200">
           <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}

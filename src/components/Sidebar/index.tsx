@@ -760,7 +760,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         </div>
       </div>
 
-      <div className="pt-4">
+      <section className="pt-4 mb-[50px] md:mb-2 ">
         <label>{formatBytes(storageUsed)} </label>
 
         <ProgressBar
@@ -793,7 +793,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             ✨
           </button>
         </div>
-      </div>
+      </section>
       <div>
         <input
           ref={fileInput}

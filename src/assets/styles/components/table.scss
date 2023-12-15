@@ -23,16 +23,16 @@
 @media only screen and (min-width: 640px) and (max-width: 768px) {
 	.table-div {
 		overflow-y: scroll;
-		min-height: calc(100vh - 650px);
-		max-height: calc(100vh - 650px);
+		min-height: calc(100vh - 670px);
+		max-height: calc(100vh - 670px);
 	}
 }
 
 @media only screen and (max-width: 640px) {
 	.table-div {
 		overflow-y: scroll;
-		min-height: calc(100vh - 565px);
-		max-height: calc(100vh - 565px);
+		min-height: calc(100vh - 589px);
+		max-height: calc(100vh - 589px);
 	}
 }
 

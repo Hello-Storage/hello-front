@@ -25,9 +25,10 @@ Api.interceptors.response.use(
 			[
 				"authorization header is not provided",
 				"token has expired",
-			].includes(error) && !(document.location.pathname.endsWith("/login") || document.location.pathname.endsWith("/stats"))
+			].includes(error)
 		) {
-			if (localStorage.getItem("access_token")) {
+			if (localStorage.getItem("access_token") &&
+				!(document.location.pathname.endsWith("/login") || document.location.pathname.endsWith("/stats"))) {
 				toast.error("Session Expired")
 				localStorage.removeItem("access_token")
 			}
