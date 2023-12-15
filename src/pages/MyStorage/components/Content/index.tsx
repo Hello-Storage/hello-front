@@ -290,6 +290,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   function handleMultipleDelete() {
     toast.info("Deleting files...");
+    setSelectedItems([])
+    setSeleccionMultipleActivada(false)
     let deletedCount = 0;
 
     const handleDeleteSuccess = (fileUid: string) => {
