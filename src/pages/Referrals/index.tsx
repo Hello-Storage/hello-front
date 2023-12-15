@@ -35,25 +35,6 @@ const Referrals = () => {
     email: "",
   };
 
-  const {
-    storageUsed,
-    storageAvailable,
-    encryptionEnabled,
-    autoEncryptionEnabled,
-  } = useAppSelector((state) => state.userdetail);
-
-  const formatBytes = (bytes: number, decimals = 2, symbol = true) => {
-    if (!+bytes) return "0 Bytes";
-  
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
-  
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${symbol ? sizes[i] : ""}`;
-  };
-
   useEffect(() => {
     Api.get(`/referrals/${walletAddress}`)
       .then((res) => {
@@ -73,7 +54,23 @@ const Referrals = () => {
     //console.log(data.toString('latin1'));
   }, [walletAddress]);
 
-  const totalUsers = referredAddresses.length;
+  const formatBytes = (bytes: number, decimals = 2, symbol = true) => {
+    if (!+bytes) return "0 Bytes";
+  
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+  
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${symbol ? sizes[i] : ""}`;
+  };
+
+  const {
+    storageAvailable,
+  } = useAppSelector((state) => state.userdetail);
+
+  const totalUsers = parseInt(formatBytes(storageAvailable, 0, false)) / 5;
   const maxUsers = 19;
   const referredByAddress = referredBy;
 
@@ -176,7 +173,10 @@ const Referrals = () => {
             </div>
           </div>
           <div className="w-full">
-            
+            <p className="pt-10 pb-4 w-full text-left">
+              You got {totalUsers * 5}GB/{maxUsers * 5}GB from {totalUsers}{" "}
+              invited users
+            </p>
             <div className="grid grid-cols-10 gap-2">
               {Array.from({ length: maxUsers + 1 }).map((_, index) => (
                 <div
