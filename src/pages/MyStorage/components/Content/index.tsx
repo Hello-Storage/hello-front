@@ -513,7 +513,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
               </thead>
             </table>
           </div>
-
           <div id={"table-row-div_" + identifier} className="h-full min-w-full table-div custom-scrollbar scrollbar-color">
             <table id={"files-rows_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <tbody>

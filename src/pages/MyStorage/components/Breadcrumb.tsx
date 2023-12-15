@@ -91,6 +91,7 @@ export default function Breadcrumb() {
 
   const handleDropSingle = (
     event: React.DragEvent<HTMLLIElement>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any,
     itemType: string
   ) => {
@@ -114,25 +115,21 @@ export default function Breadcrumb() {
   };
 
   return (
-    <nav className="flex flex-row items-center" aria-label="Breadcrumb">
-      <ol className="flex flex-row items-center space-x-1 text-xl font-medium">
-        <li
-          className="inline-flex"
-          onDrop={handleDrop}
-          aria-label={"/"}
-        >
-        </li>
+    <nav className="flex flex-row items-center mr-2" aria-label="Breadcrumb">
+      <ol className="flex flex-row items-center overflow-auto text-lg font-medium custom-scrollbar">
         <h3
           onClick={() => onClick("/space/my-storage")}
           className="text-gray-700 hover:text-blue-600 cursor-pointer text-xl min-w-[85px]"
         >
           <strong>My Storage</strong>
         </h3>
-        {mystorage.path.map((v, i) => (
-          <li onDrop={handleDrop} key={i} aria-label={v.uid}>
-            <div className="flex items-center">
-              <span className="h-full min-w-fit"> <HiChevronRight /></span>
-
+        {mystorage.path.map((v, i, array) => (
+          <li onDrop={handleDrop} key={i} aria-label={v.uid}
+            className={`min-w-fit flex items-center flex-nowrap 
+            ${i === array.length - 1 ? 'mr-[50px]' : ''}`}
+          >
+            <>
+              <span className="h-full"> <HiChevronRight /></span>
               <a
                 onClick={() => onClick(`/space/folder/${v.uid}`)}
                 className="ml-1 text-gray-700 cursor-pointer hover:text-blue-600 md:ml-2 forlder-path"
@@ -142,9 +139,9 @@ export default function Breadcrumb() {
                   size={26}
                   color="#737373"
                 />
-                {v.title}
+                {v.title} 
               </a>
-            </div>
+            </>
           </li>
         ))}
       </ol>

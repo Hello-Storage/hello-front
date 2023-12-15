@@ -162,7 +162,7 @@ const Shared = () => {
 				</label>
 			</button>
 			<div className="hidden w-full lg:flex">
-				<div className="w-[99%]">
+				<div className="w-[99%] share-content">
 					<Content
 						loading={loading}
 						files={SharedByMe}
@@ -175,7 +175,7 @@ const Shared = () => {
 					/>
 				</div>
 				<span className="w-[2%]"></span>
-				<div className="w-[99%]">
+				<div className="w-[99%] share-content">
 					<Content
 						loading={loading}
 						files={SharedwithMe}
