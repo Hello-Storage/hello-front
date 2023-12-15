@@ -9,6 +9,8 @@ import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
 import { useAppDispatch } from "state";
 import { removeFileAction } from "state/mystorage/actions";
+import { FaRegTrashAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 interface ContentProps {
   loading: boolean;
@@ -38,7 +40,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
   >(null);
   const [onPresent] = useModal(<CreateFolderModal />);
   const onFolderDoubleClick = (folderUID: string) => {
-    navigate(`/space/folder/${folderUID}`); 
+    navigate(`/space/folder/${folderUID}`);
   };
 
   const [seleccionMultipleActivada, setSeleccionMultipleActivada] = useState(false);
@@ -57,55 +59,36 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
   // Event for select item
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
     const ctrlPressed = event.ctrlKey || event.metaKey;
-  
+
+    if (ctrlPressed) {
+      setSeleccionMultipleActivada(true)
+    }
+
     if (seleccionMultipleActivada || ctrlPressed) {
       event.preventDefault();
-  
+
       const selInfo = {
         type: event.currentTarget.ariaValueText?.toString() || "",
         id: event.currentTarget.id.toString(),
         uid: event.currentTarget.ariaLabel?.toString() || "",
       };
-  
+
       const isAlreadySelected = selectedItems.some(
         (item) => item.id === selInfo.id
       );
-  
+
       if (isAlreadySelected) {
         event.currentTarget.classList.remove("selected");
       } else {
         event.currentTarget.classList.add("selected");
       }
-  
+
       const updatedSelection = isAlreadySelected
         ? selectedItems.filter((item) => item.id !== selInfo.id)
         : [...selectedItems, selInfo];
-  
+
       setSelectedItems(updatedSelection);
-    } else {
-      if (!seleccionMultipleActivada || event.ctrlKey) {
-        const selInfo = {
-          type: event.currentTarget.ariaValueText?.toString() || "",
-          id: event.currentTarget.id.toString(),
-          uid: event.currentTarget.ariaLabel?.toString() || "",
-        };
-        const isAlreadySelected = selectedItems.some(
-          (item) => item.id === selInfo.id
-        );
-        if (isAlreadySelected) {
-          event.currentTarget.classList.remove("selected");
-        } else {
-          event.currentTarget.classList.add("selected");
-        }
-        if (isAlreadySelected) {
-          setSelectedItems(
-            selectedItems.filter((item) => item.id !== selInfo.id)
-          );
-        } else {
-          setSelectedItems([...selectedItems, selInfo]);
-        }
-      }
-    }
+    } 
   };
 
   const isItemSelected = (id: string): boolean => {
@@ -122,6 +105,20 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       cloneRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
     }
   };
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' || event.keyCode === 27) {
+        setSelectedItems([])
+        setSeleccionMultipleActivada(false)
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, []);
 
   const handleDragStart = (event: React.DragEvent<HTMLTableRowElement>) => {
     const dragInfo = JSON.stringify({
@@ -236,8 +233,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       type: "folder",
     };
 
-
-
     // Check if selectedItems is empty
     if (selectedItems.length === 0) {
       if (dropInfo.id == dragInfoReceived.id) {
@@ -279,10 +274,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     payload: any,
     itemType: string
   ) => {
-    // console.log("DragReceived: " + JSON.stringify(dragInfoReceived));
-    // console.log("Drop: " + JSON.stringify(dropInfo));
-
-    console.log("Sending payload:", payload);
     Api.put(`/${itemType}/update/root`, payload, {
       headers: {
         "Content-Type": "application/json",
@@ -296,6 +287,32 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         console.log("Error updating folder root:", err);
       });
   };
+
+  function handleMultipleDelete() {
+    toast.info("Deleting files...");
+    let deletedCount = 0;
+
+    const handleDeleteSuccess = (fileUid: string) => {
+      deletedCount++;
+      if (deletedCount === selectedItems.length) {
+        toast.success("All files deleted!");
+      }
+      dispatch(removeFileAction(fileUid));
+    };
+
+    for (const file of selectedItems) {
+      // Make a request to delete each file with response code 200
+      Api.delete(`/file/delete/${file.uid}`)
+        .then(() => {
+          handleDeleteSuccess(file.uid);
+        })
+        .catch((err) => {
+          console.error("Error deleting file:", err);
+          toast.error("Error deleting file");
+        });
+    }
+  }
+
 
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
@@ -315,6 +332,24 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     }
   };
 
+  function handleFocusResize() {
+    const rowsScroll = document.getElementById("files-rows_" + identifier);
+    const headerScroll = document.getElementById("files-headers_" + identifier);
+    const content = document.getElementById("content")
+    if (rowsScroll && headerScroll && content) {
+      const contentSize = content.getBoundingClientRect().width
+      if (contentSize > 850) {
+        rowsScroll.style.width = content.getBoundingClientRect().width + "px";
+        headerScroll.style.width = content.getBoundingClientRect().width + "px";
+      }
+    }
+  }
+
+  useEffect(() => {
+    handleFocusResize()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [windowWidth])
+
   useEffect(() => {
     const invScroll = document.getElementById("scroll-invisible-section");
     const visScroll = document.getElementById("scroll-visible-section");
@@ -332,15 +367,14 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       };
     }
     handleResize();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folders]);
 
   useLayoutEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   if (view === "list")
     return (
@@ -398,9 +432,25 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         <section className="custom-scrollbar position-sticky-left">
           <div className="sticky left-0 flex flex-row items-center justify-between mb-[15px]">
             <h4 className="pt-1 pb-3">{filesTitle}</h4>
-              <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" onClick={handleButtonClick}>{buttonText}</button>
+            <div className="flex flex-row items-center justify-between">
+
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                onClick={handleButtonClick}>{buttonText}
+              </button>
+
+              {(selectedItems.length > 0) ? (
+                <span className="py-2 ml-3 font-medium text-gray-900 bg-white border border-gray-200 rounded-lg ml-3px-4 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                  title="Delete selected items"
+                  onClick={handleMultipleDelete}
+                >
+                  <FaRegTrashAlt className="mx-2 text-lg" />
+                </span>
+              ) : (<></>)}
+
+            </div>
           </div>
-          
+
           <div id={"header-scroll-inv_" + identifier}>
             <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <thead className="text-xs text-gray-700 bg-gray-100">
@@ -409,20 +459,20 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                     id="column-name"
                     scope="col"
                     className="p-2.5 rounded-tl-lg rounded-bl-lg"
-                    onClick={(
-                      event: React.MouseEvent<
-                        HTMLTableCellElement
-                      >
-                    ) => {
-                      if (event.ctrlKey) {
-                        setSelectedItems([]);
-                        console.log(
-                          "Deleted selected items"
-                        );
-                      } else {
-                        console.log(selectedItems);
-                      }
-                    }}
+                  // onClick={(
+                  //   event: React.MouseEvent<
+                  //     HTMLTableCellElement
+                  //   >
+                  // ) => {
+                  //   if (event.ctrlKey) {
+                  //     setSelectedItems([]);
+                  //     console.log(
+                  //       "Deleted selected items"
+                  //     );
+                  //   } else {
+                  //     console.log(selectedItems);
+                  //   }
+                  // }}
                   >
                     Name
                   </th>
@@ -605,8 +655,20 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         <section className="custom-scrollbar position-sticky-left">
           <div style={{ display: 'flex', padding: '10px' }}>
             <h3 className="my-3">Files</h3>
+
             <div style={{ marginLeft: 'auto' }}>
-              <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" onClick={handleButtonClick}>{buttonText}</button>
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                onClick={handleButtonClick}>{buttonText}
+              </button>
+              {(selectedItems.length > 0) ? (
+                <span className="py-2 ml-3 font-medium text-gray-900 bg-white border border-gray-200 rounded-lg ml-3px-4 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                  title="Delete selected items"
+                  onClick={handleMultipleDelete}
+                >
+                  <FaRegTrashAlt className="mx-2 text-lg" />
+                </span>
+              ) : (<></>)}
             </div>
           </div>
           <div className="grid gap-3 grid-200">
