@@ -101,14 +101,14 @@ export default function Login() {
             <h1 className="text-4xl font-semibold tracking-tighter text-center">
               Welcome 👋
             </h1>
-            <h3 className="hidden mt-4 text-lg tracking-tighter text-center sm:block">
+            <h3 className="block mt-4 text-lg tracking-tighter text-center">
               Select your favorite login option
             </h3>
             <h3 className="hidden mt-4 text-lg tracking-tighter text-center md:block">
               Get your <b>100GB</b> free storage now! 
             </h3>
 
-            <div className="mt-12 flex gap-[15px] flex-col justify-around">
+            <div className="mt-[20px] flex gap-[15px] flex-col justify-around">
               <GoogleLoginButton />
               <ConnectWalletButton />
             </div>
@@ -152,7 +152,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <footer className="p-0 mb-8 text-sm text-black md:mx-12 md:p-2 md:mb-0">
+      <footer className="p-0 mb-[50px] text-sm text-black md:mx-12 md:p-2 md:mb-0">
         <div className="flex flex-col items-start">
           <div className="flex p-0 space-x-4 md:p-0">
             <a href="mailto:team@hello.app" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>

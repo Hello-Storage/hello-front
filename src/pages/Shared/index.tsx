@@ -133,7 +133,7 @@ const Shared = () => {
 	}, [refresh]);
 
 	return (
-		<div>
+		<section>
 			{isOpenShareUpload && (
 				<UploadShareModal
 					isOpen={isOpenShareUpload}
@@ -162,7 +162,7 @@ const Shared = () => {
 				</label>
 			</button>
 			<div className="hidden w-full lg:flex">
-				<div className="w-[99%]">
+				<div className="w-[99%] share-content">
 					<Content
 						loading={loading}
 						files={SharedByMe}
@@ -175,7 +175,7 @@ const Shared = () => {
 					/>
 				</div>
 				<span className="w-[2%]"></span>
-				<div className="w-[99%]">
+				<div className="w-[99%] share-content">
 					<Content
 						loading={loading}
 						files={SharedwithMe}
@@ -188,7 +188,7 @@ const Shared = () => {
 					/>
 				</div>
 			</div>
-			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-5">
+			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
 				<div>
 					<Content
 						loading={loading}
@@ -214,7 +214,7 @@ const Shared = () => {
 					/>
 				</div>
 			</div>
-		</div>
+		</section>
 
 	);
 };

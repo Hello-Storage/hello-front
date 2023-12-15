@@ -8074,11 +8074,6 @@ lightbox.js-react@^0.8.9:
     tslib "^2.3.1"
     usehooks-ts "^2.9.1"
 
-lightgallery@^2.7.1:
-  version "2.7.1"
-  resolved "https://registry.npmjs.org/lightgallery/-/lightgallery-2.7.1.tgz"
-  integrity sha512-NbXOzD2APY1OhOOn464jDsBZBaCRahUoLvBxhDFxvwJeC8hCkCIPYSjGgGTYINxVK09DKMsNDJzRr1ngH5nDdg==
-
 lilconfig@^2.0.5, lilconfig@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/lilconfig/-/lilconfig-2.1.0.tgz"
