@@ -598,7 +598,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         if (isLinkDisabled) {
           return;
         }
-        console.log("test");
         dispatch(refreshAction(true));
         break;
     }

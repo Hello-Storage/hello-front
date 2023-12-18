@@ -9,6 +9,7 @@ import { File as FileType } from "api";
 import Imageview from "components/ImageView/Imageview";
 import { useAppDispatch, useAppSelector } from "state";
 import { refreshAction } from "state/mystorage/actions";
+import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 
 export default function Api() {
     const [apiKey, setApiKey] = useState<string | null>(null);
@@ -22,6 +23,28 @@ export default function Api() {
     const [loading, setLoading] = useState(false);
     const [loaded, setloaded] = useState(false);
     const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
+    const [totalItems, setTotalItems] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(
+        window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 10 : 15
+    );
+    const [startIndex, setStartIndex] = useState(0);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setItemsPerPage(
+                window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 10 : 15
+            );
+        };
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
 
     const handleGenerate = () => {
         axios.post<{ api_key: string; api_key_expires_at: string }>("/api_key").then((res) => {
@@ -32,9 +55,14 @@ export default function Api() {
 
     useEffect(() => {
         if (apiKey) {
-            axios.get<{ files: FileType[] }>("/apikey/files").then((res) => {
-                const { files } = res.data;
+            setLoading(true)
+            axios.get<{ files: FileType[],totalItems: number ,totalPages: number }>("/file/apikey").then((res) => {
+                const { files, totalItems,totalPages } = res.data;
                 setCurrentFiles(files);
+                setTotalItems(totalItems)
+                setTotalPages(totalPages)
+                setStartIndex(1)
+                setLoading(false)
             }).catch(() => {
                 setCurrentFiles([])
             }).finally(() => {
@@ -42,7 +70,7 @@ export default function Api() {
             })
         }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refresh])
 
 
@@ -83,7 +111,7 @@ export default function Api() {
                             id="apikey" type="text" readOnly
                             value={apiKey}></input>
                         <button
-                            className="animated-bg-btn w-[80px] p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+                            className="animated-bg-btn min-w-[80px] w-[80px] p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
                             onClick={() => {
                                 //copy to clipboard
                                 navigator.clipboard.writeText(
@@ -116,6 +144,43 @@ export default function Api() {
                     setloaded={setloaded}
                 />
             </section>
+
+            <div className="flex-shrink-0 mb-[50px] sm:mb-0">
+                <div className="flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200">
+                    <div className="text-xs">
+                        Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
+                        {Math.min(endIndex, totalItems)} of {totalItems} results
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
+                                ? "cursor-not-allowed opacity-50"
+                                : "hover:bg-gray-200"
+                                }`}
+                            onClick={() =>
+                                setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+                            }
+                            disabled={currentPage === 1}
+                        >
+                            <HiChevronLeft className="w-5 h-5" />
+                            <span className="hidden md:inline">Prev</span>
+                        </button>
+                        <button
+                            className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
+                                ? "cursor-not-allowed opacity-50"
+                                : "hover:bg-gray-200"
+                                }`}
+                            onClick={() =>
+                                setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+                            }
+                            disabled={totalPages === 0 || currentPage === totalPages}
+                        >
+                            <span className="hidden md:inline">Next</span>{" "}
+                            <HiChevronRight className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+            </div>
             {/* lightbox */}
             <Imageview
                 isOpen={showPreview}

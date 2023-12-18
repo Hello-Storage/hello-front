@@ -53,31 +53,29 @@ export default function Home() {
   //pagination
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => {
-      // Set itemsPerPage to 5 if window width is less than 768px (mobile), else set it to 10 (desktop)
-      setItemsPerPage(window.innerWidth < 768 ? 6 : 10);
-    };
-
-    // Attach event listener
-    window.addEventListener("resize", handleResize);
-
-    // Call handler right away so state gets updated with initial window size
-    handleResize();
-
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const { folders, files, showPreview, path, showShareModal, refresh } = useAppSelector(
     (state) => state.mystorage
   );
 
-  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(
-    window.innerWidth < 768 ? 6 : 10
+    window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 10 : 15
   );
 
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPerPage(
+        window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 10 : 15
+      );
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
@@ -163,7 +161,7 @@ export default function Home() {
     }
   }
 
-  
+
   useEffect(() => {
     fetchContent().then(() => {
       setLoading(false);
@@ -181,7 +179,7 @@ export default function Home() {
   }, [path]);
 
   useEffect(() => {
-    if(window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder")){
+    if (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder")) {
       fetchRootContent()
       dispatch(refreshAction(true))
     }
