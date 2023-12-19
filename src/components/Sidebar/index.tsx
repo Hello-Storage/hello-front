@@ -72,11 +72,11 @@ const links2 = [
     available: true,
   },
   {
-    to: "/api",
+    to: "/space/api",
     outRef: false,
     icon: <img src={Key} alt="custom icon" className="w-6 h-6" />,
     content: "Api key",
-    available: false,
+    available: true,
   },
   {
     to: "/migration",
@@ -575,22 +575,31 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   const handleLinkClick = (v: any) => {
 
     setLinkDisabled(true);
+    switch (v.content) {
+      case "My storage":
+        if (isLinkDisabled) {
+          return;
+        }
+        if (!window.location.href.endsWith("/space/my-storage")) {
+          return
+        }
+        dispatch(refreshAction(true));
+        fetchRootContent();
+        break;
+      case "Shared":
 
-    if (v.content === "My storage") {
-      if (isLinkDisabled) {
-        return;
-      }
-      if(!window.location.href.endsWith("/space/my-storage")){
-        return
-      }
-      dispatch(refreshAction(true));
-      fetchRootContent();
-    } else if (v.content === "Shared") {
-      if (isLinkDisabled) {
-        return;
-      }
-      dispatch(refreshAction(true));
-      fetchSharedContent();
+        if (isLinkDisabled) {
+          return;
+        }
+        dispatch(refreshAction(true));
+        fetchSharedContent();
+        break;
+      case "Api key":
+        if (isLinkDisabled) {
+          return;
+        }
+        dispatch(refreshAction(true));
+        break;
     }
 
     setTimeout(() => {

@@ -17,7 +17,6 @@ Api.interceptors.response.use(
 	(res) => res,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(err: any) => {
-		console.log(err.response);
 		const error = err.response?.data.error;
 		if (
 			error &&
