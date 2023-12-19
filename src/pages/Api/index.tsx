@@ -10,14 +10,18 @@ import Imageview from "components/ImageView/Imageview";
 import { useAppDispatch, useAppSelector } from "state";
 import { refreshAction } from "state/mystorage/actions";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
+import ShareModal from "pages/Shared/Components/ShareModal";
+import { useNavigate } from "react-router-dom";
 
 export default function Api() {
     const [apiKey, setApiKey] = useState<string | null>(null);
     const dispatch = useAppDispatch();
-    const { showPreview, refresh } = useAppSelector(
-        (state) => state.mystorage
-    );
 
+    const {
+        refresh,
+        showShareModal,
+        showPreview,
+    } = useAppSelector((state) => state.mystorage);
     useApikey(setApiKey)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [loading, setLoading] = useState(false);
@@ -56,8 +60,8 @@ export default function Api() {
     useEffect(() => {
         if (apiKey) {
             setLoading(true)
-            axios.get<{ files: FileType[],totalItems: number ,totalPages: number }>("/file/apikey").then((res) => {
-                const { files, totalItems,totalPages } = res.data;
+            axios.get<{ files: FileType[], totalItems: number, totalPages: number }>("/file/apikey").then((res) => {
+                const { files, totalItems, totalPages } = res.data;
                 setCurrentFiles(files);
                 setTotalItems(totalItems)
                 setTotalPages(totalPages)
@@ -71,10 +75,12 @@ export default function Api() {
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [refresh])
+    }, [refresh, apiKey])
 
 
-    return (
+    return (<>
+
+        {showShareModal && <ShareModal />}
         <section className="flex flex-col w-full h-full">
             <h3 className="my-2 text-xl">Shared files</h3>
             <div className="flex items-center w-full gap-4 h-fit">
@@ -93,7 +99,7 @@ export default function Api() {
                 <button
                     className="animated-bg-btn w-[230px] mb-2 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
                     onClick={() => {
-                        console.log("test");
+                        window.open("https://docs.hello.app/api-key-documentation", '_blank')
                     }}
                 >
                     <span className="btn-transition"></span>
@@ -181,13 +187,15 @@ export default function Api() {
                     </div>
                 </div>
             </div>
-            {/* lightbox */}
-            <Imageview
-                isOpen={showPreview}
-                files={currentFiles}
-                loaded={loaded}
-                setloaded={setloaded}
-            ></Imageview>
         </section>
+        {/* lightbox */}
+        <Imageview
+            isOpen={showPreview}
+            files={currentFiles}
+            loaded={loaded}
+            setloaded={setloaded}
+        ></Imageview>
+    </>
+
     )
 }
