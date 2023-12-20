@@ -143,7 +143,6 @@ export const encryptWebkitRelativePath = async (
             encryptedPathComponents.push(encryptedPathsMapping[component]);
         } else {
             const encodedComponent = new TextEncoder().encode(component);
-            console.log()
             const encryptedComponentBuffer = await encryptBuffer(
                 false,
                 encodedComponent,
@@ -545,7 +544,9 @@ export const fileUpload = async (
 
                 // CIDs of files that were FOUND in S3 and need to be dispatched.
 
-                folderRootUID = res.data.firstRootUID;
+                if (folderRootUID === "")
+                    folderRootUID = res.data.firstRootUID;
+
 
                 // Dispatch actions for files that were found in S3.
                 if (res.data && Array.isArray(res.data.filesFound) && res.data.filesFound.length > 0) {
@@ -633,7 +634,9 @@ export const fileUpload = async (
                             });
 
                             const fileCreated = res.data.fileCreated;
-                            folderRootUID = res.data.firstRootUID;
+                            if (folderRootUID === "") {
+                                folderRootUID = res.data.firstRootUID;
+                            }
 
                             customFile.id = fileCreated?.id || 0;
                             customFile.uid = fileCreated?.uid || '';
@@ -683,7 +686,9 @@ export const fileUpload = async (
                             },
                         })
                             .then((res) => {
-                                folderRootUID = res.data.firstRootUID;
+                                if (folderRootUID === "")
+                                    folderRootUID = res.data.firstRootUID;
+
                                 const fileCreated = res.data.fileCreated;
 
 
@@ -787,7 +792,9 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
             .then((res) => {
                 // CIDs of files that were FOUND in S3 and need to be dispatched.
                 const filesFound: FileType[] = res.data.filesFound;
-                folderRootUID = res.data.firstRootUID;
+                if (folderRootUID === "")
+                    folderRootUID = res.data.firstRootUID;
+
 
                 // Dispatch actions for files that were found in S3.
                 filesToUpload = filesMap.filter((fileMap) => {
