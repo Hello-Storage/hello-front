@@ -125,11 +125,24 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
         return new TextDecoder().decode(decryptedValueArrayBuffer);
     }
 
-    const decryptedFilename = await decryptValue(encryptedFilenameBuffer)
+    const decryptedFilename = await decryptFilename(encryptedFilenameBase64Url, personalSignature)
+    if (!decryptedFilename) {
+        return;
+    }
     const decryptedCidOriginal = await decryptValue(encryptedCidOriginalBuffer)
     const decryptedFiletype = await decryptValue(encryptedFiletypeBuffer)
 
     return { decryptedFilename, decryptedFiletype, decryptedCidOriginal };
+}
+
+export const decryptFilename = async (encryptedFilenameBase64Url: string, personalSignature: string | undefined): Promise<string | undefined> => {
+    if (!personalSignature) {
+        logoutUser();
+        return;
+    }
+    const encryptedFilenameBuffer = base64UrlToBuffer(encryptedFilenameBase64Url)
+    const decryptedFilename = await decryptContent(encryptedFilenameBuffer, personalSignature);
+    return new TextDecoder().decode(decryptedFilename);
 }
 
 export const encryptBuffer = async (random: boolean, buffer: ArrayBuffer, personalSignature: string | undefined): Promise<Uint8Array | undefined> => {
