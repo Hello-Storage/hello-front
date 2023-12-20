@@ -38,7 +38,6 @@ export const handleEncryption = async (
     encryptionTime: number;
 } | null> => {
     const fileArrayBuffer = await file.arrayBuffer();
-    const encryptedPathsMapping: { [path: string]: string } = {};
 
     const encryptedMetadataResult = await encryptMetadata(
         file,
@@ -61,6 +60,7 @@ export const handleEncryption = async (
     const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
     const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
     const cidOriginalEncryptedBuffer = await encryptBuffer(
+        false,
         cidOriginalBuffer,
         personalSignature
     );
@@ -133,14 +133,20 @@ export const encryptWebkitRelativePath = async (
 
     const encryptedPathsMapping: { [path: string]: string } = {};
     const encryptedPathComponents = [];
+    let encryptedWebkitRelativePath = "";
+
+
 
     for (const component of pathComponents) {
         // If this component has been encrypted before, use the cached value
         if (encryptedPathsMapping[component]) {
             encryptedPathComponents.push(encryptedPathsMapping[component]);
         } else {
+            const encodedComponent = new TextEncoder().encode(component);
+            console.log()
             const encryptedComponentBuffer = await encryptBuffer(
-                new TextEncoder().encode(component),
+                false,
+                encodedComponent,
                 personalSignature
             );
             if (!encryptedComponentBuffer) {
@@ -154,7 +160,8 @@ export const encryptWebkitRelativePath = async (
     }
 
     // Reconstruct the encrypted webkitRelativePath
-    const encryptedWebkitRelativePath = encryptedPathComponents.join("/");
+    encryptedWebkitRelativePath = encryptedPathComponents.join("/");
+
     return encryptedWebkitRelativePath;
 }
 
@@ -284,7 +291,6 @@ export const uploadChunk = async (chunk: Blob, offset: number, cid: string, isLa
     formData.append('offset', offset.toString());
     formData.append('isLastChunk', isLastChunk.toString());
 
-    console.log("uploading multipart chunk")
     try {
         const response = await Api.post('/file/upload/multipart', formData, {
             headers: {
@@ -312,7 +318,7 @@ export const fileUpload = async (
     let outermostFolderTitle = "";
 
     if (isFolder && files.length > 0 && files[0].webkitRelativePath) {
-        outermostFolderTitle = files[0].webkitRelativePath.split("/")[1];
+        outermostFolderTitle = files[0].webkitRelativePath.split("/")[0];
     }
 
 
@@ -334,7 +340,6 @@ export const fileUpload = async (
         }
     }
 
-    const encryptedPathsMapping: { [path: string]: string } = {};
 
     let encryptionTimeTotal = 0;
 
@@ -360,6 +365,7 @@ export const fileUpload = async (
 
             const cidOriginalBuffer = new TextEncoder().encode(cidOriginal);
             const cidOriginalEncryptedBuffer = await encryptBuffer(
+                false,
                 cidOriginalBuffer,
                 personalSignature
             );
@@ -475,10 +481,6 @@ export const fileUpload = async (
                     encryptionTime,
                 } = encryptedResult;
 
-                console.log("cidOriginalStr: ", cidOriginalStr)
-                console.log("cidOfEncryptedBufferStr: ", cidOfEncryptedBufferStr)
-                console.log("cidOriginalEncryptedBase64Url: ", cidOriginalEncryptedBase64Url)
-                console.log("encryptedWebkitRelativePath: ", encryptedWebkitRelativePath)
 
                 file = encryptedFile;
 
@@ -540,40 +542,120 @@ export const fileUpload = async (
     if (multipartFiles.length > 0) {
         await Api.post(`/file/pool/check`, multipartFiles.map(({ customFile }) => customFile))
             .then(async (res) => {
-                console.log("multipartFiles:")
-                console.log(multipartFiles)
+
                 // CIDs of files that were FOUND in S3 and need to be dispatched.
 
                 folderRootUID = res.data.firstRootUID;
-                console.log("folderRootUID: ", folderRootUID)
-                console.log(res)
 
                 // Dispatch actions for files that were found in S3.
                 if (res.data && Array.isArray(res.data.filesFound) && res.data.filesFound.length > 0) {
+                    const usedFileIndices = new Set<number>();
                     const filesFound: FileType[] = res.data?.filesFound;
                     //dispatch fileFound
-                    filesFound.forEach((fileFound) => {
-                        multipartFiles.forEach(({ customFile, file, cidOriginal }, index) => {
-                            if (customFile.cid === fileFound.cid && customFile.id === 0) {
+                    multipartFiles.forEach(({ customFile, file, cidOriginal }, index) => {
+                        // Find a matching file in filesFound where the CID matches and it hasn't been used
+                        const foundIndex = filesFound.findIndex((fileFound, index) =>
+                            fileFound.cid === customFile.cid && !usedFileIndices.has(index)
+                        );
+                        if (foundIndex !== -1) {
+                            customFile.id = filesFound[foundIndex].id;
+                            customFile.uid = filesFound[foundIndex].uid;
+                            customFile.created_at = filesFound[foundIndex].created_at.toString();
+                            customFile.updated_at = filesFound[foundIndex].updated_at.toString();
+                            customFile.is_in_pool = filesFound[foundIndex].is_in_pool;
 
-                                console.log("customFile.id: ", customFile.id)
-                                console.log("fileFound.id: ", fileFound.id)
-                                customFile.id = fileFound.id;
-                                customFile.uid = fileFound.uid;
-                                customFile.created_at = fileFound.created_at.toString();
-                                customFile.updated_at = fileFound.updated_at.toString();
-                                customFile.is_in_pool = fileFound.is_in_pool;
+                            customFile.name = file.name;
+                            customFile.cid_original_encrypted = cidOriginal;
+                            customFile.mime_type = file.type;
 
-                                customFile.name = file.name;
-                                customFile.cid_original_encrypted = cidOriginal;
-                                customFile.mime_type = file.type;
-
-                                if (!isFolder) dispatch(createFileAction(customFile))
-
-                            }
-                        })
+                            if (!isFolder) dispatch(createFileAction(customFile))
+                            usedFileIndices.add(foundIndex)
+                        }
                     })
 
+                    // Remove the files that were found for later upload to S3
+                    const filesToUpload = multipartFiles.filter(({ customFile }) => {
+                        const isFound = filesFound.some(fileFound => fileFound.cid === customFile.cid);
+
+                        return !isFound;
+                    });
+
+
+                    //Refactorization:
+                    //Check both same unoploaded files in pool as normal
+                    //Returned files cids are then grouped by on frontend
+                    //Frontend creates processed cids, if cid chunks have
+                    //been uploaded previously, instead of file chunk upload
+                    //it directly creates file based on metadata marked as file exists in pool.
+
+                    //group filesToUpload by cid
+                    const filesToUploadGroupedByCid: { [cid: string]: { customFile: FileType, file: File }[] } = {};
+                    filesToUpload.forEach(fileMap => {
+                        const cid = fileMap.customFile.cid;
+                        if (!filesToUploadGroupedByCid[cid]) {
+                            filesToUploadGroupedByCid[cid] = [];
+                        }
+                        filesToUploadGroupedByCid[cid].push(fileMap);
+                    })
+
+                    // Mark the first file of each group as not in pool
+                    Object.values(filesToUploadGroupedByCid).forEach(filesGroup => {
+                        if (filesGroup.length > 0) {
+                            filesGroup[0].customFile.is_in_pool = false; // Set the first file to not in pool
+                        }
+                    });
+
+                    //iterate over each cid and upload chunks
+                    const uploadPromises = Object.keys(filesToUploadGroupedByCid).map(async (cid) => {
+                        const filesGroup = filesToUploadGroupedByCid[cid];
+                        const firstFile = filesGroup[0];
+
+                        if (firstFile) {
+                            let cidOriginalUnencrypted = "";
+                            if (firstFile.customFile.encryption_status === EncryptionStatus.Encrypted) {
+                                cidOriginalUnencrypted = firstFile.customFile.cid_original_unencrypted || "";
+                            }
+                            const { encryptionTime } = await uploadFileMultipart(filesToUpload[0].file, dispatch, encryptionEnabled, cidOriginalUnencrypted, filesToUpload[0].customFile.cid)
+                            encryptionTimeTotal += encryptionTime;
+                        }
+
+                    })
+
+                    await Promise.all(uploadPromises);
+
+                    // Post API metadata to /file/create, iterate over each cid from filesToUploadGroupedByCid
+                    const createPromises = filesToUpload.map(async ({ customFile }) => {
+                        try {
+                            const res = await Api.post("/file/create", customFile, {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            });
+
+                            const fileCreated = res.data.fileCreated;
+                            folderRootUID = res.data.firstRootUID;
+
+                            customFile.id = fileCreated?.id || 0;
+                            customFile.uid = fileCreated?.uid || '';
+                            customFile.created_at = fileCreated ? fileCreated.created_at.toString() : "";
+                            customFile.updated_at = fileCreated ? fileCreated.updated_at.toString() : "";
+
+                            customFile.is_in_pool = fileCreated?.is_in_pool || false;
+
+                            customFile.name = customFile.name_unencrypted || '';
+                            customFile.cid_original_encrypted = customFile.cid_original_unencrypted || '';
+                            customFile.mime_type = customFile.mime_type_unencrypted || '';
+
+                            if (!isFolder) {
+                                dispatch(createFileAction(customFile))
+                            }
+                        } catch (err) {
+                            console.log(err);
+                            toast.error("upload failed!");
+                        }
+                    });
+
+                    await Promise.all(createPromises);
 
                 } else {
 
@@ -657,7 +739,6 @@ export const fileUpload = async (
     }
 
 
-    console.log("folderRootUID: ", folderRootUID)
     if (filesMap.length === 0) {
         dispatch(
             setUploadStatusAction({
@@ -693,10 +774,6 @@ export const fileUpload = async (
 };
 
 export const postData = async (folderRootUID: string, formData: FormData, filesMap: { customFile: FileType, file: File }[], outermostFolderTitle: string, isFolder: boolean, dispatch: AppDispatch, onUploadProgress: (progressEvent: AxiosProgressEvent) => void, fetchUserDetail: () => void, root: string, encryptionEnabled: boolean | undefined) => {
-    console.log("folderRootUID2: ", folderRootUID)
-    console.log("outermostFolderTitle: ", outermostFolderTitle)
-    //custom files length
-    console.log("filesMap.length: ", filesMap.length)
 
 
     //iterate over each file and make a get request to check if cid exists in Api
@@ -754,6 +831,7 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
                         fileMap.customFile.uid = fileFound?.uid || '';
                         fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
                         fileMap.customFile.updated_at = fileFound ? fileFound.updated_at.toString() : "";
+
                         fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
 
                         fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
@@ -835,8 +913,6 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
         );
 
     }
-    console.log("folderRootUID: ", folderRootUID)
-    console.log("outermostFolderTitle: ", outermostFolderTitle)
     if (isFolder && folderRootUID !== "" && outermostFolderTitle !== "") {
         console.log("creating folder 2")
         dispatch(createFolderAction({

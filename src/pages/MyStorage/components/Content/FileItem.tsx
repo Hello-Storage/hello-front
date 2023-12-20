@@ -55,7 +55,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
 
   const onCopy = (event: React.MouseEvent) => {
     if (event.shiftKey) return;
-    copy(`https://hello.app/space/file/${file.uid}`);
+    copy(file.cid);
     toast.success("copied CID");
   };
 
@@ -235,12 +235,13 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
     // Make a request to delete the file with response code 200
     Api.delete(`/file/delete/${file.uid}`)
       .then((res) => {
+        console.log(res)
         toast.success("File deleted!");
         dispatch(removeFileAction(file.uid));
       })
       .catch((err) => {
         console.error("Error deleting file:", err);
-      });
+      })
   };
 
   if (view === "list")

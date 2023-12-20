@@ -132,13 +132,20 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
     return { decryptedFilename, decryptedFiletype, decryptedCidOriginal };
 }
 
-export const encryptBuffer = async (buffer: ArrayBuffer, personalSignature: string | undefined): Promise<Uint8Array | undefined> => {
+export const encryptBuffer = async (random: boolean, buffer: ArrayBuffer, personalSignature: string | undefined): Promise<Uint8Array | undefined> => {
     if (!personalSignature) {
         logoutUser();
         return;
     }
-    const salt = window.crypto.getRandomValues(new Uint8Array(16));
-    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    let salt: Uint8Array;
+    let iv: Uint8Array;
+    if (random) {
+        salt = window.crypto.getRandomValues(new Uint8Array(16));
+        iv = window.crypto.getRandomValues(new Uint8Array(12));
+    } else {
+        salt = new Uint8Array(16).fill(0);
+        iv = new Uint8Array(12).fill(0);
+    }
     const { aesKey } = await getAesKey(personalSignature, ['encrypt'], salt, iv);
 
     const cipherBytesArray = await getCipherBytes(buffer, aesKey, iv);
