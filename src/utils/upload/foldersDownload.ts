@@ -22,8 +22,8 @@ function containsSubArray(mainArray: Uint8Array, subArray: Uint8Array): boolean 
     return false;
 }
 
-function indexOfSubArray(mainArray: Uint8Array, subArray: Uint8Array): number {
-    for (let i = 0; i <= mainArray.length - subArray.length; i++) {
+function indexOfSubArray(mainArray: Uint8Array, subArray: Uint8Array, startFromIndex = 0): number {
+    for (let i = startFromIndex; i <= mainArray.length - subArray.length; i++) {
         let found = true;
         for (let j = 0; j < subArray.length; j++) {
             if (mainArray[i + j] !== subArray[j]) {
@@ -38,137 +38,200 @@ function indexOfSubArray(mainArray: Uint8Array, subArray: Uint8Array): number {
     return -1; // Return -1 if the subArray is not found
 }
 
+// Utility function to concatenate two Uint8Arrays
+function concatenateUint8Arrays(array1: Uint8Array, array2: Uint8Array): Uint8Array {
+    const tempBuffer = new Uint8Array(array1.length + array2.length);
+    tempBuffer.set(array1);
+    tempBuffer.set(array2, array1.length);
+    return tempBuffer;
+}
+
+const boundaryString = "\r\n--boundary\r\n"
+const endBoundaryString = "\r\n--boundary--\r\n"
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+const BOUNDARY_LENGTH = boundaryString.length;
+const BOUNDARY_ENCODED = new TextEncoder().encode(boundaryString);
+const END_BOUNDARY_ENCODED = new TextEncoder().encode(endBoundaryString);
+let previousEndSegment = new Uint8Array(BOUNDARY_LENGTH);
 
+export const downloadFolderMultipart = async (folder: Folder, dispatch: AppDispatch, personalSignature: string) => {
 
-export const downloadMultipartFolder = async (folder: Folder, dispatch: AppDispatch, personalSignature: string) => {
-    console.log("folder:")
-    console.log(folder);
-    const apiEndpoint = import.meta.env.VITE_API_ENDPOINT + `/folder/download/multipart/${folder.uid}`;
-    if (!localStorage.getItem("access_token")) {
-        logoutUser();
-    }
-
-    const response = await fetch(apiEndpoint, {
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("access_token"),
+    try {
+        const apiEndpoint = import.meta.env.VITE_API_ENDPOINT + `/folder/download/multipart/${folder.uid}`;
+        if (!localStorage.getItem("access_token")) {
+            logoutUser();
         }
-    });
 
-    if (!response.ok || !response.body) {
-        logoutUser();
-        throw new Error(`An error has occurred: ${response.status}`);
-    }
-
-    const reader = response.body.getReader();
-    let partBuffer = new Uint8Array();
-    let currentFileBuffer = new Uint8Array();
-    let currentFileInfo = null;
-    let boundary = null;
-
-    dispatch(setUploadStatusAction({
-        info: "Downloading...",
-        uploading: true,
-        size: 0, // Size is unknown in this case
-    }));
-
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        // Accumulate the received value into the partBuffer
-        const tempBuffer = new Uint8Array(partBuffer.length + value.length);
-        tempBuffer.set(partBuffer, 0);
-        tempBuffer.set(value, partBuffer.length);
-        partBuffer = tempBuffer;
-
-        // Process the accumulated partBuffer
-        // Check for boundary only if it's known
-        const encodedBoundary = new TextEncoder().encode("--" + boundary);
-        while ((boundary === null || containsSubArray(partBuffer, encodedBoundary)) && partBuffer.length > 0) {
-            // Find the boundary if not already found
-            if (!boundary) {
-                const boundaryMatch = /--(\S+)/.exec(new TextDecoder().decode(partBuffer));
-                if (boundaryMatch) {
-                    boundary = boundaryMatch[1];
-                    partBuffer = partBuffer.slice(boundaryMatch[0].length); // Remove boundary from buffer
-                }
+        const response = await fetch(apiEndpoint, {
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("access_token"),
             }
+        });
 
-            // Find end of headers
-            const doubleNewLine = new TextEncoder().encode("\r\n\r\n");
-            const headerEndIndex = partBuffer.findIndex((element, index, array) => {
-                return array.slice(index, index + 4).every((value, idx) => value === doubleNewLine[idx]);
-            });
+        if (!response.ok || !response.body) {
+            logoutUser();
+            throw new Error(`An error has occurred: ${response.status}`);
+        }
 
-            if (headerEndIndex !== -1) {
-                const headersPart = new TextDecoder().decode(partBuffer.slice(0, headerEndIndex));
-                const contentDispositionMatch = /Content-Disposition: attachment; filename="?([^"]+)"?/.exec(headersPart);
-                let fileName = contentDispositionMatch ? contentDispositionMatch[1] : "";
-                if (fileName !== "") {
-                    const decryptedFilename = await decryptFilename(fileName, personalSignature);
-                    if (decryptedFilename) {
-                        fileName = decryptedFilename;
+        console.log("Starting download process...")
+
+        const reader = response.body.getReader();
+        let accumulated = new Uint8Array();
+
+        console.log("Initialized variables")
+
+        let aesKey: CryptoKey | undefined;
+        let iv;
+        let totalProcessed = 0;
+
+        dispatch(setUploadStatusAction({
+            info: "Downloading...",
+            uploading: true,
+            size: 0,
+        }));
+
+        const stream = new ReadableStream({
+            async pull(controller) {
+                console.log("Reading stream...")
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        console.log("Stream reading completed")
+                        controller.close();
+                        break;
                     }
-                } else {
-                    fileName = folder.title;
+
+                    // Combine the end of the previous chunk with the start of the new chunk
+                    const combinedData = concatenateUint8Arrays(previousEndSegment, value);
+
+
+                    // Check for a boundary in the combined segment
+                    let boundaryIndex = indexOfSubArray(combinedData, BOUNDARY_ENCODED, 0);
+                    while (boundaryIndex !== -1) {
+                        const nextBoundaryIndex = indexOfSubArray(combinedData, BOUNDARY_ENCODED, boundaryIndex + BOUNDARY_LENGTH);
+                        const boundaryEnd = nextBoundaryIndex !== -1 ? nextBoundaryIndex : combinedData.length;
+                        const segment = combinedData.slice(boundaryIndex + BOUNDARY_LENGTH, boundaryEnd);
+
+                        // Process the segment (decrypt, enqueue, etc.)
+
+                        console.log(`Processed segment, size: ${segment.length} bytes`);
+                        boundaryIndex = nextBoundaryIndex;
+
+                    }
+
+                    accumulated = concatenateUint8Arrays(accumulated, value);
+                    //console.log(`Read ${value.length} bytes from stream`)
+
+                    let startIndex = 0;
+                    // Process each file in the multipart response
+                    while (startIndex < accumulated.length) {
+                        console.log(`Processing from startIndex: ${startIndex}`)
+                        const boundaryIndex = indexOfSubArray(accumulated, new TextEncoder().encode(boundaryString), startIndex);
+                        if (boundaryIndex === -1) {
+                            console.log("boundaryIndex not found, waiting for more data")
+                            break;
+                        }
+
+
+
+                        // Find end of headers
+                        const doubleNewLine = new TextEncoder().encode("\r\n\r\n");
+                        const headerEndIndex = accumulated.indexOf(doubleNewLine[0], boundaryIndex + boundaryString.length);
+                        if (headerEndIndex === -1) break; // Headers not complete yet
+                        // Extract file name from headers
+                        const headersPart = new TextDecoder().decode(accumulated.slice(0, headerEndIndex));
+                        const match = /Content-Disposition: attachment; filename="?([^"]+)"?/.exec(headersPart);
+
+                        const fileName = match ? match[1] : "unknown";
+                        const decryptedFilename = await decryptFilename(fileName, personalSignature);
+
+                        // Extract file content
+                        const fileContentStartIndex = headerEndIndex + 4; // Skip past "\r\n\r\n"
+                        const nextBoundaryIndex = indexOfSubArray(accumulated, new TextEncoder().encode(boundaryString), fileContentStartIndex);
+                        if (nextBoundaryIndex === -1) {
+                            if (accumulated.length > CHUNK_SIZE) {
+                                console.error("Next boundary not found, but accumulated size is larger than CHUNK_SIZE")
+                                throw new Error("Next boundary not found, but accumulated size is larger than CHUNK_SIZE");
+                            }
+                            break; // Wait for more data
+                        }
+                        console.log("Next boundary found")
+
+
+                        console.log(`File boundary reached. File name: ${decryptedFilename}, File content size: ${fileContent.length} bytes`);
+
+                        const fileContent = accumulated.slice(fileContentStartIndex, nextBoundaryIndex);
+
+
+
+
+
+                        // Decrypt if needed
+                        if (folder.encryption_status === "encrypted") {
+                            if (!aesKey || !iv) {
+                                // Obtain AES key and IV for the first chunk
+                                // Use your decryption method here
+                            }
+                            // Decrypt fileContent using aesKey and iv
+                        }
+
+
+
+
+
+                        controller.enqueue(fileContent);
+                        totalProcessed += fileContent.length;
+                        dispatch(setUploadStatusAction({ read: totalProcessed }));
+
+
+                        console.log(`Processed file: ${decryptedFilename}, size: ${fileContent.length} bytes`);
+                        // Update startIndex for next iteration
+                        startIndex = nextBoundaryIndex + boundaryString.length;
+                        console.log("startIndex", startIndex)
+
+                        // Update accumulated buffer to remove processed content
+                        accumulated = accumulated.slice(startIndex);
+
+                        // Update the previousEndSegment for the next iteration
+                        if (value.length >= BOUNDARY_LENGTH) {
+                            previousEndSegment = value.slice(-BOUNDARY_LENGTH);
+                        }
+
+
+                    }
+
+
+                    // Check for end boundary
+                    if (indexOfSubArray(combinedData, END_BOUNDARY_ENCODED) !== -1) {
+                        console.log("End boundary found");
+                        break;
+                    }
+
+                    // Update previousEndSegment for the next iteration
+                    previousEndSegment = combinedData.slice(-BOUNDARY_LENGTH);
+
+
                 }
 
-                if (currentFileInfo && currentFileInfo.fileName !== fileName) {
-                    console.log(`Processing file ${currentFileInfo.fileName}, Size: ${currentFileBuffer.length}`);
-                    // New file, process the accumulated currentFileBuffer
-                    processDownloadedFile(currentFileBuffer, currentFileInfo, dispatch);
-                    currentFileBuffer = new Uint8Array();
-                }
-
-                currentFileInfo = { fileName };
-                partBuffer = partBuffer.slice(headerEndIndex + 4); // Skip past headers
-
+                controller.close();
             }
+        });
 
-            // Find end of file part
-            const encodedBoundary = new TextEncoder().encode("\r\n--" + boundary);
-            const nextBoundaryIndex = indexOfSubArray(partBuffer, encodedBoundary);
 
-            if (nextBoundaryIndex !== -1) {
-                // Accumulate the file part into currentFileBuffer
-                // Slice out the file part just before the boundary starts
-                const filePart = partBuffer.slice(0, nextBoundaryIndex);
-                console.log(`filePart Size: ${filePart.length}`)
-                currentFileBuffer = new Uint8Array([...currentFileBuffer, ...filePart]);
-                console.log(`currentFileBuffer Size after adding filePart: ${currentFileBuffer.length}`)
-
-                partBuffer = partBuffer.slice(nextBoundaryIndex + encodedBoundary.length); // Skip past file part
-            } else {
-                // If the next boundary is not found, accumulate the whole partBuffer into currentFileBuffer
-                currentFileBuffer = new Uint8Array([...currentFileBuffer, ...partBuffer]);
-                partBuffer = new Uint8Array();
-            }
-            console.log(`partBuffer Size after processing: ${partBuffer.length}`)
-        }
+        const responseBlob = new Response(stream);
+        const blob = new Blob([await responseBlob.blob()], { type: "application/octet-stream" });
+        dispatch(setUploadStatusAction({
+            info: "Finished downloading data",
+            uploading: false,
+        }));
+        triggerDownload(blob, `${folder.title}.zip`);
+    } catch (error) {
+        console.error("Failed to fetch:", error);
+        dispatch(setUploadStatusAction({
+            info: "Failed to download data",
+            uploading: false,
+        }));
     }
-
-    // Process the last file
-    if (currentFileInfo) {
-        processDownloadedFile(currentFileBuffer, currentFileInfo, dispatch);
-    }
-
-    dispatch(setUploadStatusAction({
-        info: "Finished downloading data",
-        uploading: false,
-    }));
-};
-
-const processDownloadedFile = (fileBuffer: Uint8Array, fileInfo: { fileName: string }, dispatch: AppDispatch) => {
-    // TODO: Add decryption if needed
-    const blob = new Blob([fileBuffer], { type: "application/octet-stream" });
-    console.log("fileBuffer length:")
-    console.log(fileInfo)
-    triggerDownload(blob, fileInfo.fileName);
-    dispatch(setUploadStatusAction({
-        info: `Downloaded ${fileInfo.fileName}`,
-        uploading: false,
-    }));
 };
 
 const triggerDownload = (blob: Blob, filename: string) => {

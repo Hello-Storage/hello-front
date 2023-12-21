@@ -30,7 +30,7 @@ import { removeFolder } from "state/mystorage/actions";
 dayjs.extend(relativeTime);
 
 import React from "react";
-import { downloadMultipartFolder } from "utils/upload/foldersDownload";
+import { downloadFolderMultipart } from "utils/upload/foldersDownload";
 
 interface FolderItemProps {
   folder: Folder;
@@ -64,7 +64,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
       toast.error("Failed ta get personal signature");
       return;
     }
-    downloadMultipartFolder(folder, dispatch, personalSignature);
+    downloadFolderMultipart(folder, dispatch, personalSignature);
     /*
     // Make a request to download the file with responseType 'blob'
     Api.get(`/folder/download/${folder.uid}`)
