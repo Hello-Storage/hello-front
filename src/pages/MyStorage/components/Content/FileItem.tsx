@@ -36,7 +36,7 @@ import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { removeFileAction } from "state/mystorage/actions";
-import { downloadMultipart, viewMultipart } from "utils/upload/filesDownload";
+import { downloadMultipart, triggerDownload, viewMultipart } from "utils/upload/filesDownload";
 const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB or 10000 bytes
 
 dayjs.extend(relativeTime);
@@ -78,12 +78,22 @@ const FileItem: React.FC<FileItemProps> = ({ file, view }) => {
   };
 
   // Function to handle file download
-  const handleDownload = () => {
+  const handleDownload = async () => {
     viewRef.current = false;
     toast.info("Starting download for " + file.name + "...");
     // Make a request to download the file with responseType 'blob'
     if (file.size > MULTIPART_THRESHOLD) {
-      downloadMultipart(file, dispatch)
+      const blob = await downloadMultipart(file, dispatch)
+
+
+      dispatch(
+        setUploadStatusAction({
+          info: "Finished downloading data",
+          uploading: false,
+        })
+      );
+      triggerDownload(blob, file.name);
+
     } else {
       Api.get(`/file/download/${file.uid}`, {
         responseType: "blob",

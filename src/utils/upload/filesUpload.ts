@@ -144,7 +144,7 @@ export const encryptWebkitRelativePath = async (
         } else {
             const encodedComponent = new TextEncoder().encode(component);
             const encryptedComponentBuffer = await encryptBuffer(
-                false,
+                true,
                 encodedComponent,
                 personalSignature
             );

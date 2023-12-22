@@ -115,20 +115,13 @@ export const downloadMultipart = async (file: FileType, dispatch: AppDispatch) =
 
     // Create blob for download
     const responseBlob = new Response(stream);
-    const blob = new Blob([await responseBlob.blob()], { type: file.mime_type });
-    dispatch(
-        setUploadStatusAction({
-            info: "Finished downloading data",
-            uploading: false,
-        })
-    );
-    triggerDownload(blob, file.name);
+    return new Blob([await responseBlob.blob()], { type: file.mime_type });
 };
 
 
 
 
-const triggerDownload = (blob: Blob, filename: string) => {
+export const triggerDownload = (blob: Blob, filename: string) => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

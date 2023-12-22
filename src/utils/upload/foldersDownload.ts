@@ -1,10 +1,141 @@
 import { AppDispatch } from "state";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { logoutUser } from "state/user/actions";
-import { decryptContentUtil, decryptFilename, getAesKey } from "utils/encryption/filesCipher";
-import { Folder } from "api";
+import { decryptFileBuffer, decryptFilePath, decryptFilename, decryptMetadata, getAesKey, handleEncryptedFiles, hexToBuffer } from "utils/encryption/filesCipher";
+import { Api, EncryptionStatus, File as FileType, Folder } from "api";
 import { toast } from "react-toastify";
-import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
+import JSZip from "jszip";
+import { downloadMultipart } from "./filesDownload";
+
+const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB or 10000 bytes
+
+export const folderDownload = async (personalSignature: string, folder: Folder, dispatch: AppDispatch) => {
+    const zipMultipart = new JSZip();
+    const zip = new JSZip();
+    let filesList: FileType[] = [];
+    //make an Api  request to get list of files of a folder
+    const res = await Api.get(`/folder/files/${folder.uid}`)
+        .catch((err) => {
+            console.error("Error downloading folder:", err);
+        })
+
+    if (!res) {
+        return;
+    }
+
+    filesList = res.data.files;
+
+    console.log("filesList", filesList)
+
+    //iterate through the files and decrypt them
+    const decryptedFiles = await handleEncryptedFiles(
+        filesList,
+        personalSignature,
+    );
+
+    console.log("decryptedFiles", decryptedFiles)
+
+    if (!decryptedFiles) {
+        return;
+    }
+
+    for (const file of decryptedFiles) {
+        if (file.size > MULTIPART_THRESHOLD) {
+            const fileDataBlob = await downloadMultipart(file, dispatch);
+            console.log("downloading file:", file.name)
+            console.log(file.path)
+            zipMultipart.file(file.path, fileDataBlob, { binary: true });
+        }
+    }
+
+    //Generate the ZIP file and trigger the download
+    zipMultipart.generateAsync({ type: "blob" }).then((content) => {
+        const url = window.URL.createObjectURL(content);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${folder.title}.zip`; // Set the file name
+        a.click(); // Trigger the download
+        // Clean up
+        window.URL.revokeObjectURL(url);
+    });
+
+
+    // Make a request to download the file with responseType 'blob'
+    Api.get(`/folder/download/${folder.uid}`)
+        .then(async (res) => {
+
+            // Iterate through the files and add them to the ZIP
+            for (const file of res.data.files) {
+                console.log(file)
+                const fileData = atob(file.data);
+                if (file.encryption_status === EncryptionStatus.Encrypted) {
+                    const decryptionResult = await decryptMetadata(
+                        file.name,
+                        file.mime_type,
+                        file.cid_original_encrypted,
+                        personalSignature
+                    );
+                    if (!decryptionResult) {
+                        logoutUser();
+                        return;
+                    }
+                    const {
+                        decryptedFilename,
+                        decryptedFiletype,
+                        decryptedCidOriginal,
+                    } = decryptionResult;
+                    const stringToArrayBuffer = (str: string): ArrayBuffer => {
+                        const buf = new ArrayBuffer(str.length);
+                        const bufView = new Uint8Array(buf);
+                        for (let i = 0; i < str.length; i++) {
+                            bufView[i] = str.charCodeAt(i);
+                        }
+                        return buf;
+                    };
+
+                    //transform fileData string to Array Buffer
+                    const fileDataBufferEncrypted = stringToArrayBuffer(fileData);
+                    const fileDataBuffer = await decryptFileBuffer(
+                        fileDataBufferEncrypted,
+                        decryptedCidOriginal,
+                        () => void 0
+                    );
+                    if (!fileDataBuffer) {
+                        toast.error("Failed to decrypt file");
+                        return;
+                    }
+                    //transform buffer to Blob
+                    const fileDataBlob = new Blob([fileDataBuffer], {
+                        type: decryptedFiletype,
+                    });
+
+                    const decryptedFilePath = await decryptFilePath(
+                        file.path,
+                        decryptedFilename,
+                        personalSignature
+                    );
+
+                    zip.file(decryptedFilePath, fileDataBlob, { binary: true });
+                } else {
+                    zip.file(file.path, fileData, { binary: true });
+                }
+            }
+
+            //Generate the ZIP file and trigger the download
+            zip.generateAsync({ type: "blob" }).then((content) => {
+                const url = window.URL.createObjectURL(content);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${folder.title}.zip`; // Set the file name
+                a.click(); // Trigger the download
+                // Clean up
+                window.URL.revokeObjectURL(url);
+            });
+        })
+        .catch((err) => {
+            console.error("Error downloading folder:", err);
+        });
+}
 
 function containsSubArray(mainArray: Uint8Array, subArray: Uint8Array): boolean {
     for (let i = 0; i <= mainArray.length - subArray.length; i++) {

@@ -447,7 +447,30 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
     }
 }
 
-export const handleEncryptedFiles = async (files: FileType[], personalSignature: string, name: string, autoEncryptionEnabled: boolean, accountType: string | undefined, logout: () => void) => {
+export const decryptFilePath = async (encryptedPath: string, decryptedFilename: string, personalSignature: string | undefined): Promise<string> => {
+
+    const decryptedPathComponents = [];
+    const pathComponents = encryptedPath.split("/");
+    // Decrypt the path components
+    for (let i = 0; i < pathComponents.length - 1; i++) {
+        const component = pathComponents[i];
+        const encryptedComponentUint8Array = hexToBuffer(component);
+
+        const decryptedComponentBuffer = await decryptContent(
+            encryptedComponentUint8Array,
+            personalSignature
+        );
+        const decryptedComponentStr = new TextDecoder().decode(
+            decryptedComponentBuffer
+        );
+        decryptedPathComponents.push(decryptedComponentStr);
+    }
+    decryptedPathComponents.push(decryptedFilename);
+
+    return decryptedPathComponents.join("/");
+}
+
+export const handleEncryptedFiles = async (files: FileType[], personalSignature: string) => {
 
     if (personalSignature === undefined) {
         return;
@@ -462,17 +485,25 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignature:
                     file.cid_original_encrypted,
                     personalSignature
                 );
+
+
+
+
                 if (decryptionResult) {
                     const {
                         decryptedFilename,
                         decryptedFiletype,
                         decryptedCidOriginal,
                     } = decryptionResult;
+
+                    const decryptedFilePath = await decryptFilePath(file.path, decryptedFilename, personalSignature)
+
                     return {
                         ...file,
                         name: decryptedFilename,
                         mime_type: decryptedFiletype,
                         cid_original_encrypted: decryptedCidOriginal,
+                        path: decryptedFilePath,
                         decrypted: true,
                     };
                 }

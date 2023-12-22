@@ -30,7 +30,7 @@ import { removeFolder } from "state/mystorage/actions";
 dayjs.extend(relativeTime);
 
 import React from "react";
-import { downloadFolderMultipart } from "utils/upload/foldersDownload";
+import { downloadFolderMultipart, folderDownload } from "utils/upload/foldersDownload";
 
 interface FolderItemProps {
   folder: Folder;
@@ -64,97 +64,14 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
       toast.error("Failed ta get personal signature");
       return;
     }
-    downloadFolderMultipart(folder, dispatch, personalSignature);
-    /*
-    // Make a request to download the file with responseType 'blob'
-    Api.get(`/folder/download/${folder.uid}`)
-      .then(async (res) => {
-        const zip = new JSZip();
+    //downloadFolderMultipart(folder, dispatch, personalSignature);
 
-        // Iterate through the files and add them to the ZIP
-        for (const file of res.data.files) {
-          const fileData = atob(file.data);
-          if (file.encryption_status === EncryptionStatus.Encrypted) {
-            const decryptionResult = await decryptMetadata(
-              file.name,
-              file.mime_type,
-              file.cid_original_encrypted,
-              personalSignature
-            );
-            if (!decryptionResult) {
-              logoutUser();
-              return;
-            }
-            const {
-              decryptedFilename,
-              decryptedFiletype,
-              decryptedCidOriginal,
-            } = decryptionResult;
-            const stringToArrayBuffer = (str: string): ArrayBuffer => {
-              const buf = new ArrayBuffer(str.length);
-              const bufView = new Uint8Array(buf);
-              for (let i = 0; i < str.length; i++) {
-                bufView[i] = str.charCodeAt(i);
-              }
-              return buf;
-            };
+    folderDownload(personalSignature, folder, dispatch).catch((err) => {
+      console.error(err);
+      toast.error("Error downloading folder");
+    });
 
-            //transform fileData string to Array Buffer
-            const fileDataBufferEncrypted = stringToArrayBuffer(fileData);
-            const fileDataBuffer = await decryptFileBuffer(
-              fileDataBufferEncrypted,
-              decryptedCidOriginal,
-              () => void 0
-            );
-            if (!fileDataBuffer) {
-              toast.error("Failed to decrypt file");
-              return;
-            }
-            //transform buffer to Blob
-            const fileDataBlob = new Blob([fileDataBuffer], {
-              type: decryptedFiletype,
-            });
 
-            const decryptedPathComponents = [];
-            const pathComponents = file.path.split("/");
-            // Decrypt the path components
-            for (let i = 0; i < pathComponents.length - 1; i++) {
-              const component = pathComponents[i];
-              const encryptedComponentUint8Array = hexToBuffer(component);
-
-              const decryptedComponentBuffer = await decryptContent(
-                encryptedComponentUint8Array,
-                personalSignature
-              );
-              const decryptedComponentStr = new TextDecoder().decode(
-                decryptedComponentBuffer
-              );
-              decryptedPathComponents.push(decryptedComponentStr);
-            }
-            decryptedPathComponents.push(decryptedFilename);
-
-            const decryptedFilePath = decryptedPathComponents.join("/");
-            zip.file(decryptedFilePath, fileDataBlob, { binary: true });
-          } else {
-            zip.file(file.path, fileData, { binary: true });
-          }
-        }
-
-        //Generate the ZIP file and trigger the download
-        zip.generateAsync({ type: "blob" }).then((content) => {
-          const url = window.URL.createObjectURL(content);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `${folder.title}.zip`; // Set the file name
-          a.click(); // Trigger the download
-          // Clean up
-          window.URL.revokeObjectURL(url);
-        });
-      })
-      .catch((err) => {
-        console.error("Error downloading folder:", err);
-      });
-      */
   };
 
   const handleDelete = () => {
