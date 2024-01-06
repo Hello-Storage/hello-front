@@ -38,16 +38,22 @@ const initialState: MyStorageProps = {
   selectedShareFile: undefined,
 };
 
+
 export default createReducer<MyStorageProps>(initialState, (builder) => {
   builder
     .addCase(fetchContentAction, (state, { payload }) => ({
       ...state,
       ...payload,
     }))
-    .addCase(createFolderAction, (state, { payload }) => ({
-      ...state,
-      folders: [...state.folders, payload],
-    }))
+    .addCase(createFolderAction, (state, { payload }) => {
+      const doesFolderExist = state.folders.some(folder => folder.root === payload.root);
+
+      if (!doesFolderExist) {
+        // Only add the folder if it doesn't exist
+        state.folders = [...state.folders, payload];
+      }
+      
+    })
     .addCase(setImageViewAction, (state, { payload }) => ({
       ...state,
       preview: payload.img,

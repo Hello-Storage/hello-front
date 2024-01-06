@@ -144,7 +144,7 @@ export const encryptWebkitRelativePath = async (
         } else {
             const encodedComponent = new TextEncoder().encode(component);
             const encryptedComponentBuffer = await encryptBuffer(
-                true,
+                false,
                 encodedComponent,
                 personalSignature
             );
@@ -387,6 +387,7 @@ export const fileUpload = async (
                 encryptedWebkitRelativePath = encryptedWebkitRelativePathTemp;
             }
             let customFile: FileType;
+            console.log("encryptedWebkitRelativePath", encryptedWebkitRelativePath)
 
 
             let _cidOfEncryptedBufferStr = "";

@@ -59,7 +59,14 @@ export const folderDownload = async (personalSignature: string, folder: Folder, 
         window.URL.revokeObjectURL(url);
     });
 
+    dispatch(setUploadStatusAction({
+        info: "Done!",
+        uploading: false,
+        size: 100,
+        read: 100,
+    }));
 
+    /*
     // Make a request to download the file with responseType 'blob'
     Api.get(`/folder/download/${folder.uid}`)
         .then(async (res) => {
@@ -135,6 +142,7 @@ export const folderDownload = async (personalSignature: string, folder: Folder, 
         .catch((err) => {
             console.error("Error downloading folder:", err);
         });
+        */
 }
 
 function containsSubArray(mainArray: Uint8Array, subArray: Uint8Array): boolean {
