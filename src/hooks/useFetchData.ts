@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Api, RootResponse, SharedResponse, UserDetailResponse } from "api";
 import { useAppDispatch } from "state";
-import { fetchContentAction } from "state/mystorage/actions";
+import { fetchContentAction, fetchSharedContentAction } from "state/mystorage/actions";
 import { loadUserDetail } from "state/userdetail/actions";
 import { toast } from "react-toastify";
 import { handleEncryptedFolders } from "utils/encryption/filesCipher";
@@ -19,7 +20,6 @@ const useFetchData = () => {
       if (location.pathname.includes("/space/folder")) {
         root = "/folder/" + location.pathname.split("/")[3];
       }
-
       Api.get<RootResponse>(root)
         .then(async (res) => {
           personalSignatureRef.current =
@@ -56,51 +56,56 @@ const useFetchData = () => {
             ...res.data,
             files: sortedFiles,
             folders: sortedFolders,
-            path: decryptedPath,
-            sharedFiles: {
-              sharedWithMe: [],
-              sharedByMe: [],
-            }
+            path: decryptedPath
           };
 
           dispatch(
             fetchContentAction(resDataA)
           );
-          Api.get<SharedResponse>("/user/shared/general")
-            .then((res) => {
-
-              const FsharedWithMe = res.data.SharedWithMe ? res.data.SharedWithMe : [];
-              const FsharedByMe = res.data.SharedByMe ? res.data.SharedByMe : [];
-              const sortedFileSharedW = FsharedWithMe.sort(
-                (a, b) =>
-                  new Date(b.created_at).getTime() -
-                  new Date(a.created_at).getTime()
-              );
-
-              const sortedFilesSharedB = FsharedByMe.sort(
-                (a, b) =>
-                  new Date(b.created_at).getTime() -
-                  new Date(a.created_at).getTime()
-              );
-              dispatch(
-                fetchContentAction({
-                  ...resDataA,
-                  sharedFiles: {
-                    sharedWithMe: sortedFileSharedW,
-                    sharedByMe: sortedFilesSharedB,
-                  }
-                })
-              );
-            })
-            .catch((err) => {
-              console.error("Error fetching data:", err);
-            })
-            .finally(() => {
-              if (setLoading) setLoading(false);
-            });
         })
         .catch((err) => {
           console.log(err);
+        })
+        .finally(() => {
+          if (setLoading) setLoading(false);
+        });
+    },
+    [location.pathname]
+  );
+  const fetchSharedContent = useCallback(
+    (setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
+      if (setLoading) setLoading(true);
+
+      Api.get<SharedResponse>("/user/shared/general")
+        .then((res) => {
+
+          const FsharedWithMe = res.data.SharedWithMe ? res.data.SharedWithMe : [];
+          const FsharedByMe = res.data.SharedByMe ? res.data.SharedByMe : [];
+          const sortedFileSharedW = FsharedWithMe.sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          );
+
+          const sortedFilesSharedB = FsharedByMe.sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          );
+          dispatch(
+            fetchSharedContentAction({
+              sharedFiles: {
+                sharedWithMe: sortedFileSharedW,
+                sharedByMe: sortedFilesSharedB,
+              }
+            })
+          );
+        })
+        .catch((err) => {
+          console.error("Error fetching data:", err);
+        })
+        .finally(() => {
+          if (setLoading) setLoading(false);
         });
     },
     [location.pathname]
@@ -119,7 +124,8 @@ const useFetchData = () => {
 
   return {
     fetchRootContent,
-    fetchUserDetail,
+    fetchUserDetail, 
+    fetchSharedContent
   };
 };
 

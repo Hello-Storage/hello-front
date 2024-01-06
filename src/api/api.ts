@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 import state from "state";
 import { logoutUser } from "state/user/actions";
 
@@ -14,18 +15,22 @@ export const Api = axios.create({
 
 Api.interceptors.response.use(
 	(res) => res,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(err: any) => {
 		const error = err.response?.data.error;
-
 		if (
-			!localStorage.getItem("access_token") &&
-			err.response?.status === 401 &&
 			error &&
+			err.response?.status === 401 &&
 			[
 				"authorization header is not provided",
 				"token has expired",
 			].includes(error)
 		) {
+			if (localStorage.getItem("access_token") &&
+				!(document.location.pathname.endsWith("/login") || document.location.pathname.endsWith("/stats"))) {
+				toast.error("Session Expired")
+				localStorage.removeItem("access_token")
+			}
 			state.dispatch(logoutUser());
 		}
 		return Promise.reject(err);

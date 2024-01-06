@@ -9,6 +9,7 @@ $background-color_1: #166534;
 	-ms-transition: all 0.3s ease;
 	-o-transition: all 0.3s ease;
 	* {
+		cursor: pointer !important;
 		transition: all 0.3s ease;
 		-webkit-transition: all 0.3s ease;
 		-moz-transition: all 0.3s ease;
@@ -38,6 +39,7 @@ $background-color_1: #166534;
 		}
 	}
 }
+
 .btn-transition {
 	background-color: $background-color_1;
 	border-radius: 50%;

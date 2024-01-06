@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import getAccountType from "api/getAccountType";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAuth, useDropdown, useFetchData } from "hooks";
@@ -6,19 +7,22 @@ import { HiPlus } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "state";
 import { Api, EncryptionStatus, File as FileType } from "api";
 import { toast } from "react-toastify";
+import { PiShareFatFill } from "react-icons/pi";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
+import { getCid } from "utils/encryption/filesCipher";
 import {
-	bufferToBase64Url,
-	bufferToHex,
-	encryptBuffer,
-	encryptFileBuffer,
-	encryptMetadata,
-	getCid,
-} from "utils/encryption/filesCipher";
-import { createFileAction, createFolderAction, setSelectedSharedFiles } from "state/mystorage/actions";
-import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
+	createFileAction,
+	createFolderAction,
+	setSelectedSharedFiles,
+} from "state/mystorage/actions";
+import { AxiosProgressEvent, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
+import { shareDetails } from "./shareDetails";
+import { useShareGroup } from "../Utils/useShareGroup";
+import { Spinner5 } from "components/Spinner";
+import { FaPlusCircle } from "react-icons/fa";
+import { isValidEmail } from "utils/validations";
 
 interface UploadShareModalProps {
 	isOpen: boolean;
@@ -34,6 +38,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
 		(state) => state.userdetail
 	);
+	const [Procesing, setProcesing] = useState(false);
 	const { fetchUserDetail } = useFetchData();
 	const { name } = useAppSelector((state) => state.user);
 	const accountType = getAccountType();
@@ -43,233 +48,83 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const dropRef = useRef<HTMLDivElement>(null);
 	const [open, setOpen] = useState(false);
 	useDropdown(dropRef, open, setOpen);
-
+	const fileInput = useRef<HTMLInputElement>(null);
 	const closeShareModal = () => {
+		setProcesing(false);
 		setIsopen(false);
+		fetchRootContent();
 	};
-
 	const dispatch = useAppDispatch();
-
-	const [showDescriptionIndex, setShowDescriptionIndex] = useState<
-		number | null
-	>(null);
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
 		number | null
 	>(null);
 
+	const [user, setuser] = useState<string | undefined>(undefined);
+	const [userList, setuserList] = useState<User[]>([]);
+	const [readyToshare, setreadyToshare] = useState<boolean>(false);
+	const { fetchRootContent } = useFetchData();
 	const modalRef = useRef<HTMLDivElement>(null);
-
-	const shareDetails: ShareDetails[] = [
-		{
-			type: "public",
-			title: "Public",
-			description:
-				"Generate a public URL that anyone you share it to can access. This URL will be valid until you disable it. Deletion of the file from the entire Internet is not granted.",
-			state: "enabled",
-		},
-		// {
-		//     type: "one-time",
-		//     title: "One-time only",
-		//     description: "Generate an obfuscated URL that can be accessed only once. Once visited, the URL will self-destroy.",
-		//     state: "disabled"
-		// },
-		// {
-		//     type: "address-restricted",
-		//     title: "Address restricted",
-		//     description: "Generate a URL that can be accessed only from a specific wallet address that has to be verified with a provider's signature.",
-		//     state: "disabled"
-		// },
-		// {
-		//     type: "password-protected",
-		//     title: "Password protected",
-		//     description: "Generate a URL that can be accessed only by providing a password. The password' hash will be stored in the blockchain and will be required to access the file.",
-		//     state: "disabled"
-		// },
-		// {
-		//     type: "temporary-link",
-		//     title: "Temporary link",
-		//     description: "Generate a URL that can be accessed only for a limited time. The URL will self-destroy after the time expires.",
-		//     state: "disabled"
-		// },
-		// {
-		//     type: "subscription",
-		//     title: "Subscription based",
-		//     description: "Not implememnted yet. This feature will allow you to generate a URL for the content that can be accessed only by paying a subscription.",
-		//     state: "disabled"
-		// }
-	];
 
 	const navigate = useNavigate();
 	const [shareError, setShareError] = useState("");
-	const [selectedShareTypes, setSelectedShareTypes] = useState<string[]>([]);
+	const [selectedShareTypes, setSelectedShareTypes] = useState<string>("");
 	const { selectedSharedFiles } = useAppSelector((state) => state.mystorage);
 
 	const handleShareChange = (type: string) => async (
 		e: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const shareTypeObject = shareDetails.find((st) => st.type === type);
-		setFileSharedState([])
-		const aux: ShareState[] = []
+		setShareError("");
 		if (selectedSharedFiles) {
-			for (const selectedShareFile of selectedSharedFiles) {
-				if (!shareTypeObject || !selectedShareFile) {
-					setShareError("Invalid share type");
-				} else if (selectedShareFile.decrypted === false) {
-					setShareError("File is not decrypted yet");
-				} else if (shareTypeObject.state === "disabled") {
-					setShareError("This share type is not available yet");
-				} else {
-					setShareError("");
+			if (!shareTypeObject) {
+				setShareError("Invalid share type");
+			} else if (shareTypeObject.state === "disabled") {
+				setShareError("This share type is not available yet");
+			} else if (["wallet", "email"].includes(type)) {
+				setSelectedShareTypes(type);
+			} else {
+				setSelectedShareTypes(type);
+				for (const selectedShareFile of selectedSharedFiles) {
 					if (e.target.checked) {
-						//handle sharing from shareRequests.ts
-						shareFile(selectedShareFile, type)
+						// Handle sharing from shareRequests.ts
+						shareFile(selectedShareFile, type, user)
 							.then((res) => {
-								//if res is AxiosResponse:
-								if ((res as AxiosResponse).status === 200) {
-									res = res as AxiosResponse;
-									const shareState = res?.data as ShareState;
-									aux.push(shareState)
-									if (shareState.public_file.id !== 0) {
-										setSelectedShareTypes((prevTypes) => [
-											...prevTypes,
-											"public",
-										]);
-									}
+								res = res as AxiosResponse;
+								if (res.status === 200) {
+									const shareState = res.data as ShareState;
+									setFileSharedState((prevStates) => {
+										// Update the specific share state without replacing the entire array
+										const updatedStates = prevStates.map(
+											(state) =>
+												state.id === shareState.id
+													? shareState
+													: state
+										);
+										return updatedStates;
+									});
 									toast.success("File shared successfully");
-								}
-								if ((res as AxiosError).isAxiosError) {
-									toast.error("Error sharing file");
 								}
 							})
 							.catch((err) => {
 								setShareError(err.message);
 							});
 					} else {
+						setSelectedShareTypes("");
 						unshareFile(selectedShareFile, type)
 							.then((res) => {
-								//if res is AxiosResponse:
-								if ((res as AxiosResponse).status === 200) {
-									res = res as AxiosResponse;
-									const shareState = res?.data as ShareState;
-									aux.push(shareState)
-									//if public_file.id is 0, remove public from selectedShareTypes
-									if (shareState.public_file.id === 0) {
-										setSelectedShareTypes((prevTypes) =>
-											prevTypes.filter((st) => st !== "public")
-										);
-									}
-								}
-								if ((res as AxiosError).isAxiosError) {
-									toast.error("Error unsharing file");
+								res = res as AxiosResponse;
+								if (res.status === 200) {
+									toast.info("Successfully unshared");
 								}
 							})
 							.catch((err) => {
 								setShareError(err.message);
 							});
-						setSelectedShareTypes((prevTypes) => [...prevTypes, type]);
 					}
-					setFileSharedState(aux);
 				}
 			}
 		}
-	};
-
-	const handleEncryption = async (
-		file: File,
-		personalSignature: string | undefined,
-		isFolder: boolean,
-		encryptedPathsMapping: { [path: string]: string }
-	): Promise<{
-		encryptedFile: File;
-		cidOfEncryptedBufferStr: string;
-		cidOriginalStr?: string;
-		cidOriginalEncryptedBase64Url: string;
-		encryptedWebkitRelativePath: string;
-		encryptionTime: number;
-	} | null> => {
-		const fileArrayBuffer = await file.arrayBuffer();
-
-		const encryptedMetadataResult = await encryptMetadata(
-			file,
-			personalSignature
-		);
-		if (!encryptedMetadataResult) {
-			toast.error("Failed to encrypt metadata");
-			return null;
-		}
-		const {
-			encryptedFilename,
-			encryptedFiletype,
-			fileLastModified,
-		} = encryptedMetadataResult;
-		const {
-			cidOriginalStr,
-			cidOfEncryptedBufferStr,
-			encryptedFileBuffer,
-			encryptionTime,
-		} = await encryptFileBuffer(fileArrayBuffer);
-
-		const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-		const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
-		const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
-		const cidOriginalEncryptedBuffer = await encryptBuffer(
-			cidOriginalBuffer,
-			personalSignature
-		);
-
-		if (!cidOriginalEncryptedBuffer) {
-			toast.error("Failed to encrypt buffer");
-			return null;
-		}
-		const cidOriginalEncryptedBase64Url = bufferToBase64Url(
-			cidOriginalEncryptedBuffer
-		);
-		const encryptedFileBlob = new Blob([encryptedFileBuffer]);
-		const encryptedFile = new File(
-			[encryptedFileBlob],
-			encryptedFilenameBase64Url,
-			{ type: encryptedFiletypeHex, lastModified: fileLastModified }
-		);
-
-		let encryptedWebkitRelativePath = "";
-		if (isFolder) {
-			const pathComponents = file.webkitRelativePath.split("/");
-			const encryptedPathComponents = [];
-			for (const component of pathComponents) {
-				// If this component has been encrypted before, use the cached value
-				if (encryptedPathsMapping[component]) {
-					encryptedPathComponents.push(
-						encryptedPathsMapping[component]
-					);
-				} else {
-					const encryptedComponentBuffer = await encryptBuffer(
-						new TextEncoder().encode(component),
-						personalSignature
-					);
-					if (!encryptedComponentBuffer) {
-						toast.error("Failed to encrypt buffer");
-						return null;
-					}
-					const encryptedComponentHex = bufferToHex(
-						encryptedComponentBuffer
-					);
-					encryptedPathsMapping[component] = encryptedComponentHex;
-					encryptedPathComponents.push(encryptedComponentHex);
-				}
-			}
-
-			// Reconstruct the encrypted webkitRelativePath
-			encryptedWebkitRelativePath = encryptedPathComponents.join("/");
-		}
-
-		return {
-			encryptedFile,
-			cidOfEncryptedBufferStr,
-			cidOriginalStr,
-			cidOriginalEncryptedBase64Url,
-			encryptedWebkitRelativePath,
-			encryptionTime,
-		};
+		setuserList([]);
 	};
 
 	const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
@@ -285,6 +140,8 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		event: React.ChangeEvent<HTMLInputElement>,
 		isFolder: boolean
 	) => {
+		setProcesing(true);
+		toast.info("Uploading...");
 		const root = "/";
 		const files = event.target.files;
 
@@ -313,91 +170,33 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 			}
 		}
 
-		const encryptedPathsMapping: { [path: string]: string } = {};
-
 		let encryptionTimeTotal = 0;
 
 		const filesMap: { customFile: FileType; file: File }[] = [];
 
 		for (let i = 0; i < files.length; i++) {
-			let file = files[i];
+			const file = files[i];
+			const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
+			const cidStr = await getCid(uint8ArrayBuffer);
 
-			if (encryptionEnabled) {
-				const originalFile = file;
-				const infoText = `Encrypting ${i + 1} of ${files.length}`;
-				dispatch(
-					setUploadStatusAction({ info: infoText, uploading: true })
-				);
-				const encryptedResult = await handleEncryption(
-					file,
-					personalSignature,
-					isFolder,
-					encryptedPathsMapping
-				);
-				if (!encryptedResult) {
-					toast.error("Failed to encrypt file");
-					return;
-				}
-				const {
-					encryptedFile,
-					cidOfEncryptedBufferStr,
-					cidOriginalStr,
-					cidOriginalEncryptedBase64Url,
-					encryptedWebkitRelativePath,
-					encryptionTime,
-				} = encryptedResult;
+			const customFile: FileType = {
+				name: file.name,
+				cid: cidStr,
+				id: 0,
+				uid: "",
+				cid_original_encrypted: "",
+				size: file.size,
+				root: root,
+				mime_type: file.type,
+				media_type: file.type.split("/")[0],
+				path: file.webkitRelativePath,
+				encryption_status: EncryptionStatus.Public,
+				created_at: "",
+				updated_at: "",
+				deleted_at: "",
+			};
 
-				file = encryptedFile;
-
-				encryptionTimeTotal += encryptionTime;
-
-				const customFile: FileType = {
-					name: encryptedFile.name,
-					name_unencrypted: originalFile.name,
-					cid: cidOfEncryptedBufferStr || "",
-					id: 0,
-					uid: "",
-					cid_original_encrypted: cidOriginalEncryptedBase64Url || "",
-					cid_original_unencrypted: cidOriginalStr || "",
-					cid_original_encrypted_base64_url: cidOriginalEncryptedBase64Url,
-					size: encryptedFile.size,
-					root: root,
-					mime_type: encryptedFile.type,
-					mime_type_unencrypted: originalFile.type,
-					media_type: encryptedFile.type.split("/")[0],
-					path: encryptedWebkitRelativePath,
-					encryption_status: EncryptionStatus.Encrypted,
-					created_at: "",
-					updated_at: "",
-					deleted_at: "",
-				};
-
-				filesMap.push({ customFile, file });
-			} else {
-				const uint8ArrayBuffer = new Uint8Array(
-					await file.arrayBuffer()
-				);
-				const cidStr = await getCid(uint8ArrayBuffer);
-
-				const customFile: FileType = {
-					name: file.name,
-					cid: cidStr,
-					id: 0,
-					uid: "",
-					cid_original_encrypted: "",
-					size: file.size,
-					root: root,
-					mime_type: file.type,
-					media_type: file.type.split("/")[0],
-					path: file.webkitRelativePath,
-					encryption_status: EncryptionStatus.Public,
-					created_at: "",
-					updated_at: "",
-					deleted_at: "",
-				};
-
-				filesMap.push({ customFile, file });
-			}
+			filesMap.push({ customFile, file });
 		}
 
 		//parse encryption total of all files with encrypted option
@@ -421,8 +220,8 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		const infoText = isFolder
 			? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
 			: files.length === 1
-				? files[0].name
-				: `uploading ${files.length} files`;
+			? files[0].name
+			: `uploading ${files.length} files`;
 
 		dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
@@ -437,6 +236,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	) => {
 		//iterate over each file and make a get request to check if cid exists in Api
 		//post file metadata to api
+		const filesuploaded: FileType[] = [];
 
 		//get customFiles from filesMap
 		const customFiles = filesMap.map((fileMap) => fileMap.customFile);
@@ -525,8 +325,8 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 						fileMap.customFile.mime_type =
 							fileMap.customFile.mime_type_unencrypted || "";
 
-						if (!isFolder)
-							dispatch(createFileAction(fileMap.customFile));
+						if (!isFolder) filesuploaded.push(fileMap.customFile);
+						dispatch(createFileAction(fileMap.customFile));
 					}
 				});
 			})
@@ -552,7 +352,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 					//getAll files and encryptedFils into a single files variable from formData
 					const filesRes = res.data.files;
-					const filesuploaded: FileType[] = []
 
 					for (let i = 0; i < filesRes.length; i++) {
 						//get file at index from formdata
@@ -578,18 +377,16 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							updated_at: fileRes.updated_at,
 							deleted_at: fileRes.deleted_at,
 						};
-						filesuploaded.push(fileObject)
+						filesuploaded.push(fileObject);
 						if (!isFolder) dispatch(createFileAction(fileObject));
 					}
-					dispatch(setSelectedSharedFiles(filesuploaded))
 				})
-				.catch((err) => {
-					console.log(err);
+				.catch(() => {
 					toast.error("upload failed!");
 				})
-				.finally(() =>
-					dispatch(setUploadStatusAction({ uploading: false }))
-				);
+				.finally(() => {
+					dispatch(setUploadStatusAction({ uploading: false }));
+				});
 		} else {
 			toast.success("upload Succeed!");
 			dispatch(
@@ -599,6 +396,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 				})
 			);
 		}
+		dispatch(setSelectedSharedFiles(filesuploaded));
 		if (isFolder && folderRootUID !== "" && outermostFolderTitle !== "") {
 			dispatch(
 				createFolderAction({
@@ -623,6 +421,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const handleClickOutside = (
 		event: React.MouseEvent<HTMLDivElement, MouseEvent>
 	) => {
+		setProcesing(false);
 		if (
 			modalRef.current &&
 			!modalRef.current.contains(event.target as Node)
@@ -631,7 +430,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		}
 	};
 
-	const fileInput = useRef<HTMLInputElement>(null);
 	const handleFileUpload = () => {
 		fileInput.current?.click();
 	};
@@ -643,56 +441,116 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	};
 
 	useEffect(() => {
-		dispatch(setSelectedSharedFiles())
+		dispatch(setSelectedSharedFiles());
+		setProcesing(false);
+		setreadyToshare(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, []);
 
 	useEffect(() => {
 		if (selectedSharedFiles) {
 			setuploaded(true);
+			setProcesing(false);
 		} else {
 			setuploaded(false);
 		}
-	}, [selectedSharedFiles])
+	}, [selectedSharedFiles]);
 
 	useEffect(() => {
-		if (selectedSharedFiles && selectedSharedFiles.length > 0) {
-			const uids = selectedSharedFiles.map((file) => file.uid)
-			//fetch file shared state
+		if (
+			selectedSharedFiles &&
+			selectedSharedFiles.length > 0
+		) {
+			const uids = selectedSharedFiles.map((file) => file.uid);
 			const params = new URLSearchParams();
-			uids.forEach(uid => params.append('file_uids', uid));
+			uids.forEach((uid) => params.append("file_uids", uid));
 			Api.get("/file/share/states", { params })
 				.then((res) => {
-					//if res is AxiosResponse:
 					if ((res as AxiosResponse).status === 200) {
 						res = res as AxiosResponse;
 						const shareState = res?.data as ShareState[];
-						setFileSharedState(shareState);
 						if (shareState) {
-							for (const shareStatex of shareState) {
-								if (shareStatex.public_file.id !== 0) {
-									setSelectedShareTypes((prevTypes) => [
-										...prevTypes,
-										"public",
-									]);
-								}
-							}
+							setFileSharedState(shareState);
 						}
-						//dispatch(setLoading(false));
-						//dispatch(setToastMessage("File shared successfully"));
-						//dispatch(setShowToast(true));
 					} else {
-						//dispatch(setLoading(false));
 						toast.error(JSON.stringify(res));
-						//dispatch(setShowToast(true));
 					}
 				})
 				.catch((err) => {
 					toast.error(err.message);
-					//setShareError(err.message);
 				});
 		}
 	}, [selectedSharedFiles]);
+
+	const handleAddEmail = () => {
+		if (selectedShareTypes === "email" && !isValidEmail(user)) {
+			toast.error("Invalid Email.");
+			return false;
+		}
+		if (userList.length >= 5) {
+			toast.error("Max number of users reached");
+			return false;
+		}
+		if (!user) {
+			return false;
+		}
+
+		if (!userList.map((u) => u.email).includes(user)) {
+			const newUser = { email: user, color: "#878787" };
+			setuserList([...userList, newUser]);
+			setuser("");
+			return true;
+		} else {
+			toast.error("Email already in the list.");
+			return false;
+		}
+	};
+
+	const handleSubmit = () => {
+		const res = handleAddEmail();
+		if (res || userList.length > 0) {
+			setreadyToshare(true);
+			toast.info("Sharing in progress");
+		}
+		if (!res && userList.length === 0) {
+			toast.error("No users specified");
+		}
+	};
+
+	const handleRemoveEmail = (index: number) => {
+		const updatedEmailList = [...userList];
+		updatedEmailList.splice(index, 1);
+		setuserList(updatedEmailList);
+	};
+
+	useEffect(() => {
+		if (readyToshare) {
+			if (userList.length > 0 && selectedSharedFiles) {
+				for (const user of userList) {
+					for (const selectedShareFile of selectedSharedFiles) {
+						shareFile(
+							selectedShareFile,
+							selectedShareTypes,
+							user.email
+						)
+							.then((res) => {
+								res = res as AxiosResponse;
+								if (res.status === 200) {
+									toast.success("File shared successfully");
+								}
+							})
+							.catch((err) => {
+								setShareError(err.message);
+							});
+					}
+				}
+			}
+			setreadyToshare(false);
+			closeShareModal();
+		}
+	}, [readyToshare]);
+
+	const groupID = useShareGroup(fileSharedState, selectedShareTypes);
 
 	if (!isOpen) {
 		return <></>;
@@ -705,7 +563,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 					role="dialog"
 					aria-modal="true"
 				>
-					<div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+					<div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 my-3 text-center sm:p-0">
 						<input
 							ref={fileInput}
 							type="file"
@@ -732,7 +590,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							ref={modalRef}
 							className="lg:ml-[20%] p-5 flex flex-col justify-center align-center align-bottom top-5 bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg "
 						>
-							<div className="flex flex-col items-center justify-center w-full h-full">
+							<div className="flex flex-col items-center justify-center w-full h-full min-w-[300px]">
 								{shareError && (
 									<div
 										className="alert alert-danger"
@@ -743,45 +601,182 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								)}
 								{uploaded ? (
 									<>
-										<p className="px-2 my-3">Files names:</p>
+										<p className="px-2 my-3">File names:</p>
 										<ul>
-											{selectedSharedFiles && selectedSharedFiles.map((file) => {
-												return <li
-													key={file.id}
-												>{file.name}</li>;
-											})}
+											{selectedSharedFiles &&
+												selectedSharedFiles.map(
+													(file) => {
+														return (
+															<li key={file.id}>
+																{file.name}
+															</li>
+														);
+													}
+												)}
 										</ul>
+										{selectedShareTypes !== "" && (
+											<>
+												{groupID &&
+												[
+													"public",
+													"one-time",
+													"monthly",
+												].includes(
+													selectedShareTypes
+												) ? (
+													<div className="flex flex-col my-3">
+														<label
+															htmlFor="shareLink"
+															className="form-label"
+														>
+															Share link
+														</label>
+														<div className="">
+															<input
+																type="email"
+																className="mb-2 underline form-control text-cyan-600 text-ellipsis"
+																id="shareLink"
+																aria-describedby="shareLink"
+																value={`${window.location.origin}/space/shared/group/${groupID}`}
+																onClick={() => {
+																	//copy to clipboard
+																	navigator.clipboard.writeText(
+																		`${window.location.origin}/space/shared/group/${groupID}`
+																	);
+																	toast.success(
+																		"Link copied to clipboard"
+																	);
+																}}
+																readOnly
+															/>
+															<button
+																className="ml-2 btn btn-primary"
+																onClick={() =>
+																	navigate(
+																		`/space/shared/group/${groupID}`
+																	)
+																}
+															>
+																<i className="fas fa-external-link-alt"></i>{" "}
+																Go
+															</button>
+														</div>
+													</div>
+												) : (
+													<form
+														className="flex flex-col items-center w-full my-3"
+														onSubmit={(e) => {
+															e.preventDefault();
+														}}
+													>
+														<label
+															htmlFor="user"
+															className="block mb-2 text-sm font-medium text-gray-600"
+														>
+															{selectedShareTypes ===
+															"email"
+																? "Email address"
+																: "Wallet address"}
+														</label>
+														<div className="flex flex-row flex-wrap w-full">
+															{userList.map(
+																(
+																	user,
+																	index
+																) => (
+																	<div
+																		key={
+																			index
+																		}
+																		className="px-2 py-1 m-1 transition-transform transform rounded-full cursor-pointer hover:scale-110"
+																		style={{
+																			background:
+																				user.color,
+																			color:
+																				"white",
+																		}}
+																		onClick={() =>
+																			handleRemoveEmail(
+																				index
+																			)
+																		}
+																	>
+																		{
+																			user.email
+																		}
+																	</div>
+																)
+															)}
+														</div>
+														<div className="flex flex-row items-center justify-center">
+															<input
+																id="user"
+																type="email"
+																className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-2"
+																placeholder={
+																	selectedShareTypes ===
+																	"email"
+																		? "example@email.com"
+																		: "0x00000EXAMPLE..."
+																}
+																value={user}
+																onChange={(
+																	e
+																) => {
+																	setuser(
+																		e.target
+																			.value
+																	);
+																}}
+															/>
+															<button
+																className="h-full w-[38px] transition-transform transform hover:scale-110 flex items-center justify-center"
+																type="button"
+																onClick={
+																	handleAddEmail
+																}
+															>
+																<FaPlusCircle
+																	size={35}
+																/>
+															</button>
+														</div>
+														<button
+															className="p-3 mt-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+															type="submit"
+															onClick={
+																handleSubmit
+															}
+														>
+															<span className="btn-transition"></span>
+															<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
+																<PiShareFatFill />{" "}
+																Accept
+															</label>
+														</button>
+													</form>
+												)}
+											</>
+										)}
 										{shareDetails.map((sd, index) => {
 											return (
 												<div
+													key={sd.id}
 													className="my-3 col-12 form-check form-switch"
-													key={index}
 												>
-													{/*<input className="form-check-input" type="checkbox" id={`flexSwitch${sd.type}`} checked={selectedShareTypes.includes(sd.type)} onChange={handleShareChange(sd.type)} disabled={sd.state === "disabled"} /> */}
 													<label
 														className="form-check-label"
 														htmlFor={`flexSwitch${sd.type}`}
 													>
-														<div
-															onMouseEnter={() =>
-																setShowDescriptionIndex(
-																	index
-																)
-															}
-															onMouseLeave={() =>
-																setShowDescriptionIndex(
-																	null
-																)
-															}
-															className="flex flex-col"
-														>
+														<div className="flex flex-col">
 															<div className="flex flex-row items-center">
 																<input
 																	type="checkbox"
 																	className="w-5 h-5 text-blue-600 form-checkbox"
-																	checked={selectedShareTypes.includes(
+																	checked={
+																		selectedShareTypes ===
 																		sd.type
-																	)}
+																	}
 																	onChange={handleShareChange(
 																		sd.type
 																	)}
@@ -795,16 +790,20 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 																</span>
 																<span
 																	className="ml-2 text-gray-500 cursor-pointer"
-																	onClick={() =>
-																		pinnedDescriptionIndex ===
+																	onClick={() => {
+																		if (
+																			pinnedDescriptionIndex ===
 																			index
-																			? setPinnedDescriptionIndex(
+																		) {
+																			setPinnedDescriptionIndex(
 																				null
-																			)
-																			: setPinnedDescriptionIndex(
+																			);
+																		} else {
+																			setPinnedDescriptionIndex(
 																				index
-																			)
-																	}
+																			);
+																		}
+																	}}
 																>
 																	<i
 																		className={`fas fa-thin fa-question-circle p-2 me-2`}
@@ -812,88 +811,35 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 																</span>
 															</div>
 
-															{(showDescriptionIndex ===
-																index ||
-																pinnedDescriptionIndex ===
-																index) && (
-																	<span
-																		id="description"
-																		className="flex p-2 ml-2 text-sm bg-gray-200 rounded"
-																	>
-																		{
-																			sd.description
-																		}
-																	</span>
-																)}
+															{pinnedDescriptionIndex ===
+																index && (
+																<span
+																	id="description"
+																	className="flex p-2 ml-2 text-sm bg-gray-200 rounded"
+																>
+																	{
+																		sd.description
+																	}
+																</span>
+															)}
 														</div>
-														{/*
-                                                <OverlayTrigger
-                                                    key={`tooltip-${index}`}
-                                                    placement="top"
-                                                    overlay={
-                                                        <Tooltip id={`tooltip-${index}`}>
-                                                            {sd.description}
-                                                        </Tooltip>
-                                                    }
-                                                >
-                                                </OverlayTrigger>
-                                                */}
 													</label>
-													{fileSharedState && fileSharedState.map((fileSharedStatex) => (
-														<>
-															{sd.type === "public" &&
-																fileSharedStatex
-																	?.public_file.id !==
-																0 && (
-																	<div className="flex flex-col my-3">
-																		<label
-																			htmlFor="shareLink"
-																			className="form-label"
-																		>
-																			Share link
-																		</label>
-																		<div className="">
-																			<input
-																				type="email"
-																				className="mb-2 underline form-control text-cyan-600 text-ellipsis"
-																				id="shareLink"
-																				aria-describedby="shareLink"
-																				value={`${window.location.origin}/space/shared/public/${fileSharedStatex?.public_file.share_hash}`}
-																				onClick={() => {
-																					//copy to clipboard
-																					navigator.clipboard.writeText(
-																						`${window.location.origin}/space/shared/public/${fileSharedStatex?.public_file.share_hash}`
-																					);
-																					toast.success(
-																						"Link copied to clipboard"
-																					);
-																				}}
-																				readOnly
-																			/>
-																			<button
-																				className="ml-2 btn btn-primary"
-																				onClick={() =>
-																					navigate(
-																						`/space/shared/public/${fileSharedStatex?.public_file.share_hash}`
-																					)
-																				}
-																			>
-																				<i className="fas fa-external-link-alt"></i>{" "}
-																				Go
-																			</button>
-																		</div>
-																	</div>
-																)}
-														</>
-													))}
-
 												</div>
 											);
 										})}
 									</>
 								) : (
 									<>
-										<p className="px-2 my-3">Choose the Files you want to share</p>
+										<p className="px-2 my-3">
+											Choose the Files you want to share
+										</p>
+										{Procesing ? (
+											<div className="w-full h-3 m-6">
+												<Spinner5></Spinner5>
+											</div>
+										) : (
+											<></>
+										)}
 										<button
 											className="p-3 my-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
 											onClick={handleFileUpload}

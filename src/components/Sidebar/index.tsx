@@ -40,8 +40,7 @@ import { AxiosProgressEvent } from "axios";
 import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
-import { createFileAction, createFolderAction } from "state/mystorage/actions";
-import { logoutUser } from "state/user/actions";
+import { createFileAction, createFolderAction, refreshAction } from "state/mystorage/actions";
 
 const links1 = [
   {
@@ -73,11 +72,11 @@ const links2 = [
     available: true,
   },
   {
-    to: "/api",
+    to: "/space/api",
     outRef: false,
     icon: <img src={Key} alt="custom icon" className="w-6 h-6" />,
     content: "Api key",
-    available: false,
+    available: true,
   },
   {
     to: "/migration",
@@ -107,7 +106,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     autoEncryptionEnabled,
   } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
-  const { fetchUserDetail } = useFetchData();
+  const { fetchUserDetail, fetchRootContent, fetchSharedContent } = useFetchData();
   const { name } = useAppSelector((state) => state.user);
   const accountType = getAccountType();
   const navigate = useNavigate();
@@ -149,6 +148,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   useEffect(() => {
     fetchUserDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getRoot = () =>
@@ -470,20 +470,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
         })
       })
-      .catch((err: any) => {
-        const error = err.response?.data.error;
-
-        if (
-          !localStorage.getItem("access_token") &&
-          err.response?.status === 401 &&
-          error &&
-          [
-            "authorization header is not provided",
-            "token has expired",
-          ].includes(error)
-        ) {
-          dispatch(logoutUser());
-        }
+      .catch((err) => {
         console.log(err);
       });
 
@@ -537,21 +524,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           }
 
         })
-        .catch((err: any) => {
-          console.log(err);
-          const error = err.response?.data.error;
-
-          if (
-            !localStorage.getItem("access_token") &&
-            err.response?.status === 401 &&
-            error &&
-            [
-              "authorization header is not provided",
-              "token has expired",
-            ].includes(error)
-          ) {
-            dispatch(logoutUser());
-          }
+        .catch(() => {
           toast.error("upload failed!");
         })
         .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
@@ -596,11 +569,50 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     handleInputChange(event, true);
   };
 
+  const [isLinkDisabled, setLinkDisabled] = useState(false);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleLinkClick = (v: any) => {
+
+    setLinkDisabled(true);
+    switch (v.content) {
+      case "My storage":
+        if (isLinkDisabled) {
+          return;
+        }
+        if (!window.location.href.endsWith("/space/my-storage")) {
+          return
+        }
+        dispatch(refreshAction(true));
+        fetchRootContent();
+        break;
+      case "Shared":
+
+        if (isLinkDisabled) {
+          return;
+        }
+        dispatch(refreshAction(true));
+        fetchSharedContent();
+        break;
+      case "Api key":
+        if (isLinkDisabled) {
+          return;
+        }
+        dispatch(refreshAction(true));
+        break;
+    }
+
+    setTimeout(() => {
+      setLinkDisabled(false);
+    }, 1500);
+  };
+
   return (
     <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
       <div className="flex-1">
         <div className="flex items-center gap-3">
-          <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]">
+          <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]"
+          >
             hello.app
           </Link>
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
@@ -688,6 +700,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           {links1.map((v, i) => (
             <NavLink
               to={v.to}
+              onClick={() => handleLinkClick(v)}
               className={({ isActive }) =>
                 `${isActive ? "bg-gray-200" : ""} hover:bg-gray-200 rounded-xl`
               }
@@ -723,6 +736,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex flex-col gap-0.5">
           {links2.map((v, i) => (
             <NavLink
+              onClick={() => handleLinkClick(v)}
               to={v.to}
               target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>
@@ -755,7 +769,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         </div>
       </div>
 
-      <div className="pt-4">
+      <section className="pt-4 mb-[50px] md:mb-2 ">
         <label>{formatBytes(storageUsed)} </label>
 
         <ProgressBar
@@ -775,7 +789,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             }}
             className="text-orange-500 cursor-pointer hover:underline"
           >
-            {formatBytes(storageAvailable, 2, false)} / 100 GiB
+            {formatBytes(storageAvailable, 2, false)} / 95 GiB
           </a>
         </label>
         <div className="pb-1 mt-4">
@@ -788,7 +802,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             ✨
           </button>
         </div>
-      </div>
+      </section>
       <div>
         <input
           ref={fileInput}

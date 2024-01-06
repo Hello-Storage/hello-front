@@ -86,7 +86,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-8 md:h-screen  justify-between">
+    <div className="flex flex-col justify-between min-h-screen p-8 md:h-screen">
       <div className="flex items-center gap-3">
         <label className="text-2xl font-semibold font-[Outfit]">
           hello.app
@@ -95,25 +95,25 @@ export default function Login() {
       </div>
       {redirectMessage && <p>{redirectMessage}</p>}
 
-      <div className="flex flex-col md:flex-row gap-8 md:gap-0 h-full">
+      <div className="flex flex-col h-full gap-8 md:flex-row md:gap-0">
         <div className="flex items-center justify-center flex-1">
-          <div className="md:min-w-[400px] mt-12 md:mt-0">
-            <h1 className="text-center text-4xl font-semibold tracking-tighter">
+          <div className="md:min-w-[400px] md:mt-0">
+            <h1 className="text-4xl font-semibold tracking-tighter text-center">
               Welcome 👋
             </h1>
-            <h3 className="text-center text-lg mt-4 tracking-tighter">
+            <h3 className="block mt-4 text-lg tracking-tighter text-center">
               Select your favorite login option
             </h3>
-            <h3 className="text-center text-lg mt-4 tracking-tighter">
-             Get your <b>100GB</b> free storage now! 
+            <h3 className="hidden mt-4 text-lg tracking-tighter text-center md:block">
+              Get your <b>100GB</b> free storage now! 
             </h3>
 
-            <div className="mt-12 flex gap-[15px] flex-col justify-around">
+            <div className="mt-[20px] flex gap-[15px] flex-col justify-around">
               <GoogleLoginButton />
               <ConnectWalletButton />
             </div>
 
-            <div className="inline-flex items-center justify-center w-full relative">
+            <div className="relative inline-flex items-center justify-center w-full">
               <hr className="w-full h-px my-8 bg-gray-200 border-0" />
               <span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2">
                 Or
@@ -141,7 +141,7 @@ export default function Login() {
 
                 <div className="mt-[15px]">
                   <button
-                    className="w-full inline-flex items-center justify-center text-white px-3 py-4 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+                    className="inline-flex items-center justify-center w-full px-3 py-4 text-white rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
                     type="submit"
                   >
                     Send a magic link ✨
@@ -152,9 +152,9 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <footer className="text-sm text-black md:mx-12 mt-8 p-0 md:p-2">
+      <footer className="p-0 mb-[50px] text-sm text-black md:mx-12 md:p-2 md:mb-0">
         <div className="flex flex-col items-start">
-          <div className="flex space-x-4 p-0 md:p-0">
+          <div className="flex p-0 space-x-4 md:p-0">
             <a href="mailto:team@hello.app" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
               <HiMail />
             </a>

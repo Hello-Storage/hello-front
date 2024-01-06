@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Api } from "api";
 import { AxiosProgressEvent } from "axios";
 import { EncryptionStatus, File as FileType } from "api/types";
@@ -15,7 +16,6 @@ import {
 	decryptFileBuffer,
 } from "utils/encryption/filesCipher";
 import Spinner4 from "components/Spinner/Spinner4";
-import { logoutUser } from "state/user/actions";
 import { toast } from "react-toastify";
 
 // Props interface for the Imageview component.
@@ -26,16 +26,15 @@ interface ImageviewProps {
 	setloaded: React.Dispatch<React.SetStateAction<boolean>>; // Function to set the 'loaded' state.
 }
 
+
+//TODO: this component needs to be optimized
 const Imageview: React.FC<ImageviewProps> = React.memo(
 	({ isOpen, files, loaded, setloaded }) => {
 		const maxSize = 5000000; // Maximum file size for preview.
 
 		const dispatch = useAppDispatch();
-		const [file, setfile] = useState<FileType>();
 		const [preview, setpreview] = useState<void | PreviewImage[]>([]);
 		const { selectedShowFile } = useAppSelector((state) => state.mystorage);
-		const [aceptDownload, setAceptDownload] = useState<boolean>(false);
-		const [selectedName, setselectedName] = useState<string>("");
 		const [cache, setCache] = useState<Record<string, Blob>>({});
 
 		/**
@@ -147,14 +146,11 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 				// Process the first file in the unique list if it meets the size criteria
 				if (uniqueFiles.length > 0) {
 					const selectedShowFile = uniqueFiles[0];
-					if (selectedShowFile.size < maxSize || aceptDownload ||
-						cache[selectedShowFile.uid]) {
-						// Download and process the first file
-						await downloadAndProcessFile(
-							selectedShowFile,
-							originalOrder
-						);
-					}
+					// Download and process the first file
+					await downloadAndProcessFile(
+						selectedShowFile,
+						originalOrder
+					);
 				}
 
 				// Mark the loading process as complete
@@ -164,7 +160,7 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 				const otherFiles = uniqueFiles.slice(1);
 				const promises = otherFiles.map(
 					(file) =>
-						file.size < maxSize
+						file.size < maxSize || cache[file.uid]
 							? downloadAndProcessFile(file, originalOrder) // Download and process if the file size is within limits
 							: Promise.resolve(undefined) // Otherwise, resolve the promise immediately
 				);
@@ -329,27 +325,14 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 					return mediaItem;
 				}
 			} catch (err: any) {
-				const error = err.response?.data.error;
-
-				if (
-					!localStorage.getItem("access_token") &&
-					err.response?.status === 401 &&
-					error &&
-					[
-						"authorization header is not provided",
-						"token has expired",
-					].includes(error)
-				) {
-					dispatch(logoutUser());
-				}
-				clear()
+				clear();
 				dispatch(setFileViewAction({ file: undefined }));
 				dispatch(
 					setUploadStatusAction({
 						uploading: false,
 					})
 				);
-				toast.error(err.message)
+				toast.error(err.message);
 			}
 		};
 
@@ -371,7 +354,6 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 		// useEffect to reset states on selected file change.
 		useEffect(() => {
 			setloaded(false);
-			setAceptDownload(false);
 			setpreview([]);
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [selectedShowFile]);
@@ -379,40 +361,7 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 		// useEffect to handle opening of image view and file selection logic.
 		useEffect(() => {
 			if (selectedShowFile && !loaded) {
-				setfile(selectedShowFile)
-				setselectedName(selectedShowFile.name);
-				if (isOpen && !aceptDownload) {
-					if (
-						selectedShowFile.size < maxSize ||
-						cache[selectedShowFile.uid]
-					) {
-						if (
-							selectedShowFile.size >= maxSize &&
-							cache[selectedShowFile.uid]
-						) {
-							setAceptDownload(true);
-						}
-						if (
-							selectedShowFile.mime_type.startsWith("video/") ||
-							selectedShowFile.mime_type.startsWith("image/")
-						) {
-							const tempList = [];
-							tempList.push(selectedShowFile);
-							for (const file of files) {
-								if (
-									!isInList(tempList, file) &&
-									(file.mime_type.startsWith("video/") ||
-										file.mime_type.startsWith("image/"))
-								) {
-									tempList.push(file);
-								}
-							}
-							handleView(tempList);
-						} else {
-							handleView([selectedShowFile]);
-						}
-					}
-				} else if (isOpen && aceptDownload) {
+				if (isOpen) {
 					if (
 						selectedShowFile.mime_type.startsWith("video/") ||
 						selectedShowFile.mime_type.startsWith("image/")
@@ -436,56 +385,10 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 			}
 
 			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [selectedShowFile, isOpen, loaded, aceptDownload]);
+		}, [selectedShowFile, isOpen, loaded]);
 
 		if (!isOpen) {
 			return <></>;
-		} else if (!aceptDownload && file && file.size >= maxSize) {
-			// Warning message for large files...
-			return (
-				<div className="h-screen w-screen flex flex-col z-40 justify-center items-center fixed top-0 left-0 bg-[#0f0f0fcc]">
-					<div className="bg-[#ffffff9a] max-w-[70%] p-3 rounded-md">
-						<h1 className="ml-3 text-xl font-bold">Warning</h1>
-						<p className="p-3">
-							The{" "}
-							<strong className="font-bold">
-								{" "}
-								{selectedName}{" "}
-							</strong>{" "}
-							file is larger than
-							<strong className="font-bold">
-								{" "}
-								{maxSize / 1000000}MB
-							</strong>
-							. As it needs to be downloaded and decrypted, the
-							process to view the file may take longer than
-							expected. Are you sure you want to see the preview?
-						</p>
-						<div className="flex flex-row items-center mt-2 justify-evenly">
-							<button
-								className="p-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
-								onClick={() => {
-									setAceptDownload(true);
-								}}
-							>
-								<span className="btn-transition"></span>
-								<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
-									Ver Preview
-								</label>
-							</button>
-							<button
-								className="p-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
-								onClick={clear}
-							>
-								<span className="btn-transition"></span>
-								<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
-									Cancelar
-								</label>
-							</button>
-						</div>
-					</div>
-				</div>
-			);
 		} else if (!loaded || !preview || preview.length === 0) {
 			return <Spinner4 />;
 		} else {
@@ -499,7 +402,7 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 					lightboxIdentifier="lbox1"
 					backgroundColor="#0f0f0fcc"
 					iconColor="#ffffff"
-					modalClose="button"
+					modalClose="clickOutside"
 				/>
 			);
 		}

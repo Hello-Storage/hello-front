@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
 import {
   HiChevronLeft,
   HiChevronRight,
@@ -15,6 +14,7 @@ import { useSearchContext } from "contexts/SearchContext";
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
 import {
+  refreshAction,
   updateDecryptedFilesAction,
   updateDecryptedFoldersAction
 } from "state/mystorage/actions";
@@ -29,7 +29,6 @@ import {
 } from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
 import getPersonalSignature from "api/getPersonalSignature";
-import { useNavigate } from "react-router-dom";
 import ShareModal from "pages/Shared/Components/ShareModal";
 import Imageview from "components/ImageView/Imageview";
 
@@ -48,39 +47,35 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   useDropdown(ref, open, setOpen);
 
-  const location = useLocation();
-
   const { fetchRootContent, fetchUserDetail } = useFetchData();
   const personalSignatureRef = useRef<string | undefined>();
 
   //pagination
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => {
-      // Set itemsPerPage to 5 if window width is less than 768px (mobile), else set it to 10 (desktop)
-      setItemsPerPage(window.innerWidth < 768 ? 6 : 10);
-    };
-
-    // Attach event listener
-    window.addEventListener("resize", handleResize);
-
-    // Call handler right away so state gets updated with initial window size
-    handleResize();
-
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const { folders, files, showPreview, path, showShareModal } = useAppSelector(
+  const { folders, files, showPreview, path, showShareModal, refresh } = useAppSelector(
     (state) => state.mystorage
   );
 
-  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(
-    window.innerWidth < 768 ? 6 : 10
+    window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 10 : 15
   );
 
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPerPage(
+        window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 10 : 15
+      );
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
@@ -93,95 +88,115 @@ export default function Home() {
   const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
   const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
 
+  async function fetchContent() {
+    setLoading(true);
 
-  useEffect(() => {
-    async function fetchContent() {
-      setLoading(true);
+    const itemsPerPage = 10;
 
-      const itemsPerPage = 10;
+    const totalItemsTemp = files.length;
+    const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
+    setTotalItems(totalItemsTemp);
+    setTotalPages(totalPagesTemp);
 
-      const totalItemsTemp = files.length;
-      const totalPagesTemp = Math.ceil(totalItemsTemp / itemsPerPage);
-      setTotalItems(totalItemsTemp);
-      setTotalPages(totalPagesTemp);
+    const tempStartIndex =
+      currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
+    const tempEndIndex = tempStartIndex + itemsPerPage;
 
-      const tempStartIndex =
-        currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
-      const tempEndIndex = tempStartIndex + itemsPerPage;
+    setStartIndex(tempStartIndex);
+    setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
 
-      setStartIndex(tempStartIndex);
-      setEndIndex(Math.min(tempEndIndex, totalItemsTemp));
+    // Calculate starting index for files based on the number of folders taken.
+    const filesStartIndex = Math.max(0, tempStartIndex);
 
-      // Calculate starting index for files based on the number of folders taken.
-      const filesStartIndex = Math.max(0, tempStartIndex);
-
-      // Slice the files array based on the calculated start and end indices.
-      const currentEncryptedFiles = files.slice(
-        filesStartIndex,
-        filesStartIndex + itemsPerPage
-      );
+    // Slice the files array based on the calculated start and end indices.
+    const currentEncryptedFiles = files.slice(
+      filesStartIndex,
+      filesStartIndex + itemsPerPage
+    );
 
 
-      if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
-        hasCalledGetPersonalSignatureRef.current = true;
+    if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
+      hasCalledGetPersonalSignatureRef.current = true;
 
-        personalSignatureRef.current = await getPersonalSignature(
-          name,
-          autoEncryptionEnabled,
-          accountType
-        );//Promie<string | undefined>
-        if (!personalSignatureRef.current) {
-          toast.error("Failed to get personal signature");
-          logout();
-          return;
-        }
-      }
-      const decryptedFiles = await handleEncryptedFiles(
-        currentEncryptedFiles,
-        personalSignatureRef.current || "",
+      personalSignatureRef.current = await getPersonalSignature(
         name,
         autoEncryptionEnabled,
-        accountType,
-        logout
-      );
-
-      if (decryptedFiles && decryptedFiles.length > 0) {
-        dispatch(updateDecryptedFilesAction(decryptedFiles));
-      }
-
-      setCurrentFiles(decryptedFiles || []);
-
-      const decryptedFolders = await handleEncryptedFolders(
-        folders,
-        personalSignatureRef.current || "",
-      );
-
-      if (decryptedFolders && decryptedFolders.length > 0) {
-        dispatch(updateDecryptedFoldersAction(decryptedFolders));
-      }
-      setCurrentFolders(decryptedFolders || []);
-
-      if (!currentFiles || !currentFolders) {
-        toast.error("Failed to decrypt content");
-        fetchRootContent(setLoading);
+        accountType
+      );//Promie<string | undefined>
+      if (!personalSignatureRef.current) {
+        toast.error("Failed to get personal signature");
+        logout();
+        return;
       }
     }
+
+    const decryptedFiles = await handleEncryptedFiles(
+      currentEncryptedFiles,
+      personalSignatureRef.current || "",
+      name,
+      autoEncryptionEnabled,
+      accountType,
+      logout
+    );
+
+    if (decryptedFiles && decryptedFiles.length > 0) {
+      dispatch(updateDecryptedFilesAction(decryptedFiles));
+    }
+
+    setCurrentFiles(decryptedFiles || []);
+
+    const decryptedFolders = await handleEncryptedFolders(
+      folders,
+      personalSignatureRef.current || "",
+    );
+
+    if (decryptedFolders && decryptedFolders.length > 0) {
+      dispatch(updateDecryptedFoldersAction(decryptedFolders));
+    }
+    setCurrentFolders(decryptedFolders || []);
+
+    if (!currentFiles || !currentFolders) {
+      toast.error("Failed to decrypt content");
+      fetchRootContent(setLoading);
+    }
+  }
+
+
+  useEffect(() => {
+    fetchContent().then(() => {
+      setLoading(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folders.length]);
+
+  useEffect(() => {
     fetchContent().then(() => {
       setLoading(false);
       setPersonalSignatureDefined(true);
-    });
-  }, [path, currentPage]);
-  useEffect(() => {
-    if (personalSignatureDefined) {
-      if (!personalSignatureRef.current) {
-        return;
-      }
-      console.log(location.pathname);
-      fetchRootContent();
       setCurrentPage(1)
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [path]);
+
+  useEffect(() => {
+    if (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder")) {
+      fetchRootContent()
+      dispatch(refreshAction(true))
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, name, personalSignatureRef.current]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [window.location.href]);
+
+  useEffect(() => {
+    if (refresh) {
+      fetchContent().then(() => {
+        setLoading(false);
+        setPersonalSignatureDefined(true);
+        setCurrentPage(1)
+        dispatch(refreshAction(false))
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh]);
 
   const paginateContent = async () => {
     const itemsPerPage = 10;
@@ -213,19 +228,17 @@ export default function Home() {
     }
 
     setCurrentFiles(currentFiles);
-
     setCurrentFolders(currentFolders);
-
   }
 
   useEffect(() => {
     setCurrentFolders(folders);
-  }, [folders.length]);
+  }, [folders.length, folders]);
 
   useEffect(() => {
     paginateContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files.length])
-
 
   const [filter, setFilter] = useState("all");
 
@@ -245,29 +258,30 @@ export default function Home() {
 
   const [view, setView] = useState<"list" | "grid">("list");
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
   };
 
   useEffect(() => {
     fetchUserDetail();
-		if (personalSignatureDefined) {
-			if (!personalSignatureRef.current) {
-				return;
-			}
-			fetchRootContent();
-		}
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (personalSignatureDefined) {
+      if (!personalSignatureRef.current) {
+        return;
+      }
+      fetchRootContent();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
   return (
-    <div className="flex flex-col overflow-hidden table-main ">
+    <div className="flex flex-col overflow-hidden table-main " id="content">
       {showShareModal && <ShareModal />}
-      <div className="flex justify-between mb-[15px]">
+      <div className="flex justify-between items-center mb-[15px]">
         <Breadcrumb />
-        <div className="flex gap-3">
-          <div className="relative" ref={ref}>
+        <div className="flex flex-row items-center justify-evenly min-w-fit">
+          <div ref={ref}>
             <button
               className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
               onClick={() => setOpen(!open)}
@@ -378,7 +392,7 @@ export default function Home() {
         />
       </section>
       {/* Sticky footer */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 mb-[50px] sm:mb-0">
         <div className="flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200">
           <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}

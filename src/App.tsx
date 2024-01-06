@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppLayout } from "layouts";
@@ -10,6 +11,7 @@ import PrivateRoute from "components/PrivateRoute";
 import { Spinner3 } from "components/Spinner";
 
 import { Navigate } from "react-router-dom";
+import ShareSharedWithMeGroupdWithMe from "pages/Shared/SharedWithMeGroup";
 
 
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -81,14 +83,16 @@ function App() {
           <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Api />} />
             <Route path ="/space/shared/public/:hash" element={<SharedWithMe shareType="public" />} />
+            <Route path ="/space/shared/group/:group_id" element={<ShareSharedWithMeGroupdWithMe />} />
             <Route path="/space/dashboard" element={<Dashboard />} />
             <Route path="/space/my-storage" element={<MyStorage />} />
             <Route path="/space/folder/*" element={<MyStorage />} />
-            <Route path="/space/shared" element={<Shared shareType="public" />} />
+            <Route path="/space/shared" element={<Shared />} />
             <Route path="/space/recent" element={<Recent />} />
             <Route path="/space/referrals" element={<Referrals />} />
             <Route path="/space/deleted" element={<Deleted />} />
             <Route path="/space/migration" element={<Migration />} />
+            <Route path="/space/api" element={<Api />} />
           </Route>
           <Route path="/space/login" element={<Login />} />
         </Routes>

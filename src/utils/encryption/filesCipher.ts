@@ -2,7 +2,6 @@ import { CID } from "multiformats/cid"
 import { sha256 } from "multiformats/hashes/sha2"
 import { logoutUser } from "state/user/actions";
 import { EncryptionStatus, File as FileType, Folder } from "api";
-import getPersonalSignature from "api/getPersonalSignature";
 import { toast } from "react-toastify";
 
 const RAW_CODEC = 0x55
@@ -48,8 +47,6 @@ const getResultBytes = (cipherBytesArray: Uint8Array, salt: Uint8Array, iv: Uint
 const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> => {
 
     return await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, aesKey, cipherBytes).catch((err) => {
-        alert("error decrypting buffer")
-        console.log("Error decrypting buffer:")
         console.log(err)
         toast.error("Error decrypting buffer")
         return new ArrayBuffer(0)
@@ -111,6 +108,8 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
     const encryptedFilenameBuffer = base64UrlToBuffer(encryptedFilenameBase64Url)
     const encryptedCidOriginalBuffer = base64UrlToBuffer(cidOriginalEncrypted)
     const encryptedFiletypeBuffer = hexToBuffer(encryptedFiletypeBase64Url)
+
+    //TODO: check if the file is encrypted before trying to decrypt, this causes problems
 
     const decryptValue = async (cipherBytes: Uint8Array) => {
         const salt = cipherBytes.slice(0, 16)
@@ -198,7 +197,6 @@ export function base64UrlToBuffer(base64Url: string): Uint8Array {
         while (base64.length % 4 !== 0) {
             base64 += '=';
         }
-
         const str = atob(base64);
         const buffer = new Uint8Array(str.length);
         for (let i = 0; i < str.length; i++) {

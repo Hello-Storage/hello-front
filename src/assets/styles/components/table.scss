@@ -7,32 +7,32 @@
 @media only screen and (min-width: 1024px) {
 	.table-div {
 		overflow-y: scroll;
-		min-height: calc(100vh - 530px);
-		max-height: calc(100vh - 530px);
+		min-height: calc(100vh - 565px);
+		max-height: calc(100vh - 565px);
 	}
 }
 
 @media only screen and (min-width: 768px) and (max-width: 1024px) {
 	.table-div {
 		overflow-y: scroll;
-		min-height: calc(100vh - 580px);
-		max-height: calc(100vh - 580px);
+		min-height: calc(100vh - 615px);
+		max-height: calc(100vh - 615px);
 	}
 }
 
 @media only screen and (min-width: 640px) and (max-width: 768px) {
 	.table-div {
 		overflow-y: scroll;
-		min-height: calc(100vh - 635px);
-		max-height: calc(100vh - 635px);
+		min-height: calc(100vh - 685px);
+		max-height: calc(100vh - 685px);
 	}
 }
 
 @media only screen and (max-width: 640px) {
 	.table-div {
 		overflow-y: scroll;
-		min-height: calc(100vh - 550px);
-		max-height: calc(100vh - 550px);
+		min-height: calc(100vh - 615px);
+		max-height: calc(100vh - 615px);
 	}
 }
 

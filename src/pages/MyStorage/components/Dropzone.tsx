@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
@@ -17,8 +20,7 @@ import { Api, EncryptionStatus, File as FileType } from "api";
 
 import { useAppDispatch, useAppSelector } from "state";
 import { AxiosProgressEvent } from "axios";
-import { createFileAction, createFolderAction } from "state/mystorage/actions";
-import { logoutUser } from "state/user/actions";
+import { createFileAction, createFolderAction, refreshAction } from "state/mystorage/actions";
 
 const getColor = (
   isFocused: boolean,
@@ -55,8 +57,8 @@ const Dropzone = () => {
   }, [autoEncryptionEnabled, encryptionEnabled])
 
 
-  const { name } = useAppSelector((state) => state.user);
   const { fetchRootContent, fetchUserDetail } = useFetchData();
+  const { name } = useAppSelector((state) => state.user);
 
   const { logout } = useAuth();
   const dispatch = useAppDispatch();
@@ -207,12 +209,6 @@ const Dropzone = () => {
           if (filesFound) {
             const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
 
-            // replace for customFile in fileMap values:
-            // - put name_unencrypted to name
-            // - put cid_original_unencrypted to cid_original_encrypted
-            // - put mime_type_unencrypted to mime_type
-            console.log(filesFound);
-
             fileMap.customFile.id = fileFound?.id || 0;
             fileMap.customFile.uid = fileFound?.uid || "";
             fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
@@ -225,26 +221,10 @@ const Dropzone = () => {
 
             if (!isFolder) dispatch(createFileAction(fileMap.customFile));
           }
-          console.log(fileMap.customFile);
-
         })
 
       })
-      .catch((err) => {
-        console.log(err);
-        const error = err.response?.data.error;
-
-        if (
-          !localStorage.getItem("access_token") &&
-          err.response?.status === 401 &&
-          error &&
-          [
-            "authorization header is not provided",
-            "token has expired",
-          ].includes(error)
-        ) {
-          dispatch(logoutUser());
-        }
+      .catch(() => {
         failed = true;
         toast.error("upload failed!");
       })
@@ -296,24 +276,8 @@ const Dropzone = () => {
 
           }
         })
-        .catch((err) => {
-          console.log(err);
-
-          const error = err.response?.data.error;
-
-          if (
-            !localStorage.getItem("access_token") &&
-            err.response?.status === 401 &&
-            error &&
-            [
-              "authorization header is not provided",
-              "token has expired",
-            ].includes(error)
-          ) {
-            dispatch(logoutUser());
-          }
+        .catch(() => {
           toast.error("upload failed!");
-
         })
         .finally(() => dispatch(setUploadStatusAction({ uploading: false })))
     } else {
@@ -326,17 +290,8 @@ const Dropzone = () => {
       );
     }
     if (isFolder) {
-      dispatch(createFolderAction({
-        title: outermostFolderTitle,
-        uid: folderRootUID,
-        root: getRoot(),
-        created_at: "",
-        updated_at: "",
-        deleted_at: "",
-        id: 0,
-        path: "/",
-        encryption_status: thisEncryptionEnabledRef.current ? EncryptionStatus.Encrypted : EncryptionStatus.Public,
-      }))
+      fetchRootContent()
+      dispatch(refreshAction(true))
     }
 
     fetchUserDetail();
