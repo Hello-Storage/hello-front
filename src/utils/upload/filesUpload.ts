@@ -7,7 +7,7 @@ import { AppDispatch } from "state";
 import { createFileAction, createFolderAction } from "state/mystorage/actions";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { User } from "state/user/reducer";
-import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, getAesKey, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
+import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, encryptWebkitRelativePath, getAesKey, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
 import { multipartFileUpload } from "./multipartFileUpload";
 import { FileMap, MultipartFile } from "api/types/files";
 import { singlepartFileUpload } from "./singlepartFileUpload";
@@ -80,12 +80,7 @@ export const handleEncryption = async (
 
     let encryptedWebkitRelativePath = "";
     if (isFolder) {
-        const encryptedWebkitRelativePathTemp = await encryptWebkitRelativePath(file.webkitRelativePath.split("/"), personalSignature);
-        if (!encryptedWebkitRelativePathTemp) {
-            toast.error("Failed to encrypt webkitRelativePath");
-            return null;
-        }
-        encryptedWebkitRelativePath = encryptedWebkitRelativePathTemp;
+        encryptedWebkitRelativePath = await encryptWebkitRelativePath(file.webkitRelativePath.split("/"), personalSignature);
     }
 
     return {
@@ -98,43 +93,7 @@ export const handleEncryption = async (
     };
 };
 
-export const encryptWebkitRelativePath = async (
-    pathComponents: string[],
-    personalSignature: string | undefined,
-): Promise<string | null> => {
 
-    const encryptedPathsMapping: { [path: string]: string } = {};
-    const encryptedPathComponents = [];
-    let encryptedWebkitRelativePath = "";
-
-
-
-    for (const component of pathComponents) {
-        // If this component has been encrypted before, use the cached value
-        if (encryptedPathsMapping[component]) {
-            encryptedPathComponents.push(encryptedPathsMapping[component]);
-        } else {
-            const encodedComponent = new TextEncoder().encode(component);
-            const encryptedComponentBuffer = await encryptBuffer(
-                false,
-                encodedComponent,
-                personalSignature
-            );
-            if (!encryptedComponentBuffer) {
-                toast.error("Failed to encrypt buffer");
-                return null;
-            }
-            const encryptedComponentHex = bufferToHex(encryptedComponentBuffer);
-            encryptedPathsMapping[component] = encryptedComponentHex;
-            encryptedPathComponents.push(encryptedComponentHex);
-        }
-    }
-
-    // Reconstruct the encrypted webkitRelativePath
-    encryptedWebkitRelativePath = encryptedPathComponents.join("/");
-
-    return encryptedWebkitRelativePath;
-}
 
 
 export const uploadFileMultipart = async (file: File, dispatch: AppDispatch, encryptionEnabled: boolean | undefined, cidOriginal: string, cidHash: string): Promise<{ cidOriginal: string, cidHash: string, encryptionTime: number }> => {

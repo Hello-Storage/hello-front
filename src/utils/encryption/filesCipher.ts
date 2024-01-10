@@ -62,6 +62,45 @@ export const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: Crypto
 }
 
 
+export const encryptWebkitRelativePath = async (
+    pathComponents: string[],
+    personalSignature: string | undefined,
+): Promise<string> => {
+
+    const encryptedPathsMapping: { [path: string]: string } = {};
+    const encryptedPathComponents = [];
+    let encryptedWebkitRelativePath = "";
+
+
+
+    for (const component of pathComponents) {
+        // If this component has been encrypted before, use the cached value
+        if (encryptedPathsMapping[component]) {
+            encryptedPathComponents.push(encryptedPathsMapping[component]);
+        } else {
+            const encodedComponent = new TextEncoder().encode(component);
+            const encryptedComponentBuffer = await encryptBuffer(
+                false,
+                encodedComponent,
+                personalSignature
+            );
+            if (!encryptedComponentBuffer) {
+                toast.error("Failed to encrypt buffer");
+                return "";
+            }
+            const encryptedComponentHex = bufferToHex(encryptedComponentBuffer);
+            encryptedPathsMapping[component] = encryptedComponentHex;
+            encryptedPathComponents.push(encryptedComponentHex);
+        }
+    }
+
+    // Reconstruct the encrypted webkitRelativePath
+    encryptedWebkitRelativePath = encryptedPathComponents.join("/");
+
+    return encryptedWebkitRelativePath;
+}
+
+
 
 // Main functions
 

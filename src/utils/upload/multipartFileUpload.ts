@@ -1,6 +1,5 @@
 import { AppDispatch } from "state";
-import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptMetadata, generateEncryptedFileCID, getCid } from "utils/encryption/filesCipher";
-import { encryptWebkitRelativePath } from "./filesUpload";
+import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptMetadata, encryptWebkitRelativePath, generateEncryptedFileCID, getCid } from "utils/encryption/filesCipher";
 import { EncryptionStatus, File as FileType } from "api";
 import { toast } from "react-toastify";
 import { MultipartFile } from "api/types/files";
@@ -25,21 +24,17 @@ export const multipartFileUpload = async (file: File, isFolder: boolean, dispatc
         cidOriginalEncryptedBuffer
     );
 
-    let encryptedWebkitRelativePath = "";
-    if (isFolder) {
-        const encryptedWebkitRelativePathTemp = await encryptWebkitRelativePath(file.webkitRelativePath.split("/"), personalSignature);
-        if (!encryptedWebkitRelativePathTemp) {
-            toast.error("Failed to encrypt webkitRelativePath");
-            return null;
-        }
-        encryptedWebkitRelativePath = encryptedWebkitRelativePathTemp;
-    }
     let customFile: FileType;
-    console.log("encryptedWebkitRelativePath", encryptedWebkitRelativePath)
 
 
     let _cidOfEncryptedBufferStr = "";
     if (encryptionEnabled) {
+        let encryptedWebkitRelativePath = "";
+
+        if (isFolder) {
+            encryptedWebkitRelativePath = await encryptWebkitRelativePath(file.webkitRelativePath.split("/"), personalSignature);
+        }
+
         const { cidOfEncryptedBufferStr, totalEncryptionTime } = await generateEncryptedFileCID(file, dispatch, cidOriginal)
         _cidOfEncryptedBufferStr = cidOfEncryptedBufferStr;
 
