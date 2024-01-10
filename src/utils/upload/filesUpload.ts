@@ -7,7 +7,10 @@ import { AppDispatch } from "state";
 import { createFileAction, createFolderAction } from "state/mystorage/actions";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { User } from "state/user/reducer";
-import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, generateEncryptedFileCID, getAesKey, getCid, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
+import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, getAesKey, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
+import { multipartFileUpload } from "./multipartFileUpload";
+import { FileMap, MultipartFile } from "api/types/files";
+import { singlepartFileUpload } from "./singlepartFileUpload";
 
 
 
@@ -224,32 +227,33 @@ export const fileUpload = async (
     const formData = new FormData();
     formData.append("root", root);
 
-    let personalSignature;
+    let personalSignature = "";
     if (encryptionEnabled) {
-        personalSignature = await getPersonalSignature(
+        const personalSignatureTemp = await getPersonalSignature(
             name,
             encryptionEnabled,
             getAccountType(),
             logout,
         );
-        if (!personalSignature) {
+        if (!personalSignatureTemp) {
             toast.error("Failed to get personal signature");
             logout();
             return;
         }
+        personalSignature = personalSignatureTemp;
     }
 
 
-    let encryptionTimeTotal = 0;
+    let encryptionTimeTotalThis = 0;
 
-    const filesMap: { customFile: FileType; file: File }[] = [];
-    const multipartFiles: { customFile: FileType, file: File, cidOriginal: string, cidOfEncryptedBufferStr: string }[] = [];
+    const filesMapThis: FileMap[] = [];
+    const multipartFilesThis: MultipartFile[] = [];
 
     let folderRootUID = "";
 
 
     for (let i = 0; i < files.length; i++) {
-        let file = files[i];
+        const file = files[i];
 
         dispatch(setUploadStatusAction({
             info: "Uploading file " + (i + 1) + " of " + files.length,
@@ -258,189 +262,32 @@ export const fileUpload = async (
 
         // if file size is bigger than 10 KB:
         if (file.size > MULTIPART_THRESHOLD) {
-            const cidOriginal = await getCid(file, dispatch)
-            //const cidHash = await getHashString(cidOriginal);
-            //const cidOfEncryptedBufferStr = cidHash;
+            const multipartResult = await multipartFileUpload(file, isFolder, dispatch, encryptionEnabled, personalSignature, encryptionTimeTotalThis, root);
+            if (multipartResult) {
+                const { multipartFiles, encryptionTimeTotal } = multipartResult;
 
-            const cidOriginalBuffer = new TextEncoder().encode(cidOriginal);
-            const cidOriginalEncryptedBuffer = await encryptBuffer(
-                false,
-                cidOriginalBuffer,
-                personalSignature
-            );
+                multipartFilesThis.push(...multipartFiles);
+                encryptionTimeTotalThis += encryptionTimeTotal;
 
-            if (!cidOriginalEncryptedBuffer) {
-                toast.error("Failed to encrypt buffer");
-                return null;
-            }
-            const cidOriginalEncryptedBase64Url = bufferToBase64Url(
-                cidOriginalEncryptedBuffer
-            );
-
-            let encryptedWebkitRelativePath = "";
-            if (isFolder) {
-                const encryptedWebkitRelativePathTemp = await encryptWebkitRelativePath(file.webkitRelativePath.split("/"), personalSignature);
-                if (!encryptedWebkitRelativePathTemp) {
-                    toast.error("Failed to encrypt webkitRelativePath");
-                    return;
-                }
-                encryptedWebkitRelativePath = encryptedWebkitRelativePathTemp;
-            }
-            let customFile: FileType;
-            console.log("encryptedWebkitRelativePath", encryptedWebkitRelativePath)
-
-
-            let _cidOfEncryptedBufferStr = "";
-            if (encryptionEnabled) {
-                const { cidOfEncryptedBufferStr, totalEncryptionTime } = await generateEncryptedFileCID(file, dispatch, cidOriginal)
-                _cidOfEncryptedBufferStr = cidOfEncryptedBufferStr;
-
-                encryptionTimeTotal += totalEncryptionTime;
-                const encryptedMetadataResult = await encryptMetadata(
-                    file,
-                    personalSignature
-                );
-                if (!encryptedMetadataResult) {
-                    toast.error("Failed to encrypt metadata");
-                    return null;
-                }
-                const { encryptedFilename, encryptedFiletype } =
-                    encryptedMetadataResult;
-                const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-                const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
-
-                customFile = {
-                    name: encryptedFilenameBase64Url,
-                    name_unencrypted: file.name,
-                    cid: cidOfEncryptedBufferStr || "",
-                    id: 0,
-                    uid: "",
-                    cid_original_encrypted: cidOriginalEncryptedBase64Url || "",
-                    cid_original_unencrypted: cidOriginal || "",
-                    cid_original_encrypted_base64_url: cidOriginalEncryptedBase64Url,
-                    size: file.size,
-                    root: root,
-                    mime_type: encryptedFiletypeHex,
-                    mime_type_unencrypted: file.type,
-                    media_type: encryptedFiletypeHex.split("/")[0],
-                    path: encryptedWebkitRelativePath,
-                    encryption_status: EncryptionStatus.Encrypted,
-                    created_at: "",
-                    updated_at: "",
-                    deleted_at: "",
-                }
-
-
-                //filesMap.push({ customFile, file });
             } else {
-                customFile = {
-                    name: file.name,
-                    name_unencrypted: file.name,
-                    cid: cidOriginal,
-                    id: 0,
-                    uid: "",
-                    cid_original_encrypted: "",
-                    size: file.size,
-                    root: root,
-                    mime_type: file.type,
-                    mime_type_unencrypted: file.type,
-                    media_type: file.type.split("/")[0],
-                    path: file.webkitRelativePath,
-                    encryption_status: EncryptionStatus.Public,
-                    created_at: "",
-                    updated_at: "",
-                    deleted_at: "",
-                }
+                toast.error("Failed to upload multipart file");
+                return;
             }
-            const cidOfEncryptedBufferStr = _cidOfEncryptedBufferStr;
-
-            multipartFiles.push({ customFile, file, cidOriginal, cidOfEncryptedBufferStr });
-
-
         } else {
-            if (encryptionEnabled) {
-                const originalFile = file;
-                const infoText = `Encrypting file ${i + 1} of ${files.length}`;
-                dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-                const encryptedResult = await handleEncryption(
-                    file,
-                    personalSignature,
-                    isFolder,
-                    dispatch,
-                );
-                if (!encryptedResult) {
-                    toast.error("Failed to encrypt file");
-                    return;
-                }
-                const {
-                    encryptedFile,
-                    cidOfEncryptedBufferStr,
-                    cidOriginalStr,
-                    cidOriginalEncryptedBase64Url,
-                    encryptedWebkitRelativePath,
-                    encryptionTime,
-                } = encryptedResult;
-
-
-                file = encryptedFile;
-
-
-
-                encryptionTimeTotal += encryptionTime;
-
-                const customFile: FileType = {
-                    name: encryptedFile.name,
-                    name_unencrypted: originalFile.name,
-                    cid: cidOfEncryptedBufferStr || "",
-                    id: 0,
-                    uid: "",
-                    cid_original_encrypted: cidOriginalEncryptedBase64Url || "",
-                    cid_original_unencrypted: cidOriginalStr || "",
-                    cid_original_encrypted_base64_url: cidOriginalEncryptedBase64Url,
-                    size: encryptedFile.size,
-                    root: root,
-                    mime_type: encryptedFile.type,
-                    mime_type_unencrypted: originalFile.type,
-                    media_type: encryptedFile.type.split("/")[0],
-                    path: encryptedWebkitRelativePath,
-                    encryption_status: EncryptionStatus.Encrypted,
-                    created_at: "",
-                    updated_at: "",
-                    deleted_at: "",
-                }
-
-                filesMap.push({ customFile, file });
-
+            //singlepart file upload
+            const singlepartResult = await singlepartFileUpload(personalSignature, encryptionEnabled, files.length, i, file, dispatch, isFolder, encryptionTimeTotalThis, root);
+            if (singlepartResult) {
+                const { encryptionTimeTotal, filesMap } = singlepartResult;
+                encryptionTimeTotalThis += encryptionTimeTotal;
+                filesMapThis.push(...filesMap);
             } else {
-                const fileArrayBuffer = await file.arrayBuffer();
-                const cidStr = await getCid(fileArrayBuffer, dispatch);
-
-                const customFile: FileType = {
-                    name: file.name,
-                    name_unencrypted: file.name,
-                    cid: cidStr,
-                    id: 0,
-                    uid: "",
-                    cid_original_encrypted: "",
-                    size: file.size,
-                    root: root,
-                    mime_type: file.type,
-                    mime_type_unencrypted: file.type,
-                    media_type: file.type.split("/")[0],
-                    path: file.webkitRelativePath,
-                    encryption_status: EncryptionStatus.Public,
-                    created_at: "",
-                    updated_at: "",
-                    deleted_at: "",
-                }
-
-                filesMap.push({ customFile, file });
-
+                toast.error("Failed to upload singlepart file");
+                return;
             }
         }
     }
-    if (multipartFiles.length > 0) {
-        await Api.post(`/file/pool/check`, multipartFiles.map(({ customFile }) => customFile))
+    if (multipartFilesThis.length > 0) {
+        await Api.post(`/file/pool/check`, multipartFilesThis.map(({ customFile }) => customFile))
             .then(async (res) => {
 
                 // CIDs of files that were FOUND in S3 and need to be dispatched.
@@ -454,7 +301,7 @@ export const fileUpload = async (
                     const usedFileIndices = new Set<number>();
                     const filesFound: FileType[] = res.data?.filesFound;
                     //dispatch fileFound
-                    multipartFiles.forEach(({ customFile, file, cidOriginal }) => {
+                    multipartFilesThis.forEach(({ customFile, file, cidOriginal }) => {
                         // Find a matching file in filesFound where the CID matches and it hasn't been used
                         const foundIndex = filesFound.findIndex((fileFound, index) =>
                             fileFound.cid === customFile.cid && !usedFileIndices.has(index)
@@ -476,7 +323,7 @@ export const fileUpload = async (
                     })
 
                     // Remove the files that were found for later upload to S3
-                    const filesToUpload = multipartFiles.filter(({ customFile }) => {
+                    const filesToUpload = multipartFilesThis.filter(({ customFile }) => {
                         const isFound = filesFound.some(fileFound => fileFound.cid === customFile.cid);
 
                         return !isFound;
@@ -518,7 +365,7 @@ export const fileUpload = async (
                                 cidOriginalUnencrypted = firstFile.customFile.cid_original_unencrypted || "";
                             }
                             const { encryptionTime } = await uploadFileMultipart(filesToUpload[0].file, dispatch, encryptionEnabled, cidOriginalUnencrypted, filesToUpload[0].customFile.cid)
-                            encryptionTimeTotal += encryptionTime;
+                            encryptionTimeTotalThis += encryptionTime;
                         }
 
                     })
@@ -563,11 +410,11 @@ export const fileUpload = async (
 
                 } else {
 
-                    const promises = multipartFiles.map(async ({ customFile, file, cidOriginal, cidOfEncryptedBufferStr }) => {
+                    const promises = multipartFilesThis.map(async ({ customFile, file, cidOriginal, cidOfEncryptedBufferStr }) => {
                         //upload chunks
                         console.log("fileFound: null")
                         const { encryptionTime } = await uploadFileMultipart(file, dispatch, encryptionEnabled, cidOriginal, cidOfEncryptedBufferStr)
-                        encryptionTimeTotal += encryptionTime;
+                        encryptionTimeTotalThis += encryptionTime;
 
                         //post api metadata to /file/create
                         /*
@@ -627,25 +474,25 @@ export const fileUpload = async (
     }
 
     //parse encryption total of all files with encrypted option
-    if (encryptionTimeTotal > 0) {
+    if (encryptionTimeTotalThis > 0) {
         let encryptionSuffix = "milliseconds";
-        if (encryptionTimeTotal >= 1000 && encryptionTimeTotal < 60000) {
-            encryptionTimeTotal /= 1000;
+        if (encryptionTimeTotalThis >= 1000 && encryptionTimeTotalThis < 60000) {
+            encryptionTimeTotalThis /= 1000;
             encryptionSuffix = "seconds";
-        } else if (encryptionTimeTotal >= 60000) {
-            encryptionTimeTotal /= 60000;
+        } else if (encryptionTimeTotalThis >= 60000) {
+            encryptionTimeTotalThis /= 60000;
             encryptionSuffix = "minutes";
         }
         const encryptionTimeParsed =
             "Encrypting the data took " +
-            encryptionTimeTotal.toFixed(2).toString() +
+            encryptionTimeTotalThis.toFixed(2).toString() +
             " " +
             encryptionSuffix;
         toast.success(`${encryptionTimeParsed}`);
     }
 
 
-    if (filesMap.length === 0) {
+    if (filesMapThis.length === 0) {
         dispatch(
             setUploadStatusAction({
                 info: "Finished uploading data",
@@ -676,7 +523,7 @@ export const fileUpload = async (
             : `uploading ${files.length} files`;
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-    postData(folderRootUID, formData, filesMap, outermostFolderTitle, isFolder, dispatch, onUploadProgress, fetchUserDetail, root, encryptionEnabled);
+    postData(folderRootUID, formData, filesMapThis, outermostFolderTitle, isFolder, dispatch, onUploadProgress, fetchUserDetail, root, encryptionEnabled);
 };
 
 export const postData = async (folderRootUID: string, formData: FormData, filesMap: { customFile: FileType, file: File }[], outermostFolderTitle: string, isFolder: boolean, dispatch: AppDispatch, onUploadProgress: (progressEvent: AxiosProgressEvent) => void, fetchUserDetail: () => void, root: string, encryptionEnabled: boolean | undefined) => {
