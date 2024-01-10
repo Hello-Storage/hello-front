@@ -2,16 +2,14 @@ import { CID } from "multiformats/cid"
 import { sha256 } from "multiformats/hashes/sha2"
 import { logoutUser } from "state/user/actions";
 import { EncryptionStatus, File as FileType, Folder } from "api";
-import getPersonalSignature from "api/getPersonalSignature";
 import { toast } from "react-toastify";
 
 const RAW_CODEC = sha256.code
 
-import { createSHA256, sha256 as sha256wasm } from "hash-wasm";
+import { createSHA256 } from "hash-wasm";
 import * as digest from 'multiformats/hashes/digest'
 import { AppDispatch } from "state";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
-import { string } from "yargs";
 
 
 // Utility Functions
@@ -116,7 +114,6 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
         logoutUser();
         return;
     }
-    const encryptedFilenameBuffer = base64UrlToBuffer(encryptedFilenameBase64Url)
     const encryptedCidOriginalBuffer = base64UrlToBuffer(cidOriginalEncrypted)
     const encryptedFiletypeBuffer = hexToBuffer(encryptedFiletypeBase64Url)
 

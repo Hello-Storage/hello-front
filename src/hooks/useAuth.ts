@@ -11,36 +11,36 @@ import {
 import setPersonalSignature from "api/setPersonalSignature";
 import setAccountType from "api/setAccountType";
 import { removeContent } from "state/mystorage/actions";
-import { signPersonalSignature } from "utils/encryption/cipherUtils";
+import { signPersonalSignature } from "utils/encryption/web3Utils";
 import * as Web3 from "web3";
 
 const useAuth = () => {
   const load = useCallback(async () => {
-		try {
-			state.dispatch(loadingUser());
-			if (localStorage.getItem("access_token")) {
-				const loadResp = await Api.get<LoadUserResponse>("/load");
+    try {
+      state.dispatch(loadingUser());
+      if (localStorage.getItem("access_token")) {
+        const loadResp = await Api.get<LoadUserResponse>("/load");
 
-				const privateKey = loadResp.data.walletPrivateKey;
+        const privateKey = loadResp.data.walletPrivateKey;
 
-				if (privateKey) {
-					//sign message with private key
+        if (privateKey) {
+          //sign message with private key
 
-					const signature = await signPersonalSignature(
-						loadResp.data.walletAddress,
-						localStorage.getItem("account_type") as AccountType,
-						privateKey
-					);
-					setPersonalSignature(signature);
-				}
+          const signature = await signPersonalSignature(
+            loadResp.data.walletAddress,
+            localStorage.getItem("account_type") as AccountType,
+            privateKey
+          );
+          setPersonalSignature(signature);
+        }
 
-				state.dispatch(loadUser(loadResp.data));
-			} else {
-				throw Error("User not found");
-			}
-		} catch (error) {
-			state.dispatch(loadUserFail());
-		}
+        state.dispatch(loadUser(loadResp.data));
+      } else {
+        throw Error("User not found");
+      }
+    } catch (error) {
+      state.dispatch(loadUserFail());
+    }
   }, []);
 
   const login = useCallback(async (wallet_address: string) => {
@@ -73,7 +73,7 @@ const useAuth = () => {
   }, []);
 
   // otp (one-time-passcode login)
-  const startOTP = async (email: string ) => {
+  const startOTP = async (email: string) => {
     const referrer_code = new URLSearchParams(window.location.search).get("ref");
     try {
       const account = Web3.eth.accounts.create();
@@ -107,16 +107,16 @@ const useAuth = () => {
       setAuthToken(undefined);
     } else {
       state.dispatch(logoutUser());
-  
+
       setPersonalSignature(undefined);
       setAccountType(undefined);
       state.dispatch(removeContent());
-  
+
       // disconnect when you sign with wallet
       disconnect();
     }
   }, []);
-  
+
 
   return {
     login,

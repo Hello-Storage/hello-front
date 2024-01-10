@@ -1,6 +1,6 @@
 // store personalSignature in SS and set axios headers if we do have a token
 
-import { signPersonalSignature } from "utils/encryption/cipherUtils";
+import { signPersonalSignature } from "utils/encryption/web3Utils";
 import setPersonalSignature from "./setPersonalSignature";
 import { AccountType } from "./types";
 
@@ -31,12 +31,12 @@ const getPersonalSignature = async (walletAddress: string, autoEncryption: boole
                 return personalSignature;
             } else {
                 if (logout)
-                logout();
+                    logout();
                 return;
             }
         } else {
             if (logout)
-            logout();
+                logout();
             return;
         }
     }
