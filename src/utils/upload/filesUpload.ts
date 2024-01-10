@@ -2,17 +2,12 @@ import { Api, EncryptionStatus, File as FileType } from "api";
 import getAccountType from "api/getAccountType";
 import getPersonalSignature from "api/getPersonalSignature";
 import { AxiosProgressEvent } from "axios";
-import dayjs from "dayjs";
-import { createSHA256 } from "hash-wasm";
-import { sha256 } from "multiformats/hashes/sha2"
 import { toast } from "react-toastify";
 import { AppDispatch } from "state";
 import { createFileAction, createFolderAction } from "state/mystorage/actions";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { User } from "state/user/reducer";
-import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, generateEncryptedFileCID, getAesKey, getCid, getCipherBytes, getHashString, getResultBytes } from "utils/encryption/filesCipher";
-import * as digest from 'multiformats/hashes/digest'
-import { CID } from "multiformats/cid"
+import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, generateEncryptedFileCID, getAesKey, getCid, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
 
 
 
@@ -88,32 +83,6 @@ export const handleEncryption = async (
             return null;
         }
         encryptedWebkitRelativePath = encryptedWebkitRelativePathTemp;
-        /*
-                const pathComponents = file.webkitRelativePath.split("/");
-                const encryptedPathComponents = [];
-                for (const component of pathComponents) {
-                    // If this component has been encrypted before, use the cached value
-                    if (encryptedPathsMapping[component]) {
-                        encryptedPathComponents.push(encryptedPathsMapping[component]);
-                    } else {
-                        const encryptedComponentBuffer = await encryptBuffer(
-                            new TextEncoder().encode(component),
-                            personalSignature
-                        );
-                        if (!encryptedComponentBuffer) {
-                            toast.error("Failed to encrypt buffer");
-                            return null;
-                        }
-                        const encryptedComponentHex = bufferToHex(encryptedComponentBuffer);
-                        encryptedPathsMapping[component] = encryptedComponentHex;
-                        encryptedPathComponents.push(encryptedComponentHex);
-                    }
-                }
-        
-                // Reconstruct the encrypted webkitRelativePath
-                encryptedWebkitRelativePath = encryptedPathComponents.join("/");
-        
-                */
     }
 
     return {
@@ -164,76 +133,6 @@ export const encryptWebkitRelativePath = async (
     return encryptedWebkitRelativePath;
 }
 
-
-
-/*
-const handleBackendEncryption = async (
-    file: File,
-    personalSignature: string | undefined,
-    isFolder: boolean,
-    root: string,
-    dispatch: AppDispatch,
-): Promise<{
-    encryptedFilename: string;
-    encryptedFiletype: string;
-    cidOriginalStr?: string;
-    cidOfEncryptedBufferStr: string;
-    cidOriginalEncryptedBase64Url: string;
-    encryptionTime: number;
-    encryptedWebkitRelativePath: string;
-} | null> => {
-    alert(await getCid(await file.arrayBuffer(), dispatch))
-    alert(await getCid(file, dispatch).catch((err) => console.log(err)))
-    if (!personalSignature) {
-        toast.error("Failed to get personal signature");
-        return null;
-    }
-    
-    
-        const fileForm = new FormData();
-        //get file name and file type
-        const encryptedMetadataResult = await encryptMetadata(
-            file,
-            personalSignature
-        );
-        const { encryptedFilename, encryptedFiletype, fileLastModified } =
-            encryptedMetadataResult;
-    
-        fileForm.append("file", file);
-        fileForm.append("personalSignature", personalSignature);
-        fileForm.append("isFolder", isFolder.toString());
-        fileForm.append("root", root);
-        //append webkitRelativePath to formdata if isFolder
-        if (isFolder) {
-            fileForm.append("webkitRelativePath", file.webkitRelativePath);
-        }
-    
-        const result = await Api.post(`/file/encrypt`, fileForm, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            }
-        }).then((res) => {
-    
-            console.log(res)
-            return {
-                encryptedFilename: res.data.encryptedFilename,
-                encryptedFiletype: res.data.encryptedFiletype,
-                cidOriginalStr: res.data.cidOriginalStr,
-                cidOfEncryptedBufferStr: res.data.cidOfEncryptedBufferStr,
-                cidOriginalEncryptedBase64Url: res.data.cidOriginalEncryptedBase64Url,
-                encryptedWebkitRelativePath: res.data.encryptedWebkitRelativePath,
-                encryptionTime: parseInt(res.data.encryptionTime),
-            }
-        }).catch((error) => {
-            console.log("Error during backend encryption:", error)
-            return null;
-        })
-        
-
-
-    return null;
-};
-*/
 
 export const uploadFileMultipart = async (file: File, dispatch: AppDispatch, encryptionEnabled: boolean | undefined, cidOriginal: string, cidHash: string): Promise<{ cidOriginal: string, cidHash: string, encryptionTime: number }> => {
     const AES_GCM_TAG_LENGTH = 16;
@@ -296,6 +195,7 @@ export const uploadChunk = async (chunk: Blob, offset: number, cid: string, isLa
                 'Content-Type': 'multipart/form-data'
             },
         })
+        console.log(response)
     } catch (error) {
         toast.error('Error uploading chunk: ' + error)
     }
@@ -404,7 +304,7 @@ export const fileUpload = async (
                     toast.error("Failed to encrypt metadata");
                     return null;
                 }
-                const { encryptedFilename, encryptedFiletype, fileLastModified } =
+                const { encryptedFilename, encryptedFiletype } =
                     encryptedMetadataResult;
                 const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
                 const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
@@ -554,7 +454,7 @@ export const fileUpload = async (
                     const usedFileIndices = new Set<number>();
                     const filesFound: FileType[] = res.data?.filesFound;
                     //dispatch fileFound
-                    multipartFiles.forEach(({ customFile, file, cidOriginal }, index) => {
+                    multipartFiles.forEach(({ customFile, file, cidOriginal }) => {
                         // Find a matching file in filesFound where the CID matches and it hasn't been used
                         const foundIndex = filesFound.findIndex((fileFound, index) =>
                             fileFound.cid === customFile.cid && !usedFileIndices.has(index)
