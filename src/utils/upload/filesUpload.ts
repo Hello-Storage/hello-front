@@ -8,9 +8,9 @@ import { createFileAction, createFolderAction } from "state/mystorage/actions";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { User } from "state/user/reducer";
 import { getAesKey, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
-import { multipartFileUpload } from "./multipartFileUpload";
+import { multipartFileUploadProcessing } from "./multipartFileUpload";
 import { FileMap, MultipartFile } from "api/types/files";
-import { singlepartFileUpload } from "./singlepartFileUpload";
+import { singlepartFileUploadProcessing } from "./singlepartFileUpload";
 
 
 
@@ -148,7 +148,7 @@ export const fileUpload = async (
 
         // if file size is bigger than 10 KB:
         if (file.size > MULTIPART_THRESHOLD) {
-            const multipartResult = await multipartFileUpload(file, isFolder, dispatch, encryptionEnabled, personalSignature, encryptionTimeTotalThis, root);
+            const multipartResult = await multipartFileUploadProcessing(file, isFolder, dispatch, encryptionEnabled, personalSignature, encryptionTimeTotalThis, root);
             if (multipartResult) {
                 const { multipartFiles, encryptionTimeTotal } = multipartResult;
 
@@ -161,11 +161,11 @@ export const fileUpload = async (
             }
         } else {
             //singlepart file upload
-            const singlepartResult = await singlepartFileUpload(personalSignature, encryptionEnabled, files.length, i, file, dispatch, isFolder, encryptionTimeTotalThis, root);
+            const singlepartResult = await singlepartFileUploadProcessing(personalSignature, encryptionEnabled, files.length, i, file, dispatch, isFolder, encryptionTimeTotalThis, root);
             if (singlepartResult) {
                 const { encryptionTimeTotal, filesMap } = singlepartResult;
-                encryptionTimeTotalThis += encryptionTimeTotal;
                 filesMapThis.push(...filesMap);
+                encryptionTimeTotalThis += encryptionTimeTotal;
             } else {
                 toast.error("Failed to upload singlepart file");
                 return;
@@ -303,17 +303,6 @@ export const fileUpload = async (
                         encryptionTimeTotalThis += encryptionTime;
 
                         //post api metadata to /file/create
-                        /*
-                        const formData = new FormData();
-                        formData.append("root", root);
-                        formData.append("name", customFile.name);
-                        formData.append("cid", customFile.cid);
-                        formData.append("cid_original_encrypted", customFile.cid_original_encrypted);
-                        formData.append("mime", customFile.mime_type);
-                        formData.append("size", customFile.size.toString());
-                        formData.append("encryption_status", customFile.encryption_status.toString());
-                        formData.append("path", customFile.path);
-                */
                         await Api.post("/file/create", customFile, {
                             headers: {
                                 "Content-Type": "application/json",

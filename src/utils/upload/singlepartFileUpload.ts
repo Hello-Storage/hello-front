@@ -6,7 +6,7 @@ import { FileMap } from "api/types/files";
 import { getCid } from "utils/encryption/filesCipher";
 import { handleSinglepartFileEncryption } from "./singlepartFileEncryption";
 
-export const singlepartFileUpload = async (personalSignature: string, encryptionEnabled: boolean | undefined, filesLength: number, index: number, file: File, dispatch: AppDispatch, isFolder: boolean, encryptionTimeTotal: number, root: string): Promise<{ filesMap: FileMap[], encryptionTimeTotal: number } | null> => {
+export const singlepartFileUploadProcessing = async (personalSignature: string, encryptionEnabled: boolean | undefined, filesLength: number, index: number, file: File, dispatch: AppDispatch, isFolder: boolean, encryptionTimeTotal: number, root: string): Promise<{ filesMap: FileMap[], encryptionTimeTotal: number } | null> => {
     const filesMap: FileMap[] = [];
     if (encryptionEnabled) {
         const originalFile = file;
@@ -31,10 +31,7 @@ export const singlepartFileUpload = async (personalSignature: string, encryption
             encryptionTime,
         } = encryptedResult;
 
-
         file = encryptedFile;
-
-
 
         encryptionTimeTotal += encryptionTime;
 

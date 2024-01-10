@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { AppDispatch } from "state";
-import { bufferToBase64Url, bufferToHex, cidToEncryptedBase64Url, encryptFileBuffer, encryptMetadata, encryptWebkitRelativePath } from "utils/encryption/filesCipher";
+import { cidToEncryptedBase64Url, encryptFileBuffer, encryptMetadata, encryptWebkitRelativePath } from "utils/encryption/filesCipher";
 
 export const handleSinglepartFileEncryption = async (
     file: File,
@@ -17,6 +17,21 @@ export const handleSinglepartFileEncryption = async (
 } | null> => {
     const fileArrayBuffer = await file.arrayBuffer();
 
+    const {
+        cidOriginalStr,
+        cidOfEncryptedBufferStr,
+        encryptedFileBuffer,
+        encryptionTime,
+    } = await encryptFileBuffer(fileArrayBuffer, dispatch);
+
+
+
+
+    let encryptedWebkitRelativePath = "";
+    if (isFolder) {
+        encryptedWebkitRelativePath = await encryptWebkitRelativePath(file.webkitRelativePath.split("/"), personalSignature);
+    }
+    const cidOriginalEncryptedBase64Url = await cidToEncryptedBase64Url(cidOriginalStr, personalSignature)
     const encryptedMetadataResult = await encryptMetadata(
         file,
         personalSignature
@@ -25,33 +40,21 @@ export const handleSinglepartFileEncryption = async (
         toast.error("Failed to encrypt metadata");
         return null;
     }
-    const { encryptedFilename, encryptedFiletype, fileLastModified } =
+    const { encryptedFilenameBase64Url, encryptedFiletypeHex } =
         encryptedMetadataResult;
-    const {
-        cidOriginalStr,
-        cidOfEncryptedBufferStr,
-        encryptedFileBuffer,
-        encryptionTime,
-    } = await encryptFileBuffer(fileArrayBuffer, dispatch);
 
-    const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-    const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
 
-    const cidOriginalEncryptedBase64Url = await cidToEncryptedBase64Url(cidOriginalStr, personalSignature)
 
 
     const encryptedFileBlob = new Blob([encryptedFileBuffer]);
     const encryptedFile = new File(
         [encryptedFileBlob],
         encryptedFilenameBase64Url,
-        { type: encryptedFiletypeHex, lastModified: fileLastModified }
+        { type: encryptedFiletypeHex }
     );
 
 
-    let encryptedWebkitRelativePath = "";
-    if (isFolder) {
-        encryptedWebkitRelativePath = await encryptWebkitRelativePath(file.webkitRelativePath.split("/"), personalSignature);
-    }
+
 
     return {
         encryptedFile,

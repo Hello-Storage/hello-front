@@ -1,10 +1,10 @@
 import { AppDispatch } from "state";
-import { bufferToBase64Url, bufferToHex, cidToEncryptedBase64Url, encryptMetadata, encryptWebkitRelativePath, generateEncryptedFileCID, getCid } from "utils/encryption/filesCipher";
+import { cidToEncryptedBase64Url, encryptMetadata, encryptWebkitRelativePath, generateEncryptedFileCID, getCid } from "utils/encryption/filesCipher";
 import { EncryptionStatus, File as FileType } from "api";
 import { toast } from "react-toastify";
 import { MultipartFile } from "api/types/files";
 
-export const multipartFileUpload = async (file: File, isFolder: boolean, dispatch: AppDispatch, encryptionEnabled: boolean | undefined, personalSignature: string, encryptionTimeTotal: number, root: string): Promise<{ multipartFiles: MultipartFile[], encryptionTimeTotal: number } | null> => {
+export const multipartFileUploadProcessing = async (file: File, isFolder: boolean, dispatch: AppDispatch, encryptionEnabled: boolean | undefined, personalSignature: string, encryptionTimeTotal: number, root: string): Promise<{ multipartFiles: MultipartFile[], encryptionTimeTotal: number } | null> => {
     // TODO: sepparate encrypted part and unencrypted part
     const multipartFiles: MultipartFile[] = [];
     const cidOriginal = await getCid(file, dispatch)
@@ -17,17 +17,18 @@ export const multipartFileUpload = async (file: File, isFolder: boolean, dispatc
 
 
     if (encryptionEnabled) {
-        const cidOriginalEncryptedBase64Url = await cidToEncryptedBase64Url(cidOriginal, personalSignature);
-        let encryptedWebkitRelativePath = "";
+        const { cidOfEncryptedBufferStr, totalEncryptionTime } = await generateEncryptedFileCID(file, dispatch, cidOriginal)
+        _cidOfEncryptedBufferStr = cidOfEncryptedBufferStr;
+        encryptionTimeTotal += totalEncryptionTime;
 
+
+
+
+        let encryptedWebkitRelativePath = "";
         if (isFolder) {
             encryptedWebkitRelativePath = await encryptWebkitRelativePath(file.webkitRelativePath.split("/"), personalSignature);
         }
-
-        const { cidOfEncryptedBufferStr, totalEncryptionTime } = await generateEncryptedFileCID(file, dispatch, cidOriginal)
-        _cidOfEncryptedBufferStr = cidOfEncryptedBufferStr;
-
-        encryptionTimeTotal += totalEncryptionTime;
+        const cidOriginalEncryptedBase64Url = await cidToEncryptedBase64Url(cidOriginal, personalSignature);
         const encryptedMetadataResult = await encryptMetadata(
             file,
             personalSignature
@@ -36,10 +37,11 @@ export const multipartFileUpload = async (file: File, isFolder: boolean, dispatc
             toast.error("Failed to encrypt metadata");
             return null;
         }
-        const { encryptedFilename, encryptedFiletype } =
+        const { encryptedFilenameBase64Url, encryptedFiletypeHex } =
             encryptedMetadataResult;
-        const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-        const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
+
+
+
 
         customFile = {
             name: encryptedFilenameBase64Url,

@@ -105,10 +105,10 @@ export const encryptWebkitRelativePath = async (
 // Main functions
 
 
-export const encryptMetadata = async (file: File, personalSignature: string | undefined): Promise<{ encryptedFilename: Uint8Array, encryptedFiletype: Uint8Array, fileSize: number, fileLastModified: number } | undefined> => {
+export const encryptMetadata = async (file: File, personalSignature: string | undefined): Promise<{ encryptedFilenameBase64Url: string, encryptedFiletypeHex: string, fileSize: number, fileLastModified: number } | undefined> => {
     if (!personalSignature) {
         logoutUser();
-        return;
+        return undefined;
     }
     //const salt = new Uint8Array(16).fill(0);
     //const iv = new Uint8Array(12).fill(0);
@@ -126,8 +126,12 @@ export const encryptMetadata = async (file: File, personalSignature: string | un
     const encryptedFilename = await encryptValue(file.name)
     const encryptedFiletype = await encryptValue(file.type)
 
+    const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
+    const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
 
-    return { encryptedFilename, encryptedFiletype, fileSize: file.size, fileLastModified: file.lastModified };
+
+
+    return { encryptedFilenameBase64Url, encryptedFiletypeHex, fileSize: file.size, fileLastModified: file.lastModified };
 }
 
 
