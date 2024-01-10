@@ -13,7 +13,7 @@ import Cloud from "assets/images/Outline/Cloud-upload.png";
 import { FiX } from "react-icons/fi";
 import { CreateFolderModal, ProgressBar } from "components";
 import { useModal } from "components/Modal";
-import { AccountType, Api } from "api";
+import { AccountType } from "api";
 import { useFetchData, useDropdown, useAuth } from "hooks";
 import {
   toggleEncryption,
@@ -23,7 +23,7 @@ import {
 import LogoHello from "@images/beta.png";
 import HotReferral from "@images/hotreferral.png";
 import "react-toggle/style.css";
-import { AppDispatch, useAppDispatch, useAppSelector } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import { formatBytes, formatPercent } from "utils";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { AxiosProgressEvent } from "axios";
@@ -31,10 +31,6 @@ import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import { fileUpload } from "utils/upload/filesUpload";
-import { toast } from "react-toastify";
-import { blobToArrayBuffer, decryptContentUtil, decryptFileBuffer, getAesKey, getCid, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
-import { logoutUser } from "state/user/actions";
-import { Uint } from "web3";
 
 
 
@@ -114,7 +110,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
   useDropdown(dropRef, open, setOpen);
 
   const fileInput = useRef<HTMLInputElement>(null);
-  const chunkInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
   const [onPresent] = useModal(<CreateFolderModal />);
 
@@ -136,10 +131,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   const handleFileUpload = () => {
     fileInput.current?.click();
-  };
-
-  const handleChunkUpload = () => {
-    chunkInput.current?.click();
   };
 
   const handleFolderUpload = () => {
@@ -166,84 +157,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     const root = getRoot();
     fileUpload(files, false, root, encryptionEnabled, name, logout, dispatch, onUploadProgress, fetchUserDetail);
   };
-
-  const handleChunkInputChange: ChangeEventHandler<HTMLInputElement> = (
-    event
-  ) => {
-    setSidebarOpen(false);
-    const files = event.target.files;
-    const root = getRoot();
-    if (!files) return;
-    uploadFileMultipart(files[0]).then(() => {
-      fetchUserDetail();
-      toast.success('File chunks uploaded successfully')
-    }).catch((error) => {
-      toast.error('Error uploading file chunks: ' + error)
-    });
-
-
-
-  };
-  const AES_GCM_TAG_LENGTH = 16;
-
-  const uploadFileMultipart = async (file: File) => {
-    const cid = await getCid(file, dispatch)
-    const { aesKey, salt, iv } = await getAesKey(cid, ['encrypt']);
-
-    const chunkSize = 5 * 1024 * 1024; // 5MB
-    let offset = 0;
-
-    while (offset < file.size) {
-      const end = Math.min(file.size, offset + chunkSize - AES_GCM_TAG_LENGTH);
-      let chunk = file.slice(offset, end);
-      const isLastChunk = end >= file.size;
-
-      const chunkArrayBuffer = await chunk.arrayBuffer();
-      if (encryptionEnabled) {
-        let encryptedChunk = await getCipherBytes(chunkArrayBuffer, aesKey, iv);
-        if (offset === 0) {
-          //get result bytes
-          encryptedChunk = getResultBytes(encryptedChunk, salt, iv);
-        }
-        chunk = new Blob([encryptedChunk]);
-      }
-
-      console.log("starting uploading chunk")
-      await uploadChunk(chunk, offset, cid, isLastChunk);
-      console.log("uploaded chunk")
-      offset = isLastChunk ? file.size : end;
-      console.log("upload offset: " + offset)
-    }
-
-  }
-
-
-  const uploadChunk = async (chunk: Blob, offset: number, cid: string, isLastChunk: boolean) => {
-    const formData = new FormData();
-    formData.append('chunk', chunk);
-    formData.append('cid', cid);
-    formData.append('offset', offset.toString());
-    formData.append('isLastChunk', isLastChunk.toString());
-
-    try {
-      const response = await Api.post('/file/upload/multipart', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-      console.log(response.data)
-    } catch (error) {
-      toast.error('Error uploading chunk: ' + error)
-    }
-  }
-
-  const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
-
-
-
-
-
-
 
 
 
@@ -314,12 +227,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <hr className="my-3" />
 
         <div className="relative" ref={dropRef}>
-          <button
-            className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
-            onClick={handleChunkUpload}
-          >
-            <HiPlus /> Upload file by chunks
-          </button>
           <button
             className="flex items-center gap-2 justify-center text-white w-full p-3 rounded-xl text-sm bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 mt-3"
             onClick={handleFileUpload}
@@ -461,15 +368,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           type="file"
           id="file"
           onChange={handleFileInputChange}
-          multiple={true}
-          accept="*/*"
-          hidden
-        />
-        <input
-          ref={chunkInput}
-          type="file"
-          id="file"
-          onChange={handleChunkInputChange}
           multiple={true}
           accept="*/*"
           hidden
