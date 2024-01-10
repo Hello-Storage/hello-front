@@ -8,9 +8,9 @@ import { createFileAction, createFolderAction } from "state/mystorage/actions";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { User } from "state/user/reducer";
 import { getAesKey, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
-import { multipartFileUploadProcessing } from "./multipartFileUpload";
+import { multipartFileUploadProcessing } from "./multipart/multipartFileUploadProcessing";
 import { FileMap, MultipartFile } from "api/types/files";
-import { singlepartFileUploadProcessing } from "./singlepartFileUpload";
+import { singlepartFileUploadProcessing } from "./singlepart/singlepartFileUploadProcessing";
 
 
 
@@ -414,11 +414,11 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
         await Api.post(`/file/pool/check`, customFiles)
             .then((res) => {
                 // CIDs of files that were FOUND in S3 and need to be dispatched.
-                const filesFound: FileType[] = res.data.filesFound;
                 if (folderRootUID === "")
                     folderRootUID = res.data.firstRootUID;
 
 
+                const filesFound: FileType[] = res.data.filesFound;
                 // Dispatch actions for files that were found in S3.
                 filesToUpload = filesMap.filter((fileMap) => {
                     const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
