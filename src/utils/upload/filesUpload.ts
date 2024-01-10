@@ -7,7 +7,7 @@ import { AppDispatch } from "state";
 import { createFileAction, createFolderAction } from "state/mystorage/actions";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { User } from "state/user/reducer";
-import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptFileBuffer, encryptMetadata, encryptWebkitRelativePath, getAesKey, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
+import { getAesKey, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
 import { multipartFileUpload } from "./multipartFileUpload";
 import { FileMap, MultipartFile } from "api/types/files";
 import { singlepartFileUpload } from "./singlepartFileUpload";
@@ -19,79 +19,6 @@ import { singlepartFileUpload } from "./singlepartFileUpload";
 
 const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB or 10000 bytes
 
-
-
-
-export const handleEncryption = async (
-    file: File,
-    personalSignature: string | undefined,
-    isFolder: boolean,
-    dispatch: AppDispatch,
-): Promise<{
-    encryptedFile: File;
-    cidOfEncryptedBufferStr: string;
-    cidOriginalStr?: string;
-    cidOriginalEncryptedBase64Url: string;
-    encryptedWebkitRelativePath: string;
-    encryptionTime: number;
-} | null> => {
-    const fileArrayBuffer = await file.arrayBuffer();
-
-    const encryptedMetadataResult = await encryptMetadata(
-        file,
-        personalSignature
-    );
-    if (!encryptedMetadataResult) {
-        toast.error("Failed to encrypt metadata");
-        return null;
-    }
-    const { encryptedFilename, encryptedFiletype, fileLastModified } =
-        encryptedMetadataResult;
-    const {
-        cidOriginalStr,
-        cidOfEncryptedBufferStr,
-        encryptedFileBuffer,
-        encryptionTime,
-    } = await encryptFileBuffer(fileArrayBuffer, dispatch);
-
-    const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-    const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
-    const cidOriginalBuffer = new TextEncoder().encode(cidOriginalStr);
-    const cidOriginalEncryptedBuffer = await encryptBuffer(
-        false,
-        cidOriginalBuffer,
-        personalSignature
-    );
-
-    if (!cidOriginalEncryptedBuffer) {
-        toast.error("Failed to encrypt buffer");
-        return null;
-    }
-    const cidOriginalEncryptedBase64Url = bufferToBase64Url(
-        cidOriginalEncryptedBuffer
-    );
-    const encryptedFileBlob = new Blob([encryptedFileBuffer]);
-    const encryptedFile = new File(
-        [encryptedFileBlob],
-        encryptedFilenameBase64Url,
-        { type: encryptedFiletypeHex, lastModified: fileLastModified }
-    );
-
-
-    let encryptedWebkitRelativePath = "";
-    if (isFolder) {
-        encryptedWebkitRelativePath = await encryptWebkitRelativePath(file.webkitRelativePath.split("/"), personalSignature);
-    }
-
-    return {
-        encryptedFile,
-        cidOfEncryptedBufferStr,
-        cidOriginalStr,
-        cidOriginalEncryptedBase64Url,
-        encryptedWebkitRelativePath,
-        encryptionTime,
-    };
-};
 
 
 

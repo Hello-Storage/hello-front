@@ -181,10 +181,30 @@ export const decryptFilename = async (encryptedFilenameBase64Url: string, person
     return new TextDecoder().decode(decryptedFilename);
 }
 
-export const encryptBuffer = async (random: boolean, buffer: ArrayBuffer, personalSignature: string | undefined): Promise<Uint8Array | undefined> => {
+
+export const cidToEncryptedBase64Url = async (cidOriginal: string, personalSignature: string | undefined): Promise<string> => {
     if (!personalSignature) {
         logoutUser();
-        return;
+        return "";
+    }
+
+    const cidOriginalBuffer = new TextEncoder().encode(cidOriginal);
+
+    const cidOriginalEncryptedBuffer = await encryptBuffer(
+        false,
+        cidOriginalBuffer,
+        personalSignature
+    );
+    const cidOriginalEncryptedBase64Url = bufferToBase64Url(
+        cidOriginalEncryptedBuffer
+    );
+    return cidOriginalEncryptedBase64Url;
+}
+
+export const encryptBuffer = async (random: boolean, buffer: ArrayBuffer, personalSignature: string | undefined): Promise<Uint8Array> => {
+    if (!personalSignature) {
+        logoutUser();
+        return new Uint8Array(0);
     }
     let salt: Uint8Array;
     let iv: Uint8Array;

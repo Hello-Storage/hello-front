@@ -1,10 +1,10 @@
 import { AppDispatch } from "state";
-import { handleEncryption } from "./filesUpload";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { toast } from "react-toastify";
 import { EncryptionStatus, File as FileType } from "api";
 import { FileMap } from "api/types/files";
 import { getCid } from "utils/encryption/filesCipher";
+import { handleSinglepartFileEncryption } from "./singlepartFileEncryption";
 
 export const singlepartFileUpload = async (personalSignature: string, encryptionEnabled: boolean | undefined, filesLength: number, index: number, file: File, dispatch: AppDispatch, isFolder: boolean, encryptionTimeTotal: number, root: string): Promise<{ filesMap: FileMap[], encryptionTimeTotal: number } | null> => {
     const filesMap: FileMap[] = [];
@@ -12,7 +12,7 @@ export const singlepartFileUpload = async (personalSignature: string, encryption
         const originalFile = file;
         const infoText = `Encrypting file ${index + 1} of ${filesLength}`;
         dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-        const encryptedResult = await handleEncryption(
+        const encryptedResult = await handleSinglepartFileEncryption(
             file,
             personalSignature,
             isFolder,

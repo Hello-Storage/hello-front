@@ -1,5 +1,5 @@
 import { AppDispatch } from "state";
-import { bufferToBase64Url, bufferToHex, encryptBuffer, encryptMetadata, encryptWebkitRelativePath, generateEncryptedFileCID, getCid } from "utils/encryption/filesCipher";
+import { bufferToBase64Url, bufferToHex, cidToEncryptedBase64Url, encryptMetadata, encryptWebkitRelativePath, generateEncryptedFileCID, getCid } from "utils/encryption/filesCipher";
 import { EncryptionStatus, File as FileType } from "api";
 import { toast } from "react-toastify";
 import { MultipartFile } from "api/types/files";
@@ -9,26 +9,15 @@ export const multipartFileUpload = async (file: File, isFolder: boolean, dispatc
     const multipartFiles: MultipartFile[] = [];
     const cidOriginal = await getCid(file, dispatch)
 
-    const cidOriginalBuffer = new TextEncoder().encode(cidOriginal);
-    const cidOriginalEncryptedBuffer = await encryptBuffer(
-        false,
-        cidOriginalBuffer,
-        personalSignature
-    );
-
-    if (!cidOriginalEncryptedBuffer) {
-        toast.error("Failed to encrypt buffer");
-        return null;
-    }
-    const cidOriginalEncryptedBase64Url = bufferToBase64Url(
-        cidOriginalEncryptedBuffer
-    );
 
     let customFile: FileType;
 
 
     let _cidOfEncryptedBufferStr = "";
+
+
     if (encryptionEnabled) {
+        const cidOriginalEncryptedBase64Url = await cidToEncryptedBase64Url(cidOriginal, personalSignature);
         let encryptedWebkitRelativePath = "";
 
         if (isFolder) {
