@@ -4,6 +4,8 @@ import { FaRegEnvelopeOpen, FaSpinner } from "react-icons/fa";
 import { useAuth } from "hooks";
 import { Modal, useModal } from "components/Modal";
 import { toast } from "react-toastify";
+import { useAppSelector } from "state";
+import { Theme } from "state/user/reducer";
 
 export default function OTPModal({ email }: { email: string }) {
   const { verifyOTP } = useAuth();
@@ -26,8 +28,11 @@ export default function OTPModal({ email }: { email: string }) {
     }
   };
 
+
+  const { theme } = useAppSelector((state) => state.user);
+
   return (
-    <Modal className="p-10 bg-white rounded-lg w-[400px] relative">
+    <Modal className={"p-10 rounded-lg w-[400px] relative" + (theme === Theme.DARK ? " dark-theme4" : " bg-white")} >
       <div className="text-center mb-5">
         <FaRegEnvelopeOpen size={50} className="inline-block text-blue-500" />
       </div>

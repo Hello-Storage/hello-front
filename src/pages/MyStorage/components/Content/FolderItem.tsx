@@ -12,7 +12,6 @@ import {
 	HiOutlineShare,
 	HiOutlineTrash,
 } from "react-icons/hi";
-// import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import {
 	decryptContent,
@@ -57,12 +56,6 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 	const { logout } = useAuth();
 	const accountType = getAccountType();
 	useDropdown(ref, open, setOpen);
-
-	// const onCopy = (event: React.MouseEvent) => {
-	//   if (!event.ctrlKey) return;
-	//   copy(`https://hello.app/space/folder/${folder.uid}`);
-	//   toast.success("copied CID");
-	// };
 
 	const handleDownload = async () => {
 		const personalSignature = await getPersonalSignature(

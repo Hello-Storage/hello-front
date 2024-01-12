@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "state";
 import { createFolderAction } from "state/mystorage/actions";
 import { bufferToHex, encryptBuffer } from "utils/encryption/filesCipher";
 import { useAuth } from "hooks";
+import { Theme } from "state/user/reducer";
 
 export default function CreateFolderModal() {
 	const [, onDismiss] = useModal(<></>);
@@ -77,13 +78,17 @@ export default function CreateFolderModal() {
 				onDismiss();
 			});
 	};
+
+	const { theme } = useAppSelector((state) => state.user);
+
 	return (
-		<Modal className="p-5 bg-white rounded-lg w-80">
+		<Modal className={"p-5 rounded-lg w-80" + (theme === Theme.DARK ? " dark-theme4" : " bg-white")}>
 			<label className="text-xl">New Folder</label>
 			<div className="mt-3">
 				<input
 					type="text"
-					className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg lock focus:border-blue-500 focus:outline-none"
+					className={"w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg lock focus:border-blue-500 focus:outline-none"
+						+ (theme === Theme.DARK ? " dark-theme3" : "")}
 					placeholder="input folder name"
 					value={title}
 					onChange={onChange}
@@ -93,7 +98,8 @@ export default function CreateFolderModal() {
 			<div className="mt-3 text-right">
 				<button
 					type="button"
-					className="text-blue-700 bg-transparent hover:bg-gray-200 focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+					className={"text-blue-700 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+						+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
 					disabled={loading}
 					onClick={onDismiss}
 				>
@@ -101,7 +107,8 @@ export default function CreateFolderModal() {
 				</button>
 				<button
 					type="button"
-					className="text-blue-700 bg-transparent hover:bg-gray-200 focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+					className={"text-blue-700 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+						+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
 					disabled={loading}
 					onClick={handleCreateNewFolder}
 				>
