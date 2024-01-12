@@ -89,7 +89,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         : [...selectedItems, selInfo];
 
       setSelectedItems(updatedSelection);
-    } 
+    }
   };
 
   const isItemSelected = (id: string): boolean => {
@@ -379,7 +379,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-	const {theme} = useAppSelector((state) => state.user);
+  const { theme } = useAppSelector((state) => state.user);
 
   if (view === "list")
     return (
@@ -392,7 +392,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
             <div className="folders-div">
               <button
                 className={"cursor-pointer px-5 py-3 border border-gray-200 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
-                +(theme===Theme.DARK? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " bg-gray-50 text-gray-700 hover:bg-gray-100")}
+                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " bg-gray-50 text-gray-700 hover:bg-gray-100")}
                 onClick={onPresent}
               >
                 <RiFolderAddLine className="w-6 h-6" />
@@ -442,12 +442,14 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
               <button
                 className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-                +(theme===Theme.DARK? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : "text-gray-900 bg-white hover:bg-gray-100")}
+                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : "text-gray-900 bg-white hover:bg-gray-100")}
                 onClick={handleButtonClick}>{buttonText}
               </button>
 
               {(selectedItems.length > 0) ? (
-                <span className="py-2 ml-3 font-medium text-gray-900 bg-white border border-gray-200 rounded-lg ml-3px-4 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                <span className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " text-gray-900 bg-white hover:bg-gray-200")}
+
                   title="Delete selected items"
                   onClick={handleMultipleDelete}
                 >
@@ -461,7 +463,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
           <div id={"header-scroll-inv_" + identifier}>
             <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
               <thead className={"text-xs "
-                +(theme===Theme.DARK? " text-white bg-[#32334b]" : " text-gray-700 bg-gray-100")}>
+                + (theme === Theme.DARK ? " text-white bg-[#32334b]" : " text-gray-700 bg-gray-100")}>
                 <tr>
                   <th
                     id="column-name"
@@ -509,7 +511,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
           </div>
           <div id={"table-row-div_" + identifier} className="h-full min-w-full table-div custom-scrollbar scrollbar-color">
             <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
-					+ (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
+              + (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
               <tbody>
                 {loading ? (
                   <tr className="w-full h-64">
@@ -579,7 +581,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                           <td
                             scope="row"
                             className={"w-full px-3 font-medium  whitespace-nowrap"
-                            +(theme===Theme.DARK? " text-white " : " text-gray-900")}>
+                              + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
                             <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
                               <div className="mt-4 mb-4">
                                 No files found
@@ -647,17 +649,20 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         </section>
 
         <section className="custom-scrollbar position-sticky-left">
-          <div style={{ display: 'flex', padding: '10px' }}>
+          <div className="flex flex-row items-center justify-between p-[15px]">
             <h3 className="my-3">Files</h3>
 
-            <div style={{ marginLeft: 'auto' }}>
+            <div className="flex flex-row items-center justify-between">
               <button
                 className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-                +(theme===Theme.DARK? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : "text-gray-900 bg-white hover:bg-gray-100")}
+                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : "text-gray-900 bg-white hover:bg-gray-100")}
                 onClick={handleButtonClick}>{buttonText}
               </button>
+
               {(selectedItems.length > 0) ? (
-                <span className="py-2 ml-3 font-medium text-gray-900 bg-white border border-gray-200 rounded-lg ml-3px-4 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                <span className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " text-gray-900 bg-white hover:bg-gray-200")}
+
                   title="Delete selected items"
                   onClick={handleMultipleDelete}
                 >
@@ -668,8 +673,23 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
           </div>
           <div className="grid gap-3 grid-200">
             {files?.map((v, i) => (
-              <FileItem file={v} key={i} view="grid"
-                setloaded={setloaded} />
+              <div
+              key={i}
+              id={v.id.toString()}
+              aria-label={v.uid}
+              aria-valuetext="file"
+                onClick={handleOnClick}
+                className={`p-4 border mb-3 border-gray-200 rounded-lg cursor-pointer ${isItemSelected(
+                  v.id.toString()
+                )
+                  ? " bg-[#79d79d93]"
+                  : (theme === Theme.DARK ? " dark-theme4" : " hover:bg-gray-200 bg-white")}
+                }`}
+              >
+                <FileItem file={v} key={i} view="grid"
+                  setloaded={setloaded} />
+              </div>
+
             ))}
           </div>
         </section>

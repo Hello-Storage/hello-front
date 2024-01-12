@@ -312,21 +312,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 	else
 		return (
 			<div
-				className="p-4 mb-3 border border-gray-200 rounded-lg bg-gray-50 hover:cursor-pointer hover:bg-gray-100"
-				onClick={handleView}
+				onDoubleClick={handleView}
 			>
 				<div>
 					<div className="flex flex-col items-center gap-3">
-						<div className="flex items-center w-full gap-2 overflow-hidden font-medium text-center text-gray-900 whitespace-nowrap overflow-ellipsis">
+						<div className={"flex items-center w-full gap-2 overflow-hidden font-medium text-center whitespace-nowrap overflow-ellipsis"
+							+ (theme === Theme.DARK ? " text-white" : "  text-gray-900")}
+						>
 							<HiDocumentText className="flex-shrink-0 w-4 h-4" />
 							{file.is_in_pool && (
 								<GoAlertFill style={{ color: "#FF6600" }} />
 							)}
 							<span className="hidden md:inline">
-								{truncate(file.name, 40)}
-							</span>
-							<span className="inline md:hidden">
-								{truncate(file.name, 24)}
+								{truncate(file.name, 20)}
 							</span>
 						</div>
 					</div>
