@@ -188,7 +188,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 					onDoubleClick={handleView}
 					scope="row"
 					className={"px-3 font-medium whitespace-nowrap "
-					+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
+						+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
 				>
 					<div className="flex items-center gap-3 ">
 						{getFileIcon(file.name)}
@@ -240,7 +240,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 				</td>
 				<td className="py-1 pr-8 text-right">
 					<button
-						className="p-3 rounded-full hover:bg-gray-300"
+						className={"p-3 rounded-full "
+							+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 						onClick={() => setOpen(!open)}
 					>
 						<HiDotsVertical />
@@ -251,17 +252,17 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 									className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-36 "
 									style={{ bottom: "100%" }}
 								>
-									<ul className="py-2 bg-white">
-										<a
-											href="#"
-											className="block px-4 py-2 hover:bg-gray-100"
+									<ul className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
+									>
+										<li
+											className={"block px-4 py-2 "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 											onClick={handleDownload}
 										>
 											<HiOutlineDownload className="inline-flex mr-3" />
 											Download
-										</a>
-										<a
-											href="#"
+										</li>
+										<li
 											onClick={() => {
 												dispatch(
 													setShowShareModal(true)
@@ -270,34 +271,36 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 													setSelectedShareFile(file)
 												);
 											}}
-											className="block px-4 py-2 hover:bg-gray-100"
+											className={"block px-4 py-2 "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 										>
 											<HiOutlineShare className="inline-flex mr-3" />
 											Share
-										</a>
+										</li>
 										{viewableExtensions.has(
 											fileExtension
 										) && (
-											<a
-												href="#"
-												className="block px-4 py-2 hover:bg-gray-100"
-												onClick={() => handleView()}
-											>
-												<HiOutlineEye className="inline-flex mr-3" />
-												View
-											</a>
-										)}
+												<li
+													className={"block px-4 py-2 "
+														+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+													onClick={() => handleView()}
+												>
+													<HiOutlineEye className="inline-flex mr-3" />
+													View
+												</li>
+											)}
 									</ul>
 
-									<div className="py-2 bg-white">
-										<a
-											href="#"
-											className="block px-4 py-2 hover:bg-gray-100 "
+									<div className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
+									>
+										<p
+											className={"block px-4 py-3 "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 											onClick={handleDelete}
 										>
 											<HiOutlineTrash className="inline-flex mr-3" />
 											Delete
-										</a>
+										</p>
 									</div>
 								</div>
 							)}

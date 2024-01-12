@@ -278,7 +278,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 								{open && (
 									<div
 										id="dropdown"
-										className="absolute z-10 mt-2 text-left bg-white border divide-y shadow right-6 w-36"
+										className="absolute z-10 mt-2 text-left border divide-y shadow right-6 w-36"
 									>
 										<ul className="py-2">
 											<a
