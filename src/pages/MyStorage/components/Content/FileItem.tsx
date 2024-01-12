@@ -25,7 +25,7 @@ import {
 	decryptFileBuffer,
 } from "utils/encryption/filesCipher";
 import React from "react";
-import { useAppDispatch } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import {
 	setFileViewAction,
 	setImageViewAction,
@@ -36,6 +36,7 @@ import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { removeFileAction } from "state/mystorage/actions";
+import { Theme } from "state/user/reducer";
 
 dayjs.extend(relativeTime);
 
@@ -178,13 +179,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 			});
 	};
 
+	const { theme } = useAppSelector((state) => state.user);
+
 	if (view === "list")
 		return (
 			<>
 				<td
 					onDoubleClick={handleView}
 					scope="row"
-					className="px-3 font-medium text-gray-900 whitespace-nowrap "
+					className={"px-3 font-medium whitespace-nowrap "
+					+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
 				>
 					<div className="flex items-center gap-3 ">
 						{getFileIcon(file.name)}

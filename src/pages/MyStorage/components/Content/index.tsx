@@ -508,7 +508,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
             </table>
           </div>
           <div id={"table-row-div_" + identifier} className="h-full min-w-full table-div custom-scrollbar scrollbar-color">
-            <table id={"files-rows_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
+            <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
+					+ (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
               <tbody>
                 {loading ? (
                   <tr className="w-full h-64">
@@ -557,8 +558,8 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                             className={` cursor-pointer ${isItemSelected(
                               v.id.toString()
                             )
-                              ? "bg-sky-100"
-                              : "hover:bg-gray-100 bg-white"
+                              ? " bg-[#79d79d93]"
+                              : (theme === Theme.DARK ? " dark-theme5" : " hover:bg-gray-100 bg-white")}
                               }`}
                             onClick={handleOnClick}
                           >

@@ -43,7 +43,7 @@ input {
 }
 
 .dark-theme{
-	background-color: #030522 !important;
+	background-color: #05072b !important;
 	color: #ffffff !important;
 }
 
@@ -68,5 +68,13 @@ input {
 	color: #ffffff !important;
 	.links img{
 		filter: invert(100%);
+	}
+}
+
+.dark-theme5{
+	background-color: #05072b !important;
+	color: #ffffff;
+	&:hover{
+		background-color: #0f103d !important;
 	}
 }
