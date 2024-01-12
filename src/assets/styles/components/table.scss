@@ -46,7 +46,7 @@
 	left: 0px;
 }
 .content-scroll {
-	overflow-x: scroll;
+	overflow-x: auto;
 }
 
 .invisible-scrollbar::-webkit-scrollbar {
@@ -54,7 +54,7 @@
 }
 
 #scroll-visible-section {
-	overflow-x: scroll;
+	overflow-x: auto;
 	width: 100%;
 	height: 10px;
 	&::-webkit-scrollbar-track {
