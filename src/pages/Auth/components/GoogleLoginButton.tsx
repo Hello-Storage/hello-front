@@ -5,6 +5,8 @@ import { GoogleIcon } from "components";
 import { useAuth } from "hooks";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { Theme } from "state/user/reducer";
+import { getTheme } from "utils/user";
 import * as Web3 from "web3";
 export default function GoogleLoginButton() {
   const { load } = useAuth();
@@ -43,7 +45,7 @@ export default function GoogleLoginButton() {
 
   return (
     <button
-      className="w-full inline-flex items-center justify-center gap-4 rounded-xl p-4 bg-gray-100 hover:bg-gray-200"
+      className={"w-full inline-flex items-center justify-center gap-4 rounded-xl p-4 bg-gray-100 hover:bg-gray-200"+ (getTheme()===Theme.DARK? " dark-theme2" : "")}
       onClick={() => {
         login();
         setLoading(true);

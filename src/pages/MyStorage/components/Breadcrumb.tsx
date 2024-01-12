@@ -4,6 +4,7 @@ import { FaFolder } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "state";
 import { removeFileAction } from "state/mystorage/actions";
+import { Theme } from "state/user/reducer";
 
 export default function Breadcrumb() {
   const mystorage = useAppSelector((state) => state.mystorage);
@@ -113,13 +114,15 @@ export default function Breadcrumb() {
         console.log("Error updating folder root:", err);
       });
   };
+  
+	const {theme} = useAppSelector((state) => state.user);
 
   return (
     <nav className="flex flex-row items-center mr-2" aria-label="Breadcrumb">
       <ol className="flex flex-row items-center overflow-auto text-lg font-medium custom-scrollbar">
         <h3
           onClick={() => onClick("/space/my-storage")}
-          className="text-gray-700 hover:text-blue-600 cursor-pointer text-xl min-w-[85px]"
+          className={"hover:text-blue-600 cursor-pointer text-xl min-w-[85px]"+ (theme===Theme.DARK? " text-white" : " text-gray-700")}
         >
           <strong>My Storage</strong>
         </h3>
