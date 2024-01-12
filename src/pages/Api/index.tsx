@@ -12,6 +12,7 @@ import { refreshAction } from "state/mystorage/actions";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import ShareModal from "pages/Shared/Components/ShareModal";
 import { useNavigate } from "react-router-dom";
+import { Theme } from "state/user/reducer";
 
 export default function Api() {
     const [apiKey, setApiKey] = useState<string | null>(null);
@@ -77,6 +78,7 @@ export default function Api() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refresh, apiKey])
 
+	const {theme} = useAppSelector((state) => state.user);
 
     return (<>
 
@@ -113,7 +115,8 @@ export default function Api() {
                 {apiKey && (
                     <>
                         <label htmlFor="apikey">Generated ApiKey:</label>
-                        <input className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-[300px] px-2.5 py-4"
+                        <input className={"bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-[300px] px-2.5 py-3"
+                            +(theme===Theme.DARK? " dark-theme3 " : " ")}
                             id="apikey" type="text" readOnly
                             value={apiKey}></input>
                         <button
@@ -152,7 +155,8 @@ export default function Api() {
             </section>
 
             <div className="flex-shrink-0 mb-[50px] sm:mb-0">
-                <div className="flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200">
+                <div className={"flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200"
+                +(theme===Theme.DARK? " dark-theme " : " ")}>
                     <div className="text-xs">
                         Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
                         {Math.min(endIndex, totalItems)} of {totalItems} results

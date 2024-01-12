@@ -8,6 +8,7 @@ import * as Yup from "yup";
 import { useEffect, useState } from "react";
 import { Api } from "api";
 import { Link } from "react-router-dom";
+import { Theme } from "state/user/reducer";
 
 const copyToClipboard = (str: string) => {
   navigator.clipboard.writeText(str);
@@ -84,11 +85,14 @@ const Referrals = () => {
     }, 400);
   };
 
+	const {theme} = useAppSelector((state) => state.user);
+
   return (
     <div className="flex flex-col h-full relative">
       <Link
         to="/space/referrals"
-        className="p-2 text-xl inline-flex items-center text-gray-700 hover:text-blue-600 cursor-pointer"
+        className={"p-2 text-xl inline-flex items-center hover:text-blue-600 cursor-pointer"
+        +(theme===Theme.DARK? " text-white " : " text-gray-700")}
       >
         Referrals
       </Link>
@@ -96,13 +100,15 @@ const Referrals = () => {
       <div className="h-full p-8 flex flex-col items-center border rounded-xl">
         <div className="mb-4 flex items-center justify-center text-center w-full space-x-2">
           <GoPeople className="text-blue-600 w-7 h-7" />
-          <h1 className="md:text-2xl text-lg select-none tracking-tighter text-center text-gray-700">
+          <h1 className={"md:text-2xl text-lg select-none tracking-tighter text-center "
+            +(theme===Theme.DARK? " text-white " : " text-gray-700")}>
             Get +5GB free for each referred user!
           </h1>
         </div>
         <div className="flex-grow flex flex-col md:mt-20 mt-12 items-center max-w-xl">
           <div className="flex flex-col justify-start">
-            <span className="mb-2 text-gray-700 text-sm">
+            <span className={"mb-2 text-sm"
+              +(theme===Theme.DARK? " text-white " : " text-gray-700")}>
               Invite your friends
             </span>
             <div className="flex md:flex-row flex-col items-center gap-4">
@@ -114,10 +120,11 @@ const Referrals = () => {
                   onClick={() => {
                     copyToClipboard(referralLink);
                   }}
-                  className="pr-10 py-2.5 px-4 focus:ring-indigo-500 focus:border-indigo-500 block w-full rounded-lg border-gray-200 border"
+                  className={"pr-10 py-2.5 px-4 focus:ring-indigo-500 focus:border-indigo-500 block w-full rounded-lg border-gray-200 border"
+                  +(theme===Theme.DARK? " dark-theme3 " : " ")}
                 />
                 <div
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                  className="absolute inset-y-0 right-0 px-2 flex items-center justify-center cursor-pointer rounded-lg border border-gray-100"
                   onClick={() => copyToClipboard(referralLink)}
                 >
                   <HiClipboard className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -142,7 +149,8 @@ const Referrals = () => {
                           type="email"
                           name="email"
                           placeholder="email@example.com"
-                          className="w-full z-10 pr-16 py-2.5 px-4 focus:ring-indigo-500 focus:border-indigo-500 block rounded-lg border-gray-200 border"
+                          className={"w-full z-10 pr-16 py-2.5 px-4 focus:ring-indigo-500 focus:border-indigo-500 block rounded-lg border-gray-200 border"
+                          +(theme===Theme.DARK? " dark-theme3 " : " ")}
                         />
                         <button
                           type="submit"
@@ -160,7 +168,8 @@ const Referrals = () => {
             </div>
           </div>
           <hr className="w-full h-px my-8 bg-gray-200 border-0" />
-          <div className="flex justify-between border border-gray-200 rounded-lg p-4 text-gray-800">
+          <div className={"flex justify-between border border-gray-200 rounded-lg p-4 "
+          +(theme===Theme.DARK? " text-white" : " text-gray-800")}>
             <div>
               <p className="px-4 text-lg font-medium">
                 {totalUsers}/{maxUsers} referred users.
@@ -181,8 +190,8 @@ const Referrals = () => {
               {Array.from({ length: maxUsers + 1 }).map((_, index) => (
                 <div
                   key={index}
-                  className={`md:h-6 md:w-12 h-4 w-6 p-2 rounded ${index < totalUsers ? "bg-green-500" : "bg-red-200"
-                    } fex items-center`}
+                  className={`md:h-6 md:w-12 h-4 w-6 rounded ${index < totalUsers ? "bg-green-500" : "bg-red-200"
+                    } flex items-center justify-center`}
                   title={
                     index < totalUsers
                       ? `Invited user wallet address: ${referredAddresses[index]}`
@@ -190,7 +199,6 @@ const Referrals = () => {
                   }
                 >
                   <p
-                    style={{ marginLeft: "-5px" }}
                     className="text-white text-xs sm:text-sm leading-none select-none"
                   >
                     {index < totalUsers ? `+5GB` : ""}

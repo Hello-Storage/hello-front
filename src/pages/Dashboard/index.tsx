@@ -7,25 +7,8 @@ import { Api } from "api";
 import { useAppSelector } from "state";
 import { useEffect, useState } from "react";
 import useFetchData from "hooks/useFetchData";
+import { Theme } from "state/user/reducer";
 
-// const data = [
-//   {
-//     color: "#BEBFF5",
-//     percent: 40,
-//   },
-//   {
-//     color: "#FCB3FC",
-//     percent: 40,
-//   },
-//   {
-//     color: "#BFEED0",
-//     percent: 10,
-//   },
-//   {
-//     color: "#B5CFFD",
-//     percent: 10,
-//   },
-// ];
 export default function Dashboard() {
 	const { fetchUserDetail } = useFetchData();
 	const [selectedRange, setselectedRange] = useState("Day")
@@ -97,19 +80,20 @@ export default function Dashboard() {
 
 		return () => clearInterval(intervalId);
 	}, []);
+	
+	const {theme} = useAppSelector((state) => state.user);
+
 	return (
-		<div className="dashboard-container">
-			{" "}
-			{/*le restamos la altura de header */}
+		<div className={"dashboard-container"+ (theme===Theme.DARK? " dark-theme" : "")}>
 			<h1 className="text-xl font-medium">Dashboard</h1>
 			<div className="grid grid-cols-1 gap-5 mt-4 md:grid-cols-2 lg:grid-cols-5 md:gap-10">
 				<div className="p-3 border rounded-md">
 					<label>Used Storage</label>
 					<div className="">
 						<label className="text-sm text-gray-500">
-							<b className="text-2xl font-semibold text-black">
+							<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
 								{formatBytes(counttotalusedstorageuser)}
-							</b>{" "}
+							</label>
 						</label>
 					</div>
 				</div>
@@ -117,7 +101,7 @@ export default function Dashboard() {
 				<div className="p-3 border rounded-md">
 					<label>Total files</label>
 					<div className="">
-						<label className="text-2xl font-semibold text-black">
+						<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
 							{counttotalfilesuser}
 						</label>
 					</div>
@@ -127,9 +111,9 @@ export default function Dashboard() {
 					<label>Public files</label>
 					<div className="">
 						<label className="text-sm text-gray-500">
-							<b className="text-2xl font-semibold text-black">
+							<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
 								{counttotalpublicfilesuser}
-							</b>{" "}
+							</label>{" "}
 							/ files
 						</label>
 					</div>
@@ -139,9 +123,9 @@ export default function Dashboard() {
 					<label>Encrypted files</label>
 					<div className="">
 						<label className="text-sm text-gray-500">
-							<b className="text-2xl font-semibold text-black">
+							<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
 								{counttotalencryptedfilesuser}
-							</b>{" "}
+							</label>{" "}
 							/ files
 						</label>
 					</div>
@@ -151,9 +135,9 @@ export default function Dashboard() {
 					<label>Folders</label>
 					<div className="">
 						<label className="text-sm text-gray-500">
-							<b className="text-2xl font-semibold text-black">
+							<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
 								{counttotalpublicfoldersuser}
-							</b>{" "}
+							</label>{" "}
 							/ folders
 						</label>
 					</div>
@@ -199,7 +183,7 @@ export default function Dashboard() {
 						<select
 							id="timePeriod"
 							name="timePeriod"
-							className="block px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+							className={"block px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"+ (theme===Theme.DARK? " dark-theme3" : "")}
 							defaultValue="day"
 							onChange={(e)=>{
 								const selected=e.target.querySelector('option:checked')?.textContent
