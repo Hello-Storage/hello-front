@@ -20,6 +20,8 @@ import { BsLinkedin } from 'react-icons/bs';
 import { Api } from "api";
 import { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
+import { getTheme } from "utils/user";
+import { Theme } from "state/user/reducer";
 
 export default function Login() {
   useTitle("hello.app | Space");
@@ -68,13 +70,10 @@ export default function Login() {
         }
       }
 
-
-
       return setRedirectMessage(`Log in to view/download: ${publishedFileName}`);
     }
     return setRedirectMessage("");
   };
-
 
   useEffect(() => {
     getRedirectMessage(redirectUrl);
@@ -86,7 +85,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex flex-col justify-between min-h-screen p-8 md:h-screen">
+    <div className={"flex flex-col justify-between min-h-screen p-8 md:h-screen"+ (getTheme()===Theme.DARK? " dark-theme" : "")}>
       <div className="flex items-center gap-3">
         <label className="text-2xl font-semibold font-[Outfit]">
           hello.app
@@ -115,7 +114,7 @@ export default function Login() {
 
             <div className="relative inline-flex items-center justify-center w-full">
               <hr className="w-full h-px my-8 bg-gray-200 border-0" />
-              <span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2">
+              <span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 rounded-xl">
                 Or
               </span>
             </div>
@@ -125,14 +124,15 @@ export default function Login() {
               <div className="">
                 <label
                   htmlFor="email"
-                  className="block mb-2 text-sm font-medium text-gray-600"
+                  className={"block mb-2 text-sm font-medium "+ (getTheme()===Theme.DARK? " dark-theme" : "text-gray-600")}
                 >
                   Email address
                 </label>
                 <input
                   id="email"
                   type="email"
-                  className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-4"
+                  className={"bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-4"
+                  + (getTheme()===Theme.DARK? " dark-theme3" : "")}
                   placeholder="example@email.com"
                   value={email}
                   onChange={onChange}
@@ -152,7 +152,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <footer className="p-0 mb-[50px] text-sm text-black md:mx-12 md:p-2 md:mb-0">
+      <footer className={"p-0 mb-[50px] text-sm text-black md:mx-12 md:p-2 md:mb-0"+ (getTheme()===Theme.DARK? " dark-theme" : "")}>
         <div className="flex flex-col items-start">
           <div className="flex p-0 space-x-4 md:p-0">
             <a href="mailto:team@hello.app" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
