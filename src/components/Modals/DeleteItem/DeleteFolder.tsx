@@ -30,7 +30,7 @@ export const DeleteFolderModal: React.FC<DeleteFolderProps> = ({
 			<div className="mt-3 text-right">
 				<button
 					type="button"
-					className={"text-blue-700 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+					className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
 						+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
 					onClick={onDismiss}
 				>
@@ -38,7 +38,7 @@ export const DeleteFolderModal: React.FC<DeleteFolderProps> = ({
 				</button>
 				<button
 					type="button"
-					className={"text-blue-700 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+					className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
 						+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
 					onClick={handleConfirm}
 				>

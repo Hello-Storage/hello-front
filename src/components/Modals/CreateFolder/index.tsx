@@ -98,7 +98,7 @@ export default function CreateFolderModal() {
 			<div className="mt-3 text-right">
 				<button
 					type="button"
-					className={"text-blue-700 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+					className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
 						+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
 					disabled={loading}
 					onClick={onDismiss}
@@ -107,7 +107,7 @@ export default function CreateFolderModal() {
 				</button>
 				<button
 					type="button"
-					className={"text-blue-700 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+					className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
 						+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
 					disabled={loading}
 					onClick={handleCreateNewFolder}

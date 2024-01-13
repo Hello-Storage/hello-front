@@ -24,6 +24,7 @@ import { SlideshowLightbox } from "lightbox.js-react";
 
 import { useAppSelector } from "state";
 import useFetchGroupHashes from "./Utils/useGetHashesFromGroup";
+import { Theme } from "state/user/reducer";
 dayjs.extend(relativeTime);
 
 const ShareSharedWithMeGroupdWithMe = () => {
@@ -78,15 +79,15 @@ const ShareSharedWithMeGroupdWithMe = () => {
 	useEffect(() => {
 		//get file metadata from the hash
 		if (metadataList && metadataList.length == 0) {
-			if(!grouphashes){
+			if (!grouphashes) {
 				toast.error("Group not found")
 				return
 			}
-			if(!group_id){
+			if (!group_id) {
 				toast.error("Group not provided")
 				return
 			}
-			
+
 			if (
 				group_id.length > 0 &&
 				grouphashes.length > 0 &&
@@ -282,6 +283,8 @@ const ShareSharedWithMeGroupdWithMe = () => {
 		}
 	};
 
+	const { theme } = useAppSelector((state) => state.user);
+
 	return (
 		<div
 			className="flex justify-center overflow-auto"
@@ -289,12 +292,14 @@ const ShareSharedWithMeGroupdWithMe = () => {
 				maxHeight: "calc(100vh - 100px)",
 			}}
 		>
-			<div className="w-full max-w-md mx-4 bg-white md:mx-0">
+			<div className={"w-full max-w-md rounded-lg border border-gray-300"
+				+ (theme === Theme.DARK ? " dark-theme" : " text-gray-700 bg-white")}
+			>
 				{metadataList.map((metadata, index) => (
-					<section key={index} className="mb-3">
+					<section key={index}>
 						<div className="flex flex-row items-center justify-between p-6 bg-gray-600 rounded-t-lg">
 							<h2 className="flex flex-row text-3xl font-semibold text-white">
-								{metadata?.name && getFileIcon(metadata?.name)}
+								{metadata && getFileIcon(metadata.name, theme)}
 								<p className="ml-2">Shared File</p>
 							</h2>
 						</div>
@@ -302,33 +307,39 @@ const ShareSharedWithMeGroupdWithMe = () => {
 							<table className="w-full text-left">
 								<tbody>
 									<tr className="border-b">
-										<th className="py-2 font-semibold text-gray-600">
+										<th className={"p-2 font-semibold "
+											+ (theme === Theme.DARK ? " text-gray-200" : " text-gray-600")}>
 											Name
 										</th>
 										<td
-											className="py-2 text-gray-800"
+											className={"py-2 "
+												+ (theme === Theme.DARK ? " text-gray-300" : " text-gray-800")}
 											id="fileName"
 										>
 											{metadata?.name}
 										</td>
 									</tr>
 									<tr className="border-b">
-										<th className="py-2 font-semibold text-gray-600">
+										<th className={"p-2 font-semibold "
+											+ (theme === Theme.DARK ? " text-gray-200" : " text-gray-600")}>
 											Type
 										</th>
 										<td
-											className="py-2 text-gray-800"
+											className={"py-2 "
+												+ (theme === Theme.DARK ? " text-gray-300" : " text-gray-800")}
 											id="fileType"
 										>
 											{metadata?.mime_type}
 										</td>
 									</tr>
 									<tr className="border-b">
-										<th className="py-2 font-semibold text-gray-600">
+										<th className={"p-2 font-semibold "
+											+ (theme === Theme.DARK ? " text-gray-200" : " text-gray-600")}>
 											Size
 										</th>
 										<td
-											className="py-2 text-gray-800"
+											className={"py-2 "
+												+ (theme === Theme.DARK ? " text-gray-300" : " text-gray-800")}
 											id="fileSize"
 										>
 											{metadata?.size
@@ -337,11 +348,13 @@ const ShareSharedWithMeGroupdWithMe = () => {
 										</td>
 									</tr>
 									<tr className="border-b">
-										<th className="py-2 font-semibold text-gray-600">
+										<th className={"p-2 font-semibold "
+											+ (theme === Theme.DARK ? " text-gray-200" : " text-gray-600")}>
 											Last Modified
 										</th>
 										<td
-											className="py-2 text-gray-800"
+											className={"py-2 "
+												+ (theme === Theme.DARK ? " text-gray-300" : " text-gray-800")}
 											id="lastModified"
 										>
 											{dayjs(
@@ -350,16 +363,18 @@ const ShareSharedWithMeGroupdWithMe = () => {
 										</td>
 									</tr>
 									<tr>
-										<th className="py-2 font-semibold text-gray-600">
+										<th className={"p-2 font-semibold "
+											+ (theme === Theme.DARK ? " text-gray-200" : " text-gray-600")}>
 											Created At
 										</th>
 										<td
-											className="py-2 text-gray-800"
+											className={"py-2 "
+												+ (theme === Theme.DARK ? " text-gray-300" : " text-gray-800")}
 											id="createdAt"
 										>
 											{metadata?.created_at
 												? new Date(
-														metadata.created_at
+													metadata.created_at
 												).toString()
 												: ""}
 										</td>
@@ -367,18 +382,20 @@ const ShareSharedWithMeGroupdWithMe = () => {
 								</tbody>
 							</table>
 						</div>
-						<div className="flex items-center justify-between p-6 bg-gray-100 rounded-b-lg">
-							<a
-								href="#"
+						<div className={"flex items-center justify-between p-3 rounded-b-lg"
+							+ (theme === Theme.DARK ? " dark-theme4" : " bg-gray-100 ")}>
+							<button
 								onClick={() => downloadHandler(metadata)}
-								className="px-6 py-2 text-white transition duration-200 ease-in-out bg-blue-600 rounded-md hover:bg-blue-700"
+								className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+									+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
 							>
 								Download
-							</a>
+							</button>
 							{viewableList[index] && (
 								<button
 									onClick={() => handleView(metadata)}
-									className="px-6 py-2 text-white transition duration-200 ease-in-out bg-blue-600 rounded-md hover:bg-blue-700"
+									className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+										+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
 								>
 									<i className="mr-1 fas fa-eye"></i> View
 								</button>

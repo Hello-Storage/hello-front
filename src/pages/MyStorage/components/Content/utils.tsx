@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import {
   FaFile
 } from "react-icons/fa";
-import { useAppSelector } from "state";
 import { Theme } from "state/user/reducer";
 
 // Map of file extensions with their corresponding icons
@@ -46,10 +45,9 @@ export const getFileExtension = (fileName: string): string => {
   return parts[parts.length - 1].toLowerCase();
 };
 
-export const getFileIcon = (fileName: string) => {
+export const getFileIcon = (fileName: string, theme: Theme) => {
   // find extension
   const ext = getFileExtension(fileName);
-  const { theme } = useAppSelector((state) => state.user);
   const color = (theme === Theme.DARK ? "#ffffff" : "#272727")
   const classn = "p-2 rounded-lg " + (theme === Theme.DARK ? "bg-[#32334b]" : "bg-gray-200")
   const IconComponent = (fileIcons as { [key: string]: (color: string, classn: string) => ReactNode })[ext];

@@ -191,7 +191,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 						+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
 				>
 					<div className="flex items-center gap-3 ">
-						{getFileIcon(file.name)}
+						{getFileIcon(file.name, theme)}
 						{file.is_in_pool && (
 							<GoAlertFill
 								style={{ color: "#FF6600" }}
