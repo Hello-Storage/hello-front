@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { isValidEmail } from "utils/validations";
 import { FaPlusCircle } from "react-icons/fa";
 import { PiShareFatFill } from "react-icons/pi";
+import { Theme } from "state/user/reducer";
 
 const ShareModal = () => {
 	const [fileSharedState, setFileSharedState] = useState<ShareState>();
@@ -209,6 +210,8 @@ const ShareModal = () => {
 		}
 	}, [readyToshare]);
 
+	const { theme } = useAppSelector((state) => state.user);
+
 	return (
 		<>
 			{showShareModal && selectedShareFile && (
@@ -234,13 +237,15 @@ const ShareModal = () => {
 
 						<div
 							ref={modalRef}
-							className="ml-[10%] flex flex-col justify-center align-center align-bottom top-5 bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg "
+							className={"ml-[10%] flex flex-col justify-center align-center align-bottom top-5 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg "
+								+ (theme === Theme.DARK ? " dark-theme" : " bg-white")}
 						>
-							<div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+							<div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
 								<div className="sm:flex sm:items-start">
 									<div className="mt-3 text-left sm:mt-0 sm:text-left">
 										<h3
-											className="text-lg font-medium leading-6 text-gray-900"
+											className={"text-lg font-medium leading-6 "
+												+ (theme === Theme.DARK ? " text-gray-200" : " text-gray-900")}
 											id="modal-title"
 										>
 											Share content
@@ -253,13 +258,13 @@ const ShareModal = () => {
 											<p
 												className={
 													selectedShareFile.encryption_status ===
-													EncryptionStatus.Encrypted
+														EncryptionStatus.Encrypted
 														? "mb-3 text-xs"
 														: "hidden"
 												}
 											>
 												{selectedShareFile.encryption_status ===
-												EncryptionStatus.Encrypted
+													EncryptionStatus.Encrypted
 													? "Only public files can be shared via email and wallet."
 													: ""}
 											</p>
@@ -281,9 +286,9 @@ const ShareModal = () => {
 															</label>
 															<div className="">
 																<input
-																	type="email"
-																	className="mb-2 underline form-control text-cyan-600 text-ellipsis"
-																	id="shareLink"
+																	type="text"
+																	className={"mb-2 underline form-control py-1 px-2 border rounded-lg text-cyan-600 text-ellipsis "
+																		+ (theme === Theme.DARK ? " dark-theme3" : " ")} id="shareLink"
 																	aria-describedby="shareLink"
 																	value={`${window.location.origin}/space/shared/public/${fileSharedState?.public_file.share_hash}`}
 																	onClick={() => {
@@ -311,6 +316,7 @@ const ShareModal = () => {
 															</div>
 														</div>
 													) : (
+
 														<form
 															className="flex flex-col items-center w-full my-3"
 															onSubmit={(e) => {
@@ -322,7 +328,7 @@ const ShareModal = () => {
 																className="block mb-2 text-sm font-medium text-gray-600"
 															>
 																{selectedShareTypes ===
-																"email"
+																	"email"
 																	? "Email address"
 																	: "Wallet address"}
 															</label>
@@ -360,10 +366,11 @@ const ShareModal = () => {
 																<input
 																	id="user"
 																	type="email"
-																	className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-2"
+																	className={" border border-gray-200 text-sm rounded-xl focus:border-blue-400 focus:outline-none block w-full px-2.5 py-2"
+																		+ (theme === Theme.DARK ? " dark-theme3" : " text-gray-900 bg-gray-50")}
 																	placeholder={
 																		selectedShareTypes ===
-																		"email"
+																			"email"
 																			? "example@email.com"
 																			: "0x00000EXAMPLE..."
 																	}
@@ -372,8 +379,7 @@ const ShareModal = () => {
 																		e
 																	) => {
 																		setuser(
-																			e
-																				.target
+																			e.target
 																				.value
 																		);
 																	}}
@@ -386,9 +392,8 @@ const ShareModal = () => {
 																	}
 																>
 																	<FaPlusCircle
-																		size={
-																			35
-																		}
+																		size={35}
+																		color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
 																	/>
 																</button>
 															</div>
@@ -435,7 +440,8 @@ const ShareModal = () => {
 																			"disabled"
 																		}
 																	/>
-																	<span className="ml-2 text-gray-700">
+																	<span className={"ml-2 "
+																		+ (theme === Theme.DARK ? " text-white" : " text-gray-700")}>
 																		{
 																			sd.title
 																		}
@@ -444,12 +450,12 @@ const ShareModal = () => {
 																		className="ml-2 text-gray-500 cursor-pointer"
 																		onClick={() =>
 																			pinnedDescriptionIndex ===
-																			index
+																				index
 																				? setPinnedDescriptionIndex(
-																						null
+																					null
 																				)
 																				: setPinnedDescriptionIndex(
-																						index
+																					index
 																				)
 																		}
 																	>
@@ -459,15 +465,16 @@ const ShareModal = () => {
 
 																{pinnedDescriptionIndex ===
 																	index && (
-																	<span
-																		id="description"
-																		className="flex p-2 ml-2 text-sm bg-gray-200 rounded"
-																	>
-																		{
-																			sd.description
-																		}
-																	</span>
-																)}
+																		<span
+																			id="description"
+																			className={"flex p-2 ml-2 text-sm rounded "
+																				+ (theme === Theme.DARK ? " bg-[#32334b]" : " bg-gray-200")}
+																		>
+																			{
+																				sd.description
+																			}
+																		</span>
+																	)}
 															</div>
 														</label>
 													</div>
@@ -486,10 +493,11 @@ const ShareModal = () => {
 									{shareError}
 								</div>
 							)}
-							<div className="px-4 py-3 bg-gray-50 sm:px-6">
+							<div className="px-4 py-3 sm:px-6">
 								<button
 									type="button"
-									className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-blue-500 border border-transparent rounded-md shadow-sm sm:w-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:text-sm"
+									className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+										+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
 									onClick={closeShareModal}
 								>
 									Close

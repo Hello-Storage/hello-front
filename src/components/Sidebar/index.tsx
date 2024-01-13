@@ -41,6 +41,7 @@ import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import { createFileAction, createFolderAction, refreshAction } from "state/mystorage/actions";
+import { Theme } from "state/user/reducer";
 
 const links1 = [
   {
@@ -606,9 +607,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
       setLinkDisabled(false);
     }, 1500);
   };
+  
+	const {theme} = useAppSelector((state) => state.user);
 
   return (
-    <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
+    <div className={"flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full"+ (theme===Theme.DARK? " dark-theme4" : "")}>
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]"
@@ -675,7 +678,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <div className="flex items-center gap-4 mt-4">
             <Tippy content="Create Folder">
               <button
-                className="flex items-center justify-center w-full p-2 text-xs text-gray-800 bg-gray-200 rounded-xl hover:bg-gray-300"
+                className={"flex border border-gray-200 items-center justify-center w-full p-2 text-xs rounded-xl "+(theme === Theme.DARK ? " bg-[#4b4d70] text-white hover:bg-[#40425f]" : "bg-gray-200 text-gray-800 hover:bg-gray-300")}
                 onClick={onPresent}
               >
                 <div title="Upload folder">
@@ -685,7 +688,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             </Tippy>
             <Tippy content="Upload Folder">
               <button
-                className="flex items-center justify-center w-full p-2 text-xs text-gray-800 bg-gray-200 txt-gray-800 rounded-xl hover:bg-gray-300"
+                className={"flex border border-gray-200 items-center justify-center w-full p-2 text-xs rounded-xl "+(theme === Theme.DARK ? " bg-[#4b4d70] text-white hover:bg-[#40425f]" : "bg-gray-200 text-gray-800 hover:bg-gray-300")}
                 onClick={handleFolderUpload}
               >
                 <RiFolderUploadLine className="w-6 h-6" />
@@ -702,7 +705,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               to={v.to}
               onClick={() => handleLinkClick(v)}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-200" : ""} hover:bg-gray-200 rounded-xl`
+                `${isActive ? (theme === Theme.DARK ? " bg-[#4b4d70]" : "bg-gray-200") : ""} ${(theme === Theme.DARK ? " hover:bg-[#4b4d70]" : "hover:bg-gray-200")} rounded-xl`
               }
               key={i}
             >
@@ -710,7 +713,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                 className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
                   }`}
               >
-                <div className={`flex items-center gap-3`}>
+                <div className={`links flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
                     className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
@@ -740,7 +743,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
               to={v.to}
               target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-200" : ""} hover:bg-gray-200 rounded-xl
+              `${isActive ? (theme === Theme.DARK ? " bg-[#4b4d70]" : "bg-gray-200") : ""} ${(theme === Theme.DARK ? " hover:bg-[#4b4d70]" : "hover:bg-gray-200")} rounded-xl
                 ${v.available ? "" : "pointer-events-none"}`
               }
               key={i}
@@ -749,7 +752,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                 className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
                   }`}
               >
-                <div className={`flex items-center gap-3`}>
+                <div className="links flex items-center gap-3">
                   <span className="text-xl">{v.icon}</span>
                   <label
                     className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
@@ -778,7 +781,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           color="bg-gray-400"
         />
 
-        <label className="text-xs text-neutral-800">
+        <label className={"text-xs text-neutral-800"+(theme === Theme.DARK ? " dark-theme4" : "")}>
           {formatPercent(storageUsed, storageAvailable)} /{" "}
           {formatBytes(storageAvailable)}  -&nbsp;
           <a

@@ -21,6 +21,7 @@ import { Api, EncryptionStatus, File as FileType } from "api";
 import { useAppDispatch, useAppSelector } from "state";
 import { AxiosProgressEvent } from "axios";
 import { createFileAction, createFolderAction, refreshAction } from "state/mystorage/actions";
+import { Theme } from "state/user/reducer";
 
 const getColor = (
   isFocused: boolean,
@@ -467,12 +468,14 @@ const Dropzone = () => {
     isDragAccept,
     isDragReject,
   } = useDropzone({ onDrop });
+  
+	const {theme} = useAppSelector((state) => state.user);
 
   return (
     <div
       className={[
-        "flex-col items-center justify-center p-8 border-2 rounded-sm border-dashed bg-gray-50 outline-none mb-[15px] hidden sm:flex",
-        `${getColor(isFocused, isDragAccept, isDragReject)}`,
+        "flex-col items-center justify-center p-8 border-2 rounded-sm border-dashed outline-none mb-[15px] hidden sm:flex",
+        `${getColor(isFocused, isDragAccept, isDragReject)}`, (theme===Theme.DARK? "dark-theme3" : " bg-gray-100")
       ].join(" ")}
       {...getRootProps()}
     >

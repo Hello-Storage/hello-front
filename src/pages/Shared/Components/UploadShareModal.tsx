@@ -23,6 +23,7 @@ import { useShareGroup } from "../Utils/useShareGroup";
 import { Spinner5 } from "components/Spinner";
 import { FaPlusCircle } from "react-icons/fa";
 import { isValidEmail } from "utils/validations";
+import { Theme } from "state/user/reducer";
 
 interface UploadShareModalProps {
 	isOpen: boolean;
@@ -59,7 +60,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		number | null
 	>(null);
 
-	const [user, setuser] = useState<string | undefined>(undefined);
+	const [user, setuser] = useState<string>("");
 	const [userList, setuserList] = useState<User[]>([]);
 	const [readyToshare, setreadyToshare] = useState<boolean>(false);
 	const { fetchRootContent } = useFetchData();
@@ -220,8 +221,8 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		const infoText = isFolder
 			? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
 			: files.length === 1
-			? files[0].name
-			: `uploading ${files.length} files`;
+				? files[0].name
+				: `uploading ${files.length} files`;
 
 		dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
 
@@ -552,71 +553,73 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 	const groupID = useShareGroup(fileSharedState, selectedShareTypes);
 
+	const { theme } = useAppSelector((state) => state.user);
+
 	if (!isOpen) {
 		return <></>;
 	} else {
 		return (
-			<>
-				<div
-					className="fixed inset-0 z-10 overflow-y-auto"
-					aria-labelledby="modal-title"
-					role="dialog"
-					aria-modal="true"
-				>
-					<div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 my-3 text-center sm:p-0">
-						<input
-							ref={fileInput}
-							type="file"
-							id="file"
-							onChange={handleFileInputChange}
-							multiple={true}
-							accept="*/*"
-							hidden
-						/>
-						<div
-							onClick={handleClickOutside}
-							className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
-							aria-hidden="true"
-						></div>
+			<div
+				className="fixed inset-0 z-10"
+				aria-labelledby="modal-title"
+				role="dialog"
+				aria-modal="true"
+			>
+				<div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 my-3 text-center sm:p-0">
+					<input
+						ref={fileInput}
+						type="file"
+						id="file"
+						onChange={handleFileInputChange}
+						multiple={true}
+						accept="*/*"
+						hidden
+					/>
+					<div
+						onClick={handleClickOutside}
+						className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+						aria-hidden="true"
+					></div>
 
-						<span
-							className="hidden sm:inline-block sm:align-middle sm:h-screen"
-							aria-hidden="true"
-						>
-							&#8203;
-						</span>
+					<span
+						className="hidden sm:inline-block sm:align-middle sm:h-screen"
+						aria-hidden="true"
+					>
+						&#8203;
+					</span>
 
-						<section
-							ref={modalRef}
-							className="lg:ml-[20%] p-5 flex flex-col justify-center align-center align-bottom top-5 bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg "
-						>
-							<div className="flex flex-col items-center justify-center w-full h-full min-w-[300px]">
-								{shareError && (
-									<div
-										className="alert alert-danger"
-										role="alert"
-									>
-										{shareError}
-									</div>
-								)}
-								{uploaded ? (
-									<>
-										<p className="px-2 my-3">File names:</p>
-										<ul>
-											{selectedSharedFiles &&
-												selectedSharedFiles.map(
-													(file) => {
-														return (
-															<li key={file.id}>
-																{file.name}
-															</li>
-														);
-													}
-												)}
-										</ul>
-										{selectedShareTypes !== "" && (
-											<>
-												{groupID &&
+					<section
+						ref={modalRef}
+						className={"lg:ml-[20%] p-5 flex flex-col justify-center align-center align-bottom top-5 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg "
+							+ (theme === Theme.DARK ? " dark-theme4" : " bg-white")}
+					>
+						<div className="flex flex-col items-center justify-center w-full h-full min-w-[300px]">
+							{shareError && (
+								<div
+									className="alert alert-danger"
+									role="alert"
+								>
+									{shareError}
+								</div>
+							)}
+							{uploaded ? (
+								<>
+									<p className="px-2 my-3">File names:</p>
+									<ul>
+										{selectedSharedFiles &&
+											selectedSharedFiles.map(
+												(file) => {
+													return (
+														<li key={file.id}>
+															{file.name}
+														</li>
+													);
+												}
+											)}
+									</ul>
+									{selectedShareTypes !== "" && (
+										<>
+											{groupID &&
 												[
 													"public",
 													"one-time",
@@ -624,248 +627,251 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 												].includes(
 													selectedShareTypes
 												) ? (
-													<div className="flex flex-col my-3">
-														<label
-															htmlFor="shareLink"
-															className="form-label"
-														>
-															Share link
-														</label>
-														<div className="">
-															<input
-																type="email"
-																className="mb-2 underline form-control text-cyan-600 text-ellipsis"
-																id="shareLink"
-																aria-describedby="shareLink"
-																value={`${window.location.origin}/space/shared/group/${groupID}`}
-																onClick={() => {
-																	//copy to clipboard
-																	navigator.clipboard.writeText(
-																		`${window.location.origin}/space/shared/group/${groupID}`
-																	);
-																	toast.success(
-																		"Link copied to clipboard"
-																	);
-																}}
-																readOnly
-															/>
-															<button
-																className="ml-2 btn btn-primary"
-																onClick={() =>
-																	navigate(
-																		`/space/shared/group/${groupID}`
-																	)
-																}
-															>
-																<i className="fas fa-external-link-alt"></i>{" "}
-																Go
-															</button>
-														</div>
-													</div>
-												) : (
-													<form
-														className="flex flex-col items-center w-full my-3"
-														onSubmit={(e) => {
-															e.preventDefault();
-														}}
+												<div className="flex flex-col my-3">
+													<label
+														htmlFor="shareLink"
+														className="form-label"
 													>
-														<label
-															htmlFor="user"
-															className="block mb-2 text-sm font-medium text-gray-600"
-														>
-															{selectedShareTypes ===
-															"email"
-																? "Email address"
-																: "Wallet address"}
-														</label>
-														<div className="flex flex-row flex-wrap w-full">
-															{userList.map(
-																(
-																	user,
-																	index
-																) => (
-																	<div
-																		key={
-																			index
-																		}
-																		className="px-2 py-1 m-1 transition-transform transform rounded-full cursor-pointer hover:scale-110"
-																		style={{
-																			background:
-																				user.color,
-																			color:
-																				"white",
-																		}}
-																		onClick={() =>
-																			handleRemoveEmail(
-																				index
-																			)
-																		}
-																	>
-																		{
-																			user.email
-																		}
-																	</div>
-																)
-															)}
-														</div>
-														<div className="flex flex-row items-center justify-center">
-															<input
-																id="user"
-																type="email"
-																className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-2"
-																placeholder={
-																	selectedShareTypes ===
-																	"email"
-																		? "example@email.com"
-																		: "0x00000EXAMPLE..."
-																}
-																value={user}
-																onChange={(
-																	e
-																) => {
-																	setuser(
-																		e.target
-																			.value
-																	);
-																}}
-															/>
-															<button
-																className="h-full w-[38px] transition-transform transform hover:scale-110 flex items-center justify-center"
-																type="button"
-																onClick={
-																	handleAddEmail
-																}
-															>
-																<FaPlusCircle
-																	size={35}
-																/>
-															</button>
-														</div>
+														Share link
+													</label>
+													<div className="">
+														<input
+															type="text"
+															className={"mb-2 underline form-control py-1 px-2 border rounded-lg text-cyan-600 text-ellipsis "
+																+ (theme === Theme.DARK ? " dark-theme3" : " ")}
+															id="shareLink"
+															aria-describedby="shareLink"
+															value={`${window.location.origin}/space/shared/group/${groupID}`}
+															onClick={() => {
+																//copy to clipboard
+																navigator.clipboard.writeText(
+																	`${window.location.origin}/space/shared/group/${groupID}`
+																);
+																toast.success(
+																	"Link copied to clipboard"
+																);
+															}}
+															readOnly
+														/>
 														<button
-															className="p-3 mt-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
-															type="submit"
-															onClick={
-																handleSubmit
+															className="ml-2 btn btn-primary"
+															onClick={() =>
+																navigate(
+																	`/space/shared/group/${groupID}`
+																)
 															}
 														>
-															<span className="btn-transition"></span>
-															<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
-																<PiShareFatFill />{" "}
-																Accept
-															</label>
+															<i className="fas fa-external-link-alt"></i>{" "}
+															Go
 														</button>
-													</form>
-												)}
-											</>
-										)}
-										{shareDetails.map((sd, index) => {
-											return (
-												<div
-													key={sd.id}
-													className="my-3 col-12 form-check form-switch"
+													</div>
+												</div>
+											) : (
+												<form
+													className="flex flex-col items-center w-full my-3"
+													onSubmit={(e) => {
+														e.preventDefault();
+													}}
 												>
 													<label
-														className="form-check-label"
-														htmlFor={`flexSwitch${sd.type}`}
+														htmlFor="user"
+														className="block mb-2 text-sm font-medium text-gray-600"
 													>
-														<div className="flex flex-col">
-															<div className="flex flex-row items-center">
-																<input
-																	type="checkbox"
-																	className="w-5 h-5 text-blue-600 form-checkbox"
-																	checked={
-																		selectedShareTypes ===
-																		sd.type
+														{selectedShareTypes ===
+															"email"
+															? "Email address"
+															: "Wallet address"}
+													</label>
+													<div className="flex flex-row flex-wrap w-full">
+														{userList.map(
+															(
+																user,
+																index
+															) => (
+																<div
+																	key={
+																		index
 																	}
-																	onChange={handleShareChange(
-																		sd.type
-																	)}
-																	disabled={
-																		sd.state ===
-																		"disabled"
-																	}
-																/>
-																<span className="ml-2 text-gray-700">
-																	{sd.title}
-																</span>
-																<span
-																	className="ml-2 text-gray-500 cursor-pointer"
-																	onClick={() => {
-																		if (
-																			pinnedDescriptionIndex ===
-																			index
-																		) {
-																			setPinnedDescriptionIndex(
-																				null
-																			);
-																		} else {
-																			setPinnedDescriptionIndex(
-																				index
-																			);
-																		}
+																	className="px-2 py-1 m-1 transition-transform transform rounded-full cursor-pointer hover:scale-110"
+																	style={{
+																		background:
+																			user.color,
+																		color:
+																			"white",
 																	}}
+																	onClick={() =>
+																		handleRemoveEmail(
+																			index
+																		)
+																	}
 																>
-																	<i
-																		className={`fas fa-thin fa-question-circle p-2 me-2`}
-																	></i>
-																</span>
-															</div>
+																	{
+																		user.email
+																	}
+																</div>
+															)
+														)}
+													</div>
+													<div className="flex flex-row items-center justify-center">
+														<input
+															id="user"
+															type="email"
+															className={" border border-gray-200 text-sm rounded-xl focus:border-blue-400 focus:outline-none block w-full px-2.5 py-2"
+																+ (theme === Theme.DARK ? " dark-theme3" : " text-gray-900 bg-gray-50")}
+															placeholder={
+																selectedShareTypes ===
+																	"email"
+																	? "example@email.com"
+																	: "0x00000EXAMPLE..."
+															}
+															value={user}
+															onChange={(
+																e
+															) => {
+																setuser(
+																	e.target
+																		.value
+																);
+															}}
+														/>
+														<button
+															className="h-full w-[38px] transition-transform transform hover:scale-110 flex items-center justify-center"
+															type="button"
+															onClick={
+																handleAddEmail
+															}
+														>
+															<FaPlusCircle
+																size={35}
+																color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
+															/>
+														</button>
+													</div>
+													<button
+														className="p-3 mt-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+														type="submit"
+														onClick={
+															handleSubmit
+														}
+													>
+														<span className="btn-transition"></span>
+														<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
+															<PiShareFatFill />{" "}
+															Accept
+														</label>
+													</button>
+												</form>
+											)}
+										</>
+									)}
+									{shareDetails.map((sd, index) => {
+										return (
+											<div
+												key={sd.id}
+												className="my-3 col-12 form-check form-switch"
+											>
+												<label
+													className="form-check-label"
+													htmlFor={`flexSwitch${sd.type}`}
+												>
+													<div className="flex flex-col">
+														<div className="flex flex-row items-center">
+															<input
+																type="checkbox"
+																className="w-5 h-5 text-blue-600 form-checkbox"
+																checked={
+																	selectedShareTypes ===
+																	sd.type
+																}
+																onChange={handleShareChange(
+																	sd.type
+																)}
+																disabled={
+																	sd.state ===
+																	"disabled"
+																}
+															/>
+															<span className={"ml-2 "
+																+ (theme === Theme.DARK ? " text-white" : " text-gray-700")}>
+																{sd.title}
+															</span>
+															<span
+																className="ml-2 text-gray-500 cursor-pointer"
+																onClick={() => {
+																	if (
+																		pinnedDescriptionIndex ===
+																		index
+																	) {
+																		setPinnedDescriptionIndex(
+																			null
+																		);
+																	} else {
+																		setPinnedDescriptionIndex(
+																			index
+																		);
+																	}
+																}}
+															>
+																<i
+																	className={`fas fa-thin fa-question-circle p-2 me-2`}
+																></i>
+															</span>
+														</div>
 
-															{pinnedDescriptionIndex ===
-																index && (
+														{pinnedDescriptionIndex ===
+															index && (
 																<span
 																	id="description"
-																	className="flex p-2 ml-2 text-sm bg-gray-200 rounded"
+																	className={"flex p-2 ml-2 text-sm rounded "
+																		+ (theme === Theme.DARK ? " bg-[#32334b]" : " bg-gray-200")}
 																>
 																	{
 																		sd.description
 																	}
 																</span>
 															)}
-														</div>
-													</label>
-												</div>
-											);
-										})}
-									</>
-								) : (
-									<>
-										<p className="px-2 my-3">
-											Choose the Files you want to share
-										</p>
-										{Procesing ? (
-											<div className="w-full h-3 m-6">
-												<Spinner5></Spinner5>
+													</div>
+												</label>
 											</div>
-										) : (
-											<></>
-										)}
-										<button
-											className="p-3 my-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
-											onClick={handleFileUpload}
-										>
-											<span className="btn-transition"></span>
-											<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
-												<HiPlus /> Upload files
-											</label>
-										</button>
-									</>
-								)}
-
-								<div className="px-4 py-3 bg-gray-50 sm:px-6">
+										);
+									})}
+								</>
+							) : (
+								<>
+									<p className="px-2 my-3">
+										Choose the Files you want to share
+									</p>
+									{Procesing ? (
+										<div className="w-full h-3 m-6">
+											<Spinner5></Spinner5>
+										</div>
+									) : (
+										<></>
+									)}
 									<button
-										type="button"
-										className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-blue-500 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500sm:text-sm"
-										onClick={closeShareModal}
+										className="p-3 my-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+										onClick={handleFileUpload}
 									>
-										Close
+										<span className="btn-transition"></span>
+										<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
+											<HiPlus /> Upload files
+										</label>
 									</button>
-								</div>
-							</div>
-						</section>
-					</div>
+								</>
+							)}
+
+							<button
+								type="button"
+								className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm px-5 py-2.5 text-center"
+									+ (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
+								onClick={closeShareModal}
+							>
+								Close
+							</button>
+						</div>
+					</section>
 				</div>
-			</>
+			</div>
 		);
 	}
 };

@@ -1,6 +1,11 @@
 import { createReducer } from "@reduxjs/toolkit";
 
-import { loadUser, loadingUser, loadUserFail, logoutUser, setRedirectUrl } from "./actions";
+import { loadUser, loadingUser, loadUserFail, logoutUser, setRedirectUrl, setTheme } from "./actions";
+
+export enum Theme {
+  DARK = 'dark',
+  LIGHT = 'light'
+}
 
 interface User {
   uid: string;
@@ -8,6 +13,7 @@ interface User {
   role: string;
   walletAddress: string;
   authenticated: boolean;
+  theme: Theme;
   loading: boolean;
   redirectUrl?: string;
   message?: string;
@@ -22,6 +28,7 @@ const initialState: User = {
   loading: true,
   redirectUrl: undefined,
   message: undefined,
+  theme: Theme.LIGHT
 };
 
 export default createReducer<User>(initialState, (builder) => {
@@ -51,5 +58,12 @@ export default createReducer<User>(initialState, (builder) => {
       {
       ...state,
       redirectUrl: payload,
-    }));
+    }))
+    .addCase(setTheme, (state, { payload } ) => {
+      localStorage.setItem('theme', payload)
+      return {
+        ...state,
+        theme: payload,
+      }
+    });
 });

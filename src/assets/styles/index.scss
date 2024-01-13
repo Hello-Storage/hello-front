@@ -9,6 +9,7 @@
 @import "./components/scrollbar.scss";
 @import "./components/table.scss";
 @import "./components/grid.scss";
+@import "./components/theme-switch.scss";
 @import "./components/input.scss";
 
 
@@ -21,5 +22,10 @@ body {
   letter-spacing: -0.3px;
   box-sizing: border-box;
   min-width: 0;
+  transition: background-color 0.2s ease-in-out;
+  -webkit-transition: background-color 0.2s ease-in-out;
+  -moz-transition: background-color 0.2s ease-in-out;
+  -ms-transition: background-color 0.2s ease-in-out;
+  -o-transition: background-color 0.2s ease-in-out;
 }
 

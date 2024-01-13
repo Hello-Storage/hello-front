@@ -25,7 +25,7 @@ import {
 	decryptFileBuffer,
 } from "utils/encryption/filesCipher";
 import React from "react";
-import { useAppDispatch } from "state";
+import { useAppDispatch, useAppSelector } from "state";
 import {
 	setFileViewAction,
 	setImageViewAction,
@@ -36,6 +36,7 @@ import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { removeFileAction } from "state/mystorage/actions";
+import { Theme } from "state/user/reducer";
 
 dayjs.extend(relativeTime);
 
@@ -178,16 +179,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 			});
 	};
 
+	const { theme } = useAppSelector((state) => state.user);
+
 	if (view === "list")
 		return (
 			<>
 				<td
 					onDoubleClick={handleView}
 					scope="row"
-					className="px-3 font-medium text-gray-900 whitespace-nowrap "
+					className={"px-3 font-medium whitespace-nowrap "
+						+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
 				>
 					<div className="flex items-center gap-3 ">
-						{getFileIcon(file.name)}
+						{getFileIcon(file.name, theme)}
 						{file.is_in_pool && (
 							<GoAlertFill
 								style={{ color: "#FF6600" }}
@@ -236,7 +240,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 				</td>
 				<td className="py-1 pr-8 text-right">
 					<button
-						className="p-3 rounded-full hover:bg-gray-300"
+						className={"p-3 rounded-full "
+							+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 						onClick={() => setOpen(!open)}
 					>
 						<HiDotsVertical />
@@ -247,17 +252,17 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 									className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-36 "
 									style={{ bottom: "100%" }}
 								>
-									<ul className="py-2 bg-white">
-										<a
-											href="#"
-											className="block px-4 py-2 hover:bg-gray-100"
+									<ul className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
+									>
+										<li
+											className={"block px-4 py-2 "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 											onClick={handleDownload}
 										>
 											<HiOutlineDownload className="inline-flex mr-3" />
 											Download
-										</a>
-										<a
-											href="#"
+										</li>
+										<li
 											onClick={() => {
 												dispatch(
 													setShowShareModal(true)
@@ -266,34 +271,36 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 													setSelectedShareFile(file)
 												);
 											}}
-											className="block px-4 py-2 hover:bg-gray-100"
+											className={"block px-4 py-2 "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 										>
 											<HiOutlineShare className="inline-flex mr-3" />
 											Share
-										</a>
+										</li>
 										{viewableExtensions.has(
 											fileExtension
 										) && (
-											<a
-												href="#"
-												className="block px-4 py-2 hover:bg-gray-100"
-												onClick={() => handleView()}
-											>
-												<HiOutlineEye className="inline-flex mr-3" />
-												View
-											</a>
-										)}
+												<li
+													className={"block px-4 py-2 "
+														+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+													onClick={() => handleView()}
+												>
+													<HiOutlineEye className="inline-flex mr-3" />
+													View
+												</li>
+											)}
 									</ul>
 
-									<div className="py-2 bg-white">
-										<a
-											href="#"
-											className="block px-4 py-2 hover:bg-gray-100 "
+									<div className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
+									>
+										<p
+											className={"block px-4 py-3 "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 											onClick={handleDelete}
 										>
 											<HiOutlineTrash className="inline-flex mr-3" />
 											Delete
-										</a>
+										</p>
 									</div>
 								</div>
 							)}
@@ -305,21 +312,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 	else
 		return (
 			<div
-				className="p-4 mb-3 border border-gray-200 rounded-lg bg-gray-50 hover:cursor-pointer hover:bg-gray-100"
-				onClick={handleView}
+				onDoubleClick={handleView}
 			>
 				<div>
 					<div className="flex flex-col items-center gap-3">
-						<div className="flex items-center w-full gap-2 overflow-hidden font-medium text-center text-gray-900 whitespace-nowrap overflow-ellipsis">
+						<div className={"flex items-center w-full gap-2 overflow-hidden font-medium text-center whitespace-nowrap overflow-ellipsis"
+							+ (theme === Theme.DARK ? " text-white" : "  text-gray-900")}
+						>
 							<HiDocumentText className="flex-shrink-0 w-4 h-4" />
 							{file.is_in_pool && (
 								<GoAlertFill style={{ color: "#FF6600" }} />
 							)}
 							<span className="hidden md:inline">
-								{truncate(file.name, 40)}
-							</span>
-							<span className="inline md:hidden">
-								{truncate(file.name, 24)}
+								{truncate(file.name, 20)}
 							</span>
 						</div>
 					</div>
