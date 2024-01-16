@@ -195,8 +195,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 	const { theme } = useAppSelector((state) => state.user);
 	return (
 		<>
-			<div className={" px-5 py-3 w-[220px] rounded-lg relative overflow-visible border border-gray-200 "
-				+ (theme === Theme.DARK ? " dark-theme3" : " bg-gray-50 hover:bg-gray-100")}
+			<div className=" px-5 py-3 w-[220px] relative overflow-visible border rounded-lg"
 			>
 				<div className="relative flex flex-row items-center justify-between">
 					<FaFolder
@@ -204,7 +203,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 						size={24}
 						color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
 					/>
-					<div className="relative flex flex-row items-center justify-between w-full">
+					<div className="relative flex flex-row items-center justify-between w-full rounded-lg">
 						<label className={"w-full overflow-hidden font-medium cursor-pointer whitespace-nowrap overflow-ellipsis"
 							+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
 						>

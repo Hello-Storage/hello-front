@@ -12,6 +12,7 @@ import { removeFileAction } from "state/mystorage/actions";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { Theme } from "state/user/reducer";
+import ContentFolderItem from "./ContentFolderItem";
 
 interface ContentProps {
   loading: boolean;
@@ -403,10 +404,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                 aria-label={v.uid}
                 aria-valuetext="folder"
                 draggable
-                className={`cursor-pointer min-w-[220px] ${draggingOverFolderId === v.id.toString()
+                className={`cursor-pointer min-w-[220px] rounded-lg ${draggingOverFolderId === v.id.toString()
                   ? "bg-blue-200 border border-blue-500"
                   : isItemSelected(v.id.toString())
-                    ? "bg-sky-100"
+                    ? "bg-[#79d79d93]"
                     : ""
                   } ${i < folders.length - 1 ? "mr-5" : ""}`}
                 onDrag={handleDrag}
@@ -546,9 +547,36 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                     </tr>
                   ) : (
                     <>
-                      {(files && files.length > 0) ?
+                      {((files && files.length > 0) || (showFolders && folders && folders.length > 0)) ?
                         <>
-                          {files.map((v, i) => (
+                          {showFolders &&
+                            folders.map((v, i) => (
+                              <tr
+                                key={i}
+                                id={v.id.toString()}
+                                aria-label={v.uid}
+                                aria-valuetext="folder"
+                                className={`cursor-pointer ${draggingOverFolderId === v.id.toString()
+                                  ? "bg-blue-300 border border-blue-500"
+                                  : isItemSelected(v.id.toString())
+                                    ? "bg-[#79d79d93]"
+                                    : ""
+                                  } ${i < folders.length - 1 ? "mr-5" : ""}`}
+                                onDrag={handleDrag}
+                                draggable
+                                onDragStart={handleDragStart}
+                                onDragEnd={handleDragEnd}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                                onDoubleClick={() => onFolderDoubleClick(v.uid)}
+                                onClick={handleOnClick}
+                              >
+                                <ContentFolderItem folder={v} key={i} view="list" />
+                              </tr>
+                            ))
+                          }
+                          {files?.map((v, i) => (
                             <tr
                               key={i}
                               id={v.id.toString()}
@@ -602,8 +630,37 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         ) :
 
           <div className="table-div">
-            {(files && files.length > 0) ?
+            {((files && files.length > 0) || (showFolders && folders && folders.length > 0)) ?
               <section className="grid gap-3 grid-200">
+                {showFolders &&
+                  <>
+                    {folders.map((v, i) => (
+                      <div
+                        key={i}
+                        id={v.id.toString()}
+                        aria-label={v.uid}
+                        aria-valuetext="folder"
+                        className={`p-4 border mb-3 border-gray-200 rounded-lg cursor-pointer ${draggingOverFolderId === v.id.toString()
+                          ? "bg-blue-200 border border-blue-500"
+                          : isItemSelected(v.id.toString())
+                            ? "bg-[#79d79d93]"
+                            : ""
+                          } ${i < folders.length - 1 ? "mr-5" : ""}`}
+                        onDrag={handleDrag}
+                        draggable
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onDoubleClick={() => onFolderDoubleClick(v.uid)}
+                        onClick={handleOnClick}
+                      >
+                        <ContentFolderItem folder={v} key={i} view="grid" />
+                      </div>
+                    ))}
+                  </>
+                }
                 {files?.map((v, i) => (
                   <div
                     key={i}

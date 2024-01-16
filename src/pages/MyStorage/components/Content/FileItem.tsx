@@ -317,7 +317,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 						<div className={"flex items-center w-full gap-2 overflow-hidden font-medium text-center whitespace-nowrap overflow-ellipsis"
 							+ (theme === Theme.DARK ? " text-white" : "  text-gray-900")}
 						>
-							<HiDocumentText className="flex-shrink-0 w-4 h-4" />
+							{getFileIcon(file.name, theme)}
 							{file.is_in_pool && (
 								<GoAlertFill style={{ color: "#FF6600" }} />
 							)}

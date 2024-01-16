@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from "axios";
 
-import { Api, File as FileType } from "api";
+import { Api, File as FileType, Folder } from "api";
 import { toast } from "react-toastify";
 
 export const shareFile = async (selectedFile: FileType | null, type: string, user: string | undefined): Promise<AxiosResponse | AxiosError | undefined> => {
@@ -16,6 +16,28 @@ export const shareFile = async (selectedFile: FileType | null, type: string, use
             case "email":
             case "wallet":
                 response = await publishFile(selectedFile, `/file/share/${type}/` + user)
+                break;
+            default:
+                alert("Error: Invalid share type")
+                break;
+        }
+    }
+    return response;
+}
+
+export const shareFolder = async (selectedFolder: Folder | null, type: string, user: string | undefined): Promise<AxiosResponse | AxiosError | undefined> => {
+    let response: AxiosResponse | AxiosError | undefined;
+    if (selectedFolder) {
+        switch (type) {
+            case "public":
+            case "one-time":
+            case "monthly":
+                //publish file and get sharing URL from server
+                response = await publishFolder(selectedFolder, `/folder/share/` + type)
+                break;
+            case "email":
+            case "wallet":
+                response = await publishFolder(selectedFolder, `/folder/share/${type}/` + user)
                 break;
             default:
                 alert("Error: Invalid share type")
@@ -50,6 +72,17 @@ export const unshareFile = async (selectedFile: FileType | null, type: string): 
     }
 
     return response;
+}
+
+
+const publishFolder = async (selectedFolder: Folder, apiUrl: string): Promise<AxiosError | AxiosResponse | undefined> => {
+    const responseLink = await Api.post(apiUrl, selectedFolder
+    ).then((response: AxiosResponse) => {
+        return response;
+    }).catch((error: AxiosError) => {
+        return error;
+    })
+    return responseLink;
 }
 
 

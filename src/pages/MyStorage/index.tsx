@@ -32,6 +32,7 @@ import getPersonalSignature from "api/getPersonalSignature";
 import ShareModal from "pages/Shared/Components/ShareModal";
 import Imageview from "components/ImageView/Imageview";
 import { Theme } from "state/user/reducer";
+import ShareFolderModal from "pages/Shared/Components/ShareFolderModal";
 
 
 export default function Home() {
@@ -275,24 +276,27 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-	const {theme} = useAppSelector((state) => state.user);
+  const { theme } = useAppSelector((state) => state.user);
 
   return (
     <div className="flex flex-col overflow-hidden table-main " id="content">
-      {showShareModal && <ShareModal />}
+      {showShareModal && <>
+        <ShareModal />
+        <ShareFolderModal />
+      </>}
       <div className="flex justify-between items-center mb-[15px]">
         <Breadcrumb />
         <div className="flex flex-row items-center justify-evenly min-w-fit">
           <div ref={ref}>
             <button
-              className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"+ (theme===Theme.DARK? " text-white hover:bg-[#32334b]" : " bg-white text-gray-900 hover:bg-gray-100")}
+              className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" + (theme === Theme.DARK ? " text-white hover:bg-[#32334b]" : " bg-white text-gray-900 hover:bg-gray-100")}
               onClick={() => setOpen(!open)}
             >
               Filter
             </button>
 
             {open && (
-              <div className={"absolute mt-1 z-10 w-[150px] shadow divide-y border text-sm "+(theme===Theme.DARK? " text-white bg-[#32334b]" : " bg-white text-gray-700")}>
+              <div className={"absolute mt-1 z-10 w-[150px] shadow divide-y border text-sm " + (theme === Theme.DARK ? " text-white bg-[#32334b]" : " bg-white text-gray-700")}>
                 <ul className="p-2">
                   <li>
                     <div className="flex items-center justify-between p-2">
@@ -361,8 +365,8 @@ export default function Home() {
               type="button"
               onClick={() => setView("list")}
               className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg`
-              +(theme===Theme.DARK? " text-white bg-[#030522] hover:bg-[#32334b]" +(view === "list" ? " !bg-[#32334b]" : "") : 
-              " bg-white text-gray-900 hover:bg-gray-100" +(view === "list" ? " !bg-gray-100" : ""))}
+                + (theme === Theme.DARK ? " text-white bg-[#030522] hover:bg-[#32334b]" + (view === "list" ? " !bg-[#32334b]" : "") :
+                  " bg-white text-gray-900 hover:bg-gray-100" + (view === "list" ? " !bg-gray-100" : ""))}
             >
               <HiOutlineViewList size={20} />
             </button>
@@ -371,8 +375,8 @@ export default function Home() {
               type="button"
               onClick={() => setView("grid")}
               className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg`
-              +(theme===Theme.DARK? " text-white bg-[#030522] hover:bg-[#32334b]" +(view === "grid" ? " !bg-[#32334b]" : "") : 
-              " bg-white text-gray-900 hover:bg-gray-100" +(view === "grid" ? " !bg-gray-100" : ""))}
+                + (theme === Theme.DARK ? " text-white bg-[#030522] hover:bg-[#32334b]" + (view === "grid" ? " !bg-[#32334b]" : "") :
+                  " bg-white text-gray-900 hover:bg-gray-100" + (view === "grid" ? " !bg-gray-100" : ""))}
             >
               <HiOutlineViewGrid size={20} />
             </button>
@@ -397,7 +401,7 @@ export default function Home() {
       </section>
       <div className="flex-shrink-0 mb-[50px] sm:mb-0">
         <div className={"flex items-center justify-between py-2 mt-3 border-gray-200 text-sm border-t "
-          +(theme===Theme.DARK? " dark-theme" : " bg-white ")}>
+          + (theme === Theme.DARK ? " dark-theme" : " bg-white ")}>
           <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
             {Math.min(endIndex, totalItems)} of {totalItems} results
