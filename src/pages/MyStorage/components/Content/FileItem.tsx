@@ -199,11 +199,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 							/>
 						)}
 						<span className="hidden md:inline">
-							{" "}
 							{truncate(file.name, 40)}
 						</span>
 						<span className="inline md:hidden">
-							{" "}
 							{truncate(file.name, 24)}
 						</span>
 					</div>
@@ -324,7 +322,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 								<GoAlertFill style={{ color: "#FF6600" }} />
 							)}
 							<span className="hidden md:inline">
-								{truncate(file.name, 20)}
+								{truncate(file.name, 40)}
+							</span>
+							<span className="inline md:hidden">
+								{truncate(file.name, 24)}
 							</span>
 						</div>
 					</div>

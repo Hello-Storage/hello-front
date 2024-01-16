@@ -381,320 +381,266 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   const { theme } = useAppSelector((state) => state.user);
 
-  if (view === "list")
-    return (
-      <>
-        {showFolders ?
-          <>
-            <div className="position-sticky-left">
-              <h4 className="mb-[15px]">Folders</h4>
-            </div>
-            <div className="folders-div">
-              <button
-                className={"cursor-pointer px-5 py-3 border border-gray-200 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
-                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " bg-gray-50 text-gray-700 hover:bg-gray-100")}
-                onClick={onPresent}
-              >
-                <RiFolderAddLine className="w-6 h-6" />
-              </button>
-              {folders.map((v, i) => (
-                <div
-                  key={i}
-                  id={v.id.toString()}
-                  aria-label={v.uid}
-                  aria-valuetext="folder"
-                  draggable
-                  className={`cursor-pointer min-w-[220px] ${draggingOverFolderId === v.id.toString()
-                    ? "bg-blue-200 border border-blue-500"
-                    : isItemSelected(v.id.toString())
-                      ? "bg-sky-100"
-                      : ""
-                    } ${i < folders.length - 1 ? "mr-5" : ""}`}
-                  onDrag={handleDrag}
-                  onDragStart={handleDragStart}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onDoubleClick={() => onFolderDoubleClick(v.uid)}
-                  onClick={handleOnClick}
-                >
-                  <FolderItem folder={v} key={i} view="list" />
-                </div>
-              ))}
-            </div>
-
-            <section
-              className="custom-scrollbar position-sticky-left mb-[15px]"
-              id="scroll-visible-section"
+  return (
+    <>
+      {showFolders ?
+        <>
+          <div className="position-sticky-left">
+            <h4 className="mb-[15px]">Folders</h4>
+          </div>
+          <div className="folders-div">
+            <button
+              className={"cursor-pointer px-5 py-3 border border-gray-200 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
+                + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " bg-gray-50 text-gray-700 hover:bg-gray-100")}
+              onClick={onPresent}
             >
-              <div id="width-section-helper"></div>
-            </section>
-          </>
-          :
-          <></>
-        }
-
-        <section className="custom-scrollbar position-sticky-left">
-          <div className="sticky left-0 flex flex-row items-center justify-between mb-[15px]">
-            <h4 className="pt-1 pb-3">{filesTitle}</h4>
-            <div className="flex flex-row items-center justify-between">
-
-              <button
-                className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : "text-gray-900 bg-white hover:bg-gray-100")}
-                onClick={handleButtonClick}>{buttonText}
-              </button>
-
-              {(selectedItems.length > 0) ? (
-                <span className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " text-gray-900 bg-white hover:bg-gray-200")}
-
-                  title="Delete selected items"
-                  onClick={handleMultipleDelete}
-                >
-                  <FaRegTrashAlt className="mx-2 text-lg" />
-                </span>
-              ) : (<></>)}
-
-            </div>
-          </div>
-
-          <div id={"header-scroll-inv_" + identifier}>
-            <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
-              <thead className={"text-xs "
-                + (theme === Theme.DARK ? " text-white bg-[#32334b]" : " text-gray-700 bg-gray-100")}>
-                <tr>
-                  <th
-                    id="column-name"
-                    scope="col"
-                    className="p-2.5 rounded-tl-lg rounded-bl-lg"
-                  >
-                    Name
-                  </th>
-                  <th
-                    scope="col"
-                    className="p-1"
-                    id="column-cid"
-                  >
-                    CID
-                  </th>
-                  <th
-                    scope="col"
-                    className="p-1"
-                    id="column-size"
-                  >
-                    Size
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-3 py-1"
-                    id="column-type"
-                  >
-                    Type
-                  </th>
-                  <th
-                    scope="col"
-                    className="p-1 whitespace-nowrap"
-                    id="column-lm"
-                  >
-                    Last Modified
-                  </th>
-                  <th
-                    id="column-option"
-                    scope="col"
-                    className="rounded-tr-lg rounded-br-lg"
-                  ></th>
-                </tr>
-              </thead>
-            </table>
-          </div>
-          <div id={"table-row-div_" + identifier} className="h-full min-w-full table-div custom-scrollbar scrollbar-color">
-            <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
-              + (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
-              <tbody>
-                {loading ? (
-                  <tr className="w-full h-64">
-                    <td colSpan={6}>
-                      <div className="flex flex-col items-center justify-center w-full h-full text-center">
-                        <div className="mb-4 text-xl font-semibold">
-                          Decrypting
-                        </div>
-                        <svg
-                          className="w-12 h-12 mb-4 animate-spin text-violet-500"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  <>
-                    {(files && files.length > 0) ?
-                      <>
-                        {files.map((v, i) => (
-                          <tr
-                            key={i}
-                            id={v.id.toString()}
-                            aria-label={v.uid}
-                            aria-valuetext="file"
-                            draggable
-                            onDragStart={handleDragStart}
-                            onDragEnd={handleDragEnd}
-                            onDrag={handleDrag}
-                            className={` cursor-pointer ${isItemSelected(
-                              v.id.toString()
-                            )
-                              ? " bg-[#79d79d93]"
-                              : (theme === Theme.DARK ? " dark-theme5" : " hover:bg-gray-100 bg-white")}
-                              }`}
-                            onClick={handleOnClick}
-                          >
-                            <FileItem
-                              file={v}
-                              key={i}
-                              view="list"
-                              setloaded={setloaded}
-                            />
-                          </tr>
-                        ))}
-                      </>
-                      :
-                      <>
-                        <tr
-                        >
-                          <td
-                            scope="row"
-                            className={"w-full px-3 font-medium  whitespace-nowrap"
-                              + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
-                            <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
-                              <div className="mt-4 mb-4">
-                                No files found
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      </>
-                    }
-
-                  </>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </>
-    );
-  else
-    return (
-      <Fragment>
-        <div className="position-sticky-left">
-          <h4 className="mb-[15px]">Folders</h4>
-        </div>
-        <div className="folders-div">
-          <button
-            className={"cursor-pointer px-5 py-3 border border-gray-200 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
-              + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " bg-gray-50 text-gray-700 hover:bg-gray-100")}
-            onClick={onPresent}
-          >
-            <RiFolderAddLine className="w-6 h-6" />
-          </button>
-          {folders.map((v, i) => (
-            <div
-              key={i}
-              id={v.id.toString()}
-              aria-label={v.uid}
-              aria-valuetext="folder"
-              draggable
-              className={`cursor-pointer min-w-[220px] z-50 ${draggingOverFolderId === v.id.toString()
-                ? "bg-blue-200 border border-blue-500"
-                : isItemSelected(v.id.toString())
-                  ? "bg-sky-100"
-                  : ""
-                } ${i < folders.length - 1 ? "mr-5" : ""}`}
-              onDrag={handleDrag}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onDoubleClick={() => onFolderDoubleClick(v.uid)}
-              onClick={handleOnClick}
-            >
-              <FolderItem folder={v} key={i} view="list" />
-            </div>
-          ))}
-        </div>
-
-        <section
-          className="custom-scrollbar position-sticky-left mb-[10px]"
-          id="scroll-visible-section"
-        >
-          <div id="width-section-helper"></div>
-        </section>
-
-        <section className="custom-scrollbar position-sticky-left">
-          <div className="flex flex-row items-center justify-between p-[15px]">
-            <h3 className="my-3">Files</h3>
-
-            <div className="flex flex-row items-center justify-between">
-              <button
-                className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : "text-gray-900 bg-white hover:bg-gray-100")}
-                onClick={handleButtonClick}>{buttonText}
-              </button>
-
-              {(selectedItems.length > 0) ? (
-                <span className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " text-gray-900 bg-white hover:bg-gray-200")}
-
-                  title="Delete selected items"
-                  onClick={handleMultipleDelete}
-                >
-                  <FaRegTrashAlt className="mx-2 text-lg" />
-                </span>
-              ) : (<></>)}
-            </div>
-          </div>
-          <div className="grid gap-3 grid-200">
-            {files?.map((v, i) => (
+              <RiFolderAddLine className="w-6 h-6" />
+            </button>
+            {folders.map((v, i) => (
               <div
-              key={i}
-              id={v.id.toString()}
-              aria-label={v.uid}
-              aria-valuetext="file"
+                key={i}
+                id={v.id.toString()}
+                aria-label={v.uid}
+                aria-valuetext="folder"
+                draggable
+                className={`cursor-pointer min-w-[220px] ${draggingOverFolderId === v.id.toString()
+                  ? "bg-blue-200 border border-blue-500"
+                  : isItemSelected(v.id.toString())
+                    ? "bg-sky-100"
+                    : ""
+                  } ${i < folders.length - 1 ? "mr-5" : ""}`}
+                onDrag={handleDrag}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onDoubleClick={() => onFolderDoubleClick(v.uid)}
                 onClick={handleOnClick}
-                className={`p-4 border mb-3 border-gray-200 rounded-lg cursor-pointer ${isItemSelected(
-                  v.id.toString()
-                )
-                  ? " bg-[#79d79d93]"
-                  : (theme === Theme.DARK ? " dark-theme4" : " hover:bg-gray-200 bg-white")}
-                }`}
               >
-                <FileItem file={v} key={i} view="grid"
-                  setloaded={setloaded} />
+                <FolderItem folder={v} key={i} view="list" />
               </div>
-
             ))}
           </div>
-        </section>
-      </Fragment>
-    );
+
+          <section
+            className="custom-scrollbar position-sticky-left mb-[15px]"
+            id="scroll-visible-section"
+          >
+            <div id="width-section-helper"></div>
+          </section>
+        </>
+        :
+        <></>
+      }
+
+      <section className="custom-scrollbar position-sticky-left">
+        <div className="sticky left-0 flex flex-row items-center justify-between mb-[15px]">
+          <h4 className="pt-1 pb-3">{filesTitle}</h4>
+          <div className="flex flex-row items-center justify-between">
+
+            <button
+              className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : "text-gray-900 bg-white hover:bg-gray-100")}
+              onClick={handleButtonClick}>{buttonText}
+            </button>
+
+            {(selectedItems.length > 0) ? (
+              <span className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " text-gray-900 bg-white hover:bg-gray-200")}
+
+                title="Delete selected items"
+                onClick={handleMultipleDelete}
+              >
+                <FaRegTrashAlt className="mx-2 text-lg" />
+              </span>
+            ) : (<></>)}
+
+          </div>
+        </div>
+
+        {view === "list" ? (
+          <>
+            <div id={"header-scroll-inv_" + identifier}>
+              <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
+                <thead className={"text-xs "
+                  + (theme === Theme.DARK ? " text-white bg-[#32334b]" : " text-gray-700 bg-gray-100")}>
+                  <tr>
+                    <th
+                      id="column-name"
+                      scope="col"
+                      className="p-2.5 rounded-tl-lg rounded-bl-lg"
+                    >
+                      Name
+                    </th>
+                    <th
+                      scope="col"
+                      className="p-1"
+                      id="column-cid"
+                    >
+                      CID
+                    </th>
+                    <th
+                      scope="col"
+                      className="p-1"
+                      id="column-size"
+                    >
+                      Size
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-1"
+                      id="column-type"
+                    >
+                      Type
+                    </th>
+                    <th
+                      scope="col"
+                      className="p-1 whitespace-nowrap"
+                      id="column-lm"
+                    >
+                      Last Modified
+                    </th>
+                    <th
+                      id="column-option"
+                      scope="col"
+                      className="rounded-tr-lg rounded-br-lg"
+                    ></th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+            <div id={"table-row-div_" + identifier} className="h-full min-w-full table-div custom-scrollbar scrollbar-color">
+              <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
+                + (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
+                <tbody>
+                  {loading ? (
+                    <tr className="w-full h-64">
+                      <td colSpan={6}>
+                        <div className="flex flex-col items-center justify-center w-full h-full text-center">
+                          <div className="mb-4 text-xl font-semibold">
+                            Decrypting
+                          </div>
+                          <svg
+                            className="w-12 h-12 mb-4 animate-spin text-violet-500"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    <>
+                      {(files && files.length > 0) ?
+                        <>
+                          {files.map((v, i) => (
+                            <tr
+                              key={i}
+                              id={v.id.toString()}
+                              aria-label={v.uid}
+                              aria-valuetext="file"
+                              draggable
+                              onDragStart={handleDragStart}
+                              onDragEnd={handleDragEnd}
+                              onDrag={handleDrag}
+                              className={` cursor-pointer ${isItemSelected(
+                                v.id.toString()
+                              )
+                                ? " bg-[#79d79d93]"
+                                : (theme === Theme.DARK ? " dark-theme5" : " hover:bg-gray-100 bg-white")}
+                              }`}
+                              onClick={handleOnClick}
+                            >
+                              <FileItem
+                                file={v}
+                                key={i}
+                                view="list"
+                                setloaded={setloaded}
+                              />
+                            </tr>
+                          ))}
+                        </>
+                        :
+                        <>
+                          <tr
+                          >
+                            <td
+                              scope="row"
+                              className={"w-full px-3 font-medium  whitespace-nowrap"
+                                + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
+                              <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
+                                <div className="mt-4 mb-4">
+                                  No files found
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        </>
+                      }
+
+                    </>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) :
+
+          <div className="table-div">
+            {(files && files.length > 0) ?
+              <section className="grid gap-3 grid-200">
+                {files?.map((v, i) => (
+                  <div
+                    key={i}
+                    id={v.id.toString()}
+                    aria-label={v.uid}
+                    aria-valuetext="file"
+                    onClick={handleOnClick}
+                    className={`p-4 border mb-3 border-gray-200 rounded-lg cursor-pointer ${isItemSelected(
+                      v.id.toString()
+                    )
+                      ? " bg-[#79d79d93]"
+                      : (theme === Theme.DARK ? " dark-theme4" : " hover:bg-gray-200 bg-white")}
+                }`}
+                  >
+                    <FileItem file={v} key={i} view="grid"
+                      setloaded={setloaded} />
+                  </div>
+                ))}
+              </section>
+              :
+              <section
+              >
+                <span
+                  className={"w-full px-3 font-medium  whitespace-nowrap"
+                    + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
+                  <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
+                    <div className="mt-4 mb-4">
+                      No files found
+                    </div>
+                  </div>
+                </span>
+              </section>}
+          </div>
+        }
+      </section>
+    </>
+  );
 };
 
 export default Content;

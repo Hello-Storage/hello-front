@@ -24,7 +24,7 @@ import { useAppDispatch, useAppSelector } from "state";
 import getAccountType from "api/getAccountType";
 import { logoutUser } from "state/user/actions";
 import { truncate } from "utils/format";
-import { removeFolder } from "state/mystorage/actions";
+import { removeFolder, setSelectedShareFile, setSelectedShareFolder, setShowShareModal } from "state/mystorage/actions";
 
 dayjs.extend(relativeTime);
 
@@ -193,128 +193,80 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 	}, [deleteAcepted]);
 
 	const { theme } = useAppSelector((state) => state.user);
-
-	if (view === "list")
-		return (
-			<>
-				<div className={" px-5 py-3 w-[220px] rounded-lg relative overflow-visible border border-gray-200 "
-					+ (theme === Theme.DARK ? " dark-theme3" : " bg-gray-50 hover:bg-gray-100")}
-				>
-					<div className="relative flex flex-row items-center justify-between">
-						<FaFolder
-							className="inline-block mr-2 align-middle"
-							size={24}
-							color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
-						/>
-						<div className="relative flex flex-row items-center justify-between w-full">
-							<label className={"w-full overflow-hidden font-medium cursor-pointer whitespace-nowrap overflow-ellipsis"
-								+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
-							>
-								{truncate(folder.title, 12)}
-							</label>
-							<button
-								className={"p-1 rounded-lg "
-								+(theme===Theme.DARK? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-								onClick={() => setOpen(!open)}
-							>
-								<HiDotsVertical className="align-middle" />{" "}
-								<div className="drop-down-menu" ref={ref}>
-									{open && (
-										<ul
-											id="dropdown"
-											className={"absolute right-0 z-50 mt-2 text-left origin-top-right divide-y shadow w-36 border"
-											+(theme===Theme.DARK? " dark-theme4" : " bg-white")}
-										>
-											<li>
-												<a
-													href="#"
-													className={"block px-4 py-2 "
-													+(theme===Theme.DARK? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
-													onClick={handleDownload}
-												>
-													<HiOutlineDownload className="inline-flex mr-3" />
-													Download
-												</a>
-											</li>
-											<li>
-												<a
-													href="#"
-													className={"block px-4 py-2 "
-													+(theme===Theme.DARK? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
-													onClick={onPresent}
-												>
-													<HiOutlineTrash className="inline-flex mr-3" />
-													Delete
-												</a>
-											</li>
-										</ul>
-									)}
-								</div>
-							</button>
-						</div>
-					</div>
-				</div>
-			</>
-		);
-	else
-		return (
-			<div className="bg-gray-50 hover:bg-gray-100 px-5 py-3 w-[220px] rounded-lg relative">
-				<div className="flex flex-row items-center justify-between">
+	return (
+		<>
+			<div className={" px-5 py-3 w-[220px] rounded-lg relative overflow-visible border border-gray-200 "
+				+ (theme === Theme.DARK ? " dark-theme3" : " bg-gray-50 hover:bg-gray-100")}
+			>
+				<div className="relative flex flex-row items-center justify-between">
 					<FaFolder
 						className="inline-block mr-2 align-middle"
 						size={24}
-						color="#272727"
+						color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
 					/>
-					<div className="flex flex-row items-center justify-between w-full">
-						<label className="w-full overflow-hidden font-medium text-gray-900 cursor-pointer whitespace-nowrap overflow-ellipsis">
+					<div className="relative flex flex-row items-center justify-between w-full">
+						<label className={"w-full overflow-hidden font-medium cursor-pointer whitespace-nowrap overflow-ellipsis"
+							+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
+						>
 							{truncate(folder.title, 12)}
 						</label>
 						<button
-							className="p-1 rounded-lg hover:bg-gray-100"
+							className={"p-1 rounded-lg "
+								+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 							onClick={() => setOpen(!open)}
 						>
 							<HiDotsVertical className="align-middle" />{" "}
-							<div className="relative" ref={ref}>
+							<div className="drop-down-menu" ref={ref}>
 								{open && (
-									<div
+									<ul
 										id="dropdown"
-										className="absolute z-10 mt-2 text-left border divide-y shadow right-6 w-36"
+										className={"absolute right-0 z-[100] mt-2 text-left origin-top-right divide-y shadow w-36 border"
+											+ (theme === Theme.DARK ? " dark-theme4" : " bg-white")}
 									>
-										<ul className="py-2">
-											<a
-												href="#"
-												className="block px-4 py-2 hover:bg-gray-100"
-												onClick={handleDownload}
-											>
-												<HiOutlineDownload className="inline-flex mr-3" />
-												Download
-											</a>
-											<a
-												href="#"
-												className="block px-4 py-2 hover:bg-gray-100"
-											>
-												<HiOutlineShare className="inline-flex mr-3" />
-												Share
-											</a>
-										</ul>
-										<div className="py-2">
-											<a
-												href="#"
-												className="block px-4 py-2 hover:bg-gray-100"
-												onClick={handleDelete}
-											>
-												<HiOutlineTrash className="inline-flex mr-3" />
-												Delete
-											</a>
-										</div>
-									</div>
+										<li
+											className={"block px-4 py-2 "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
+											onClick={handleDownload}
+										>
+											<HiOutlineDownload className="inline-flex mr-3" />
+											Download
+										</li>
+
+										<li
+											onClick={() => {
+												dispatch(
+													setShowShareModal(true)
+												);
+												dispatch(
+													setSelectedShareFile()
+												)
+												dispatch(
+													setSelectedShareFolder(folder)
+												);
+											}}
+											className={"block px-4 py-2 "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+										>
+											<HiOutlineShare className="inline-flex mr-3" />
+											Share
+										</li>
+										<li
+											className={"block px-4 py-2 "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
+											onClick={onPresent}
+										>
+											<HiOutlineTrash className="inline-flex mr-3" />
+											Delete
+										</li>
+									</ul>
 								)}
 							</div>
 						</button>
 					</div>
 				</div>
 			</div>
-		);
+		</>
+	);
 };
 
 export default FolderItem;
