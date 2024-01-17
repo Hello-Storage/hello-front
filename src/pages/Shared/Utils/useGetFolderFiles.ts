@@ -8,22 +8,44 @@ import { toast } from 'react-toastify';
 import { useAppSelector } from 'state';
 import { handleEncryptedFiles, handleEncryptedFolders } from 'utils/encryption/filesCipher';
 
+class FolderContentClass {
+    folder?: Folder;
+    content?: {
+        files: File[];
+        folders: FolderContentClass[];
+    };
+
+    constructor(folder?: Folder, content?: { files: File[]; folders: FolderContentClass[]; }) {
+        this.folder = folder;
+        this.content = content;
+    }
+
+    searchFolderAndSetContent(folder: Folder, content: { files: File[]; folders: FolderContentClass[]; }) {
+        if (this.folder?.uid === folder?.uid) {
+            this.content = content;
+            return
+        }
+        if (this.content?.folders) {
+            for (const folderContentClass of this.content?.folders) {
+                folderContentClass.searchFolderAndSetContent(folder, content);
+            }
+        }
+        return
+    }
+}
+
 const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
     const [loading, setLoading] = useState(true);
     const personalSignatureRef = useRef<string | undefined>();
-    const [folderContent, setFolderContent] = useState<RootResponse>();
+    const folderContent = useRef<FolderContentClass>(new FolderContentClass(selectedShareFolder, undefined));
     const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
     const { name } = useAppSelector((state) => state.user);
     const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
     const accountType = getAccountType();
     const { logout } = useAuth();
-    const [currentFiles, setCurrentFiles] = useState<File[]>([]);
-    const [currentFolders, setCurrentFolders] = useState<Folder[]>([]);
 
     async function fetchContent(files: File[], folders: Folder[]) {
-        // Slice the files array based on the calculated start and end indices.
         const currentEncryptedFiles = files
-
 
         if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
             hasCalledGetPersonalSignatureRef.current = true;
@@ -49,56 +71,69 @@ const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
             logout
         );
 
-        setCurrentFiles(decryptedFiles || []);
-
         const decryptedFolders = await handleEncryptedFolders(
             folders,
             personalSignatureRef.current || "",
         );
-        setCurrentFolders(decryptedFolders || []);
 
+        return {
+            files: decryptedFiles || [],
+            folders: decryptedFolders || [],
+        };
     }
 
-    useEffect(() => {
-        if (selectedShareFolder) {
-            if (folderContent && folderContent.files && folderContent.folders) {
-                fetchContent(folderContent.files, folderContent.folders).then(() => {
-                    setLoading(false);
-                });
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [folderContent?.files.length, folderContent?.folders.length]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (selectedShareFolder) {
-                setLoading(true);
-                let root = "/folder/" + selectedShareFolder.uid;
-                Api.get<RootResponse>(root)
-                    .then(async (res) => {
-                        personalSignatureRef.current =
-                            sessionStorage.getItem("personal_signature") ?? undefined;
-                        if (!personalSignatureRef.current) {
-                            toast.error("Failed to fetch root");
-                            return;
+    const fetchData = async (selectedShareFolder: FolderContentClass) => {
+        if (selectedShareFolder.folder) {
+            setLoading(true);
+            let root = "/folder/" + selectedShareFolder.folder.uid;
+            Api.get<RootResponse>(root)
+                .then(async (res) => {
+                    personalSignatureRef.current =
+                        sessionStorage.getItem("personal_signature") ?? undefined;
+                    if (!personalSignatureRef.current) {
+                        toast.error("Failed to fetch root");
+                        return;
+                    }
+
+                    fetchContent(res.data.files, res.data.folders).then((contentD) => {
+                        if (contentD) {
+                            const Data = {
+                                files: contentD.files,
+                                folders: contentD.folders,
+                            };
+
+                            const contentfolders: FolderContentClass[] = []
+
+                            if (Data.folders.length > 0) {
+                                for (const folder of Data.folders) {
+                                    const folderContentIn = new FolderContentClass(folder, undefined);
+                                    contentfolders.push(folderContentIn);
+                                    fetchData(folderContentIn)
+                                }
+                            }
+
+                            if (selectedShareFolder.folder) {
+                                folderContent.current.searchFolderAndSetContent(selectedShareFolder.folder, {
+                                    files: Data.files,
+                                    folders: contentfolders,
+                                });
+                            }
                         }
 
-                        const resDataA = {
-                            ...res.data,
-                            files: res.data.files,
-                            folders: res.data.folders,
-                        };
-
-                        setFolderContent(resDataA);
-                        setLoading(false);
                     })
-            }
-        };
-        fetchData();
+
+                }).finally(() => {
+                    setLoading(false)
+                })
+        }
+    };
+
+    useEffect(() => {
+        fetchData(folderContent.current);
     }, [selectedShareFolder]);
 
-    return { folderContent: [currentFiles, currentFolders], loading };
+    return { folderContent, loading };
 };
 
 export default useGetFolderFiles;

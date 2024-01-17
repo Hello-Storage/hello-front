@@ -3,17 +3,18 @@
 import { useDropdown, useFetchData } from "hooks";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "state";
-import { Api, EncryptionStatus, RootResponse } from "api";
+import { Api, EncryptionStatus } from "api";
 import { toast } from "react-toastify";
 import { PiShareFatFill } from "react-icons/pi";
 import {
 	setSelectedShareFolder,
-	setSelectedSharedFiles
+	setSelectedSharedFiles,
+	setShowShareModal
 } from "state/mystorage/actions";
 import { AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
-import { shareDetails } from "./shareDetails";
+import { shareDetails as OShareDetail } from "./shareDetails";
 import { useShareGroup } from "../Utils/useShareGroup";
 import { FaPlusCircle } from "react-icons/fa";
 import { isValidEmail } from "utils/validations";
@@ -40,6 +41,7 @@ const ShareFolderModal: React.FC = () => {
 	const [readyToshare, setreadyToshare] = useState<boolean>(false);
 	const { fetchRootContent } = useFetchData();
 	const modalRef = useRef<HTMLDivElement>(null);
+	const [shareDetails, setShareDetails] = useState<ShareDetails[]>([]);
 
 	const navigate = useNavigate();
 	const [shareError, setShareError] = useState("");
@@ -103,9 +105,9 @@ const ShareFolderModal: React.FC = () => {
 	};
 
 	const closeShareModal = () => {
-		fetchRootContent();
 		dispatch(setSelectedSharedFiles());
 		dispatch(setSelectedShareFolder());
+		dispatch(setShowShareModal(!showShareModal));
 	};
 
 	const handleClickOutside = (
@@ -120,6 +122,20 @@ const ShareFolderModal: React.FC = () => {
 	};
 
 	useEffect(() => {
+
+		if (
+			selectedShareFolder &&
+			selectedShareFolder.encryption_status === EncryptionStatus.Public
+		) {
+			setShareDetails([...OShareDetail]);
+		} else {
+			setShareDetails(
+				OShareDetail.filter(
+					(shareDetail) =>
+						!["wallet", "email"].includes(shareDetail.type)
+				)
+			);
+		}
 		dispatch(setSelectedSharedFiles());
 		setreadyToshare(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -221,6 +237,7 @@ const ShareFolderModal: React.FC = () => {
 
 	let { folderContent, loading } = useGetFolderFiles(selectedShareFolder)
 
+	console.log(folderContent);
 
 	const groupID = useShareGroup(fileSharedState, selectedShareTypes);
 
@@ -271,7 +288,7 @@ const ShareFolderModal: React.FC = () => {
 											</p>
 											<p className="mb-3">
 												Elements:{" "}
-												{loading ? "loading..." : (folderContent[0].length + folderContent[1].length)}
+												{loading ? "loading..." : folderContent.current.content && (folderContent.current.content.files.length + folderContent.current.content.folders.length)}
 											</p>
 											<p
 												className={
@@ -285,7 +302,7 @@ const ShareFolderModal: React.FC = () => {
 											</p>
 											<p
 												className={
-													(folderContent[0].length + folderContent[1].length) === 0
+													folderContent.current.content && ((folderContent.current.content.files.length + folderContent.current.content.folders.length) === 0)
 														? "mb-3 text-xs"
 														: "hidden"
 												}
@@ -439,7 +456,7 @@ const ShareFolderModal: React.FC = () => {
 													)}
 												</>
 											)}
-											{!loading && (folderContent[0].length + folderContent[1].length) > 0 && shareDetails.map((sd, index) => {
+											{folderContent.current.content && !loading && (folderContent.current.content.files.length + folderContent.current.content.folders.length) > 0 && shareDetails.map((sd, index) => {
 												return (
 													<div
 														className="col-12 form-check form-switch"
