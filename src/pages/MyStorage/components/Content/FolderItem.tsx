@@ -12,7 +12,6 @@ import {
 	HiOutlineShare,
 	HiOutlineTrash,
 } from "react-icons/hi";
-// import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import {
 	decryptContent,
@@ -32,6 +31,7 @@ dayjs.extend(relativeTime);
 import React from "react";
 import { DeleteFolderModal } from "components/Modals/DeleteItem/DeleteFolder";
 import { useModal } from "components/Modal";
+import { Theme } from "state/user/reducer";
 
 interface FolderItemProps {
 	folder: Folder;
@@ -56,12 +56,6 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 	const { logout } = useAuth();
 	const accountType = getAccountType();
 	useDropdown(ref, open, setOpen);
-
-	// const onCopy = (event: React.MouseEvent) => {
-	//   if (!event.ctrlKey) return;
-	//   copy(`https://hello.app/space/folder/${folder.uid}`);
-	//   toast.success("copied CID");
-	// };
 
 	const handleDownload = async () => {
 		const personalSignature = await getPersonalSignature(
@@ -198,60 +192,62 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 		handleDelete();
 	}, [deleteAcepted]);
 
+	const { theme } = useAppSelector((state) => state.user);
+
 	if (view === "list")
 		return (
 			<>
-				<div className="bg-gray-50 hover:bg-gray-100 px-5 py-3 w-[220px] rounded-lg relative overflow-visible">
+				<div className={" px-5 py-3 w-[220px] rounded-lg relative overflow-visible border border-gray-200 "
+					+ (theme === Theme.DARK ? " dark-theme3" : " bg-gray-50 hover:bg-gray-100")}
+				>
 					<div className="relative flex flex-row items-center justify-between">
 						<FaFolder
 							className="inline-block mr-2 align-middle"
 							size={24}
-							color="#272727"
+							color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
 						/>
 						<div className="relative flex flex-row items-center justify-between w-full">
-							<label className="w-full overflow-hidden font-medium text-gray-900 cursor-pointer whitespace-nowrap overflow-ellipsis">
+							<label className={"w-full overflow-hidden font-medium cursor-pointer whitespace-nowrap overflow-ellipsis"
+								+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
+							>
 								{truncate(folder.title, 12)}
 							</label>
 							<button
-								className="p-1 rounded-lg hover:bg-gray-100"
+								className={"p-1 rounded-lg "
+								+(theme===Theme.DARK? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 								onClick={() => setOpen(!open)}
 							>
 								<HiDotsVertical className="align-middle" />{" "}
 								<div className="drop-down-menu" ref={ref}>
 									{open && (
-										<div
+										<ul
 											id="dropdown"
-											className="absolute right-0 z-50 mt-2 text-left origin-top-right bg-white divide-y shadow w-36 borde r"
+											className={"absolute right-0 z-50 mt-2 text-left origin-top-right divide-y shadow w-36 border"
+											+(theme===Theme.DARK? " dark-theme4" : " bg-white")}
 										>
-											<ul className="py-2">
+											<li>
 												<a
 													href="#"
-													className="block px-4 py-2 hover:bg-gray-100"
+													className={"block px-4 py-2 "
+													+(theme===Theme.DARK? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
 													onClick={handleDownload}
 												>
 													<HiOutlineDownload className="inline-flex mr-3" />
 													Download
 												</a>
-												{/*
-                        <a
-                          href="#"
-                          className="block px-4 py-2 hover:bg-gray-100"
-                        >
-                          <HiOutlineShare className="inline-flex mr-3" />
-                          Share
-                  </a>*/}
-											</ul>
-											<div className="py-2">
+											</li>
+											<li>
 												<a
 													href="#"
-													className="block px-4 py-2 hover:bg-gray-100"
+													className={"block px-4 py-2 "
+													+(theme===Theme.DARK? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
 													onClick={onPresent}
 												>
 													<HiOutlineTrash className="inline-flex mr-3" />
 													Delete
 												</a>
-											</div>
-										</div>
+											</li>
+										</ul>
 									)}
 								</div>
 							</button>
@@ -282,7 +278,7 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 								{open && (
 									<div
 										id="dropdown"
-										className="absolute z-10 mt-2 text-left bg-white border divide-y shadow right-6 w-36"
+										className="absolute z-10 mt-2 text-left border divide-y shadow right-6 w-36"
 									>
 										<ul className="py-2">
 											<a

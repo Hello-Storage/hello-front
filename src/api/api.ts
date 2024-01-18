@@ -17,17 +17,20 @@ Api.interceptors.response.use(
 	(res) => res,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(err: any) => {
-		console.log(err.response);
 		const error = err.response?.data.error;
 		if (
-			err.response?.status === 401 &&
 			error &&
+			err.response?.status === 401 &&
 			[
 				"authorization header is not provided",
 				"token has expired",
 			].includes(error)
 		) {
-			toast.error("Sesion Expired")
+			if (localStorage.getItem("access_token") &&
+				!(document.location.pathname.endsWith("/login") || document.location.pathname.endsWith("/stats"))) {
+				toast.error("Session Expired")
+				localStorage.removeItem("access_token")
+			}
 			state.dispatch(logoutUser());
 		}
 		return Promise.reject(err);

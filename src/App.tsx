@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppLayout } from "layouts";
@@ -91,6 +92,7 @@ function App() {
             <Route path="/space/referrals" element={<Referrals />} />
             <Route path="/space/deleted" element={<Deleted />} />
             <Route path="/space/migration" element={<Migration />} />
+            <Route path="/space/api" element={<Api />} />
           </Route>
           <Route path="/space/login" element={<Login />} />
         </Routes>

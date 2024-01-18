@@ -5,6 +5,8 @@ import Globe from "react-globe.gl";
 import GlobeImg from "@images/globe.jpg";
 import globeData from "./data.json";
 import populationData from "./population.json";
+import { useAppSelector } from "state";
+import { Theme } from "state/user/reducer";
 
 export default function World({ size = 0 }: { size: number | undefined }) {
 	const globeRef = useRef();
@@ -31,6 +33,8 @@ export default function World({ size = 0 }: { size: number | undefined }) {
 			// if (directionalLight) directionalLight.intensity = 0.2; // change light position to see the specularMap's effect
 		}, 500);
 	}, []);
+	
+	const {theme} = useAppSelector((state) => state.user);
 
 	return (
 		<div className="w-full h-full overflow-hidden flex justify-center">
@@ -38,9 +42,9 @@ export default function World({ size = 0 }: { size: number | undefined }) {
 				ref={globeRef}
 				width={size || 0}
 				height={size || 0}
-				backgroundColor="white"
+				backgroundColor={theme===Theme.DARK? "#030522" : "#ffffff"}
 				globeImageUrl={GlobeImg}
-				atmosphereColor="#27272a"
+				atmosphereColor={theme===Theme.DARK? "#dadada" : `#2b2c33`}
 				atmosphereAltitude={0.1}
 				hexPolygonsData={globeData.features}
 				labelsData={populationData.features}
@@ -58,7 +62,7 @@ export default function World({ size = 0 }: { size: number | undefined }) {
 				labelResolution={2}
 				hexPolygonResolution={3}
 				hexPolygonMargin={0.3}
-				hexPolygonColor={() => `#71717a`}
+				hexPolygonColor={() => theme===Theme.DARK? "#030522" : `#71717a`}
 			/>
 		</div>
 	);

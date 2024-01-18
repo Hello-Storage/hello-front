@@ -40,7 +40,8 @@ import { AxiosProgressEvent } from "axios";
 import getAccountType from "api/getAccountType";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
-import { createFileAction, createFolderAction } from "state/mystorage/actions";
+import { createFileAction, createFolderAction, refreshAction } from "state/mystorage/actions";
+import { Theme } from "state/user/reducer";
 
 const links1 = [
   {
@@ -72,11 +73,11 @@ const links2 = [
     available: true,
   },
   {
-    to: "/api",
+    to: "/space/api",
     outRef: false,
     icon: <img src={Key} alt="custom icon" className="w-6 h-6" />,
     content: "Api key",
-    available: false,
+    available: true,
   },
   {
     to: "/migration",
@@ -106,7 +107,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     autoEncryptionEnabled,
   } = useAppSelector((state) => state.userdetail);
   const dispatch = useAppDispatch();
-  const { fetchUserDetail } = useFetchData();
+  const { fetchUserDetail, fetchRootContent, fetchSharedContent } = useFetchData();
   const { name } = useAppSelector((state) => state.user);
   const accountType = getAccountType();
   const navigate = useNavigate();
@@ -148,7 +149,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   useEffect(() => {
     fetchUserDetail();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getRoot = () =>
@@ -569,11 +570,52 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     handleInputChange(event, true);
   };
 
+  const [isLinkDisabled, setLinkDisabled] = useState(false);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleLinkClick = (v: any) => {
+
+    setLinkDisabled(true);
+    switch (v.content) {
+      case "My storage":
+        if (isLinkDisabled) {
+          return;
+        }
+        if (!window.location.href.endsWith("/space/my-storage")) {
+          return
+        }
+        dispatch(refreshAction(true));
+        fetchRootContent();
+        break;
+      case "Shared":
+
+        if (isLinkDisabled) {
+          return;
+        }
+        dispatch(refreshAction(true));
+        fetchSharedContent();
+        break;
+      case "Api key":
+        if (isLinkDisabled) {
+          return;
+        }
+        dispatch(refreshAction(true));
+        break;
+    }
+
+    setTimeout(() => {
+      setLinkDisabled(false);
+    }, 1500);
+  };
+  
+	const {theme} = useAppSelector((state) => state.user);
+
   return (
-    <div className="flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full">
+    <div className={"flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full"+ (theme===Theme.DARK? " dark-theme4" : "")}>
       <div className="flex-1">
         <div className="flex items-center gap-3">
-          <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]">
+          <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]"
+          >
             hello.app
           </Link>
           <img src={LogoHello} alt="beta" className="w-12 h-6" />
@@ -636,7 +678,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           <div className="flex items-center gap-4 mt-4">
             <Tippy content="Create Folder">
               <button
-                className="flex items-center justify-center w-full p-2 text-xs text-gray-800 bg-gray-200 rounded-xl hover:bg-gray-300"
+                className={"flex border border-gray-200 items-center justify-center w-full p-2 text-xs rounded-xl "+(theme === Theme.DARK ? " bg-[#4b4d70] text-white hover:bg-[#40425f]" : "bg-gray-200 text-gray-800 hover:bg-gray-300")}
                 onClick={onPresent}
               >
                 <div title="Upload folder">
@@ -646,7 +688,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             </Tippy>
             <Tippy content="Upload Folder">
               <button
-                className="flex items-center justify-center w-full p-2 text-xs text-gray-800 bg-gray-200 txt-gray-800 rounded-xl hover:bg-gray-300"
+                className={"flex border border-gray-200 items-center justify-center w-full p-2 text-xs rounded-xl "+(theme === Theme.DARK ? " bg-[#4b4d70] text-white hover:bg-[#40425f]" : "bg-gray-200 text-gray-800 hover:bg-gray-300")}
                 onClick={handleFolderUpload}
               >
                 <RiFolderUploadLine className="w-6 h-6" />
@@ -661,8 +703,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           {links1.map((v, i) => (
             <NavLink
               to={v.to}
+              onClick={() => handleLinkClick(v)}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-200" : ""} hover:bg-gray-200 rounded-xl`
+                `${isActive ? (theme === Theme.DARK ? " bg-[#4b4d70]" : "bg-gray-200") : ""} ${(theme === Theme.DARK ? " hover:bg-[#4b4d70]" : "hover:bg-gray-200")} rounded-xl`
               }
               key={i}
             >
@@ -670,7 +713,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                 className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
                   }`}
               >
-                <div className={`flex items-center gap-3`}>
+                <div className={`links flex items-center gap-3`}>
                   <span className="text-xl">{v.icon}</span>
                   <label
                     className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
@@ -696,10 +739,11 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         <div className="flex flex-col gap-0.5">
           {links2.map((v, i) => (
             <NavLink
+              onClick={() => handleLinkClick(v)}
               to={v.to}
               target={v.outRef ? "_blank" : ""}
               className={({ isActive }) =>
-                `${isActive ? "bg-gray-200" : ""} hover:bg-gray-200 rounded-xl
+              `${isActive ? (theme === Theme.DARK ? " bg-[#4b4d70]" : "bg-gray-200") : ""} ${(theme === Theme.DARK ? " hover:bg-[#4b4d70]" : "hover:bg-gray-200")} rounded-xl
                 ${v.available ? "" : "pointer-events-none"}`
               }
               key={i}
@@ -708,7 +752,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                 className={`flex items-center px-2 py-1.5 justify-between ${v.available ? "" : "text-gray-500"
                   }`}
               >
-                <div className={`flex items-center gap-3`}>
+                <div className="links flex items-center gap-3">
                   <span className="text-xl">{v.icon}</span>
                   <label
                     className={`text-sm cursor-pointer ${v.available ? "" : "text-gray-500"
@@ -728,7 +772,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         </div>
       </div>
 
-      <div className="pt-4">
+      <section className="pt-4 mb-[50px] md:mb-2 ">
         <label>{formatBytes(storageUsed)} </label>
 
         <ProgressBar
@@ -737,7 +781,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           color="bg-gray-400"
         />
 
-        <label className="text-xs text-neutral-800">
+        <label className={"text-xs text-neutral-800"+(theme === Theme.DARK ? " dark-theme4" : "")}>
           {formatPercent(storageUsed, storageAvailable)} /{" "}
           {formatBytes(storageAvailable)}  -&nbsp;
           <a
@@ -761,7 +805,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             ✨
           </button>
         </div>
-      </div>
+      </section>
       <div>
         <input
           ref={fileInput}

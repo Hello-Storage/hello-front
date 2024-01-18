@@ -10,6 +10,7 @@ import { useAccount, useConnect } from "wagmi";
 import getAccountType from "api/getAccountType";
 import { AccountType } from "api";
 import useTitle from "hooks/useTitle";
+import { Theme } from "state/user/reducer";
 
 export default function AppLayout() {
 
@@ -65,11 +66,14 @@ export default function AppLayout() {
     }
   }, [isConnected, name, autoEncryptionEnabled]);
 */
+
+	const {theme} = useAppSelector((state) => state.user);
+
   return (
     <SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
       <div style={{fontFamily: "SF Mono", height: "100%"}} className="flex flex-col justify-between">
         {!sidebarOpen && (
-          <div className="flex items-center justify-between sticky px-5 py-2 w-full bg-gray-100 lg:hidden">
+          <div className={"sticky flex items-center justify-between w-full px-5 py-2 lg:hidden"+(theme===Theme.DARK? " dark-theme4" : " bg-gray-100")}>
             <div className="flex items-center gap-3">
               <Link to="/space/my-storage" className="text-xl font-semibold font-[Outfit]">
                 hello.app
@@ -77,7 +81,7 @@ export default function AppLayout() {
               <img src={LogoHello} alt="beta" className="w-10 h-5" />
             </div>
             <button onClick={() => setSidebarOpen(true)}>
-              <div className="bg-white p-1 border rounded-xl">
+              <div className={"p-1 border rounded-xl"+(theme===Theme.DARK? " dark-theme3" : " bg-white")}>
                 <FiMenu size={24} />
               </div>
             </button>
@@ -101,7 +105,7 @@ export default function AppLayout() {
           </div>
           <div
 
-            className={`flex flex-col flex-1 md:px-10 px-5 py-4 overflow-y-scroll h-full ${
+            className={`flex flex-col flex-1 md:px-10 px-5 py-4 overflow-y-auto h-full ${(theme===Theme.DARK? " dark-theme" : "")} ${
               sidebarOpen ? "md:ml-72 overflow-hidden w-full blur-sm" : ""
             }`}
           >

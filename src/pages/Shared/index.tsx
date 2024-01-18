@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { handleEncryptedFiles } from "utils/encryption/filesCipher";
 import {
+	refreshAction,
 	updateDecryptedSharedFilesAction
 } from "state/mystorage/actions";
 import "lightbox.js-react/dist/index.css";
@@ -25,7 +26,7 @@ const Shared = () => {
 
 	const {
 		sharedFiles,
-		path,
+		refresh,
 		showShareModal,
 		showPreview,
 	} = useAppSelector((state) => state.mystorage);
@@ -44,103 +45,95 @@ const Shared = () => {
 	);
 	const { logout } = useAuth();
 	const accountType = getAccountType();
-	const { fetchRootContent } = useFetchData();
+	const { fetchSharedContent } = useFetchData();
 
 	const [personalSignatureDefined, setPersonalSignatureDefined] = useState(
 		false
 	);
 	const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
 
-	useEffect(() => {
-		async function fetchContent() {
-			setLoading(true);
+	async function fetchContent() {
+		setLoading(true);
 
-			if (
-				!personalSignatureRef.current &&
-				!hasCalledGetPersonalSignatureRef.current
-			) {
-				hasCalledGetPersonalSignatureRef.current = true;
+		if (
+			!personalSignatureRef.current &&
+			!hasCalledGetPersonalSignatureRef.current
+		) {
+			hasCalledGetPersonalSignatureRef.current = true;
 
-				personalSignatureRef.current = await getPersonalSignature(
-					name,
-					autoEncryptionEnabled,
-					accountType
-				); //Promie<string | undefined>
-				if (!personalSignatureRef.current) {
-					toast.error("Failed to get personal signature");
-					logout();
-					return;
-				}
-			}
-
-			const decryptedFilesSharedWithMe = await handleEncryptedFiles(
-				sharedFiles.sharedWithMe
-					? sharedFiles.sharedWithMe.slice()
-					: [],
-				personalSignatureRef.current || "",
+			personalSignatureRef.current = await getPersonalSignature(
 				name,
 				autoEncryptionEnabled,
-				accountType,
-				logout
-			);
-			const decryptedFilesSharedByMe = await handleEncryptedFiles(
-				sharedFiles.sharedByMe ? sharedFiles.sharedByMe.slice() : [],
-				personalSignatureRef.current || "",
-				name,
-				autoEncryptionEnabled,
-				accountType,
-				logout
-			);
-
-			if (
-				decryptedFilesSharedWithMe &&
-				decryptedFilesSharedByMe &&
-				decryptedFilesSharedWithMe.length > 0 &&
-				decryptedFilesSharedByMe.length > 0
-			) {
-				dispatch(
-					updateDecryptedSharedFilesAction({
-						sharedByMe: decryptedFilesSharedByMe,
-						sharedWithMe: decryptedFilesSharedWithMe,
-					})
-				);
-			}
-
-			setSharedByMe(decryptedFilesSharedByMe || []);
-			setSharedwithMe(decryptedFilesSharedWithMe || []);
-
-			if (!decryptedFilesSharedByMe || !decryptedFilesSharedWithMe) {
-				toast.error("Failed to decrypt content");
-				fetchRootContent(setLoading);
-			}
-		}
-		fetchContent().then(() => {
-			setLoading(false);
-			setPersonalSignatureDefined(true);
-		});
-	}, [path]);
-
-	useEffect(() => {
-		if (personalSignatureDefined) {
+				accountType
+			); //Promie<string | undefined>
 			if (!personalSignatureRef.current) {
+				toast.error("Failed to get personal signature");
+				logout();
 				return;
 			}
-
-			fetchRootContent();
 		}
-	}, [location.pathname, name, personalSignatureRef.current]);
+
+		const decryptedFilesSharedWithMe = await handleEncryptedFiles(
+			sharedFiles.sharedWithMe
+				? sharedFiles.sharedWithMe.slice()
+				: [],
+			personalSignatureRef.current || "",
+			name,
+			autoEncryptionEnabled,
+			accountType,
+			logout
+		);
+		const decryptedFilesSharedByMe = await handleEncryptedFiles(
+			sharedFiles.sharedByMe ? sharedFiles.sharedByMe.slice() : [],
+			personalSignatureRef.current || "",
+			name,
+			autoEncryptionEnabled,
+			accountType,
+			logout
+		);
+
+		if (
+			decryptedFilesSharedWithMe &&
+			decryptedFilesSharedByMe &&
+			decryptedFilesSharedWithMe.length > 0 &&
+			decryptedFilesSharedByMe.length > 0
+		) {
+			dispatch(
+				updateDecryptedSharedFilesAction({
+					sharedByMe: decryptedFilesSharedByMe,
+					sharedWithMe: decryptedFilesSharedWithMe,
+				})
+			);
+		}
+
+		setSharedByMe(decryptedFilesSharedByMe || []);
+		setSharedwithMe(decryptedFilesSharedWithMe || []);
+
+		if (!decryptedFilesSharedByMe || !decryptedFilesSharedWithMe) {
+			toast.error("Failed to decrypt content");
+			fetchSharedContent(setLoading);
+		}
+	}
 
 	useEffect(() => {
-		if (personalSignatureDefined) {
-			if (!personalSignatureRef.current) {
-				return;
-			}
-			fetchRootContent();
+		fetchSharedContent()
+		dispatch(refreshAction(true))
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [window.location.href]);
+
+	useEffect(() => {
+		if (refresh) {
+			fetchContent().then(() => {
+				setLoading(false);
+				setPersonalSignatureDefined(true);
+				dispatch(refreshAction(false))
+			});
 		}
-	}, []);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [refresh]);
 
 	return (
-		<div>
+		<section>
 			{isOpenShareUpload && (
 				<UploadShareModal
 					isOpen={isOpenShareUpload}
@@ -169,7 +162,7 @@ const Shared = () => {
 				</label>
 			</button>
 			<div className="hidden w-full lg:flex">
-				<div className="w-[99%]">
+				<div className="w-[99%] share-content">
 					<Content
 						loading={loading}
 						files={SharedByMe}
@@ -182,7 +175,7 @@ const Shared = () => {
 					/>
 				</div>
 				<span className="w-[2%]"></span>
-				<div className="w-[99%]">
+				<div className="w-[99%] share-content">
 					<Content
 						loading={loading}
 						files={SharedwithMe}
@@ -195,7 +188,7 @@ const Shared = () => {
 					/>
 				</div>
 			</div>
-			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-5">
+			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
 				<div>
 					<Content
 						loading={loading}
@@ -221,7 +214,7 @@ const Shared = () => {
 					/>
 				</div>
 			</div>
-		</div>
+		</section>
 
 	);
 };

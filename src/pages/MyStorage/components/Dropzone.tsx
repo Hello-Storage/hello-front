@@ -20,7 +20,8 @@ import { Api, EncryptionStatus, File as FileType } from "api";
 
 import { useAppDispatch, useAppSelector } from "state";
 import { AxiosProgressEvent } from "axios";
-import { createFileAction, createFolderAction } from "state/mystorage/actions";
+import { createFileAction, createFolderAction, refreshAction } from "state/mystorage/actions";
+import { Theme } from "state/user/reducer";
 
 const getColor = (
   isFocused: boolean,
@@ -57,8 +58,8 @@ const Dropzone = () => {
   }, [autoEncryptionEnabled, encryptionEnabled])
 
 
-  const { name } = useAppSelector((state) => state.user);
   const { fetchRootContent, fetchUserDetail } = useFetchData();
+  const { name } = useAppSelector((state) => state.user);
 
   const { logout } = useAuth();
   const dispatch = useAppDispatch();
@@ -221,8 +222,6 @@ const Dropzone = () => {
 
             if (!isFolder) dispatch(createFileAction(fileMap.customFile));
           }
-          console.log(fileMap.customFile);
-
         })
 
       })
@@ -292,17 +291,8 @@ const Dropzone = () => {
       );
     }
     if (isFolder) {
-      dispatch(createFolderAction({
-        title: outermostFolderTitle,
-        uid: folderRootUID,
-        root: getRoot(),
-        created_at: "",
-        updated_at: "",
-        deleted_at: "",
-        id: 0,
-        path: "/",
-        encryption_status: thisEncryptionEnabledRef.current ? EncryptionStatus.Encrypted : EncryptionStatus.Public,
-      }))
+      fetchRootContent()
+      dispatch(refreshAction(true))
     }
 
     fetchUserDetail();
@@ -478,12 +468,14 @@ const Dropzone = () => {
     isDragAccept,
     isDragReject,
   } = useDropzone({ onDrop });
+  
+	const {theme} = useAppSelector((state) => state.user);
 
   return (
     <div
       className={[
-        "flex-col items-center justify-center p-8 border-2 rounded-sm border-dashed bg-gray-50 outline-none mb-[15px] hidden sm:flex",
-        `${getColor(isFocused, isDragAccept, isDragReject)}`,
+        "flex-col items-center justify-center p-8 border-2 rounded-sm border-dashed outline-none mb-[15px] hidden sm:flex",
+        `${getColor(isFocused, isDragAccept, isDragReject)}`, (theme===Theme.DARK? "dark-theme3" : " bg-gray-100")
       ].join(" ")}
       {...getRootProps()}
     >
