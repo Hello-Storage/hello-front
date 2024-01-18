@@ -181,11 +181,12 @@ export const fileUpload = async (
                 if (folderRootUID === "")
                     folderRootUID = res.data.firstRootUID;
 
+                const filesFound: FileType[] = res.data.filesFound;
 
-                // Dispatch actions for files that were found in S3.
                 if (res.data && Array.isArray(res.data.filesFound) && res.data.filesFound.length > 0) {
+
+                    // Dispatch actions for files that were found in S3.
                     const usedFileIndices = new Set<number>();
-                    const filesFound: FileType[] = res.data?.filesFound;
                     //dispatch fileFound
                     multipartFilesThis.forEach(({ customFile, file, cidOriginal }) => {
                         // Find a matching file in filesFound where the CID matches and it hasn't been used
@@ -224,14 +225,14 @@ export const fileUpload = async (
                     //it directly creates file based on metadata marked as file exists in pool.
 
                     //group filesToUpload by cid
-                    const filesToUploadGroupedByCid: { [cid: string]: { customFile: FileType, file: File }[] } = {};
+                    const filesToUploadGroupedByCid: { [cid: string]: FileMap[] } = {};
                     filesToUpload.forEach(fileMap => {
                         const cid = fileMap.customFile.cid;
                         if (!filesToUploadGroupedByCid[cid]) {
                             filesToUploadGroupedByCid[cid] = [];
                         }
                         filesToUploadGroupedByCid[cid].push(fileMap);
-                    })
+                    });
 
                     // Mark the first file of each group as not in pool
                     Object.values(filesToUploadGroupedByCid).forEach(filesGroup => {
@@ -293,9 +294,8 @@ export const fileUpload = async (
                     });
 
                     await Promise.all(createPromises);
-
                 } else {
-
+                    //upload files directly
                     const promises = multipartFilesThis.map(async ({ customFile, file, cidOriginal, cidOfEncryptedBufferStr }) => {
                         //upload chunks
                         console.log("fileFound: null")
@@ -342,9 +342,8 @@ export const fileUpload = async (
                     await Promise.all(promises);
 
 
-
-
                 }
+
             })
     }
 
@@ -412,137 +411,329 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
 
     if (customFiles.length > 0) {
         await Api.post(`/file/pool/check`, customFiles)
-            .then((res) => {
+            .then(async (res) => {
                 // CIDs of files that were FOUND in S3 and need to be dispatched.
                 if (folderRootUID === "")
                     folderRootUID = res.data.firstRootUID;
 
 
                 const filesFound: FileType[] = res.data.filesFound;
+
+
                 // Dispatch actions for files that were found in S3.
-                filesToUpload = filesMap.filter((fileMap) => {
-                    const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
-                    return !fileInFilesFound;
-
-                }
-                )
-
-
-
-                filesToUpload.forEach((fileMap, index) => {
-                    // Append the files that need to be uploaded to formData.
-                    if (fileMap.customFile.encryption_status === EncryptionStatus.Encrypted) {
-                        formData.append("encryptedFiles", fileMap.file)
-                        formData.append(`cid[${index}]`, fileMap.customFile.cid)
-                        if (fileMap.customFile.cid_original_encrypted_base64_url)
-                            formData.append(`cidOriginalEncrypted[${index}]`, fileMap.customFile.cid_original_encrypted_base64_url)
-                        formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
-                    } else {
-                        formData.append(`cid[${index}]`, fileMap.customFile.cid)
-                        formData.append("files", fileMap.file)
-                    }
-                })
-
-
-                const filesFoundInS3 = filesMap.filter((fileMap) =>
-                    (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid)
-                )
-
-                filesFoundInS3.forEach((fileMap) => {
-                    if (filesFound) {
-                        const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
-
-                        //replace for customFile in fileMap values:
-                        //- put name_unencrypted to name
-                        //- put cid_original_unencrypted to cid_original_encrypted
-                        //- put mime_type_unencrypted to mime_type
-
-                        fileMap.customFile.id = fileFound?.id || 0;
-                        fileMap.customFile.uid = fileFound?.uid || '';
-                        fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
-                        fileMap.customFile.updated_at = fileFound ? fileFound.updated_at.toString() : "";
-
-                        fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
+                const usedFileIndices = new Set<number>();
+                //dispatch fileFound
+                filesMap.forEach((fileMap) => {
+                    // Find a matching file in filesFound where the CID matches and it hasn't been used
+                    const foundIndex = filesFound.findIndex((fileFound, index) =>
+                        fileFound.cid === fileMap.customFile.cid && !usedFileIndices.has(index)
+                    );
+                    if (foundIndex !== -1) {
+                        fileMap.customFile.id = filesFound[foundIndex].id;
+                        fileMap.customFile.uid = filesFound[foundIndex].uid;
+                        fileMap.customFile.created_at = filesFound[foundIndex].created_at.toString();
+                        fileMap.customFile.updated_at = filesFound[foundIndex].updated_at.toString();
+                        fileMap.customFile.is_in_pool = filesFound[foundIndex].is_in_pool;
 
                         fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
                         fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
                         fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
 
-
                         if (!isFolder) dispatch(createFileAction(fileMap.customFile))
+                        usedFileIndices.add(foundIndex)
                     }
-
                 })
+
+
+                // Remove the files that were found for later upload to S3
+                filesToUpload = filesMap.filter((fileMap) => {
+                    const isFound = filesFound.some(fileFound => fileFound.cid === fileMap.customFile.cid);
+                    return !isFound;
+                });
+
+                // group filesToUpload by cid
+                const filesToUploadGroupedByCid: { [cid: string]: FileMap[] } = {};
+                filesToUpload.forEach(fileMap => {
+                    const cid = fileMap.customFile.cid;
+                    if (!filesToUploadGroupedByCid[cid]) {
+                        filesToUploadGroupedByCid[cid] = [];
+                    }
+                    filesToUploadGroupedByCid[cid].push(fileMap);
+                });
+
+                // Mark the first file of each group as not in pool
+                Object.values(filesToUploadGroupedByCid).forEach(filesGroup => {
+                    if (filesGroup.length > 0) {
+                        filesGroup[0].customFile.is_in_pool = false; // Set the first file to not in pool
+                    }
+                });
+
+                // iterate over each cid and upload the first file of each group
+                const uploadPromises = Object.keys(filesToUploadGroupedByCid).map(async (cid, index) => {
+                    const filesGroup = filesToUploadGroupedByCid[cid];
+                    const firstFile = filesGroup[0];
+
+                    if (firstFile) {
+                        //upload file to backend
+                        if (firstFile.customFile.encryption_status === EncryptionStatus.Encrypted) {
+                            formData.append("encryptedFiles", firstFile.file)
+                            formData.append(`cid[${index}]`, firstFile.customFile.cid)
+                            if (firstFile.customFile.cid_original_encrypted_base64_url)
+                                formData.append(`cidOriginalEncrypted[${index}]`, firstFile.customFile.cid_original_encrypted_base64_url)
+                            formData.append(`webkitRelativePath[${index}]`, firstFile.customFile.path)
+                        } else {
+                            formData.append(`cid[${index}]`, firstFile.customFile.cid)
+                            formData.append("files", firstFile.file)
+                        }
+
+                        // remove the first file from the group
+                        filesGroup.shift();
+                    }
+                })
+
+                await Promise.all(uploadPromises);
+
+
+                if (filesToUpload.length > 0) {
+                    await Api.post("file/upload", formData, {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                        onUploadProgress,
+                    })
+                        .then((res) => {
+                            toast.success("upload Succeed!");
+                            dispatch(
+                                setUploadStatusAction({
+                                    info: "Finished uploading data",
+                                    uploading: false,
+                                })
+                            );
+
+                            //getAll files and encryptedFils into a single files variable from formData
+                            const filesRes = res.data.files;
+
+
+
+                            for (let i = 0; i < filesRes.length; i++) {
+                                //get file at index from formdata
+                                const fileRes = filesRes[i];
+                                const file = customFiles[i];
+
+                                const fileObject: FileType = {
+                                    name: file.name_unencrypted || file.name,
+                                    cid: fileRes.cid,
+                                    id: fileRes.id,
+                                    uid: fileRes.uid,
+                                    cid_original_encrypted: file.cid_original_unencrypted || file.cid_original_encrypted,
+                                    size: file.size,
+                                    root: fileRes.root,
+                                    mime_type: file.mime_type_unencrypted || file.mime_type,
+                                    media_type: file.media_type,
+                                    path: file.path,
+                                    encryption_status: fileRes.encryption_status,
+                                    created_at: fileRes.created_at,
+                                    updated_at: fileRes.updated_at,
+                                    deleted_at: fileRes.deleted_at,
+                                }
+                                if (!isFolder) dispatch(createFileAction(
+                                    fileObject
+                                ))
+                            }
+                        })
+                } else {
+                    toast.success("upload Succeed!");
+                    dispatch(
+                        setUploadStatusAction({
+                            info: "Finished uploading data",
+                            uploading: false,
+                        })
+                    );
+
+                }
+
+
+                // for each file in filesToUploadGroupedByCid, post the metadata to /file/create
+                const createPromises = Object.values(filesToUploadGroupedByCid).map(async (filesGroup) => {
+                    if (filesGroup.length > 0) {
+                        const file = filesGroup[0];
+                        try {
+                            const res = await Api.post("/file/create", file.customFile, {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            });
+
+                            const fileCreated = res.data.fileCreated;
+                            if (folderRootUID === "") {
+                                folderRootUID = res.data.firstRootUID;
+                            }
+
+                            file.customFile.id = fileCreated?.id || 0;
+                            file.customFile.uid = fileCreated?.uid || '';
+                            file.customFile.created_at = fileCreated ? fileCreated.created_at.toString() : "";
+                            file.customFile.updated_at = fileCreated ? fileCreated.updated_at.toString() : "";
+
+                            file.customFile.is_in_pool = fileCreated?.is_in_pool || false;
+
+                            file.customFile.name = file.customFile.name_unencrypted || '';
+                            file.customFile.cid_original_encrypted = file.customFile.cid_original_unencrypted || '';
+                            file.customFile.mime_type = file.customFile.mime_type_unencrypted || '';
+
+                            if (!isFolder) {
+                                dispatch(createFileAction(file.customFile))
+                            }
+                        } catch (err) {
+                            console.log(err);
+                            toast.error("upload failed!");
+                        }
+                    }
+                });
+
+                await Promise.all(createPromises);
+
+
+
+
+
+
+
+
+                /*
+                    // Dispatch actions for files that were found in S3.
+                    filesToUpload = filesMap.filter((fileMap) => {
+                    const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
+                    return !fileInFilesFound;
+                    })
+                */
+
+
+                /*
+                                filesToUpload.forEach((fileMap, index) => {
+                                    // Append the files that need to be uploaded to formData.
+                                    if (fileMap.customFile.encryption_status === EncryptionStatus.Encrypted) {
+                                        formData.append("encryptedFiles", fileMap.file)
+                                        formData.append(`cid[${index}]`, fileMap.customFile.cid)
+                                        if (fileMap.customFile.cid_original_encrypted_base64_url)
+                                            formData.append(`cidOriginalEncrypted[${index}]`, fileMap.customFile.cid_original_encrypted_base64_url)
+                                        formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
+                                    } else {
+                                        formData.append(`cid[${index}]`, fileMap.customFile.cid)
+                                        formData.append("files", fileMap.file)
+                                    }
+                                })
+                */
+
+
+                /*
+                                const filesFoundInS3 = filesMap.filter((fileMap) =>
+                                    (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid)
+                                )
+                
+                                filesFoundInS3.forEach((fileMap) => {
+                                    if (filesFound) {
+                                        const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
+                
+                                        //replace for customFile in fileMap values:
+                                        //- put name_unencrypted to name
+                                        //- put cid_original_unencrypted to cid_original_encrypted
+                                        //- put mime_type_unencrypted to mime_type
+                
+                                        fileMap.customFile.id = fileFound?.id || 0;
+                                        fileMap.customFile.uid = fileFound?.uid || '';
+                                        fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
+                                        fileMap.customFile.updated_at = fileFound ? fileFound.updated_at.toString() : "";
+                
+                                        fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
+                
+                                        fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
+                                        fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
+                                        fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
+                
+                
+                                        if (!isFolder) dispatch(createFileAction(fileMap.customFile))
+                                    }
+                
+                                })
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                            });
+                            
+            }
+            */
+                /*
+                                if (filesToUpload.length !== 0) {
+                                    await Api.post("/file/upload", formData, {
+                                        headers: {
+                                            "Content-Type": "multipart/form-data",
+                                        },
+                                        onUploadProgress,
+                                    })
+                                        .then((res) => {
+                                            toast.success("upload Succeed!");
+                                            dispatch(
+                                                setUploadStatusAction({
+                                                    info: "Finished uploading data",
+                                                    uploading: false,
+                                                })
+                                            );
+                
+                                            //getAll files and encryptedFils into a single files variable from formData
+                                            const filesRes = res.data.files;
+                
+                
+                
+                                            for (let i = 0; i < filesRes.length; i++) {
+                                                //get file at index from formdata
+                                                const fileRes = filesRes[i];
+                                                const file = customFiles[i];
+                
+                                                const fileObject: FileType = {
+                                                    name: file.name_unencrypted || file.name,
+                                                    cid: fileRes.cid,
+                                                    id: fileRes.id,
+                                                    uid: fileRes.uid,
+                                                    cid_original_encrypted: file.cid_original_unencrypted || file.cid_original_encrypted,
+                                                    size: file.size,
+                                                    root: fileRes.root,
+                                                    mime_type: file.mime_type_unencrypted || file.mime_type,
+                                                    media_type: file.media_type,
+                                                    path: file.path,
+                                                    encryption_status: fileRes.encryption_status,
+                                                    created_at: fileRes.created_at,
+                                                    updated_at: fileRes.updated_at,
+                                                    deleted_at: fileRes.deleted_at,
+                                                }
+                                                if (!isFolder) dispatch(createFileAction(
+                                                    fileObject
+                                                ))
+                
+                                            }
+                
+                                        })
+                                        .catch((err) => {
+                                            console.log(err);
+                                            toast.error("upload failed!");
+                                        })
+                                        .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
+                                } else {
+                                    toast.success("upload Succeed!");
+                                    dispatch(
+                                        setUploadStatusAction({
+                                            info: "Finished uploading data",
+                                            uploading: false,
+                                        })
+                                    );
+                
+                                }
+                                */
             })
             .catch((err) => {
                 console.log(err);
             });
     }
 
-    if (filesToUpload.length !== 0) {
-        await Api.post("/file/upload", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-            onUploadProgress,
-        })
-            .then((res) => {
-                toast.success("upload Succeed!");
-                dispatch(
-                    setUploadStatusAction({
-                        info: "Finished uploading data",
-                        uploading: false,
-                    })
-                );
-
-                //getAll files and encryptedFils into a single files variable from formData
-                const filesRes = res.data.files;
-
-
-
-                for (let i = 0; i < filesRes.length; i++) {
-                    //get file at index from formdata
-                    const fileRes = filesRes[i];
-                    const file = customFiles[i];
-
-                    const fileObject: FileType = {
-                        name: file.name_unencrypted || file.name,
-                        cid: fileRes.cid,
-                        id: fileRes.id,
-                        uid: fileRes.uid,
-                        cid_original_encrypted: file.cid_original_unencrypted || file.cid_original_encrypted,
-                        size: file.size,
-                        root: fileRes.root,
-                        mime_type: file.mime_type_unencrypted || file.mime_type,
-                        media_type: file.media_type,
-                        path: file.path,
-                        encryption_status: fileRes.encryption_status,
-                        created_at: fileRes.created_at,
-                        updated_at: fileRes.updated_at,
-                        deleted_at: fileRes.deleted_at,
-                    }
-                    if (!isFolder) dispatch(createFileAction(
-                        fileObject
-                    ))
-
-                }
-
-            })
-            .catch((err) => {
-                console.log(err);
-                toast.error("upload failed!");
-            })
-            .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
-    } else {
-        toast.success("upload Succeed!");
-        dispatch(
-            setUploadStatusAction({
-                info: "Finished uploading data",
-                uploading: false,
-            })
-        );
-
-    }
     if (isFolder && folderRootUID !== "" && outermostFolderTitle !== "") {
         console.log("creating folder 2")
         dispatch(createFolderAction({
@@ -559,4 +750,4 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
     }
     fetchUserDetail();
     dispatch(setUploadStatusAction({ uploading: false }))
-}; 
+}
