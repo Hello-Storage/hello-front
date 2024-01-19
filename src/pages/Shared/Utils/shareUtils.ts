@@ -1,6 +1,6 @@
 import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
 
-import { Api, File as FileType } from "api";
+import { Api, File, File as FileType } from "api";
 import { toast } from "react-toastify";
 import { FolderContentClass } from "./types";
 import { Dispatch } from "@reduxjs/toolkit";
@@ -163,7 +163,7 @@ const unpublishFile = async (selectedShareFile: FileType): Promise<AxiosError | 
 
 export const getPublishedFile = async (hash: string): Promise<AxiosResponse | AxiosError | undefined> => {
     try {
-        const response = await Api.get(`/file/share/published/${hash}`);
+        const response = await Api.get<File>(`/file/share/published/${hash}`);
         return response;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

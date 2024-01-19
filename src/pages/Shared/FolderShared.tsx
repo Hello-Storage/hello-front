@@ -14,7 +14,6 @@ export function FolderShared() {
     const [error, seterror] = useState()
 
     const {
-        showShareModal,
         showPreview,
     } = useAppSelector((state) => state.mystorage);
 
