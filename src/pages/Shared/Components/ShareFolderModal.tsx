@@ -1,9 +1,8 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useDropdown, useFetchData } from "hooks";
+import { useDropdown } from "hooks";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "state";
-import { Api, EncryptionStatus } from "api";
 import { toast } from "react-toastify";
 import { PiShareFatFill } from "react-icons/pi";
 import {
@@ -13,25 +12,29 @@ import {
 } from "state/mystorage/actions";
 import { AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
-import { shareFile, unshareFile } from "../Utils/shareUtils";
-import { shareDetails as OShareDetail } from "./shareDetails";
-import { useShareGroup } from "../Utils/useShareGroup";
+import { shareFolder } from "../Utils/shareUtils";
 import { FaPlusCircle } from "react-icons/fa";
 import { isValidEmail } from "utils/validations";
 import { Theme } from "state/user/reducer";
 import useGetFolderFiles from "../Utils/useGetFolderFiles";
+import { FolderContentClass } from "../Utils/types";
+import { shareDetails as OShareDetail } from "./shareDetails";
 
 
-const ShareFolderModal: React.FC = () => {
+export function ShareFolderModal() {
 
-	const { showShareModal, selectedShareFolder, selectedSharedFiles } = useAppSelector(
+	const { showShareModal, selectedShareFolder } = useAppSelector(
 		(state) => state.mystorage
 	);
-	const [fileSharedState, setFileSharedState] = useState<ShareState[]>([]);
+	const [selectedSharedFiles, setselectedSharedFiles] = useState<FolderContentClass>(new FolderContentClass())
 	const dropRef = useRef<HTMLDivElement>(null);
+	const interval = useRef<NodeJS.Timer>()
+	const [shareDetails, setShareDetails] = useState<ShareDetails[]>([]);
 	const [open, setOpen] = useState(false);
+	const [privateUserAvailable, setprivateUserAvailable] = useState(true);
 	useDropdown(dropRef, open, setOpen);
 	const dispatch = useAppDispatch();
+	const [shared, setshared] = useState(false)
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
 		number | null
 	>(null);
@@ -39,9 +42,7 @@ const ShareFolderModal: React.FC = () => {
 	const [user, setuser] = useState<string>("");
 	const [userList, setuserList] = useState<User[]>([]);
 	const [readyToshare, setreadyToshare] = useState<boolean>(false);
-	const { fetchRootContent } = useFetchData();
 	const modalRef = useRef<HTMLDivElement>(null);
-	const [shareDetails, setShareDetails] = useState<ShareDetails[]>([]);
 
 	const navigate = useNavigate();
 	const [shareError, setShareError] = useState("");
@@ -61,44 +62,32 @@ const ShareFolderModal: React.FC = () => {
 				setSelectedShareTypes(type);
 			} else {
 				setSelectedShareTypes(type);
-				for (const selectedShareFile of selectedSharedFiles) {
-					if (e.target.checked) {
-						// Handle sharing from shareRequests.ts
-						shareFile(selectedShareFile, type, user)
-							.then((res) => {
-								res = res as AxiosResponse;
-								if (res.status === 200) {
-									const shareState = res.data as ShareState;
-									setFileSharedState((prevStates) => {
-										// Update the specific share state without replacing the entire array
-										const updatedStates = prevStates.map(
-											(state) =>
-												state.id === shareState.id
-													? shareState
-													: state
-										);
-										return updatedStates;
-									});
-									toast.success("File shared successfully");
-								}
-							})
-							.catch((err) => {
-								setShareError(err.message);
-							});
-					} else {
-						setSelectedShareTypes("");
-						unshareFile(selectedShareFile, type)
-							.then((res) => {
-								res = res as AxiosResponse;
-								if (res.status === 200) {
-									toast.info("Successfully unshared");
-								}
-							})
-							.catch((err) => {
-								setShareError(err.message);
-							});
-					}
+				if (e.target.checked) {
+					toast.info("Sharing in progress");
+					// Handle sharing from shareRequests.ts
+					shareFolder(selectedSharedFiles, type, user)
+						.then(() => {
+							setshared(true)
+							toast.success("Folder shared successfully");
+						})
+						.catch((err) => {
+							setShareError(err.message);
+						});
+				} else {
+					// TODO: Handle unsharing
+					// setSelectedShareTypes("");
+					// unshareFolder(selectedSharedFiles, type)
+					// 	.then((res) => {
+					// 		res = res as AxiosResponse;
+					// 		if (res.status === 200) {
+					// 			toast.info("Successfully unshared");
+					// 		}
+					// 	})
+					// 	.catch((err) => {
+					// 		setShareError(err.message);
+					// 	});
 				}
+
 			}
 		}
 		setuserList([]);
@@ -108,6 +97,7 @@ const ShareFolderModal: React.FC = () => {
 		dispatch(setSelectedSharedFiles());
 		dispatch(setSelectedShareFolder());
 		dispatch(setShowShareModal(!showShareModal));
+		clearInterval(interval.current)
 	};
 
 	const handleClickOutside = (
@@ -122,50 +112,11 @@ const ShareFolderModal: React.FC = () => {
 	};
 
 	useEffect(() => {
-
-		if (
-			selectedShareFolder &&
-			selectedShareFolder.encryption_status === EncryptionStatus.Public
-		) {
-			setShareDetails([...OShareDetail]);
-		} else {
-			setShareDetails(
-				OShareDetail.filter(
-					(shareDetail) =>
-						!["wallet", "email"].includes(shareDetail.type)
-				)
-			);
-		}
 		dispatch(setSelectedSharedFiles());
 		setreadyToshare(false);
+		clearInterval(interval.current)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-
-	useEffect(() => {
-		if (
-			selectedSharedFiles &&
-			selectedSharedFiles.length > 0
-		) {
-			const uids = selectedSharedFiles.map((file) => file.uid);
-			const params = new URLSearchParams();
-			uids.forEach((uid) => params.append("file_uids", uid));
-			Api.get("/file/share/states", { params })
-				.then((res) => {
-					if ((res as AxiosResponse).status === 200) {
-						res = res as AxiosResponse;
-						const shareState = res?.data as ShareState[];
-						if (shareState) {
-							setFileSharedState(shareState);
-						}
-					} else {
-						toast.error(JSON.stringify(res));
-					}
-				})
-				.catch((err) => {
-					toast.error(err.message);
-				});
-		}
-	}, [selectedSharedFiles]);
 
 	const handleAddEmail = () => {
 		if (selectedShareTypes === "email" && !isValidEmail(user)) {
@@ -209,25 +160,31 @@ const ShareFolderModal: React.FC = () => {
 	};
 
 	useEffect(() => {
+
+		function ShareToUser(folder: FolderContentClass, user: User) {
+			if (
+				folder
+			) {
+				shareFolder(
+					folder,
+					selectedShareTypes,
+					user.email
+				)
+					.then((res) => {
+						res = res as AxiosResponse;
+						if (res.status === 200) {
+							toast.success("Folder shared successfully to user " + user.email);
+						}
+					})
+					.catch((err) => {
+						setShareError(err.message);
+					});
+			}
+		}
 		if (readyToshare) {
-			if (userList.length > 0 && selectedSharedFiles) {
+			if (userList.length > 0 && selectedSharedFiles?.files) {
 				for (const user of userList) {
-					for (const selectedShareFile of selectedSharedFiles) {
-						shareFile(
-							selectedShareFile,
-							selectedShareTypes,
-							user.email
-						)
-							.then((res) => {
-								res = res as AxiosResponse;
-								if (res.status === 200) {
-									toast.success("File shared successfully");
-								}
-							})
-							.catch((err) => {
-								setShareError(err.message);
-							});
-					}
+					ShareToUser(selectedSharedFiles, user)
 				}
 			}
 			setreadyToshare(false);
@@ -235,11 +192,37 @@ const ShareFolderModal: React.FC = () => {
 		}
 	}, [readyToshare]);
 
-	let { folderContent, loading } = useGetFolderFiles(selectedShareFolder)
+	const [loading, setLoading] = useState(true);
+	let { folderContent, error } = selectedShareFolder ? useGetFolderFiles(selectedShareFolder) : { folderContent: null, error: null };
 
-	console.log(folderContent);
+	useEffect(() => {
+		if (
+			privateUserAvailable
+		) {
+			setShareDetails([...OShareDetail]);
+		} else {
+			setShareDetails(
+				OShareDetail.filter(
+					(shareDetail) =>
+						!["wallet", "email"].includes(shareDetail.type)
+				)
+			);
+		}
+	}, [privateUserAvailable])
 
-	const groupID = useShareGroup(fileSharedState, selectedShareTypes);
+
+	useEffect(() => {
+		interval.current = setInterval(() => {
+			if (folderContent && folderContent.current) {
+				setselectedSharedFiles(folderContent.current);
+				setLoading(false);
+			}
+			if (error?.current) {
+				setprivateUserAvailable(false);
+			}
+		}, 500);
+
+	}, [folderContent?.current]);
 
 	const { theme } = useAppSelector((state) => state.user);
 
@@ -288,26 +271,25 @@ const ShareFolderModal: React.FC = () => {
 											</p>
 											<p className="mb-3">
 												Elements:{" "}
-												{loading ? "loading..." : folderContent.current.content && (folderContent.current.content.files.length + folderContent.current.content.folders.length)}
+												{loading ? "loading..." : ((selectedSharedFiles.files.length + selectedSharedFiles.folders.length))}
 											</p>
 											<p
 												className={
-													selectedShareFolder.encryption_status ===
-														EncryptionStatus.Encrypted
-														? "mb-3 text-xs"
-														: "hidden"
-												}
-											>
-												Only public folders can be shared via email and wallet.
-											</p>
-											<p
-												className={
-													folderContent.current.content && ((folderContent.current.content.files.length + folderContent.current.content.folders.length) === 0)
+													((selectedSharedFiles.files.length + selectedSharedFiles.folders.length) === 0)
 														? "mb-3 text-xs"
 														: "hidden"
 												}
 											>
 												Folder is Empty.
+											</p>
+											<p
+												className={
+													(!privateUserAvailable)
+														? "mb-3 text-xs"
+														: "hidden"
+												}
+											>
+												The folder cannot be shared with users because it contains encrypted files.
 											</p>
 											{selectedShareTypes !== "" && (
 												<>
@@ -317,7 +299,7 @@ const ShareFolderModal: React.FC = () => {
 														"monthly",
 													].includes(
 														selectedShareTypes
-													) ? (
+													) && shared ? (
 														<div className="flex flex-col my-3">
 															<label
 																htmlFor="shareLink"
@@ -332,11 +314,11 @@ const ShareFolderModal: React.FC = () => {
 																		+ (theme === Theme.DARK ? " dark-theme3" : " ")}
 																	id="shareLink"
 																	aria-describedby="shareLink"
-																	value={`${window.location.origin}/space/shared/group/${groupID}`}
+																	value={`${window.location.origin}/space/shared/folder/${selectedShareFolder.uid}`}
 																	onClick={() => {
 																		//copy to clipboard
 																		navigator.clipboard.writeText(
-																			`${window.location.origin}/space/shared/group/${groupID}`
+																			`${window.location.origin}/space/shared/folder/${selectedShareFolder.uid}`
 																		);
 																		toast.success(
 																			"Link copied to clipboard"
@@ -348,7 +330,7 @@ const ShareFolderModal: React.FC = () => {
 																	className="ml-2 btn btn-primary"
 																	onClick={() =>
 																		navigate(
-																			`/space/shared/group/${groupID}`
+																			`/space/shared/folder/${selectedShareFolder.uid}`
 																		)
 																	}
 																>
@@ -358,6 +340,12 @@ const ShareFolderModal: React.FC = () => {
 															</div>
 														</div>
 													) : (
+														[
+															"email",
+															"wallet",
+														].includes(
+															selectedShareTypes
+														) && shared &&
 
 														<form
 															className="flex flex-col items-center w-full my-3"
@@ -456,7 +444,7 @@ const ShareFolderModal: React.FC = () => {
 													)}
 												</>
 											)}
-											{folderContent.current.content && !loading && (folderContent.current.content.files.length + folderContent.current.content.folders.length) > 0 && shareDetails.map((sd, index) => {
+											{!loading && (selectedSharedFiles.files.length + selectedSharedFiles.folders.length) > 0 && shareDetails.map((sd, index) => {
 												return (
 													<div
 														className="col-12 form-check form-switch"

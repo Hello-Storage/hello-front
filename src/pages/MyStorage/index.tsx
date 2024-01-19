@@ -390,6 +390,8 @@ export default function Home() {
       <section className="flex-grow custom-scrollbar invisible-scrollbar" id="scroll-invisible-section">
         <Content
           loading={loading}
+          actionsAllowed={true}
+          showHorizontalFolders={true}
           files={filteredFiles}
           folders={filteredFolders}
           view={view}

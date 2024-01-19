@@ -667,6 +667,12 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 													</div>
 												</div>
 											) : (
+												[
+													"email",
+													"wallet",
+												].includes(
+													selectedShareTypes
+												) && groupID &&
 												<form
 													className="flex flex-col items-center w-full my-3"
 													onSubmit={(e) => {

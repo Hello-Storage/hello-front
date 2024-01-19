@@ -1,41 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Api, File, Folder, RootResponse } from 'api';
+import { Api, EncryptionStatus, File, Folder, RootResponse } from 'api';
 import getAccountType from 'api/getAccountType';
 import getPersonalSignature from 'api/getPersonalSignature';
+import { FolderContentClass, InternalFolderClass } from './types';
 import { useAuth } from 'hooks';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAppSelector } from 'state';
 import { handleEncryptedFiles, handleEncryptedFolders } from 'utils/encryption/filesCipher';
 
-class FolderContentClass {
-    folder?: Folder;
-    content?: {
-        files: File[];
-        folders: FolderContentClass[];
-    };
-
-    constructor(folder?: Folder, content?: { files: File[]; folders: FolderContentClass[]; }) {
-        this.folder = folder;
-        this.content = content;
-    }
-
-    searchFolderAndSetContent(folder: Folder, content: { files: File[]; folders: FolderContentClass[]; }) {
-        if (this.folder?.uid === folder?.uid) {
-            this.content = content;
-            return
-        }
-        if (this.content?.folders) {
-            for (const folderContentClass of this.content?.folders) {
-                folderContentClass.searchFolderAndSetContent(folder, content);
-            }
-        }
-        return
-    }
-}
-
-const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
-    const [loading, setLoading] = useState(true);
+const useGetFolderFiles = (selectedShareFolder: Folder) => {
     const personalSignatureRef = useRef<string | undefined>();
     const folderContent = useRef<FolderContentClass>(new FolderContentClass(selectedShareFolder, undefined));
     const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
@@ -43,6 +17,7 @@ const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
     const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
     const accountType = getAccountType();
     const { logout } = useAuth();
+    const error = useRef<string>()
 
     async function fetchContent(files: File[], folders: Folder[]) {
         const currentEncryptedFiles = files
@@ -84,9 +59,8 @@ const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
 
 
     const fetchData = async (selectedShareFolder: FolderContentClass) => {
-        if (selectedShareFolder.folder) {
-            setLoading(true);
-            let root = "/folder/" + selectedShareFolder.folder.uid;
+        if (selectedShareFolder) {
+            let root = "/folder/" + selectedShareFolder.uid;
             Api.get<RootResponse>(root)
                 .then(async (res) => {
                     personalSignatureRef.current =
@@ -96,6 +70,12 @@ const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
                         return;
                     }
 
+                    for (const foundfile of res.data.files) {
+                        if (foundfile.encryption_status === EncryptionStatus.Encrypted) {
+                            error.current="File is encrypted"
+                        }
+                    }
+
                     fetchContent(res.data.files, res.data.folders).then((contentD) => {
                         if (contentD) {
                             const Data = {
@@ -103,13 +83,13 @@ const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
                                 folders: contentD.folders,
                             };
 
-                            const contentfolders: FolderContentClass[] = []
+                            const contentfolders: InternalFolderClass[] = []
 
                             if (Data.folders.length > 0) {
                                 for (const folder of Data.folders) {
-                                    const folderContentIn = new FolderContentClass(folder, undefined);
+                                    const folderContentIn = new InternalFolderClass(folder);
                                     contentfolders.push(folderContentIn);
-                                    fetchData(folderContentIn)
+                                    fetchData(folderContentIn.folder)
                                 }
                             }
 
@@ -123,8 +103,6 @@ const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
 
                     })
 
-                }).finally(() => {
-                    setLoading(false)
                 })
         }
     };
@@ -133,7 +111,7 @@ const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
         fetchData(folderContent.current);
     }, [selectedShareFolder]);
 
-    return { folderContent, loading };
+    return { folderContent, error };
 };
 
 export default useGetFolderFiles;

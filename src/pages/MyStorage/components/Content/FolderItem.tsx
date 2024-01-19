@@ -34,11 +34,11 @@ import { useModal } from "components/Modal";
 import { Theme } from "state/user/reducer";
 
 interface FolderItemProps {
+	actionsAllowed: boolean;
 	folder: Folder;
-	view: "list" | "grid";
 }
 
-const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
+const FolderItem: React.FC<FolderItemProps> = ({ folder, actionsAllowed }) => {
 	const dispatch = useAppDispatch();
 	const ref = useRef<HTMLDivElement>(null);
 	const [open, setOpen] = useState(false);
@@ -209,58 +209,59 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
 						>
 							{truncate(folder.title, 12)}
 						</label>
-						<button
-							className={"p-1 rounded-lg "
-								+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-							onClick={() => setOpen(!open)}
-						>
-							<HiDotsVertical className="align-middle" />{" "}
-							<div className="drop-down-menu" ref={ref}>
-								{open && (
-									<ul
-										id="dropdown"
-										className={"absolute right-0 z-[100] mt-2 text-left origin-top-right divide-y shadow w-36 border"
-											+ (theme === Theme.DARK ? " dark-theme4" : " bg-white")}
-									>
-										<li
-											className={"block px-4 py-2 "
-												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
-											onClick={handleDownload}
+						{actionsAllowed && (<>
+							<button
+								className={"p-1 rounded-lg "
+									+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+								onClick={() => setOpen(!open)}
+							>
+								<HiDotsVertical className="align-middle" />{" "}
+								<div className="drop-down-menu" ref={ref}>
+									{open && (
+										<ul
+											id="dropdown"
+											className={"absolute right-0 z-[100] mt-2 text-left origin-top-right divide-y shadow w-36 border"
+												+ (theme === Theme.DARK ? " dark-theme4" : " bg-white")}
 										>
-											<HiOutlineDownload className="inline-flex mr-3" />
-											Download
-										</li>
-
-										<li
-											onClick={() => {
-												dispatch(
-													setShowShareModal(true)
-												);
-												dispatch(
-													setSelectedShareFile()
-												)
-												dispatch(
-													setSelectedShareFolder(folder)
-												);
-											}}
-											className={"block px-4 py-2 "
-												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-										>
-											<HiOutlineShare className="inline-flex mr-3" />
-											Share
-										</li>
-										<li
-											className={"block px-4 py-2 "
-												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
-											onClick={onPresent}
-										>
-											<HiOutlineTrash className="inline-flex mr-3" />
-											Delete
-										</li>
-									</ul>
-								)}
-							</div>
-						</button>
+											<li
+												className={"block px-4 py-2 "
+													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
+												onClick={handleDownload}
+											>
+												<HiOutlineDownload className="inline-flex mr-3" />
+												Download
+											</li>
+											<li
+												onClick={() => {
+													dispatch(
+														setShowShareModal(true)
+													);
+													dispatch(
+														setSelectedShareFile()
+													)
+													dispatch(
+														setSelectedShareFolder(folder)
+													);
+												}}
+												className={"block px-4 py-2 "
+													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+											>
+												<HiOutlineShare className="inline-flex mr-3" />
+												Share
+											</li>
+											<li
+												className={"block px-4 py-2 "
+													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
+												onClick={onPresent}
+											>
+												<HiOutlineTrash className="inline-flex mr-3" />
+												Delete
+											</li>
+										</ul>
+									)}
+								</div>
+							</button>
+						</>)}
 					</div>
 				</div>
 			</div>

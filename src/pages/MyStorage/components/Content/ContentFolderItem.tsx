@@ -3,21 +3,15 @@ import { EncryptionStatus, Folder } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
-    HiDocumentDuplicate,
     HiDotsVertical,
     HiOutlineDownload,
     HiOutlineShare,
-    HiOutlineTrash,
-    HiDocumentText,
-    HiOutlineLockOpen,
-    HiLockClosed,
+    HiOutlineTrash, HiOutlineLockOpen,
+    HiLockClosed
 } from "react-icons/hi";
-import { getFileIcon, viewableExtensions } from "./utils";
-import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
 import { useAuth, useDropdown } from "hooks";
 import { useRef, useState, Fragment, useEffect } from "react";
-import { GoAlertFill } from "react-icons/go";
 import {
     decryptContent,
     decryptFileBuffer,
@@ -44,11 +38,12 @@ import { FaFolder } from "react-icons/fa";
 dayjs.extend(relativeTime);
 
 interface FolderItemProps {
+    actionsAllowed: boolean;
     folder: Folder;
     view: "list" | "grid";
 }
 
-const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
+const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAllowed }) => {
     const dispatch = useAppDispatch();
     const ref = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
@@ -248,59 +243,62 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view }) => {
                 <td className="py-1 pr-8 whitespace-nowrap">
                     {dayjs(formatDate(folder.updated_at)).fromNow()}
                 </td>
-                <td className="py-1 pr-8 text-right">
-                    <button
-                        className={"p-3 rounded-full "
-                            + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                        onClick={() => setOpen(!open)}
-                    >
-                        <HiDotsVertical />
-                        <div className="drop-down-menu" ref={ref}>
-                            {open && (
-                                <ul
-                                    id="dropdown"
-                                    className={"absolute right-0 z-[100] mt-2 text-left origin-top-right divide-y shadow w-36 border"
-                                        + (theme === Theme.DARK ? " dark-theme4" : " bg-white")}
-                                >
-                                    <li
-                                        className={"block px-4 py-2 "
-                                            + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
-                                        onClick={handleDownload}
-                                    >
-                                        <HiOutlineDownload className="inline-flex mr-3" />
-                                        Download
-                                    </li>
-
-                                    <li
-                                        onClick={() => {
-                                            dispatch(
-                                                setShowShareModal(true)
-                                            );
-                                            dispatch(
-                                                setSelectedShareFile()
-                                            )
-                                            dispatch(
-                                                setSelectedShareFolder(folder)
-                                            );
-                                        }}
-                                        className={"block px-4 py-2 "
-                                            + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                                    >
-                                        <HiOutlineShare className="inline-flex mr-3" />
-                                        Share
-                                    </li>
-                                    <li
-                                        className={"block px-4 py-2 "
-                                            + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
-                                        onClick={onPresent}
-                                    >
-                                        <HiOutlineTrash className="inline-flex mr-3" />
-                                        Delete
-                                    </li>
-                                </ul>
-                            )}
-                        </div>
-                    </button>
+                <td className="py-1 pr-8 text-right h-[46px]">
+                    {actionsAllowed && (
+                        <>
+                            <button
+                                className={"p-3 rounded-full "
+                                    + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                                onClick={() => setOpen(!open)}
+                            >
+                                <HiDotsVertical />
+                                <div className="drop-down-menu" ref={ref}>
+                                    {open && (
+                                        <ul
+                                            id="dropdown"
+                                            className={"absolute right-0 z-[100] mt-2 text-left origin-top-right divide-y shadow w-36 border"
+                                                + (theme === Theme.DARK ? " dark-theme4" : " bg-white")}
+                                        >
+                                            <li
+                                                className={"block px-4 py-2 "
+                                                    + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
+                                                onClick={handleDownload}
+                                            >
+                                                <HiOutlineDownload className="inline-flex mr-3" />
+                                                Download
+                                            </li>
+                                            <li
+                                                onClick={() => {
+                                                    dispatch(
+                                                        setShowShareModal(true)
+                                                    );
+                                                    dispatch(
+                                                        setSelectedShareFile()
+                                                    )
+                                                    dispatch(
+                                                        setSelectedShareFolder(folder)
+                                                    );
+                                                }}
+                                                className={"block px-4 py-2 "
+                                                    + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                                            >
+                                                <HiOutlineShare className="inline-flex mr-3" />
+                                                Share
+                                            </li>
+                                            <li
+                                                className={"block px-4 py-2 "
+                                                    + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
+                                                onClick={onPresent}
+                                            >
+                                                <HiOutlineTrash className="inline-flex mr-3" />
+                                                Delete
+                                            </li>
+                                        </ul>
+                                    )}
+                                </div>
+                            </button>
+                        </>
+                    )}
                 </td>
             </>
         );

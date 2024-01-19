@@ -17,15 +17,17 @@ import ContentFolderItem from "./ContentFolderItem";
 interface ContentProps {
   loading: boolean;
   folders: Folder[];
-  files?: File[];
+  files: File[];
   view: "list" | "grid";
+  showHorizontalFolders: boolean;
+  actionsAllowed: boolean;
   showFolders: boolean;
   filesTitle: string;
   identifier: number;
   setloaded: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, setloaded }) => {
+const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, setloaded, showHorizontalFolders, actionsAllowed }) => {
   type itemInfo = {
     type: string;
     id: string;
@@ -42,7 +44,11 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
   >(null);
   const [onPresent] = useModal(<CreateFolderModal />);
   const onFolderDoubleClick = (folderUID: string) => {
-    navigate(`/space/folder/${folderUID}`);
+    if(window.location.pathname.includes("/shared/folder")){
+      navigate(`/space/shared/folder/${folderUID}`);
+    }else{
+      navigate(`/space/folder/${folderUID}`);
+    }
   };
 
   const [seleccionMultipleActivada, setSeleccionMultipleActivada] = useState(false);
@@ -384,19 +390,22 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   return (
     <>
-      {showFolders ?
+      {showHorizontalFolders ?
         <>
           <div className="position-sticky-left">
             <h4 className="mb-[15px]">Folders</h4>
           </div>
           <div className="folders-div">
-            <button
-              className={"cursor-pointer px-5 py-3 border border-gray-200 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
-                + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " bg-gray-50 text-gray-700 hover:bg-gray-100")}
-              onClick={onPresent}
-            >
-              <RiFolderAddLine className="w-6 h-6" />
-            </button>
+            {actionsAllowed && (
+              <button
+                className={"cursor-pointer px-5 py-3 border border-gray-200 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
+                  + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " bg-gray-50 text-gray-700 hover:bg-gray-100")}
+                onClick={onPresent}
+              >
+                <RiFolderAddLine className="w-6 h-6" />
+              </button>
+            )}
+
             {folders.map((v, i) => (
               <div
                 key={i}
@@ -412,14 +421,14 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                   } ${i < folders.length - 1 ? "mr-5" : ""}`}
                 onDrag={handleDrag}
                 onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
+                onDragEnd={actionsAllowed ? handleDragEnd : () => { }}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
+                onDrop={actionsAllowed ? handleDrop : () => { }}
                 onDoubleClick={() => onFolderDoubleClick(v.uid)}
                 onClick={handleOnClick}
               >
-                <FolderItem folder={v} key={i} view="list" />
+                <FolderItem folder={v} key={i} actionsAllowed={actionsAllowed} />
               </div>
             ))}
           </div>
@@ -439,23 +448,27 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
         <div className="sticky left-0 flex flex-row items-center justify-between mb-[15px]">
           <h4 className="pt-1 pb-3">{filesTitle}</h4>
           <div className="flex flex-row items-center justify-between">
+            {actionsAllowed && (
+              <>
+                <button
+                  className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                    + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : "text-gray-900 bg-white hover:bg-gray-100")}
+                  onClick={handleButtonClick}>{buttonText}
+                </button>
 
-            <button
-              className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-                + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : "text-gray-900 bg-white hover:bg-gray-100")}
-              onClick={handleButtonClick}>{buttonText}
-            </button>
+                {(selectedItems.length > 0) ? (
+                  <span className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                    + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " text-gray-900 bg-white hover:bg-gray-200")}
 
-            {(selectedItems.length > 0) ? (
-              <span className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
-                + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " text-gray-900 bg-white hover:bg-gray-200")}
+                    title="Delete selected items"
+                    onClick={handleMultipleDelete}
+                  >
+                    <FaRegTrashAlt className="mx-2 text-lg" />
+                  </span>
+                ) : (<></>)}
+              </>
+            )}
 
-                title="Delete selected items"
-                onClick={handleMultipleDelete}
-              >
-                <FaRegTrashAlt className="mx-2 text-lg" />
-              </span>
-            ) : (<></>)}
 
           </div>
         </div>
@@ -565,14 +578,16 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                                 onDrag={handleDrag}
                                 draggable
                                 onDragStart={handleDragStart}
-                                onDragEnd={handleDragEnd}
+                                onDragEnd={actionsAllowed ? handleDragEnd : () => { }}
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
-                                onDrop={handleDrop}
+                                onDrop={actionsAllowed ? handleDrop : () => { }}
                                 onDoubleClick={() => onFolderDoubleClick(v.uid)}
                                 onClick={handleOnClick}
                               >
-                                <ContentFolderItem folder={v} key={i} view="list" />
+                                <ContentFolderItem
+                                  actionsAllowed={actionsAllowed}
+                                  folder={v} key={i} view="list" />
                               </tr>
                             ))
                           }
@@ -584,7 +599,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                               aria-valuetext="file"
                               draggable
                               onDragStart={handleDragStart}
-                              onDragEnd={handleDragEnd}
+                              onDragEnd={actionsAllowed ? handleDragEnd : () => { }}
                               onDrag={handleDrag}
                               className={` cursor-pointer ${isItemSelected(
                                 v.id.toString()
@@ -595,6 +610,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                               onClick={handleOnClick}
                             >
                               <FileItem
+                                actionsAllowed={actionsAllowed}
                                 file={v}
                                 key={i}
                                 view="list"
@@ -649,14 +665,16 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                         onDrag={handleDrag}
                         draggable
                         onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
+                        onDragEnd={actionsAllowed ? handleDragEnd : () => { }}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
+                        onDrop={actionsAllowed ? handleDrop : () => { }}
                         onDoubleClick={() => onFolderDoubleClick(v.uid)}
                         onClick={handleOnClick}
                       >
-                        <ContentFolderItem folder={v} key={i} view="grid" />
+                        <ContentFolderItem folder={v}
+                          actionsAllowed={actionsAllowed}
+                          key={i} view="grid" />
                       </div>
                     ))}
                   </>
@@ -675,7 +693,9 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                       : (theme === Theme.DARK ? " dark-theme4" : " hover:bg-gray-200 bg-white")}
                 }`}
                   >
-                    <FileItem file={v} key={i} view="grid"
+                    <FileItem file={v} key={i}
+                      view="grid"
+                      actionsAllowed={actionsAllowed}
                       setloaded={setloaded} />
                   </div>
                 ))}

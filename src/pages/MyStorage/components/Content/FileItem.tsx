@@ -8,10 +8,8 @@ import {
 	HiOutlineDownload,
 	HiOutlineShare,
 	HiOutlineEye,
-	HiOutlineTrash,
-	HiDocumentText,
-	HiOutlineLockOpen,
-	HiLockClosed,
+	HiOutlineTrash, HiOutlineLockOpen,
+	HiLockClosed
 } from "react-icons/hi";
 import { getFileExtension, getFileIcon, viewableExtensions } from "./utils";
 import { formatBytes, formatUID } from "utils";
@@ -41,12 +39,13 @@ import { Theme } from "state/user/reducer";
 dayjs.extend(relativeTime);
 
 interface FileItemProps {
+	actionsAllowed: boolean;
 	file: FileType;
 	view: "list" | "grid";
 	setloaded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllowed }) => {
 	const dispatch = useAppDispatch();
 	const ref = useRef<HTMLDivElement>(null);
 	const [open, setOpen] = useState(false);
@@ -97,6 +96,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 				);
 				// Create a blob from the response data
 				let binaryData = res.data;
+
 				if (file.encryption_status === EncryptionStatus.Encrypted) {
 					const originalCid = file.cid_original_encrypted;
 					binaryData = await blobToArrayBuffer(binaryData);
@@ -125,6 +125,39 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 						})
 					);
 				}
+
+				if (file.file_share_state && file.file_share_state.id !== 0) {
+					const originalCid = file.file_share_state.public_file.cid_original_decrypted;
+					if (originalCid != "") {
+						binaryData = await blobToArrayBuffer(binaryData);
+						binaryData = await decryptFileBuffer(
+							binaryData,
+							originalCid,
+							(percentage) => {
+								dispatch(
+									setUploadStatusAction({
+										info: "Decrypting...",
+										read: percentage,
+										size: 100,
+										uploading: true,
+									})
+								);
+							}
+						).catch(() => {
+							toast.error("Error downloading file");
+						});
+
+						dispatch(
+							setUploadStatusAction({
+								info: "Decryption done",
+								uploading: false,
+							})
+						);
+					} else {
+						binaryData = await blobToArrayBuffer(binaryData);
+					}
+
+				}
 				const blob = new Blob([binaryData], { type: file.mime_type });
 
 				// Create a link element and set the blob as its href
@@ -138,8 +171,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 				// Clean up
 				window.URL.revokeObjectURL(url);
 			})
-			.catch((err) => {
-				console.error("Error downloading file:", err);
+			.catch(() => {
 				toast.error("Error downloading file");
 			});
 	};
@@ -147,7 +179,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 	const handleView = () => {
 		viewRef.current = true;
 
-		toast.info("Loading Files");
+		toast.info("Loading File");
 		dispatch(setFileViewAction({ file: undefined }));
 		dispatch(setImageViewAction({ show: false }));
 		setloaded(false);
@@ -260,21 +292,24 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 											<HiOutlineDownload className="inline-flex mr-3" />
 											Download
 										</li>
-										<li
-											onClick={() => {
-												dispatch(
-													setShowShareModal(true)
-												);
-												dispatch(
-													setSelectedShareFile(file)
-												);
-											}}
-											className={"block px-4 py-2 "
-												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-										>
-											<HiOutlineShare className="inline-flex mr-3" />
-											Share
-										</li>
+										{actionsAllowed && (<>
+											<li
+												onClick={() => {
+													dispatch(
+														setShowShareModal(true)
+													);
+													dispatch(
+														setSelectedShareFile(file)
+													);
+												}}
+												className={"block px-4 py-2 "
+													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+											>
+												<HiOutlineShare className="inline-flex mr-3" />
+												Share
+											</li>
+										</>)}
+
 										{viewableExtensions.has(
 											fileExtension
 										) && (
@@ -291,14 +326,16 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded }) => {
 
 									<div className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
 									>
-										<p
-											className={"block px-4 py-3 "
-												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-											onClick={handleDelete}
-										>
-											<HiOutlineTrash className="inline-flex mr-3" />
-											Delete
-										</p>
+										{actionsAllowed && (<>
+											<p
+												className={"block px-4 py-3 "
+													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+												onClick={handleDelete}
+											>
+												<HiOutlineTrash className="inline-flex mr-3" />
+												Delete
+											</p>
+										</>)}
 									</div>
 								</div>
 							)}
