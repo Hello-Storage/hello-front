@@ -299,7 +299,7 @@ export function ShareFolderModal() {
 														"monthly",
 													].includes(
 														selectedShareTypes
-													) && shared ? (
+													) &&
 														<div className="flex flex-col my-3">
 															<label
 																htmlFor="shareLink"
@@ -339,13 +339,14 @@ export function ShareFolderModal() {
 																</button>
 															</div>
 														</div>
-													) : (
+													}
+													{
 														[
 															"email",
 															"wallet",
 														].includes(
 															selectedShareTypes
-														) && shared &&
+														) &&
 
 														<form
 															className="flex flex-col items-center w-full my-3"
@@ -441,7 +442,7 @@ export function ShareFolderModal() {
 																</label>
 															</button>
 														</form>
-													)}
+													}
 												</>
 											)}
 											{!loading && (selectedSharedFiles.files.length + selectedSharedFiles.folders.length) > 0 && shareDetails.map((sd, index) => {
