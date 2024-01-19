@@ -30,11 +30,11 @@ export function FolderShared() {
 
     return (
         <>
-            {(content && content.files && !loading) && (
+            {(content && ((content.files && content.files.length > 0) || (content.folders && content.folders.length > 0)) && !loading) && (
                 <section>
                     <Imageview
                         isOpen={showPreview}
-                        files={content.files}
+                        files={content.files ? content.files : []}
                         loaded={loaded}
                         setloaded={setloaded}
                     ></Imageview>
@@ -48,8 +48,8 @@ export function FolderShared() {
                             <Content
                                 loading={loading}
                                 actionsAllowed={false}
-                                files={content.files}
-                                folders={content.folders}
+                                files={content.files ? content.files : []}
+                                folders={content.folders ? content.folders : []}
                                 view="list"
                                 showHorizontalFolders={false}
                                 showFolders={true}
@@ -66,7 +66,7 @@ export function FolderShared() {
                     <span className="text-2xl text-gray-400">Folder not found</span>
                 </div>
             )}
-            {(content && !content.files) && (
+            {(content && ((!content.files || content.files.length === 0) && (!content.folders || content.folders.length === 0))) && (
                 <div className="flex items-center justify-center h-full">
                     <span className="text-2xl text-gray-400">Folder Empty</span>
                 </div>
