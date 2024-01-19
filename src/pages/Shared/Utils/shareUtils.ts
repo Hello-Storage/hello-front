@@ -1,7 +1,12 @@
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
 
-import { Api, File as FileType } from "api";
+import { Api, File, File as FileType } from "api";
 import { toast } from "react-toastify";
+import { FolderContentClass } from "./types";
+import { Dispatch } from "@reduxjs/toolkit";
+import { setUploadStatusAction } from "state/uploadstatus/actions";
+import { blobToArrayBuffer, decryptFileBuffer } from "utils/encryption/filesCipher";
+import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
 
 export const shareFile = async (selectedFile: FileType | null, type: string, user: string | undefined): Promise<AxiosResponse | AxiosError | undefined> => {
     let response: AxiosResponse | AxiosError | undefined;
@@ -24,6 +29,56 @@ export const shareFile = async (selectedFile: FileType | null, type: string, use
     }
     return response;
 }
+
+export const shareFolder = async (selectedFolder: FolderContentClass, type: string, user: string | undefined): Promise<AxiosResponse | AxiosError | undefined> => {
+    let response: AxiosResponse | AxiosError | undefined;
+    if (selectedFolder) {
+        switch (type) {
+            case "public":
+            case "one-time":
+            case "monthly":
+                //publish file and get sharing URL from server
+                response = await publishFolder(selectedFolder, `/folder/share/` + type)
+                break;
+            case "email":
+            case "wallet":
+                response = await publishFolder(selectedFolder, `/folder/share/${type}/` + user)
+                break;
+            default:
+                alert("Error: Invalid share type")
+                break;
+        }
+    }
+    return response;
+}
+
+// TODO: Implement unshareFolder
+// export const unshareFolder = async (selectedFile: FolderContentClass, type: string): Promise<AxiosResponse | AxiosError | undefined> => {
+//     let response: AxiosResponse | AxiosError | undefined;
+//     if (selectedFile) {
+//         switch (type) {
+//             case "public":
+//             case "one-time":
+//             case "monthly":
+//                 //unpublish file and get sharing URL from server
+//                 response = await unpublishFolder(selectedFile)
+//                 break;
+//             case "email":
+//                 // response = await unpublishEmailSharedFile(selectedFile)
+//                 toast.error("Can't unShare in this method")
+//                 break;
+//             case "wallet":
+//                 // response = await unpublishWalletSharedFile(selectedFile)
+//                 toast.error("Can't unShare in this method")
+//                 break;
+//             default:
+//                 alert("Error: Invalid share type")
+//                 break;
+//         }
+//     }
+
+//     return response;
+// }
 
 export const unshareFile = async (selectedFile: FileType | null, type: string): Promise<AxiosResponse | AxiosError | undefined> => {
     let response: AxiosResponse | AxiosError | undefined;
@@ -53,8 +108,30 @@ export const unshareFile = async (selectedFile: FileType | null, type: string): 
 }
 
 
-const publishFile = async (selectedShareFile: FileType, apiUrl: string): Promise<AxiosError | AxiosResponse | undefined> => {
-    const responseLink = await Api.post(apiUrl, selectedShareFile
+const publishFolder = async (selectedFolder: FolderContentClass, apiUrl: string): Promise<AxiosError | AxiosResponse | undefined> => {
+    const responseLink = await Api.post(apiUrl, selectedFolder
+    ).then((response: AxiosResponse) => {
+        return response;
+    }).catch((error: AxiosError) => {
+        return error;
+    })
+    return responseLink;
+}
+
+// TODO: Implement unpublishFolder
+// const unpublishFolder = async (selectedShareFolder: FolderContentClass): Promise<AxiosError | AxiosResponse | undefined> => {
+//     const responseLink = await Api.post(`/file/share/unpublish`, selectedShareFolder
+//     ).then((response: AxiosResponse) => {
+//         return response;
+//     }).catch((error: AxiosError) => {
+//         return error;
+//     })
+
+//     return responseLink;
+// }
+
+const publishFile = async (selectedShareFolder: FileType, apiUrl: string): Promise<AxiosError | AxiosResponse | undefined> => {
+    const responseLink = await Api.post(apiUrl, selectedShareFolder
     ).then((response: AxiosResponse) => {
         return response;
     }).catch((error: AxiosError) => {
@@ -86,7 +163,7 @@ const unpublishFile = async (selectedShareFile: FileType): Promise<AxiosError | 
 
 export const getPublishedFile = async (hash: string): Promise<AxiosResponse | AxiosError | undefined> => {
     try {
-        const response = await Api.get(`/file/share/published/${hash}`);
+        const response = await Api.get<File>(`/file/share/published/${hash}`);
         return response;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

@@ -75,58 +75,6 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 			return false;
 		}
 
-		// con esta implementacion la lista se va actualizando mientras se van descargando, pero se ve demasiado forzado
-		//  /**
-		//  * Handles the viewing process of selected files.
-		//  * @param selectedShowFiles An array of FileType objects or undefined. Represents the selected files to be viewed.
-		//  */
-		// const handleView = async (
-		// 	selectedShowFiles: FileType[] | undefined
-		// ) => {
-		// 	if (selectedShowFiles && selectedShowFiles.length > 0) {
-		// 		const uniqueFiles = selectedShowFiles.filter(
-		// 			(file, index, self) =>
-		// 				index === self.findIndex((t) => t.uid === file.uid)
-		// 		);
-		// 		const originalOrder: PreviewImage[] = [];
-
-		// 		// Procesa y muestra el primer archivo inmediatamente
-		// 		if (uniqueFiles.length > 0) {
-		// 			const selectedShowFile = uniqueFiles[0];
-		// 			if (selectedShowFile.size < maxSize || aceptDownload) {
-		// 				const firstMediaItem = await downloadAndProcessFile(
-		// 					selectedShowFile,
-		// 					originalOrder
-		// 				);
-		// 				if (firstMediaItem) {
-		// 					setpreview([firstMediaItem]); // Actualizar la vista previa con el primer archivo
-		// 				}
-		// 			}
-		// 		}
-
-		// 		setloaded(true);
-
-		// 		// Procesa los archivos restantes
-		// 		const otherFiles = uniqueFiles.slice(1);
-		// 		for (const file of otherFiles) {
-		// 			if (file.size < maxSize || aceptDownload) {
-		// 				const mediaItem = await downloadAndProcessFile(
-		// 					file,
-		// 					originalOrder
-		// 				);
-		// 				if (mediaItem) {
-		// 					setpreview((prev) => {
-		// 						if (prev) {
-		// 							return [...prev, mediaItem];
-		// 						}
-		// 						return [mediaItem];
-		// 					}); // Actualizar la vista previa agregando el nuevo archivo
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// };
-
 		/**
 		 * Handles the viewing process of selected files.
 		 * @param selectedShowFiles An array of FileType objects or undefined. Represents the selected files to be viewed.
@@ -237,6 +185,39 @@ const Imageview: React.FC<ImageviewProps> = React.memo(
 								uploading: false,
 							})
 						);
+					}
+
+					if (file.file_share_state && file.file_share_state.id !== 0) {
+						const originalCid = file.file_share_state.public_file.cid_original_decrypted;
+						if (originalCid != "") {
+							binaryData = await blobToArrayBuffer(binaryData);
+							binaryData = await decryptFileBuffer(
+								binaryData,
+								originalCid,
+								(percentage) => {
+									dispatch(
+										setUploadStatusAction({
+											info: "Decrypting...",
+											read: percentage,
+											size: 100,
+											uploading: true,
+										})
+									);
+								}
+							).catch(() => {
+								toast.error("Error downloading file");
+							});
+
+							dispatch(
+								setUploadStatusAction({
+									info: "Decryption done",
+									uploading: false,
+								})
+							);
+						} else {
+							binaryData = await blobToArrayBuffer(binaryData);
+						}
+
 					}
 
 					const blob = new Blob([binaryData], {
