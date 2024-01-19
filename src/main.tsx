@@ -5,9 +5,9 @@ import "@styles/index.scss";
 import Providers from "providers";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Providers>
       <App />
     </Providers>
-  </React.StrictMode>
+  // </React.StrictMode>
 );

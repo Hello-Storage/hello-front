@@ -164,7 +164,9 @@ const Shared = () => {
 			<div className="hidden w-full lg:flex">
 				<div className="w-[99%] share-content">
 					<Content
+						actionsAllowed={true}
 						loading={loading}
+						showHorizontalFolders={false}
 						files={SharedByMe}
 						folders={[]}
 						view="list"
@@ -177,8 +179,10 @@ const Shared = () => {
 				<span className="w-[2%]"></span>
 				<div className="w-[99%] share-content">
 					<Content
+						actionsAllowed={true}
 						loading={loading}
 						files={SharedwithMe}
+						showHorizontalFolders={false}
 						folders={[]}
 						view="list"
 						showFolders={false}
@@ -191,8 +195,10 @@ const Shared = () => {
 			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
 				<div>
 					<Content
+						actionsAllowed={true}
 						loading={loading}
 						files={SharedByMe}
+						showHorizontalFolders={false}
 						folders={[]}
 						view="list"
 						showFolders={false}
@@ -203,8 +209,10 @@ const Shared = () => {
 				</div>
 				<div>
 					<Content
+						actionsAllowed={true}
 						loading={loading}
 						files={SharedwithMe}
+						showHorizontalFolders={false}
 						folders={[]}
 						view="list"
 						showFolders={false}

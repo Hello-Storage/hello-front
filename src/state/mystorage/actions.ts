@@ -1,5 +1,5 @@
 import { createAction } from "@reduxjs/toolkit";
-import { Folder, File as FileType, RootResponse, SharedResponse, SharedRFiles } from "api";
+import { Folder, File as FileType, RootResponse, SharedRFiles } from "api";
 
 export interface PreviewImage {
   src?: string;
@@ -59,6 +59,10 @@ export const setShowShareModal = createAction<boolean>(
 
 export const setSelectedShareFile = createAction<FileType | undefined>(
   "mystorage/set-selected-share-file"
+);
+
+export const setSelectedShareFolder = createAction<Folder | undefined>(
+  "mystorage/set-selected-share-folder"
 );
 
 export const setSelectedSharedFiles = createAction<FileType[] | undefined>(

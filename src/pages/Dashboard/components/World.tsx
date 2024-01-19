@@ -42,7 +42,7 @@ export default function World({ size = 0 }: { size: number | undefined }) {
 				ref={globeRef}
 				width={size || 0}
 				height={size || 0}
-				backgroundColor={theme===Theme.DARK? "#030522" : "#ffffff"}
+				backgroundColor={theme===Theme.DARK? "#05072b" : "#ffffff"}
 				globeImageUrl={GlobeImg}
 				atmosphereColor={theme===Theme.DARK? "#dadada" : `#2b2c33`}
 				atmosphereAltitude={0.1}
@@ -62,7 +62,7 @@ export default function World({ size = 0 }: { size: number | undefined }) {
 				labelResolution={2}
 				hexPolygonResolution={3}
 				hexPolygonMargin={0.3}
-				hexPolygonColor={() => theme===Theme.DARK? "#030522" : `#71717a`}
+				hexPolygonColor={() => theme===Theme.DARK? "#05072b" : `#71717a`}
 			/>
 		</div>
 	);
