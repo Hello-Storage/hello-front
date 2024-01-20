@@ -6,6 +6,7 @@ import { Modal, useModal } from "components/Modal";
 import { toast } from "react-toastify";
 import { useAppSelector } from "state";
 import { Theme } from "state/user/reducer";
+import "./otp-style.css";
 
 export default function OTPModal({ email }: { email: string }) {
   const { verifyOTP } = useAuth();
@@ -55,7 +56,7 @@ export default function OTPModal({ email }: { email: string }) {
           numInputs={6}
           containerStyle="justify-center gap-3"
           inputType="number"
-          renderInput={(props) => <input {...props} className="otp-input" />}
+          renderInput={(props) => <input {...props} className="otp-input no-spinners" />}
           inputStyle={{ width: "auto" }}
         />
       )}
