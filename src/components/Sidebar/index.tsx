@@ -496,6 +496,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           const filesRes = res.data.files;
 
 
+          folderRootUID = res.data.firstRootUID;
+
+
 
           for (let i = 0; i < filesRes.length; i++) {
             //get file at index from formdata
@@ -548,6 +551,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         created_at: "",
         updated_at: "",
         deleted_at: "",
+        decrypted: true,
         id: 0,
         path: "/",
         encryption_status: encryptionEnabled ? EncryptionStatus.Encrypted : EncryptionStatus.Public,
