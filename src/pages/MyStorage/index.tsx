@@ -164,9 +164,9 @@ export default function Home() {
 
 
   useEffect(() => {
-    fetchContent().then(() => {
-      setLoading(false);
-    });
+    //fetchContent().then(() => {
+    //  setLoading(false);
+    //});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folders.length]);
 
