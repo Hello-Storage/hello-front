@@ -317,7 +317,7 @@ export default function Statistics() {
               <PiTiktokLogoFill />
             </a>
           </div>
-          <div className="mt-1 md:mt-1">© 2023 hello.app</div>
+          <div className="mt-1 md:mt-1">© 2024 hello.app</div>
         </div>
       </footer>
     </div>
