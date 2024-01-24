@@ -336,6 +336,7 @@ export const handleEncryptedFolders = async (folders: Folder[], personalSignatur
 
             // encrypt file metadata and blob
             const folderTitleBuffer = hexToBuffer(folder.title);
+            
             const decryptedTitleBuffer = await decryptContent(
                 folderTitleBuffer,
                 personalSignature

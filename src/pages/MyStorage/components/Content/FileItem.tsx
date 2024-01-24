@@ -54,7 +54,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 
 	const onCopy = (event: React.MouseEvent) => {
 		if (event.shiftKey) return;
-		copy(`https://hello.app/space/file/${file.uid}`);
+		copy(`${file.cid}`);
 		toast.success("copied CID");
 	};
 
