@@ -39,6 +39,10 @@ export default defineConfig({
         {
           from: 'blog.html', 
           to: 'dist/blog.html' 
+        },
+        {
+          from: 'robots.txt', 
+          to: 'dist/robots.txt' 
         }
       ]
     }),
