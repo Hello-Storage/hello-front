@@ -30,12 +30,10 @@ export function ShareFolderModal() {
 	const [selectedSharedFiles, setselectedSharedFiles] = useState<FolderContentClass>(new FolderContentClass())
 	const dropRef = useRef<HTMLDivElement>(null);
 	const interval = useRef<NodeJS.Timer>()
-	const [shareDetails, setShareDetails] = useState<ShareDetails[]>([]);
 	const [open, setOpen] = useState(false);
 	const [privateUserAvailable, setprivateUserAvailable] = useState(true);
 	useDropdown(dropRef, open, setOpen);
 	const dispatch = useAppDispatch();
-	const [shared, setshared] = useState(false)
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
 		number | null
 	>(null);
@@ -68,7 +66,6 @@ export function ShareFolderModal() {
 					// Handle sharing from shareRequests.ts
 					shareFolder(selectedSharedFiles, type, user)
 						.then(() => {
-							setshared(true)
 							toast.success("Folder shared successfully");
 						})
 						.catch((err) => {

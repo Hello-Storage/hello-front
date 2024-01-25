@@ -32,6 +32,7 @@ import React from "react";
 import { DeleteFolderModal } from "components/Modals/DeleteItem/DeleteFolder";
 import { useModal } from "components/Modal";
 import { Theme } from "state/user/reducer";
+import { GoAlertFill } from "react-icons/go";
 
 interface FolderItemProps {
 	actionsAllowed: boolean;
@@ -204,6 +205,14 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, actionsAllowed }) => {
 						color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
 					/>
 					<div className="relative flex flex-row items-center justify-between w-full rounded-lg">
+						<span className="mr-2" >
+							{folder.is_in_pool && (
+								<GoAlertFill
+									style={{ color: "#FF6600" }}
+									title="Folder is in Hello Pool"
+								/>
+							)}
+						</span>
 						<label className={"w-full overflow-hidden font-medium cursor-pointer whitespace-nowrap overflow-ellipsis"
 							+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
 						>
@@ -231,24 +240,26 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, actionsAllowed }) => {
 												<HiOutlineDownload className="inline-flex mr-3" />
 												Download
 											</li>
-											<li
-												onClick={() => {
-													dispatch(
-														setShowShareModal(true)
-													);
-													dispatch(
-														setSelectedShareFile()
-													)
-													dispatch(
-														setSelectedShareFolder(folder)
-													);
-												}}
-												className={"block px-4 py-2 "
-													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-											>
-												<HiOutlineShare className="inline-flex mr-3" />
-												Share
-											</li>
+											{!folder.is_in_pool && (
+												<li
+													onClick={() => {
+														dispatch(
+															setShowShareModal(true)
+														);
+														dispatch(
+															setSelectedShareFile()
+														)
+														dispatch(
+															setSelectedShareFolder(folder)
+														);
+													}}
+													className={"block px-4 py-2 "
+														+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+												>
+													<HiOutlineShare className="inline-flex mr-3" />
+													Share
+												</li>
+											)}
 											<li
 												className={"block px-4 py-2 "
 													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
