@@ -2,8 +2,7 @@
 import { useDispatch } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import { AxiosResponse } from "axios";
-import { Api, EncryptionStatus } from "api";
-import { shareDetails as OShareDetail } from "./shareDetails";
+import { shareDetails } from "./shareDetails";
 import {
 	setSelectedShareFile,
 	setShowShareModal,
@@ -16,6 +15,7 @@ import { isValidEmail } from "utils/validations";
 import { FaPlusCircle } from "react-icons/fa";
 import { PiShareFatFill } from "react-icons/pi";
 import { Theme } from "state/user/reducer";
+import { ListUserElement } from "./UserListElement";
 
 const ShareModal = () => {
 	const [fileSharedState, setFileSharedState] = useState<ShareState>();
@@ -35,51 +35,6 @@ const ShareModal = () => {
 	const [user, setuser] = useState<string | undefined>(undefined);
 	const [userList, setuserList] = useState<User[]>([]);
 	const [readyToshare, setreadyToshare] = useState<boolean>(false);
-
-	const hasRun = useRef(false);
-	const [shareDetails, setShareDetails] = useState<ShareDetails[]>([]);
-
-	useEffect(() => {
-		if (
-			selectedShareFile &&
-			selectedShareFile.encryption_status === EncryptionStatus.Public
-		) {
-			setShareDetails([...OShareDetail]);
-		} else {
-			setShareDetails(
-				OShareDetail.filter(
-					(shareDetail) =>
-						!["wallet", "email"].includes(shareDetail.type)
-				)
-			);
-		}
-
-		if (!hasRun.current && selectedShareFile) {
-			hasRun.current = true;
-			//fetch file shared state
-			Api.get<ShareState>("/file/share/state", {
-				params: {
-					file_uid: selectedShareFile.uid,
-				},
-			})
-				.then((res) => {
-					//if res is AxiosResponse:
-					if ((res as AxiosResponse).status === 200) {
-						res = res as AxiosResponse;
-						const shareState = res?.data as ShareState;
-						setFileSharedState(shareState);
-						if (shareState.public_file.id !== 0) {
-							setSelectedShareTypes("public");
-						}
-					} else {
-						toast.error(JSON.stringify(res));
-					}
-				})
-				.catch((err) => {
-					toast.error(err.message);
-				});
-		}
-	}, [selectedShareFile]);
 
 	const [shareError, setShareError] = useState("");
 
@@ -148,8 +103,10 @@ const ShareModal = () => {
 
 	const handleAddEmail = () => {
 		if (selectedShareTypes === "email" && !isValidEmail(user)) {
-			toast.error("Invalid Email.");
-			return false;
+			if (userList.length === 0) {
+				toast.error("Invalid Email.");
+				return false;
+			}
 		}
 		if (userList.length >= 5) {
 			toast.error("Max number of users reached");
@@ -255,19 +212,6 @@ const ShareModal = () => {
 												File name:{" "}
 												{selectedShareFile.name}
 											</p>
-											<p
-												className={
-													selectedShareFile.encryption_status ===
-														EncryptionStatus.Encrypted
-														? "mb-3 text-xs"
-														: "hidden"
-												}
-											>
-												{selectedShareFile.encryption_status ===
-													EncryptionStatus.Encrypted
-													? "Only public files can be shared via email and wallet."
-													: ""}
-											</p>
 											{selectedShareTypes !== "" && (
 												<>
 													{[
@@ -332,34 +276,18 @@ const ShareModal = () => {
 																	? "Email address"
 																	: "Wallet address"}
 															</label>
-															<div className="flex flex-row flex-wrap w-full">
+															<div className="flex flex-row flex-wrap w-full usr-l-fade mb-2">
 																{userList.map(
 																	(
 																		user,
 																		index
-																	) => (
-																		<div
-																			key={
-																				index
-																			}
-																			className="px-2 py-1 m-1 transition-transform transform rounded-full cursor-pointer hover:scale-110"
-																			style={{
-																				background:
-																					user.color,
-																				color:
-																					"white",
-																			}}
-																			onClick={() =>
-																				handleRemoveEmail(
-																					index
-																				)
-																			}
-																		>
-																			{
-																				user.email
-																			}
-																		</div>
-																	)
+																	) =>
+																		<ListUserElement
+																			user={user}
+																			handleRemoveEmail={handleRemoveEmail}
+																			index={index}
+																			key={user.email}
+																		></ListUserElement>
 																)}
 															</div>
 															<div className="flex flex-row items-center justify-center">

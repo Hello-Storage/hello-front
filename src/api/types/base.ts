@@ -40,4 +40,5 @@ export interface Folder extends Base {
   title: string;
   root: string;
   path: string;
+  is_in_pool?: boolean;
 }

@@ -18,7 +18,8 @@ import { isValidEmail } from "utils/validations";
 import { Theme } from "state/user/reducer";
 import useGetFolderFiles from "../Utils/useGetFolderFiles";
 import { FolderContentClass } from "../Utils/types";
-import { shareDetails as OShareDetail } from "./shareDetails";
+import { shareDetails } from "./shareDetails";
+import { ListUserElement } from "./UserListElement";
 
 
 export function ShareFolderModal() {
@@ -29,12 +30,10 @@ export function ShareFolderModal() {
 	const [selectedSharedFiles, setselectedSharedFiles] = useState<FolderContentClass>(new FolderContentClass())
 	const dropRef = useRef<HTMLDivElement>(null);
 	const interval = useRef<NodeJS.Timer>()
-	const [shareDetails, setShareDetails] = useState<ShareDetails[]>([]);
 	const [open, setOpen] = useState(false);
 	const [privateUserAvailable, setprivateUserAvailable] = useState(true);
 	useDropdown(dropRef, open, setOpen);
 	const dispatch = useAppDispatch();
-	const [shared, setshared] = useState(false)
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
 		number | null
 	>(null);
@@ -67,7 +66,6 @@ export function ShareFolderModal() {
 					// Handle sharing from shareRequests.ts
 					shareFolder(selectedSharedFiles, type, user)
 						.then(() => {
-							setshared(true)
 							toast.success("Folder shared successfully");
 						})
 						.catch((err) => {
@@ -120,8 +118,10 @@ export function ShareFolderModal() {
 
 	const handleAddEmail = () => {
 		if (selectedShareTypes === "email" && !isValidEmail(user)) {
-			toast.error("Invalid Email.");
-			return false;
+			if (userList.length === 0) {
+				toast.error("Invalid Email.");
+				return false;
+			}
 		}
 		if (userList.length >= 5) {
 			toast.error("Max number of users reached");
@@ -193,32 +193,13 @@ export function ShareFolderModal() {
 	}, [readyToshare]);
 
 	const [loading, setLoading] = useState(true);
-	let { folderContent, error } = selectedShareFolder ? useGetFolderFiles(selectedShareFolder) : { folderContent: null, error: null };
-
-	useEffect(() => {
-		if (
-			privateUserAvailable
-		) {
-			setShareDetails([...OShareDetail]);
-		} else {
-			setShareDetails(
-				OShareDetail.filter(
-					(shareDetail) =>
-						!["wallet", "email"].includes(shareDetail.type)
-				)
-			);
-		}
-	}, [privateUserAvailable])
-
+	let { folderContent } = selectedShareFolder ? useGetFolderFiles(selectedShareFolder) : { folderContent: null };
 
 	useEffect(() => {
 		interval.current = setInterval(() => {
 			if (folderContent && folderContent.current) {
 				setselectedSharedFiles(folderContent.current);
 				setLoading(false);
-			}
-			if (error?.current) {
-				setprivateUserAvailable(false);
 			}
 		}, 500);
 
@@ -369,27 +350,12 @@ export function ShareFolderModal() {
 																		user,
 																		index
 																	) => (
-																		<div
-																			key={
-																				index
-																			}
-																			className="px-2 py-1 m-1 transition-transform transform rounded-full cursor-pointer hover:scale-110"
-																			style={{
-																				background:
-																					user.color,
-																				color:
-																					"white",
-																			}}
-																			onClick={() =>
-																				handleRemoveEmail(
-																					index
-																				)
-																			}
-																		>
-																			{
-																				user.email
-																			}
-																		</div>
+																		<ListUserElement
+																			user={user}
+																			handleRemoveEmail={handleRemoveEmail}
+																			index={index}
+																			key={user.email}
+																		></ListUserElement>
 																	)
 																)}
 															</div>

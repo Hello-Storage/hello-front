@@ -292,7 +292,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 											<HiOutlineDownload className="inline-flex mr-3" />
 											Download
 										</li>
-										{actionsAllowed && (<>
+										{(actionsAllowed && !file.is_in_pool) && (<>
 											<li
 												onClick={() => {
 													dispatch(

@@ -24,6 +24,7 @@ import { Spinner5 } from "components/Spinner";
 import { FaPlusCircle } from "react-icons/fa";
 import { isValidEmail } from "utils/validations";
 import { Theme } from "state/user/reducer";
+import { ListUserElement } from "./UserListElement";
 
 interface UploadShareModalProps {
 	isOpen: boolean;
@@ -485,8 +486,10 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 	const handleAddEmail = () => {
 		if (selectedShareTypes === "email" && !isValidEmail(user)) {
-			toast.error("Invalid Email.");
-			return false;
+			if (userList.length === 0) {
+				toast.error("Invalid Email.");
+				return false;
+			}
 		}
 		if (userList.length >= 5) {
 			toast.error("Max number of users reached");
@@ -694,27 +697,12 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 																user,
 																index
 															) => (
-																<div
-																	key={
-																		index
-																	}
-																	className="px-2 py-1 m-1 transition-transform transform rounded-full cursor-pointer hover:scale-110"
-																	style={{
-																		background:
-																			user.color,
-																		color:
-																			"white",
-																	}}
-																	onClick={() =>
-																		handleRemoveEmail(
-																			index
-																		)
-																	}
-																>
-																	{
-																		user.email
-																	}
-																</div>
+																<ListUserElement
+																	user={user}
+																	handleRemoveEmail={handleRemoveEmail}
+																	index={index}
+																	key={user.email}
+																></ListUserElement>
 															)
 														)}
 													</div>
