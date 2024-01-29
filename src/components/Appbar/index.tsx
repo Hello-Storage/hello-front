@@ -15,6 +15,8 @@ import { setTheme } from "state/user/actions";
 import { Theme } from "state/user/reducer";
 import { formatName } from "utils";
 import { getTheme } from "utils/user";
+import { Modal, useModal } from "components/Modal";
+import { Support } from "./components/Support";
 
 interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -26,6 +28,10 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
+
+  const [onPresent] = useModal(
+		<Support />
+	);
 
   useDropdown(ref, open, setOpen);
 
@@ -92,8 +98,18 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               onChange={onSearchChange}
             />
           </div>
+          
         </form>
+
         <div className="flex items-center md:gap-4 w-full justify-between md:w-fit gap-1">
+    <button
+        onClick={onPresent}
+        className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+        (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
+    >
+      Support 
+    </button>
+
           <a href="https://linktr.ee/joinhelloapp" target="_blank">
             <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
               + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>
