@@ -170,7 +170,7 @@ export default function Home() {
       setCurrentPage(1)
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [path]);
+  }, [path, files.length, folders.length]);
 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
@@ -194,7 +194,7 @@ export default function Home() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh]);
+  }, [refresh ]);
 
   const paginateContent = async () => {
     const itemsPerPage = 10;
@@ -220,6 +220,8 @@ export default function Home() {
       filesStartIndex + filesItemsCount
     )
 
+    // TODO: decrypt files
+
     if (!currentFiles || !currentFolders) {
       toast.error("Failed to decrypt content");
       fetchRootContent(setLoading);
@@ -234,9 +236,15 @@ export default function Home() {
   }, [folders.length, folders]);
 
   useEffect(() => {
-    paginateContent();
+    paginateContent().then(() => {
+      fetchContent().then(() => {
+        setLoading(false);
+        setPersonalSignatureDefined(true);
+        dispatch(refreshAction(false))
+      })
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files.length])
+  }, [files.length, folders.length, currentPage])
 
   const [filter, setFilter] = useState("all");
 
