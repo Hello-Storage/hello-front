@@ -91,7 +91,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             <input
               type="search"
               id="default-search"
-              className={"block w-full py-2.5 pl-10 pr-4 text-sm rounded-2xl text-gray-900 border focus:border-gray-400 focus:outline-none xl:w-4/5"
+              className={"block w-full py-2.5 pl-10 pr-4 text-sm rounded-2xl text-gray-900 border focus:border-gray-400 focus:outline-none "
                 + (theme === Theme.DARK ? " dark-theme3" : " border-gray-200 bg-white")}
               placeholder="Search your space"
               required
