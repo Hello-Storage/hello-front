@@ -68,7 +68,7 @@ export default function CreateFolderModal() {
 		})
 			.then((resp) => {
 				toast.success("folder created!");
-				dispatch(createFolderAction({ ...resp.data, title: title }));
+				dispatch(createFolderAction({ ...resp.data, title: titleFinal }));
 			})
 			.catch(() => {
 				toast.error("failed!");
