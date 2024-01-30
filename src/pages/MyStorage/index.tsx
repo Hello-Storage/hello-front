@@ -405,8 +405,8 @@ export default function Home() {
           setloaded={setloaded}
         />
       </section>
-      <div className="flex-shrink-0 mb-[50px] sm:mb-0">
-        <div className={"flex items-center justify-between py-2 mt-3 border-gray-200 text-sm border-t "
+      <div className="flex-shrink-0 mb-0">
+        <div className={"flex items-center justify-between mt-3 border-gray-200 text-sm border-t "
           + (theme === Theme.DARK ? " dark-theme" : " bg-white ")}>
           <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}

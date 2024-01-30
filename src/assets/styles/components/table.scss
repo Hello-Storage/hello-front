@@ -9,29 +9,36 @@
 
 @media only screen and (min-width: 1024px) {
 	.table-div {
-		min-height: calc(100vh - 565px);
-		max-height: calc(100vh - 565px);
+		min-height: calc(100vh - 535px);
+		max-height: calc(100vh - 535px);
 	}
 }
 
 @media only screen and (min-width: 768px) and (max-width: 1024px) {
 	.table-div {
-		min-height: calc(100vh - 615px);
-		max-height: calc(100vh - 615px);
+		min-height: calc(100vh - 590px);
+		max-height: calc(100vh - 590px);
 	}
 }
 
 @media only screen and (min-width: 640px) and (max-width: 768px) {
 	.table-div {
-		min-height: calc(100vh - 685px);
-		max-height: calc(100vh - 685px);
+		min-height: calc(100vh - 655px);
+		max-height: calc(100vh - 655px);
 	}
 }
 
 @media only screen and (max-width: 640px) {
 	.table-div {
-		min-height: calc(100vh - 615px);
-		max-height: calc(100vh - 615px);
+		min-height: calc(100vh - 550px);
+		max-height: calc(100vh - 550px);
+	}
+}
+
+@media only screen and (max-width: 500px) {
+	.table-div {
+		min-height: calc(100vh - 565px);
+		max-height: calc(100vh - 565px);
 	}
 }
 
@@ -49,7 +56,7 @@
 }
 
 .invisible-scrollbar::-webkit-scrollbar {
-	display: none;
+	display: none !important;
 }
 
 #scroll-visible-section {
@@ -128,6 +135,17 @@
 	&_5::-webkit-scrollbar,
 	&_6::-webkit-scrollbar {
 		display: none;
+	}
+}
+
+#table-row-div {
+	&_1,
+	&_2,
+	&_3,
+	&_4,
+	&_5,
+	&_6 {
+		overflow-x: hidden;
 	}
 }
 
