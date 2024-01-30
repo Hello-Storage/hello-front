@@ -344,19 +344,18 @@ export function ShareFolderModal() {
 																	? "Email address"
 																	: "Wallet address"}
 															</label>
-															<div className="flex flex-row flex-wrap w-full">
+															<div className="flex flex-row flex-wrap w-full usr-l-fade mb-2">
 																{userList.map(
 																	(
 																		user,
 																		index
-																	) => (
+																	) =>
 																		<ListUserElement
 																			user={user}
 																			handleRemoveEmail={handleRemoveEmail}
 																			index={index}
 																			key={user.email}
 																		></ListUserElement>
-																	)
 																)}
 															</div>
 															<div className="flex flex-row items-center justify-center">

@@ -323,9 +323,9 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 						fileMap.customFile.name = fileFound?.name_unencrypted || fileFound?.name || "";
 						fileMap.customFile.cid_original_encrypted =
-						fileFound?.cid_original_unencrypted || "";
+							fileFound?.cid_original_unencrypted || "";
 						fileMap.customFile.mime_type =
-						fileFound?.mime_type_unencrypted || fileFound?.mime || "";
+							fileFound?.mime_type_unencrypted || fileFound?.mime || "";
 
 						if (!isFolder) filesuploaded.push(fileMap.customFile);
 						dispatch(createFileAction(fileMap.customFile));
@@ -679,7 +679,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 													"wallet",
 												].includes(
 													selectedShareTypes
-												) && groupID &&
+												) &&
 												<form
 													className="flex flex-col items-center w-full my-3"
 													onSubmit={(e) => {
@@ -695,19 +695,18 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 															? "Email address"
 															: "Wallet address"}
 													</label>
-													<div className="flex flex-row flex-wrap w-full">
+													<div className="flex flex-row flex-wrap w-full usr-l-fade mb-2">
 														{userList.map(
 															(
 																user,
 																index
-															) => (
+															) =>
 																<ListUserElement
 																	user={user}
 																	handleRemoveEmail={handleRemoveEmail}
 																	index={index}
 																	key={user.email}
 																></ListUserElement>
-															)
 														)}
 													</div>
 													<div className="flex flex-row items-center justify-center">
