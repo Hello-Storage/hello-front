@@ -182,7 +182,7 @@ const Shared = () => {
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle="Recived"
+						filesTitle="Received"
 						identifier={2}
 						setloaded={setloaded}
 					/>
@@ -212,7 +212,7 @@ const Shared = () => {
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle="Recived"
+						filesTitle="Received"
 						identifier={4}
 						setloaded={setloaded}
 					/>

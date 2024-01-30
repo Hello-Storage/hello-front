@@ -59,7 +59,9 @@ const useAuth = () => {
 
     const message = `Greetings from hello\nSign this message to log into hello\nnonce: ${nonceResp.data}`;
 
-    const signature = await signMessage({ message });
+    const signature = await signMessage({ message }).catch((error) => {
+      throw new Error(error);
+    });
 
     const loginResp = await Api.post<LoginResponse>("/login", {
       wallet_address,
