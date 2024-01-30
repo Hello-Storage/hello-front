@@ -26,8 +26,6 @@ const ShareSharedWithMeGroupdWithMe = () => {
 	const [error, seterror] = useState<boolean>()
 	const [metadataList, setMetadataList] = useState<File[]>([]);
 
-	const dispatch = useDispatch();
-
 	const { showPreview } = useAppSelector((state) => state.mystorage);
 
 	useEffect(() => {
@@ -54,7 +52,6 @@ const ShareSharedWithMeGroupdWithMe = () => {
 					grouphashes.map((hash) => {
 						return getPublishedFile(hash).then((res) => {
 							res = res as AxiosResponse;
-							console.log(res)
 							if (res && res.status === 200) {
 								const publishedFile = res.data as File;
 								tempMetadataList.push(publishedFile);

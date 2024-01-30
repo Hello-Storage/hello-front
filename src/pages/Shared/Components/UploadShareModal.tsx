@@ -51,11 +51,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const [open, setOpen] = useState(false);
 	useDropdown(dropRef, open, setOpen);
 	const fileInput = useRef<HTMLInputElement>(null);
-	const closeShareModal = () => {
-		setProcesing(false);
-		setIsopen(false);
-		fetchRootContent();
-	};
 	const dispatch = useAppDispatch();
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
 		number | null
@@ -64,7 +59,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const [user, setuser] = useState<string>("");
 	const [userList, setuserList] = useState<User[]>([]);
 	const [readyToshare, setreadyToshare] = useState<boolean>(false);
-	const { fetchRootContent } = useFetchData();
+	const { fetchSharedContent } = useFetchData();
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	const navigate = useNavigate();
@@ -127,6 +122,12 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 			}
 		}
 		setuserList([]);
+	};
+
+	const closeShareModal = () => {
+		setProcesing(false);
+		setIsopen(false);
+		fetchSharedContent();
 	};
 
 	const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
@@ -320,12 +321,11 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 						fileMap.customFile.is_in_pool =
 							fileFound?.is_in_pool || false;
 
-						fileMap.customFile.name =
-							fileMap.customFile.name_unencrypted || "";
+						fileMap.customFile.name = fileFound?.name_unencrypted || fileFound?.name || "";
 						fileMap.customFile.cid_original_encrypted =
-							fileMap.customFile.cid_original_unencrypted || "";
+						fileFound?.cid_original_unencrypted || "";
 						fileMap.customFile.mime_type =
-							fileMap.customFile.mime_type_unencrypted || "";
+						fileFound?.mime_type_unencrypted || fileFound?.mime || "";
 
 						if (!isFolder) filesuploaded.push(fileMap.customFile);
 						dispatch(createFileAction(fileMap.customFile));
@@ -344,6 +344,10 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 				onUploadProgress,
 			})
 				.then((res) => {
+					if (res.status !== 200) {
+						toast.error("upload failed!");
+						return;
+					}
 					toast.success("upload Succeed!");
 					dispatch(
 						setUploadStatusAction({

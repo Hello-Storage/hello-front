@@ -176,11 +176,11 @@ export default function Home() {
 
 
   useEffect(() => {
-    if (!isInitialLoad && (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder"))) {
+    if (isInitialLoad && (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder"))) {
       fetchRootContent()
       dispatch(refreshAction(true))
+      setIsInitialLoad(false)
     }
-    setIsInitialLoad(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [window.location.href]);
 
@@ -194,7 +194,7 @@ export default function Home() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh ]);
+  }, [refresh]);
 
   const paginateContent = async () => {
     const itemsPerPage = 10;
