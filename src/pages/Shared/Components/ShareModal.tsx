@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useDispatch } from "react-redux";
 import { useEffect, useRef, useState } from "react";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { shareDetails } from "./shareDetails";
 import {
 	setSelectedShareFile,
@@ -152,14 +152,15 @@ const ShareModal = () => {
 				for (const user of userList) {
 					shareFile(selectedShareFile, selectedShareTypes, user.email)
 						.then((res) => {
-							res = res as AxiosResponse;
-							if (res.status === 200) {
+							let resp = res as AxiosResponse;
+							if (resp.status === 200) {
 								toast.success("File shared successfully");
+							} else {
+								let err = res as AxiosError;
+								setShareError(err.message);
+								toast.error("User not found: " + user.email);
 							}
 						})
-						.catch((err) => {
-							setShareError(err.message);
-						});
 				}
 			}
 			setreadyToshare(false);

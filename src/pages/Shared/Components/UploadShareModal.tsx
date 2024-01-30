@@ -15,7 +15,7 @@ import {
 	createFolderAction,
 	setSelectedSharedFiles,
 } from "state/mystorage/actions";
-import { AxiosProgressEvent, AxiosResponse } from "axios";
+import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
 import { shareDetails } from "./shareDetails";
@@ -542,14 +542,15 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							user.email
 						)
 							.then((res) => {
-								res = res as AxiosResponse;
-								if (res.status === 200) {
+								let resp = res as AxiosResponse;
+								if (resp.status === 200) {
 									toast.success("File shared successfully");
+								}else{
+									let err = res as AxiosError;
+									setShareError(err.message);
+									toast.error("User not found: " + user.email);
 								}
 							})
-							.catch((err) => {
-								setShareError(err.message);
-							});
 					}
 				}
 			}
