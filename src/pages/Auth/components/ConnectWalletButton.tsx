@@ -19,7 +19,16 @@ export default function ConnectWalletButton() {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (isConnected && address) login(address);
+    try {
+      if (isConnected && address) {
+        login(address);
+        setLoading(false);
+      }
+    } catch (error) {
+      alert(error)
+      console.log(error)
+      loading && setLoading(false);
+    }
   }, [address, isConnected]);
 
   const onClick = (show: () => void) => {
@@ -33,7 +42,6 @@ export default function ConnectWalletButton() {
           <button
             onClick={isConnected ? undefined : () => onClick(show!)}
             className="w-full inline-flex items-center justify-center text-white p-4 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
-            disabled={loading ? true : false}
           >
             {/* {isConnected ? truncatedAddress : "Connect with Wallet"} */}
             {loading ? "Connecting..." : "Connect with Wallet"}
