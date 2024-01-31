@@ -11,7 +11,6 @@ import { useAppDispatch, useAppSelector } from "state";
 import { refreshAction } from "state/mystorage/actions";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import ShareModal from "pages/Shared/Components/ShareModal";
-import { useNavigate } from "react-router-dom";
 import { Theme } from "state/user/reducer";
 
 export default function Api() {
@@ -143,7 +142,7 @@ export default function Api() {
 
             <section className="flex-grow custom-scrollbar invisible-scrollbar" id="scroll-invisible-section">
                 <Content
-                    actionsAllowed={true}
+                    actionsAllowed={false}
                     showHorizontalFolders={false}
                     loading={loading}
                     files={currentFiles}

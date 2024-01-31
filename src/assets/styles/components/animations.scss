@@ -54,3 +54,22 @@ $background-color_1: #166534;
 	-ms-transform: translate(-50%, -50%);
 	-o-transform: translate(-50%, -50%);
 }
+
+.usr-l-fade .list-user-element {
+	opacity: 0;
+	transform: rotateX(-90deg);
+	transition: all 0.2s cubic-bezier(0.36, -0.64, 0.34, 1.76);
+	-webkit-transition: all 0.2s cubic-bezier(0.36, -0.64, 0.34, 1.76);
+	-moz-transition: all 0.2s cubic-bezier(0.36, -0.64, 0.34, 1.76);
+	-ms-transition: all 0.2s cubic-bezier(0.36, -0.64, 0.34, 1.76);
+	-o-transition: all 0.2s cubic-bezier(0.36, -0.64, 0.34, 1.76);
+}
+
+.usr-l-fade .list-user-element.show {
+	opacity: 1;
+	transform: none;
+}
+
+.usr-l-fade {
+	perspective: 100px;
+}

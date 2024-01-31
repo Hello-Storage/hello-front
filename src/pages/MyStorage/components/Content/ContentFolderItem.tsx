@@ -34,6 +34,7 @@ import { useModal } from "components/Modal";
 import getAccountType from "api/getAccountType";
 import getPersonalSignature from "api/getPersonalSignature";
 import { FaFolder } from "react-icons/fa";
+import { GoAlertFill } from "react-icons/go";
 
 dayjs.extend(relativeTime);
 
@@ -213,6 +214,14 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
                             size={24}
                             color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
                         />
+                        <span className="mr-2" >
+                            {folder.is_in_pool && (
+                                <GoAlertFill
+                                    style={{ color: "#FF6600" }}
+                                    title="Folder is in Hello Pool"
+                                />
+                            )}
+                        </span>
                         <span className="hidden md:inline">
                             {truncate(folder.title, 40)}
                         </span>
@@ -267,24 +276,26 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
                                                 <HiOutlineDownload className="inline-flex mr-3" />
                                                 Download
                                             </li>
-                                            <li
-                                                onClick={() => {
-                                                    dispatch(
-                                                        setShowShareModal(true)
-                                                    );
-                                                    dispatch(
-                                                        setSelectedShareFile()
-                                                    )
-                                                    dispatch(
-                                                        setSelectedShareFolder(folder)
-                                                    );
-                                                }}
-                                                className={"block px-4 py-2 "
-                                                    + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                                            >
-                                                <HiOutlineShare className="inline-flex mr-3" />
-                                                Share
-                                            </li>
+                                            {!folder.is_in_pool && (
+                                                <li
+                                                    onClick={() => {
+                                                        dispatch(
+                                                            setShowShareModal(true)
+                                                        );
+                                                        dispatch(
+                                                            setSelectedShareFile()
+                                                        )
+                                                        dispatch(
+                                                            setSelectedShareFolder(folder)
+                                                        );
+                                                    }}
+                                                    className={"block px-4 py-2 "
+                                                        + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                                                >
+                                                    <HiOutlineShare className="inline-flex mr-3" />
+                                                    Share
+                                                </li>
+                                            )}
                                             <li
                                                 className={"block px-4 py-2 "
                                                     + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
@@ -315,6 +326,14 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
                                 size={24}
                                 color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
                             />
+                            <span className="mr-2" >
+                                {folder.is_in_pool && (
+                                    <GoAlertFill
+                                        style={{ color: "#FF6600" }}
+                                        title="Folder is in Hello Pool"
+                                    />
+                                )}
+                            </span>
                             <span className="hidden md:inline">
                                 {truncate(folder.title, 40)}
                             </span>

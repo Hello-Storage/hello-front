@@ -15,7 +15,7 @@ import {
 	createFolderAction,
 	setSelectedSharedFiles,
 } from "state/mystorage/actions";
-import { AxiosProgressEvent, AxiosResponse } from "axios";
+import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
 import { shareDetails } from "./shareDetails";
@@ -24,6 +24,7 @@ import { Spinner5 } from "components/Spinner";
 import { FaPlusCircle } from "react-icons/fa";
 import { isValidEmail } from "utils/validations";
 import { Theme } from "state/user/reducer";
+import { ListUserElement } from "./UserListElement";
 
 interface UploadShareModalProps {
 	isOpen: boolean;
@@ -50,11 +51,6 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const [open, setOpen] = useState(false);
 	useDropdown(dropRef, open, setOpen);
 	const fileInput = useRef<HTMLInputElement>(null);
-	const closeShareModal = () => {
-		setProcesing(false);
-		setIsopen(false);
-		fetchRootContent();
-	};
 	const dispatch = useAppDispatch();
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
 		number | null
@@ -63,7 +59,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const [user, setuser] = useState<string>("");
 	const [userList, setuserList] = useState<User[]>([]);
 	const [readyToshare, setreadyToshare] = useState<boolean>(false);
-	const { fetchRootContent } = useFetchData();
+	const { fetchSharedContent } = useFetchData();
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	const navigate = useNavigate();
@@ -126,6 +122,12 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 			}
 		}
 		setuserList([]);
+	};
+
+	const closeShareModal = () => {
+		setProcesing(false);
+		setIsopen(false);
+		fetchSharedContent();
 	};
 
 	const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
@@ -319,12 +321,11 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 						fileMap.customFile.is_in_pool =
 							fileFound?.is_in_pool || false;
 
-						fileMap.customFile.name =
-							fileMap.customFile.name_unencrypted || "";
+						fileMap.customFile.name = fileFound?.name_unencrypted || fileFound?.name || "";
 						fileMap.customFile.cid_original_encrypted =
-							fileMap.customFile.cid_original_unencrypted || "";
+							fileFound?.cid_original_unencrypted || "";
 						fileMap.customFile.mime_type =
-							fileMap.customFile.mime_type_unencrypted || "";
+							fileFound?.mime_type_unencrypted || fileFound?.mime || "";
 
 						if (!isFolder) filesuploaded.push(fileMap.customFile);
 						dispatch(createFileAction(fileMap.customFile));
@@ -343,6 +344,10 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 				onUploadProgress,
 			})
 				.then((res) => {
+					if (res.status !== 200) {
+						toast.error("upload failed!");
+						return;
+					}
 					toast.success("upload Succeed!");
 					dispatch(
 						setUploadStatusAction({
@@ -485,8 +490,10 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 	const handleAddEmail = () => {
 		if (selectedShareTypes === "email" && !isValidEmail(user)) {
-			toast.error("Invalid Email.");
-			return false;
+			if (userList.length === 0) {
+				toast.error("Invalid Email.");
+				return false;
+			}
 		}
 		if (userList.length >= 5) {
 			toast.error("Max number of users reached");
@@ -535,14 +542,15 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							user.email
 						)
 							.then((res) => {
-								res = res as AxiosResponse;
-								if (res.status === 200) {
+								let resp = res as AxiosResponse;
+								if (resp.status === 200) {
 									toast.success("File shared successfully");
+								}else{
+									let err = res as AxiosError;
+									setShareError(err.message);
+									toast.error("User not found: " + user.email);
 								}
 							})
-							.catch((err) => {
-								setShareError(err.message);
-							});
 					}
 				}
 			}
@@ -672,7 +680,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 													"wallet",
 												].includes(
 													selectedShareTypes
-												) && groupID &&
+												) &&
 												<form
 													className="flex flex-col items-center w-full my-3"
 													onSubmit={(e) => {
@@ -688,34 +696,18 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 															? "Email address"
 															: "Wallet address"}
 													</label>
-													<div className="flex flex-row flex-wrap w-full">
+													<div className="flex flex-row flex-wrap w-full usr-l-fade mb-2">
 														{userList.map(
 															(
 																user,
 																index
-															) => (
-																<div
-																	key={
-																		index
-																	}
-																	className="px-2 py-1 m-1 transition-transform transform rounded-full cursor-pointer hover:scale-110"
-																	style={{
-																		background:
-																			user.color,
-																		color:
-																			"white",
-																	}}
-																	onClick={() =>
-																		handleRemoveEmail(
-																			index
-																		)
-																	}
-																>
-																	{
-																		user.email
-																	}
-																</div>
-															)
+															) =>
+																<ListUserElement
+																	user={user}
+																	handleRemoveEmail={handleRemoveEmail}
+																	index={index}
+																	key={user.email}
+																></ListUserElement>
 														)}
 													</div>
 													<div className="flex flex-row items-center justify-center">

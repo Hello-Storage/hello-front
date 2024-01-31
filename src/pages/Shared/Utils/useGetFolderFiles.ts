@@ -17,7 +17,6 @@ const useGetFolderFiles = (selectedShareFolder: Folder) => {
     const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
     const accountType = getAccountType();
     const { logout } = useAuth();
-    const error = useRef<string>()
 
     async function fetchContent(files: File[], folders: Folder[]) {
         const currentEncryptedFiles = files
@@ -70,12 +69,6 @@ const useGetFolderFiles = (selectedShareFolder: Folder) => {
                         return;
                     }
 
-                    for (const foundfile of res.data.files) {
-                        if (foundfile.encryption_status === EncryptionStatus.Encrypted) {
-                            error.current="File is encrypted"
-                        }
-                    }
-
                     fetchContent(res.data.files, res.data.folders).then((contentD) => {
                         if (contentD) {
                             const Data = {
@@ -111,7 +104,7 @@ const useGetFolderFiles = (selectedShareFolder: Folder) => {
         fetchData(folderContent.current);
     }, [selectedShareFolder]);
 
-    return { folderContent, error };
+    return { folderContent };
 };
 
 export default useGetFolderFiles;

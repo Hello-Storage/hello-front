@@ -1,12 +1,8 @@
-import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 import { Api, File, File as FileType } from "api";
 import { toast } from "react-toastify";
 import { FolderContentClass } from "./types";
-import { Dispatch } from "@reduxjs/toolkit";
-import { setUploadStatusAction } from "state/uploadstatus/actions";
-import { blobToArrayBuffer, decryptFileBuffer } from "utils/encryption/filesCipher";
-import { PreviewImage, setImageViewAction } from "state/mystorage/actions";
 
 export const shareFile = async (selectedFile: FileType | null, type: string, user: string | undefined): Promise<AxiosResponse | AxiosError | undefined> => {
     let response: AxiosResponse | AxiosError | undefined;

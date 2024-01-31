@@ -10,7 +10,7 @@ import {
 	setSelectedSharedFiles,
 	setShowShareModal
 } from "state/mystorage/actions";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFolder } from "../Utils/shareUtils";
 import { FaPlusCircle } from "react-icons/fa";
@@ -18,7 +18,8 @@ import { isValidEmail } from "utils/validations";
 import { Theme } from "state/user/reducer";
 import useGetFolderFiles from "../Utils/useGetFolderFiles";
 import { FolderContentClass } from "../Utils/types";
-import { shareDetails as OShareDetail } from "./shareDetails";
+import { shareDetails } from "./shareDetails";
+import { ListUserElement } from "./UserListElement";
 
 
 export function ShareFolderModal() {
@@ -29,12 +30,10 @@ export function ShareFolderModal() {
 	const [selectedSharedFiles, setselectedSharedFiles] = useState<FolderContentClass>(new FolderContentClass())
 	const dropRef = useRef<HTMLDivElement>(null);
 	const interval = useRef<NodeJS.Timer>()
-	const [shareDetails, setShareDetails] = useState<ShareDetails[]>([]);
 	const [open, setOpen] = useState(false);
 	const [privateUserAvailable, setprivateUserAvailable] = useState(true);
 	useDropdown(dropRef, open, setOpen);
 	const dispatch = useAppDispatch();
-	const [shared, setshared] = useState(false)
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
 		number | null
 	>(null);
@@ -67,7 +66,6 @@ export function ShareFolderModal() {
 					// Handle sharing from shareRequests.ts
 					shareFolder(selectedSharedFiles, type, user)
 						.then(() => {
-							setshared(true)
 							toast.success("Folder shared successfully");
 						})
 						.catch((err) => {
@@ -120,8 +118,10 @@ export function ShareFolderModal() {
 
 	const handleAddEmail = () => {
 		if (selectedShareTypes === "email" && !isValidEmail(user)) {
-			toast.error("Invalid Email.");
-			return false;
+			if (userList.length === 0) {
+				toast.error("Invalid Email.");
+				return false;
+			}
 		}
 		if (userList.length >= 5) {
 			toast.error("Max number of users reached");
@@ -171,14 +171,15 @@ export function ShareFolderModal() {
 					user.email
 				)
 					.then((res) => {
-						res = res as AxiosResponse;
-						if (res.status === 200) {
-							toast.success("Folder shared successfully to user " + user.email);
+						let resp = res as AxiosResponse;
+						if (resp.status === 200) {
+							toast.success("File shared successfully");
+						} else {
+							let err = res as AxiosError;
+							setShareError(err.message);
+							toast.error("User not found: " + user.email);
 						}
 					})
-					.catch((err) => {
-						setShareError(err.message);
-					});
 			}
 		}
 		if (readyToshare) {
@@ -193,32 +194,13 @@ export function ShareFolderModal() {
 	}, [readyToshare]);
 
 	const [loading, setLoading] = useState(true);
-	let { folderContent, error } = selectedShareFolder ? useGetFolderFiles(selectedShareFolder) : { folderContent: null, error: null };
-
-	useEffect(() => {
-		if (
-			privateUserAvailable
-		) {
-			setShareDetails([...OShareDetail]);
-		} else {
-			setShareDetails(
-				OShareDetail.filter(
-					(shareDetail) =>
-						!["wallet", "email"].includes(shareDetail.type)
-				)
-			);
-		}
-	}, [privateUserAvailable])
-
+	let { folderContent } = selectedShareFolder ? useGetFolderFiles(selectedShareFolder) : { folderContent: null };
 
 	useEffect(() => {
 		interval.current = setInterval(() => {
 			if (folderContent && folderContent.current) {
 				setselectedSharedFiles(folderContent.current);
 				setLoading(false);
-			}
-			if (error?.current) {
-				setprivateUserAvailable(false);
 			}
 		}, 500);
 
@@ -363,34 +345,18 @@ export function ShareFolderModal() {
 																	? "Email address"
 																	: "Wallet address"}
 															</label>
-															<div className="flex flex-row flex-wrap w-full">
+															<div className="flex flex-row flex-wrap w-full usr-l-fade mb-2">
 																{userList.map(
 																	(
 																		user,
 																		index
-																	) => (
-																		<div
-																			key={
-																				index
-																			}
-																			className="px-2 py-1 m-1 transition-transform transform rounded-full cursor-pointer hover:scale-110"
-																			style={{
-																				background:
-																					user.color,
-																				color:
-																					"white",
-																			}}
-																			onClick={() =>
-																				handleRemoveEmail(
-																					index
-																				)
-																			}
-																		>
-																			{
-																				user.email
-																			}
-																		</div>
-																	)
+																	) =>
+																		<ListUserElement
+																			user={user}
+																			handleRemoveEmail={handleRemoveEmail}
+																			index={index}
+																			key={user.email}
+																		></ListUserElement>
 																)}
 															</div>
 															<div className="flex flex-row items-center justify-center">

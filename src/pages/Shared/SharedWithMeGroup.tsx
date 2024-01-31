@@ -26,8 +26,6 @@ const ShareSharedWithMeGroupdWithMe = () => {
 	const [error, seterror] = useState<boolean>()
 	const [metadataList, setMetadataList] = useState<File[]>([]);
 
-	const dispatch = useDispatch();
-
 	const { showPreview } = useAppSelector((state) => state.mystorage);
 
 	useEffect(() => {

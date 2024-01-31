@@ -176,7 +176,7 @@ export default function Login() {
             </a>
           </div>
           <div className="mt-1 md:mt-1">
-            © 2023 hello.app
+            © 2024 hello.app
           </div>
         </div>
       </footer>

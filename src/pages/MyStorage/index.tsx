@@ -163,14 +163,6 @@ export default function Home() {
     }
   }
 
-
-  useEffect(() => {
-    //fetchContent().then(() => {
-    //  setLoading(false);
-    //});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folders.length]);
-
   useEffect(() => {
     fetchContent().then(() => {
       setLoading(false);
@@ -178,15 +170,27 @@ export default function Home() {
       setCurrentPage(1)
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [path]);
+  }, [path, files.length, folders.length]);
+
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
 
   useEffect(() => {
-    if (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder")) {
+    if (!isInitialLoad && (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder"))) {
       fetchRootContent()
       dispatch(refreshAction(true))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [window.location.href]);
+
+  useEffect(() => {
+    if (isInitialLoad && (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder"))) {
+      fetchRootContent()
+      dispatch(refreshAction(true))
+    setIsInitialLoad(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (refresh) {
@@ -198,7 +202,7 @@ export default function Home() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh]);
+  }, [refresh ]);
 
   const paginateContent = async () => {
     const itemsPerPage = 10;
@@ -224,6 +228,8 @@ export default function Home() {
       filesStartIndex + filesItemsCount
     )
 
+    // TODO: decrypt files
+
     if (!currentFiles || !currentFolders) {
       toast.error("Failed to decrypt content");
       fetchRootContent(setLoading);
@@ -238,9 +244,15 @@ export default function Home() {
   }, [folders.length, folders]);
 
   useEffect(() => {
-    paginateContent();
+    paginateContent().then(() => {
+      fetchContent().then(() => {
+        setLoading(false);
+        setPersonalSignatureDefined(true);
+        dispatch(refreshAction(false))
+      })
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files.length])
+  }, [files.length, folders.length, currentPage])
 
   const [filter, setFilter] = useState("all");
 
@@ -401,8 +413,8 @@ export default function Home() {
           setloaded={setloaded}
         />
       </section>
-      <div className="flex-shrink-0 mb-[50px] sm:mb-0">
-        <div className={"flex items-center justify-between py-2 mt-3 border-gray-200 text-sm border-t "
+      <div className="flex-shrink-0 mb-0">
+        <div className={"flex items-center justify-between mt-3 border-gray-200 text-sm border-t "
           + (theme === Theme.DARK ? " dark-theme" : " bg-white ")}>
           <div className="text-xs">
             Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}

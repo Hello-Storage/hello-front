@@ -26,6 +26,7 @@ export interface File extends Base, UnencryptedBase {
   name: string;
   root: string;
   mime_type: string;
+  mime?: string;
   size: number;
   media_type: string;
   is_in_pool?: boolean;
@@ -40,4 +41,5 @@ export interface Folder extends Base {
   title: string;
   root: string;
   path: string;
+  is_in_pool?: boolean;
 }

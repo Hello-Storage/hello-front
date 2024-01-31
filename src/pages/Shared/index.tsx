@@ -47,9 +47,6 @@ const Shared = () => {
 	const accountType = getAccountType();
 	const { fetchSharedContent } = useFetchData();
 
-	const [personalSignatureDefined, setPersonalSignatureDefined] = useState(
-		false
-	);
 	const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
 
 	async function fetchContent() {
@@ -119,18 +116,17 @@ const Shared = () => {
 		fetchSharedContent()
 		dispatch(refreshAction(true))
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [window.location.href]);
+	}, []);
 
 	useEffect(() => {
 		if (refresh) {
 			fetchContent().then(() => {
 				setLoading(false);
-				setPersonalSignatureDefined(true);
 				dispatch(refreshAction(false))
 			});
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [refresh]);
+	}, [sharedFiles]);
 
 	return (
 		<section>
@@ -164,7 +160,7 @@ const Shared = () => {
 			<div className="hidden w-full lg:flex">
 				<div className="w-[99%] share-content">
 					<Content
-						actionsAllowed={true}
+						actionsAllowed={false}
 						loading={loading}
 						showHorizontalFolders={false}
 						files={SharedByMe}
@@ -179,14 +175,14 @@ const Shared = () => {
 				<span className="w-[2%]"></span>
 				<div className="w-[99%] share-content">
 					<Content
-						actionsAllowed={true}
+						actionsAllowed={false}
 						loading={loading}
 						files={SharedwithMe}
 						showHorizontalFolders={false}
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle="Recived"
+						filesTitle="Received"
 						identifier={2}
 						setloaded={setloaded}
 					/>
@@ -195,7 +191,7 @@ const Shared = () => {
 			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
 				<div>
 					<Content
-						actionsAllowed={true}
+						actionsAllowed={false}
 						loading={loading}
 						files={SharedByMe}
 						showHorizontalFolders={false}
@@ -209,14 +205,14 @@ const Shared = () => {
 				</div>
 				<div>
 					<Content
-						actionsAllowed={true}
+						actionsAllowed={false}
 						loading={loading}
 						files={SharedwithMe}
 						showHorizontalFolders={false}
 						folders={[]}
 						view="list"
 						showFolders={false}
-						filesTitle="Recived"
+						filesTitle="Received"
 						identifier={4}
 						setloaded={setloaded}
 					/>

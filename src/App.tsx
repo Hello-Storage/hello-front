@@ -13,6 +13,7 @@ import { Spinner3 } from "components/Spinner";
 import { Navigate } from "react-router-dom";
 import ShareSharedWithMeGroupdWithMe from "pages/Shared/SharedWithMeGroup";
 import { FolderShared } from "pages/Shared/FolderShared";
+import NotFound from "pages/NotFound";
 
 
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -76,6 +77,7 @@ function App() {
       <TrackPageViews />
       <Suspense fallback={<Spinner3 />}>
         <Routes>
+          <Route path="*" element={<NotFound></NotFound>} />
           <Route path="/" element={<Navigate to="/space/my-storage" replace />} />
           <Route path="/stats" element={
             <Statistics />
