@@ -19,6 +19,7 @@ import {
   fetchSharedContentAction,
   refreshAction,
   setSelectedShareFolder,
+  fetchSharedContentActionFolders,
 } from "./actions";
 import { File as FileType, Folder, RootResponse } from "api";
 
@@ -31,6 +32,7 @@ interface MyStorageProps extends RootResponse {
   selectedShareFolder?: Folder;
   selectedSharedFiles?: FileType[];
   sharedFiles: { sharedWithMe: FileType[], sharedByMe: FileType[] };
+  sharedFolders: { sharedWithMe: Folder[]; sharedByMe: Folder[] }
   refresh: boolean;
 }
 
@@ -39,6 +41,10 @@ const initialState: MyStorageProps = {
   path: [],
   files: [],
   sharedFiles: {
+    sharedWithMe: [],
+    sharedByMe: [],
+  },
+  sharedFolders: {
     sharedWithMe: [],
     sharedByMe: [],
   },
@@ -63,6 +69,10 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
       selectedShareFolder: payload,
     }))
     .addCase(fetchSharedContentAction, (state, { payload }) => ({
+      ...state,
+      ...payload,
+    }))
+    .addCase(fetchSharedContentActionFolders, (state, { payload }) => ({
       ...state,
       ...payload,
     }))
