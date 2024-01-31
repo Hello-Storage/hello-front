@@ -40,52 +40,10 @@ export default function UsersChart() {
     const fetchData = async () => {
         Api.get("/statistics/users/weekly-stats")
             .then((res) => {
-                console.log("users/weekly-stats: ", res.data);
                 if (res.data) {
                     setWeeklyUserData(res.data);
                 } else {
-                    setWeeklyUserData([
-                        {
-                            week: "2023-09-13",
-                            total_users: 87
-                        },
-                        {
-                            week: "2023-09-20",
-                            total_users: 674
-                        },
-                        {
-                            week: "2023-09-27",
-                            total_users: 1991
-                        },
-                        {
-                            week: "2023-10-04",
-                            total_users: 2550
-                        },
-                        {
-                            week: "2023-10-11",
-                            total_users: 3126
-                        },
-                        {
-                            week: "2023-10-18",
-                            total_users: 3308
-                        },
-                        {
-                            week: "2023-10-25",
-                            total_users: 3913
-                        },
-                        {
-                            week: "2023-11-01",
-                            total_users: 4598
-                        },
-                        {
-                            week: "2023-11-08",
-                            total_users: 5813
-                        },
-                        {
-                            week: "2023-11-15",
-                            total_users: 6937
-                        }
-                    ])
+                    setWeeklyUserData([])
                 }
             })
             .catch((err) => {

@@ -116,7 +116,7 @@ const Shared = () => {
 		fetchSharedContent()
 		dispatch(refreshAction(true))
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [window.location.href]);
+	}, []);
 
 	useEffect(() => {
 		if (refresh) {
@@ -126,7 +126,7 @@ const Shared = () => {
 			});
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [refresh]);
+	}, [sharedFiles]);
 
 	return (
 		<section>

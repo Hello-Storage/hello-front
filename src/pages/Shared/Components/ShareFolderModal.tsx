@@ -10,7 +10,7 @@ import {
 	setSelectedSharedFiles,
 	setShowShareModal
 } from "state/mystorage/actions";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFolder } from "../Utils/shareUtils";
 import { FaPlusCircle } from "react-icons/fa";
@@ -171,14 +171,15 @@ export function ShareFolderModal() {
 					user.email
 				)
 					.then((res) => {
-						res = res as AxiosResponse;
-						if (res.status === 200) {
-							toast.success("Folder shared successfully to user " + user.email);
+						let resp = res as AxiosResponse;
+						if (resp.status === 200) {
+							toast.success("File shared successfully");
+						} else {
+							let err = res as AxiosError;
+							setShareError(err.message);
+							toast.error("User not found: " + user.email);
 						}
 					})
-					.catch((err) => {
-						setShareError(err.message);
-					});
 			}
 		}
 		if (readyToshare) {
@@ -344,19 +345,18 @@ export function ShareFolderModal() {
 																	? "Email address"
 																	: "Wallet address"}
 															</label>
-															<div className="flex flex-row flex-wrap w-full">
+															<div className="flex flex-row flex-wrap w-full usr-l-fade mb-2">
 																{userList.map(
 																	(
 																		user,
 																		index
-																	) => (
+																	) =>
 																		<ListUserElement
 																			user={user}
 																			handleRemoveEmail={handleRemoveEmail}
 																			index={index}
 																			key={user.email}
 																		></ListUserElement>
-																	)
 																)}
 															</div>
 															<div className="flex flex-row items-center justify-center">

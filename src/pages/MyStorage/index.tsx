@@ -180,9 +180,17 @@ export default function Home() {
       fetchRootContent()
       dispatch(refreshAction(true))
     }
-    setIsInitialLoad(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [window.location.href]);
+
+  useEffect(() => {
+    if (isInitialLoad && (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder"))) {
+      fetchRootContent()
+      dispatch(refreshAction(true))
+    setIsInitialLoad(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (refresh) {
