@@ -27,7 +27,7 @@ export const Support = () => {
                         className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm text-center"
                             + (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
                     >
-                        <a className=" flex flex-row  items-center justify-center px-5 py-2.5" href="docs.hello.app/support" target="_blank" >
+                        <a className=" flex flex-row  items-center justify-center px-5 py-2.5" href="https://docs.hello.app/support" target="_blank" >
                             <LuHelpCircle className="mr-3"></LuHelpCircle>Learn about Tickets
                         </a>
                     </button>
