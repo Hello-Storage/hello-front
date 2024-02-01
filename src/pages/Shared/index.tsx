@@ -26,10 +26,13 @@ const Shared = () => {
 
 	const {
 		sharedFiles,
+		sharedFolders,
 		refresh,
 		showShareModal,
 		showPreview,
 	} = useAppSelector((state) => state.mystorage);
+
+	console.log(sharedFolders);
 
 	const [SharedByMe, setSharedByMe] = useState<FileType[]>([]);
 
@@ -160,13 +163,13 @@ const Shared = () => {
 			<div className="hidden w-full lg:flex">
 				<div className="w-[99%] share-content">
 					<Content
-						actionsAllowed={false}
+						actionsAllowed={true}
 						loading={loading}
 						showHorizontalFolders={false}
 						files={SharedByMe}
-						folders={[]}
+						folders={sharedFolders.sharedByMe}
 						view="list"
-						showFolders={false}
+						showFolders={true}
 						filesTitle="Shared"
 						identifier={1}
 						setloaded={setloaded}
@@ -175,13 +178,13 @@ const Shared = () => {
 				<span className="w-[2%]"></span>
 				<div className="w-[99%] share-content">
 					<Content
-						actionsAllowed={false}
+						actionsAllowed={true}
 						loading={loading}
 						files={SharedwithMe}
 						showHorizontalFolders={false}
-						folders={[]}
+						folders={sharedFolders.sharedWithMe}
 						view="list"
-						showFolders={false}
+						showFolders={true}
 						filesTitle="Received"
 						identifier={2}
 						setloaded={setloaded}
@@ -191,13 +194,13 @@ const Shared = () => {
 			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
 				<div>
 					<Content
-						actionsAllowed={false}
+						actionsAllowed={true}
 						loading={loading}
 						files={SharedByMe}
 						showHorizontalFolders={false}
-						folders={[]}
+						folders={sharedFolders.sharedByMe}
 						view="list"
-						showFolders={false}
+						showFolders={true}
 						filesTitle="Shared"
 						identifier={3}
 						setloaded={setloaded}
@@ -205,13 +208,13 @@ const Shared = () => {
 				</div>
 				<div>
 					<Content
-						actionsAllowed={false}
+						actionsAllowed={true}
 						loading={loading}
 						files={SharedwithMe}
 						showHorizontalFolders={false}
-						folders={[]}
+						folders={sharedFolders.sharedWithMe}
 						view="list"
-						showFolders={false}
+						showFolders={true}
 						filesTitle="Received"
 						identifier={4}
 						setloaded={setloaded}

@@ -3,7 +3,7 @@ import { useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Api, RootResponse, SharedResponse, UserDetailResponse } from "api";
 import { useAppDispatch } from "state";
-import { fetchContentAction, fetchSharedContentAction } from "state/mystorage/actions";
+import { fetchContentAction, fetchSharedContentAction, fetchSharedContentActionFolders } from "state/mystorage/actions";
 import { loadUserDetail } from "state/userdetail/actions";
 import { toast } from "react-toastify";
 import { handleEncryptedFolders } from "utils/encryption/filesCipher";
@@ -79,8 +79,10 @@ const useFetchData = () => {
       Api.get<SharedResponse>("/user/shared/general")
         .then((res) => {
 
-          const FsharedWithMe = res.data.SharedWithMe ? res.data.SharedWithMe : [];
-          const FsharedByMe = res.data.SharedByMe ? res.data.SharedByMe : [];
+          const FsharedWithMe = res.data.SharedWithMe.Files ? res.data.SharedWithMe.Files : [];
+          const FsharedByMe = res.data.SharedByMe.Files ? res.data.SharedByMe.Files : [];
+          const FoldersharedWithMe = res.data.SharedWithMe.Folders ? res.data.SharedWithMe.Folders : [];
+          const FoldersharedByMe = res.data.SharedByMe.Folders ? res.data.SharedByMe.Folders : [];
           const sortedFileSharedW = FsharedWithMe.sort(
             (a, b) =>
               new Date(b.created_at).getTime() -
@@ -92,13 +94,37 @@ const useFetchData = () => {
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
+
+          const sortedFolderSharedW = FoldersharedWithMe.sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          );
+
+          const sortedFolderSharedB = FoldersharedByMe.sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          );
+          const resFiles= {
+            sharedFiles: {
+              sharedWithMe: sortedFileSharedW,
+              sharedByMe: sortedFilesSharedB,
+            }
+          }
           dispatch(
-            fetchSharedContentAction({
-              sharedFiles: {
-                sharedWithMe: sortedFileSharedW,
-                sharedByMe: sortedFilesSharedB,
-              }
-            })
+            fetchSharedContentAction(resFiles)
+          );
+
+          const resFolders= {
+            sharedFolders: {
+              sharedWithMe: sortedFolderSharedW,
+              sharedByMe: sortedFolderSharedB,
+            }
+          }
+          
+          dispatch(
+            fetchSharedContentActionFolders(resFolders)
           );
         })
         .catch((err) => {
