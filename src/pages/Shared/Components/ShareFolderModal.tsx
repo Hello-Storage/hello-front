@@ -177,7 +177,7 @@ export function ShareFolderModal() {
 						} else {
 							let err = res as AxiosError;
 							setShareError(err.message);
-							toast.error("User not found: " + user.email);
+							toast.error("Could not be shared to user: " + user.email);
 						}
 					})
 			}

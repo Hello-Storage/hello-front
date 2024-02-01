@@ -1,5 +1,5 @@
 import { createAction } from "@reduxjs/toolkit";
-import { Folder, File as FileType, RootResponse, SharedRFiles } from "api";
+import { Folder, File as FileType, RootResponse, SharedRFiles, SharedRFolders } from "api";
 
 export interface PreviewImage {
   src?: string;
@@ -13,6 +13,9 @@ export const fetchContentAction = createAction<RootResponse>(
 );
 export const fetchSharedContentAction = createAction<SharedRFiles>(
   "mystorage/fetch-shared-content"
+);
+export const fetchSharedContentActionFolders = createAction<SharedRFolders>(
+  "mystorage/fetch-shared-content-folders"
 );
 export const refreshAction = createAction<boolean>(
   "mystorage/refresh-content"
