@@ -152,11 +152,11 @@ const ShareModal = () => {
 				for (const user of userList) {
 					shareFile(selectedShareFile, selectedShareTypes, user.email)
 						.then((res) => {
-							let resp = res as AxiosResponse;
+							const resp = res as AxiosResponse;
 							if (resp.status === 200) {
 								toast.success("File shared successfully");
 							} else {
-								let err = res as AxiosError;
+								const err = res as AxiosError;
 								setShareError(err.message);
 								toast.error("Could not be shared to user: " + user.email);
 							}
@@ -219,6 +219,7 @@ const ShareModal = () => {
 														"public",
 														"one-time",
 														"monthly",
+														"email",
 													].includes(
 														selectedShareTypes
 													) ? (
