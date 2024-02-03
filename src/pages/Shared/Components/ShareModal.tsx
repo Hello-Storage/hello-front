@@ -16,6 +16,7 @@ import { FaPlusCircle } from "react-icons/fa";
 import { PiShareFatFill } from "react-icons/pi";
 import { Theme } from "state/user/reducer";
 import { ListUserElement } from "./UserListElement";
+import { Api } from "api";
 
 const ShareModal = () => {
 	const [fileSharedState, setFileSharedState] = useState<ShareState>();
@@ -127,7 +128,8 @@ const ShareModal = () => {
 		}
 	};
 
-	const handleSubmit = () => {
+	const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+		e.preventDefault()
 		const res = handleAddEmail();
 		if (res || userList.length > 0) {
 			setreadyToshare(true);
@@ -163,10 +165,37 @@ const ShareModal = () => {
 						})
 				}
 			}
-			setreadyToshare(false);
-			closeShareModal();
+			//setreadyToshare(false);
+			//if (!(selectedShareTypes === "email"))
+			//closeShareModal();
 		}
 	}, [readyToshare]);
+
+	useEffect(() => {
+		if (selectedShareFile) {
+			const params = new URLSearchParams();
+			params.append("file_uids", selectedShareFile?.uid);
+			Api.get(`/file/share/states`, { params }).then((res) => {
+				// if 404, log error
+				if ((res as AxiosResponse).status === 200) {
+					res = res as AxiosResponse;
+					const shareState = res?.data as ShareState[];
+					if (shareState) {
+						setFileSharedState(shareState[0]);
+						if (shareState[0].public_file) {
+							setSelectedShareTypes("public");
+						}
+					}
+					console.log(shareState)
+				} else {
+					toast.error(JSON.stringify(res));
+				}
+			})
+				.catch((e) => {
+					console.log(e)
+				})
+		}
+	}, [showShareModal])
 
 	const { theme } = useAppSelector((state) => state.user);
 
@@ -219,7 +248,6 @@ const ShareModal = () => {
 														"public",
 														"one-time",
 														"monthly",
-														"email",
 													].includes(
 														selectedShareTypes
 													) ? (
@@ -331,7 +359,7 @@ const ShareModal = () => {
 																className="p-3 mt-3 animated-bg-btn rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
 																type="submit"
 																onClick={
-																	handleSubmit
+																	(e) => handleSubmit(e)
 																}
 															>
 																<span className="btn-transition"></span>
