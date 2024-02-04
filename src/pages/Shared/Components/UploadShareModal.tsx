@@ -193,6 +193,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 				mime_type: file.type,
 				media_type: file.type.split("/")[0],
 				path: file.webkitRelativePath,
+				isOwner: true,
 				encryption_status: EncryptionStatus.Public,
 				created_at: "",
 				updated_at: "",

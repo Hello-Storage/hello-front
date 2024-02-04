@@ -34,6 +34,7 @@ export interface File extends Base, UnencryptedBase {
   //base64 data
   data?: string;
   file_share_state?: ShareState;
+  isOwner?: boolean;
 }
 
 export interface Folder extends Base {

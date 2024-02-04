@@ -26,6 +26,7 @@ const Deleted = lazy(() => import("pages/Deleted"));
 const Migration = lazy(() => import("pages/Migration"));
 const Api = lazy(() => import("pages/Api"));
 const Statistics = lazy(() => import("pages/Statistics"));
+const PrivacyPolicy = lazy(() => import("pages/PrivacyPolicy"));
 
 const Login = lazy(() => import("pages/Auth/Login"));
 
@@ -47,16 +48,16 @@ const TrackPageViews = () => {
 };
 
 function App() {
-  const { load,logout } = useAuth();
-  
+  const { load, logout } = useAuth();
+
   useEffect(() => {
-		const token = localStorage.getItem("access_token");
-		if (token) {
-			setAuthToken(token);
-		}
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      setAuthToken(token);
+    }
     load();
 
-		const handleStorageChange = (e: StorageEvent) => {
+    const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "access_token" && !localStorage.getItem("access_token")) {
         logout();
       } else {
@@ -65,11 +66,11 @@ function App() {
         }
       }
     }
-		window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
-		return () => {
-			window.removeEventListener("storage", handleStorageChange);
-		};
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, [load, logout]);
 
   return (
@@ -79,15 +80,16 @@ function App() {
         <Routes>
           <Route path="*" element={<NotFound></NotFound>} />
           <Route path="/" element={<Navigate to="/space/my-storage" replace />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/stats" element={
             <Statistics />
-            } />
+          } />
           <Route path="/ns" element={<Navigate to="/space/login?ref=ns" replace />} />
           <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
             <Route index element={<Api />} />
-            <Route path ="/space/shared/public/:hash" element={<SharedWithMe shareType="public" />} />
-            <Route path ="/space/shared/folder/:folderuid" element={<FolderShared />} />
-            <Route path ="/space/shared/group/:group_id" element={<ShareSharedWithMeGroupdWithMe />} />
+            <Route path="/space/shared/public/:hash" element={<SharedWithMe shareType="public" />} />
+            <Route path="/space/shared/folder/:folderuid" element={<FolderShared />} />
+            <Route path="/space/shared/group/:group_id" element={<ShareSharedWithMeGroupdWithMe />} />
             <Route path="/space/dashboard" element={<Dashboard />} />
             <Route path="/space/my-storage" element={<MyStorage />} />
             <Route path="/space/folder/*" element={<MyStorage />} />
