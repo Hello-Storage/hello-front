@@ -39,13 +39,13 @@ const Shared = () => {
 	} = useAppSelector((state) => state.mystorage);
 
 	const [itemsPerPage, setItemsPerPage] = useState(
-		window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 1 : 2
+		window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 10 : 15
 	);
 
 	useEffect(() => {
 		const handleResize = () => {
 			setItemsPerPage(
-				window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 1 : 15
+				window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 10 : 15
 			);
 		};
 
@@ -122,7 +122,7 @@ const Shared = () => {
 		setEndSharedIndex(Math.min(tempEndSharedIndex, totalSharedItemsTemp));
 
 		const sharedByMeStartIndex = Math.max(0, tempStartSharedIndex);
-		const filesSharedByMe = sharedFiles.sharedWithMe.slice(
+		const filesSharedByMe = sharedFiles.sharedByMe.slice(
 			sharedByMeStartIndex,
 			sharedByMeStartIndex + itemsPerPage
 		)
@@ -314,6 +314,7 @@ const Shared = () => {
 						setloaded={setloaded}
 					/>
 				</div>
+				{ /*
 				<div className="flex-shrink-0 mb-[50px] sm:mb-0">
 					<div className={"flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200"
 						+ (theme === Theme.DARK ? " dark-theme " : " ")}>
@@ -351,6 +352,7 @@ const Shared = () => {
 						</div>
 					</div>
 				</div>
+*/}
 				<span className="w-[2%]"></span>
 				<div className="w-[99%] share-content">
 					<Content
@@ -383,6 +385,7 @@ const Shared = () => {
 						setloaded={setloaded}
 					/>
 				</div>
+				{ /*
 				<div className="flex-shrink-0 mb-[50px] sm:mb-0">
 					<div className={"flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200"
 						+ (theme === Theme.DARK ? " dark-theme " : " ")}>
@@ -420,6 +423,7 @@ const Shared = () => {
 						</div>
 					</div>
 				</div>
+							*/}
 
 				<div>
 					<Content
@@ -435,6 +439,7 @@ const Shared = () => {
 						setloaded={setloaded}
 					/>
 				</div>
+				{/*
 				<div className="flex-shrink-0 mb-[50px] sm:mb-0">
 					<div className={"flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200"
 						+ (theme === Theme.DARK ? " dark-theme " : " ")}>
@@ -472,6 +477,7 @@ const Shared = () => {
 						</div>
 					</div>
 				</div>
+							*/}
 			</div>
 		</section>
 

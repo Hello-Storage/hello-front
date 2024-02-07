@@ -15,18 +15,18 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
     <>
       <Provider store={state}>
         <PersistGate loading={null} persistor={persistor}>
-        <GoogleOAuth>
-          <EthProvider>
-            <SWRProvider>
-              <ModalProvider>{children}</ModalProvider>
-            </SWRProvider>
-          </EthProvider>
-        </GoogleOAuth>
+          <GoogleOAuth>
+            <EthProvider>
+              <SWRProvider>
+                <ModalProvider>{children}</ModalProvider>
+              </SWRProvider>
+            </EthProvider>
+          </GoogleOAuth>
         </PersistGate>
       </Provider>
 
       {/* toast */}
-      <ToastContainer position="top-right" theme="colored" closeOnClick />
+      <ToastContainer style={{ marginTop: "10px" }} position="top-right" theme="colored" closeOnClick />
     </>
   );
 };
