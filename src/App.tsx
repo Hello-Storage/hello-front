@@ -14,6 +14,7 @@ import { Navigate } from "react-router-dom";
 import ShareSharedWithMeGroupdWithMe from "pages/Shared/SharedWithMeGroup";
 import { FolderShared } from "pages/Shared/FolderShared";
 import NotFound from "pages/NotFound";
+import OnePage from "pages/OnePage/layouts/page";
 
 
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -79,8 +80,17 @@ function App() {
       <Suspense fallback={<Spinner3 />}>
         <Routes>
           <Route path="*" element={<NotFound></NotFound>} />
-          <Route path="/" element={<Navigate to="/space/my-storage" replace />} />
+          <Route
+            path="/"
+            element={localStorage.getItem("access_token") ? (
+                  <Navigate to="/space/my-storage" replace />
+                ) : (
+                  <Navigate to="/one-page" replace />
+                )
+            }
+          />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/one-page" element={<OnePage />} />
           <Route path="/stats" element={
             <Statistics />
           } />
