@@ -85,7 +85,7 @@ export default function Login() {
   }
 
   return (
-    <div className={"flex flex-col justify-between min-h-screen p-8 md:h-screen"+ (getTheme()===Theme.DARK? " dark-theme" : "")}>
+    <div className={"flex flex-col justify-between min-h-screen p-8 md:h-screen" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
       <div className="flex items-center gap-3">
         <label className="text-2xl font-semibold font-[Outfit]">
           hello.app
@@ -104,7 +104,7 @@ export default function Login() {
               Select your favorite login option
             </h3>
             <h3 className="hidden mt-4 text-lg tracking-tighter text-center md:block">
-              Get your <b>100GB</b> free storage now! 
+              Get your <b>100GB</b> free storage now!
             </h3>
 
             <div className="mt-[20px] flex gap-[15px] flex-col justify-around">
@@ -124,7 +124,7 @@ export default function Login() {
               <div className="">
                 <label
                   htmlFor="email"
-                  className={"block mb-2 text-sm font-medium "+ (getTheme()===Theme.DARK? " dark-theme" : "text-gray-600")}
+                  className={"block mb-2 text-sm font-medium " + (getTheme() === Theme.DARK ? " dark-theme" : "text-gray-600")}
                 >
                   Email address
                 </label>
@@ -132,7 +132,7 @@ export default function Login() {
                   id="email"
                   type="email"
                   className={"bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:border-gray-400 focus:outline-none block w-full px-2.5 py-4"
-                  + (getTheme()===Theme.DARK? " dark-theme3" : "")}
+                    + (getTheme() === Theme.DARK ? " dark-theme3" : "")}
                   placeholder="example@email.com"
                   value={email}
                   onChange={onChange}
@@ -152,7 +152,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <footer className={"p-0 mb-[50px] text-sm text-black md:mx-12 md:p-2 md:mb-0"+ (getTheme()===Theme.DARK? " dark-theme" : "")}>
+      <footer className={"p-0 mb-[50px] text-sm text-black md:mx-12 md:p-2 md:mb-0" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
         <div className="flex flex-col items-start">
           <div className="flex p-0 space-x-4 md:p-0">
             <a href="mailto:team@hello.app" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
@@ -175,8 +175,16 @@ export default function Login() {
               <PiTiktokLogoFill />
             </a>
           </div>
-          <div className="mt-1 md:mt-1">
+          <div className="flex flex-col mt-1 md:mt-1">
+            <a href="https://docs.hello.app/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
+              More information here
+            </a>
             © 2024 hello.app
+          </div>
+          <div className="mt-1 md:mt-1 flex flex-col absolute bottom-10 right-10 text-right">
+            <a href="https://hello.app/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
+              Privacy Policy
+            </a>
           </div>
         </div>
       </footer>

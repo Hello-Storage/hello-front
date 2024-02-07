@@ -5,6 +5,8 @@ import { useDispatch } from "react-redux";
 import { handleEncryptedFiles } from "utils/encryption/filesCipher";
 import {
 	refreshAction,
+	setSelectedShareFile,
+	setSelectedSharedFiles,
 	updateDecryptedSharedFilesAction
 } from "state/mystorage/actions";
 import "lightbox.js-react/dist/index.css";
@@ -24,6 +26,8 @@ const Shared = () => {
 	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
 	const dispatch = useDispatch();
 
+
+
 	const {
 		sharedFiles,
 		sharedFolders,
@@ -31,6 +35,7 @@ const Shared = () => {
 		showShareModal,
 		showPreview,
 	} = useAppSelector((state) => state.mystorage);
+
 
 	console.log(sharedFolders);
 
@@ -152,6 +157,8 @@ const Shared = () => {
 			<button
 				className="animated-bg-btn w-[230px] mb-2 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
 				onClick={() => {
+					dispatch(setSelectedSharedFiles(undefined))
+					dispatch(setSelectedShareFile(undefined));
 					setisOpenShareUpload(!isOpenShareUpload);
 				}}
 			>

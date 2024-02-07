@@ -38,8 +38,7 @@ export default function OTPModal({ email }: { email: string }) {
         <FaRegEnvelopeOpen size={50} className="inline-block text-blue-500" />
       </div>
       <div className="text-center mb-3">
-        <p>Please enter the code sent to, if you don't get the code, also check spam</p>
-        <strong>{email}</strong>
+        <p>Please enter the code sent to <strong>{email}</strong>, if you don't get the code, also check the <strong>spam</strong> folder</p>
       </div>
 
       {loading ? (

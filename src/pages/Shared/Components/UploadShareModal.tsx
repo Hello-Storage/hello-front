@@ -193,6 +193,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 				mime_type: file.type,
 				media_type: file.type.split("/")[0],
 				path: file.webkitRelativePath,
+				isOwner: true,
 				encryption_status: EncryptionStatus.Public,
 				created_at: "",
 				updated_at: "",
@@ -447,7 +448,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	};
 
 	useEffect(() => {
-		dispatch(setSelectedSharedFiles());
+		//dispatch(setSelectedSharedFiles());
 		setProcesing(false);
 		setreadyToshare(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -542,11 +543,11 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							user.email
 						)
 							.then((res) => {
-								let resp = res as AxiosResponse;
+								const resp = res as AxiosResponse;
 								if (resp.status === 200) {
 									toast.success("File shared successfully");
 								}else{
-									let err = res as AxiosError;
+									const err = res as AxiosError;
 									setShareError(err.message);
 									toast.error("Could not be shared to user: " + user.email);
 								}
@@ -555,7 +556,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 				}
 			}
 			setreadyToshare(false);
-			closeShareModal();
+			//closeShareModal();
 		}
 	}, [readyToshare]);
 
