@@ -25,7 +25,7 @@ const useFetchData = () => {
           personalSignatureRef.current =
             sessionStorage.getItem("personal_signature") ?? undefined;
           if (!personalSignatureRef.current) {
-            toast.error("Failed to fetch root");
+            toast.error("Failed to fetch root!");
             return;
           }
           const decryptedPath = await handleEncryptedFolders(

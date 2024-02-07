@@ -59,13 +59,13 @@ const useGetFolderFiles = (selectedShareFolder: Folder) => {
 
     const fetchData = async (selectedShareFolder: FolderContentClass) => {
         if (selectedShareFolder) {
-            let root = "/folder/" + selectedShareFolder.uid;
+            const root = "/folder/" + selectedShareFolder.uid;
             Api.get<RootResponse>(root)
                 .then(async (res) => {
                     personalSignatureRef.current =
                         sessionStorage.getItem("personal_signature") ?? undefined;
                     if (!personalSignatureRef.current) {
-                        toast.error("Failed to fetch root");
+                        toast.error("Failed to fetch root!");
                         return;
                     }
 

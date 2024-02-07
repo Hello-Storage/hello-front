@@ -421,9 +421,11 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                   } ${i < folders.length - 1 ? "mr-5" : ""}`}
                 onDrag={handleDrag}
                 onDragStart={handleDragStart}
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 onDragEnd={actionsAllowed ? handleDragEnd : () => { }}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 onDrop={actionsAllowed ? handleDrop : () => { }}
                 onDoubleClick={() => onFolderDoubleClick(v.uid)}
                 onClick={handleOnClick}
@@ -578,10 +580,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                                 onDrag={handleDrag}
                                 draggable
                                 onDragStart={handleDragStart}
-                                onDragEnd={actionsAllowed ? handleDragEnd : () => { }}
+                                onDragEnd={actionsAllowed ? handleDragEnd : () => undefined}
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
-                                onDrop={actionsAllowed ? handleDrop : () => { }}
+                                onDrop={actionsAllowed ? handleDrop : undefined}
                                 onDoubleClick={() => onFolderDoubleClick(v.uid)}
                                 onClick={handleOnClick}
                               >
@@ -599,7 +601,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                               aria-valuetext="file"
                               draggable
                               onDragStart={handleDragStart}
-                              onDragEnd={actionsAllowed ? handleDragEnd : () => { }}
+                              onDragEnd={actionsAllowed ? handleDragEnd : undefined}
                               onDrag={handleDrag}
                               className={` cursor-pointer ${isItemSelected(
                                 v.id.toString()
@@ -665,10 +667,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                         onDrag={handleDrag}
                         draggable
                         onDragStart={handleDragStart}
-                        onDragEnd={actionsAllowed ? handleDragEnd : () => { }}
+                        onDragEnd={actionsAllowed ? handleDragEnd : undefined}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
-                        onDrop={actionsAllowed ? handleDrop : () => { }}
+                        onDrop={actionsAllowed ? handleDrop : undefined}
                         onDoubleClick={() => onFolderDoubleClick(v.uid)}
                         onClick={handleOnClick}
                       >
