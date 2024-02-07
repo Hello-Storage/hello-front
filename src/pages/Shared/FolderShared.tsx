@@ -32,12 +32,12 @@ export function FolderShared() {
         <>
             {(content && ((content.files && content.files.length > 0) || (content.folders && content.folders.length > 0)) && !loading) && (
                 <section>
-                    <Imageview
+                    {/* <Imageview
                         isOpen={showPreview}
                         files={content.files ? content.files : []}
                         loaded={loaded}
                         setloaded={setloaded}
-                    ></Imageview>
+                    ></Imageview> */}
                     <h3 className="my-2 text-xl">Shared Folder</h3>
                     <div className="flex items-center mb-2">
                         <MdFolderShared className="mr-2" />
@@ -55,7 +55,6 @@ export function FolderShared() {
                                 showFolders={true}
                                 filesTitle=""
                                 identifier={1}
-                                setloaded={setloaded}
                             />
                         </div>
                     </div>

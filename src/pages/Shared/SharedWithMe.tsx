@@ -18,7 +18,6 @@ const SharedWithMe = (props: { shareType: string }) => {
 	const dispatch = useAppDispatch();
   const shareType = props.shareType;
   const [loading, setLoading] = useState(true);
-  const [loaded, setloaded] = useState(false);
   const [error, seterror] = useState<boolean>()
 
   const [metadata, setMetadata] = useState<File>();
@@ -70,7 +69,6 @@ const SharedWithMe = (props: { shareType: string }) => {
       toast.info("Loading File");
       dispatch(setFileViewAction({ file: undefined }));
       dispatch(setImageViewAction({ show: false }));
-      setloaded(false);
   
       dispatch(
         setFileViewAction({
@@ -90,12 +88,12 @@ const SharedWithMe = (props: { shareType: string }) => {
     <>
       {metadata && (
         <section>
-          <Imageview
+          {/* <Imageview
             isOpen={showPreview}
             files={[metadata]}
             loaded={loaded}
             setloaded={setloaded}
-          ></Imageview>
+          ></Imageview> */}
           <div className="w-full flex">
             <div className="w-[99%] share-content">
               <Content
@@ -108,7 +106,6 @@ const SharedWithMe = (props: { shareType: string }) => {
                 showFolders={true}
                 filesTitle="Shared File"
                 identifier={1}
-                setloaded={setloaded}
               />
             </div>
           </div>

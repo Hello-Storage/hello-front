@@ -25,7 +25,6 @@ export default function Api() {
     useApikey(setApiKey)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [loading, setLoading] = useState(false);
-    const [loaded, setloaded] = useState(false);
     const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
@@ -151,7 +150,6 @@ export default function Api() {
                     showFolders={false}
                     filesTitle="Uploaded files"
                     identifier={1}
-                    setloaded={setloaded}
                 />
             </section>
 
@@ -193,13 +191,6 @@ export default function Api() {
                 </div>
             </div>
         </section>
-        {/* lightbox */}
-        <Imageview
-            isOpen={showPreview}
-            files={currentFiles}
-            loaded={loaded}
-            setloaded={setloaded}
-        ></Imageview>
     </>
 
     )

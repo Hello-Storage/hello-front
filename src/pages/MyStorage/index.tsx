@@ -15,6 +15,8 @@ import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
 import {
   refreshAction,
+  setFileViewAction,
+  setImageViewAction,
   updateDecryptedFilesAction,
   updateDecryptedFoldersAction
 } from "state/mystorage/actions";
@@ -30,15 +32,13 @@ import {
 import { toast } from "react-toastify";
 import getPersonalSignature from "api/getPersonalSignature";
 import ShareModal from "pages/Shared/Components/ShareModal";
-import Imageview from "components/ImageView/Imageview";
 import { Theme } from "state/user/reducer";
 import ShareFolderModal from "pages/Shared/Components/ShareFolderModal";
+import { useModal } from "components/Modal";
+import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 
 
 export default function Home() {
-
-  const [loaded, setloaded] = useState(false);
-
   const dispatch = useAppDispatch();
   const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { name } = useAppSelector((state) => state.user);
@@ -89,6 +89,23 @@ export default function Home() {
 
   const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
   const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
+
+
+  const [onPresent] = useModal(<CustomFileViewer
+    files={currentFiles}
+  />);
+
+  useEffect(() => {
+    if (showPreview && currentFiles.length > 0 && !showShareModal) {
+      onPresent();
+    }
+  }, [showPreview]);
+
+  useEffect(() => {
+    dispatch(setImageViewAction({ show: false }));
+		dispatch(setFileViewAction({ file: undefined }));
+  }, [])
+
 
   async function fetchContent() {
     setLoading(true);
@@ -187,7 +204,7 @@ export default function Home() {
     if (isInitialLoad && (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder"))) {
       fetchRootContent()
       dispatch(refreshAction(true))
-    setIsInitialLoad(false)
+      setIsInitialLoad(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -202,7 +219,7 @@ export default function Home() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh ]);
+  }, [refresh]);
 
   const paginateContent = async () => {
     const itemsPerPage = 10;
@@ -410,7 +427,6 @@ export default function Home() {
           showFolders={true}
           filesTitle="Files"
           identifier={1}
-          setloaded={setloaded}
         />
       </section>
       <div className="flex-shrink-0 mb-0">
@@ -453,14 +469,6 @@ export default function Home() {
 
       {/* Upload Info */}
       {uploading && <UploadProgress />}
-
-      {/* lightbox */}
-      <Imageview
-        isOpen={showPreview}
-        files={filteredFiles}
-        loaded={loaded}
-        setloaded={setloaded}
-      ></Imageview>
     </div>
   );
 }

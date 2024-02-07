@@ -4,8 +4,8 @@ import { Folder, File as FileType, RootResponse, SharedRFiles, SharedRFolders } 
 export interface PreviewImage {
   src?: string;
   alt: string;
-  type?: "htmlVideo";
-  videoSrc?: string;
+  type?: "video" | "image" | "other";
+  tmbSrc?: string;
 }
 
 export const fetchContentAction = createAction<RootResponse>(

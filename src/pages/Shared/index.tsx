@@ -22,7 +22,6 @@ import UploadShareModal from "./Components/UploadShareModal";
 import Imageview from "components/ImageView/Imageview";
 
 const Shared = () => {
-	const [loaded, setloaded] = useState(false);
 	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
 	const dispatch = useDispatch();
 
@@ -146,13 +145,13 @@ const Shared = () => {
 			)}
 			{showShareModal && <ShareModal />}
 
-			<Imageview
+			{/* <Imageview
 				isOpen={showPreview}
 				files={[...SharedByMe,
 				...SharedwithMe]}
 				loaded={loaded}
 				setloaded={setloaded}
-			></Imageview>
+			></Imageview> */}
 			<h3 className="my-2 text-xl">Shared files</h3>
 			<button
 				className="animated-bg-btn w-[230px] mb-2 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
@@ -179,7 +178,6 @@ const Shared = () => {
 						showFolders={true}
 						filesTitle="Shared"
 						identifier={1}
-						setloaded={setloaded}
 					/>
 				</div>
 				<span className="w-[2%]"></span>
@@ -194,7 +192,6 @@ const Shared = () => {
 						showFolders={true}
 						filesTitle="Received"
 						identifier={2}
-						setloaded={setloaded}
 					/>
 				</div>
 			</div>
@@ -210,7 +207,6 @@ const Shared = () => {
 						showFolders={true}
 						filesTitle="Shared"
 						identifier={3}
-						setloaded={setloaded}
 					/>
 				</div>
 				<div>
@@ -224,7 +220,6 @@ const Shared = () => {
 						showFolders={true}
 						filesTitle="Received"
 						identifier={4}
-						setloaded={setloaded}
 					/>
 				</div>
 			</div>

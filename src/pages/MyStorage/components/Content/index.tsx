@@ -24,10 +24,9 @@ interface ContentProps {
   showFolders: boolean;
   filesTitle: string;
   identifier: number;
-  setloaded: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, setloaded, showHorizontalFolders, actionsAllowed }) => {
+const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, showHorizontalFolders, actionsAllowed }) => {
   type itemInfo = {
     type: string;
     id: string;
@@ -614,7 +613,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                                 file={v}
                                 key={i}
                                 view="list"
-                                setloaded={setloaded}
                               />
                             </tr>
                           ))}
@@ -696,7 +694,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                     <FileItem file={v} key={i}
                       view="grid"
                       actionsAllowed={actionsAllowed}
-                      setloaded={setloaded} />
+                      />
                   </div>
                 ))}
               </section>

@@ -22,7 +22,6 @@ const ShareSharedWithMeGroupdWithMe = () => {
 	const { grouphashes, loading } = useFetchGroupHashes(
 		group_id ? group_id : ""
 	);
-	const [loaded, setloaded] = useState(false);
 	const [error, seterror] = useState<boolean>()
 	const [metadataList, setMetadataList] = useState<File[]>([]);
 
@@ -74,12 +73,12 @@ const ShareSharedWithMeGroupdWithMe = () => {
 		<>
 			{(metadataList && metadataList.length > 0) && (
 				<section>
-					<Imageview
+					{/* <Imageview
 						isOpen={showPreview}
 						files={metadataList}
 						loaded={loaded}
 						setloaded={setloaded}
-					></Imageview>
+					></Imageview> */}
 					<div className="w-full flex">
 						<div className="w-[99%] share-content">
 							<Content
@@ -92,7 +91,6 @@ const ShareSharedWithMeGroupdWithMe = () => {
 								showFolders={true}
 								filesTitle="Shared Files"
 								identifier={1}
-								setloaded={setloaded}
 							/>
 						</div>
 					</div>
