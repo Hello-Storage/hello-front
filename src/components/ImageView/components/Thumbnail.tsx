@@ -5,6 +5,10 @@ import filetmb from "../../../assets/images/file-thumbs/file-thmb.svg";
 import { useDispatch } from "react-redux";
 import { File } from "api";
 import { setFileViewAction } from "state/mystorage/actions";
+import { imageExtensions, videoExtensions } from "../utils/consts";
+// import { useState } from "react";
+// import axios from "axios";
+// import sharp from "sharp";
 
 interface ThumbnailProps {
     name: string
@@ -12,21 +16,41 @@ interface ThumbnailProps {
     selected: boolean
     files: File[];
     uid: string;
-
+    loading: boolean;
 }
-export const Thumbnail: React.FC<ThumbnailProps> = ({ src, name, selected, uid, files }) => {
+export const Thumbnail: React.FC<ThumbnailProps> = ({ src, name, selected, uid, files, loading }) => {
     const fileExtension = name.split('.').pop() || ''
-    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg']
-    const videoExtensions = ['mp4', 'webm', 'ogg']
     const dispatch = useDispatch();
+    // const [thumbnail, setThumbnail] = useState<any>();
 
     function changeSelected(uid: string) {
-        dispatch(setFileViewAction({ file: files.find(file => file.uid === uid)}));
+        if (loading) return;
+        dispatch(setFileViewAction({ file: files.find(file => file.uid === uid) }));
     }
+
+    // future implementation to generate thumbnails of images (trouble: cant generate thumbnails of 
+    // videos and files, desactivated for now till implementation of video and file thumbnails)
+    // TODO: read doc of pdf-thumbnail and fluent-ffmpeg
+
+    // async function generateThumbnail(url: string, width: number, height: number) {
+    //     try {
+    //         const response = await axios.get(url, { responseType: 'arraybuffer' });
+    //         const imageBuffer = Buffer.from(response.data, 'binary');
+
+    //         const thumbnailBuffer = await sharp(imageBuffer)
+    //             .resize({ width, height })
+    //             .toBuffer();
+
+    //         setThumbnail(thumbnailBuffer);
+
+    //     } catch (error) {
+    //         console.error('Error al generar el thumbnail:', error);
+    //     }
+    // }
 
     return (
         <>
-            {src ? (
+            {(src && imageExtensions.includes(fileExtension)) ? (
                 <div className={"thumbnail modal " + (selected ? "selected" : "")}
                     onClick={() => changeSelected(uid)}
                 >
@@ -38,7 +62,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ src, name, selected, uid, 
                         <div className={"thumbnail modal " + (selected ? "selected" : "")}
                             onClick={() => changeSelected(uid)}
                         >
-                            <img src={imgtmb} className="h-[70px]" alt={name} draggable={false} />
+                            <img src={imgtmb} alt={name} draggable={false} />
                         </div>
                     ) :
                     videoExtensions.includes(fileExtension) ?
@@ -46,7 +70,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ src, name, selected, uid, 
                             <div className={"thumbnail modal " + (selected ? "selected" : "")}
                                 onClick={() => changeSelected(uid)}
                             >
-                                <img src={videotmb} className="h-[70px]" alt={name} draggable={false} />
+                                <img src={videotmb} alt={name} draggable={false} />
                             </div>
                         )
                         :
@@ -54,7 +78,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ src, name, selected, uid, 
                             <div className={"thumbnail modal " + (selected ? "selected" : "")}
                                 onClick={() => changeSelected(uid)}
                             >
-                                <img src={filetmb} className="h-[70px]" alt={name} draggable={false} />
+                                <img src={filetmb} alt={name} draggable={false} />
                             </div>
                         )
             }

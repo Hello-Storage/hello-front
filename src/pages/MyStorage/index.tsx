@@ -15,6 +15,7 @@ import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
 import {
   refreshAction,
+  resetCache,
   setFileViewAction,
   setImageViewAction,
   updateDecryptedFilesAction,
@@ -90,7 +91,6 @@ export default function Home() {
   const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
   const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
 
-
   const [onPresent] = useModal(<CustomFileViewer
     files={currentFiles}
   />);
@@ -103,6 +103,7 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(setImageViewAction({ show: false }));
+    dispatch(resetCache())
 		dispatch(setFileViewAction({ file: undefined }));
   }, [])
 
