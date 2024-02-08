@@ -9,8 +9,8 @@ export const Navbar = () => (
     whileInView="show"
     className="p-8 relative z-10"
   >
-    <div className="relative w-full flex justify-between">
-      <p className="text-2xl font-semibold text-white flex items-center gap-2 font-[outfit]">
+    <div className="relative w-full flex justify-between items-start">
+      <p className="text-2xl font-semibold text-white flex items-center font-[outfit]">
         {" "}
         hello.app
         <img
@@ -18,6 +18,7 @@ export const Navbar = () => (
           width="48px"
           height="48px"
           alt="hello beta"
+          className="ml-3"
         />
       </p>
       <a href="/space/login">

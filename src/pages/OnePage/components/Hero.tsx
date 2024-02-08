@@ -99,7 +99,7 @@ export const Hero = () => {
         />
       </div>
       <section className="relative flex flex-col justify-start mt-8 items-center mx-8 md:mx-0">
-        <div className="max-w-3xl flex flex-col md:gap-10 gap-5 justify-center text-center mb-8">
+        <div className="max-w-3xl flex flex-col md:gap-10 gap-5 justify-center text-center mb-8 one-page-btn">
           <h1 className="font-extrabold tracking-tight text-white md:text-6xl text-4xl text-center antialiased">
             dream with us{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500/80 to-sky-500/80">
@@ -122,14 +122,8 @@ export const Hero = () => {
               alt="Upload Box"
               className="w-[280px] h-[260px] rounded-[2rem]"
             />
-            <div className="absolute w-[272px] h-[260px] inset-0 rainbow-border opacity-0 group-hover:opacity-100 transform group-hover:scale-90"></div>{" "}
-            {/* <input
-              type="file"
-              multiple
-              accept="image/jpeg, image/png, image/gif, image/webp, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/msword, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/plain, application/zip"
-              className="absolute inset-0 cursor-pointer translate-z-10 w-full opacity-0"
-              aria-label="Upload Thumbnail"
-            /> */}
+            <div className="absolute w-[240px] h-[240px] inset-0 rainbow-border 
+            opacity-0 group-hover:opacity-100 transform group-hover:scale-90"></div>{" "}
           </a>
           </div>
         </div>
@@ -147,7 +141,7 @@ export const Hero = () => {
         </div>
 
         {showModal && (
-          <div className="fixed z-50 inset-0 overflow-y-auto">
+          <div className="inset-0 overflow-y-auto">
             <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
               <div
                 className="fixed inset-0 transition-opacity"
