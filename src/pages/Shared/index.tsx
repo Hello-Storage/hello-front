@@ -22,6 +22,7 @@ import UploadShareModal from "./Components/UploadShareModal";
 import Imageview from "components/ImageView/Imageview";
 import { Theme } from "state/user/reducer";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
+import Pagination from "components/Pagination";
 
 const Shared = () => {
 	const [loaded, setloaded] = useState(false);
@@ -75,7 +76,7 @@ const Shared = () => {
 
 	const [sharedByMe, setSharedByMe] = useState<FileType[]>([]);
 
-	const [sharedWithMe, setSharedwithMe] = useState<FileType[]>([]);
+	const [sharedWithMe, setSharedWithMe] = useState<FileType[]>([]);
 
 	const [loading, setLoading] = useState(false);
 
@@ -181,7 +182,7 @@ const Shared = () => {
 		}
 
 		setSharedByMe(decryptedFilesSharedByMe || []);
-		setSharedwithMe(decryptedFilesSharedWithMe || []);
+		setSharedWithMe(decryptedFilesSharedWithMe || []);
 
 		if (!decryptedFilesSharedByMe || !decryptedFilesSharedWithMe) {
 			toast.error("Failed to decrypt content");
@@ -242,7 +243,7 @@ const Shared = () => {
 		}
 
 		setSharedByMe(currentSharedFiles);
-		setSharedwithMe(currentReceivedFiles);
+		setSharedWithMe(currentReceivedFiles);
 	}
 
 	useEffect(() => {
@@ -313,46 +314,19 @@ const Shared = () => {
 						identifier={1}
 						setloaded={setloaded}
 					/>
+					{/*
+					<Pagination
+						totalItems={totalSharedItems}
+						startIndex={startSharedIndex}
+						endIndex={endSharedIndex}
+						currentPage={currentSharedPage}
+						totalPages={totalSharedPages}
+						itemsPerPage={itemsPerPage}
+						setCurrentPage={setCurrentSharedPage}
+					/>
+			*/}
 				</div>
-				{ /*
-				<div className="flex-shrink-0 mb-[50px] sm:mb-0">
-					<div className={"flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200"
-						+ (theme === Theme.DARK ? " dark-theme " : " ")}>
-						<div className="text-xs">
-							Showing {totalSharedItems === 0 ? startSharedIndex : startSharedIndex + 1} to{" "}
-							{Math.min(endSharedIndex, totalSharedItems)} of {totalSharedItems} results
-						</div>
-						<div className="flex items-center space-x-2">
-							<button
-								className={`p-2 rounded flex items-center gap-2 ${currentSharedPage === 1
-									? "cursor-not-allowed opacity-50"
-									: "hover:bg-gray-200"
-									}`}
-								onClick={() =>
-									setCurrentSharedPage((prevPage) => Math.max(prevPage - 1, 1))
-								}
-								disabled={currentSharedPage === 1}
-							>
-								<HiChevronLeft className="w-5 h-5" />
-								<span className="hidden md:inline">Prev</span>
-							</button>
-							<button
-								className={`p-2 rounded flex items-center gap-2 ${totalSharedPages === 0 || currentSharedPage === totalSharedPages
-									? "cursor-not-allowed opacity-50"
-									: "hover:bg-gray-200"
-									}`}
-								onClick={() =>
-									setCurrentSharedPage((prevPage) => Math.min(prevPage + 1, totalSharedPages))
-								}
-								disabled={totalSharedPages === 0 || currentSharedPage === totalSharedPages}
-							>
-								<span className="hidden md:inline">Next</span>{" "}
-								<HiChevronRight className="w-5 h-5" />
-							</button>
-						</div>
-					</div>
-				</div>
-*/}
+
 				<span className="w-[2%]"></span>
 				<div className="w-[99%] share-content">
 					<Content
@@ -384,46 +358,19 @@ const Shared = () => {
 						identifier={3}
 						setloaded={setloaded}
 					/>
+					{/*
+					<Pagination
+						totalItems={totalSharedItems}
+						startIndex={startSharedIndex}
+						endIndex={endSharedIndex}
+						currentPage={currentSharedPage}
+						totalPages={totalSharedPages}
+						itemsPerPage={itemsPerPage}
+						setCurrentPage={setCurrentSharedPage}
+					/>
+			*/}
+
 				</div>
-				{ /*
-				<div className="flex-shrink-0 mb-[50px] sm:mb-0">
-					<div className={"flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200"
-						+ (theme === Theme.DARK ? " dark-theme " : " ")}>
-						<div className="text-xs">
-							Showing {totalSharedItems === 0 ? startSharedIndex : startSharedIndex + 1} to{" "}
-							{Math.min(endSharedIndex, totalSharedItems)} of {totalSharedItems} results
-						</div>
-						<div className="flex items-center space-x-2">
-							<button
-								className={`p-2 rounded flex items-center gap-2 ${currentSharedPage === 1
-									? "cursor-not-allowed opacity-50"
-									: "hover:bg-gray-200"
-									}`}
-								onClick={() =>
-									setCurrentSharedPage((prevPage) => Math.max(prevPage - 1, 1))
-								}
-								disabled={currentSharedPage === 1}
-							>
-								<HiChevronLeft className="w-5 h-5" />
-								<span className="hidden md:inline">Prev</span>
-							</button>
-							<button
-								className={`p-2 rounded flex items-center gap-2 ${totalSharedPages === 0 || currentSharedPage === totalSharedPages
-									? "cursor-not-allowed opacity-50"
-									: "hover:bg-gray-200"
-									}`}
-								onClick={() =>
-									setCurrentSharedPage((prevPage) => Math.min(prevPage + 1, totalSharedPages))
-								}
-								disabled={totalSharedPages === 0 || currentSharedPage === totalSharedPages}
-							>
-								<span className="hidden md:inline">Next</span>{" "}
-								<HiChevronRight className="w-5 h-5" />
-							</button>
-						</div>
-					</div>
-				</div>
-							*/}
 
 				<div>
 					<Content
@@ -438,46 +385,18 @@ const Shared = () => {
 						identifier={4}
 						setloaded={setloaded}
 					/>
+					{/*
+					<Pagination
+						totalItems={totalReceivedItems}
+						startIndex={startReceivedIndex}
+						endIndex={endReceivedIndex}
+						currentPage={currentReceivedPage}
+						totalPages={totalReceivedPages}
+						itemsPerPage={itemsPerPage}
+						setCurrentPage={setCurrentReceivedPage}
+					/>
+		*/}
 				</div>
-				{/*
-				<div className="flex-shrink-0 mb-[50px] sm:mb-0">
-					<div className={"flex items-center justify-between py-2 mt-3 text-sm bg-white border-t border-gray-200"
-						+ (theme === Theme.DARK ? " dark-theme " : " ")}>
-						<div className="text-xs">
-							Showing {totalReceivedItems === 0 ? startReceivedIndex : startReceivedIndex + 1} to{" "}
-							{Math.min(endReceivedIndex, totalReceivedItems)} of {totalReceivedItems} results
-						</div>
-						<div className="flex items-center space-x-2">
-							<button
-								className={`p-2 rounded flex items-center gap-2 ${currentReceivedPage === 1
-									? "cursor-not-allowed opacity-50"
-									: "hover:bg-gray-200"
-									}`}
-								onClick={() =>
-									setCurrentReceivedPage((prevPage) => Math.max(prevPage - 1, 1))
-								}
-								disabled={currentReceivedPage === 1}
-							>
-								<HiChevronLeft className="w-5 h-5" />
-								<span className="hidden md:inline">Prev</span>
-							</button>
-							<button
-								className={`p-2 rounded flex items-center gap-2 ${totalReceivedPages === 0 || currentReceivedPage === totalReceivedPages
-									? "cursor-not-allowed opacity-50"
-									: "hover:bg-gray-200"
-									}`}
-								onClick={() =>
-									setCurrentReceivedPage((prevPage) => Math.min(prevPage + 1, totalReceivedPages))
-								}
-								disabled={totalReceivedPages === 0 || currentReceivedPage === totalReceivedPages}
-							>
-								<span className="hidden md:inline">Next</span>{" "}
-								<HiChevronRight className="w-5 h-5" />
-							</button>
-						</div>
-					</div>
-				</div>
-							*/}
 			</div>
 		</section>
 

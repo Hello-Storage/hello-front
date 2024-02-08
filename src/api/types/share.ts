@@ -22,14 +22,37 @@ interface PublicFile {
     deleted_at?: Date;
 }
 
+interface PublicFileUserShared {
+    id: number;
+    cid: string;
+    cid_original_decrypted: string;
+    file_uid: string;
+    mime_type: string;
+    name: string;
+    share_hash: string;
+    size: number;
+}
+
 interface ShareState {
     id: number;
     //File: FileDB;
+    file_uid: string;
     public_file: PublicFile;
     created_at: Date;
     updated_at: Date;
     deleted_at?: Date;
 }
+
+interface ShareStateUserShared {
+    id: number;
+    //File: FileDB;
+    file_uid: string;
+    public_files_user_shared: PublicFileUserShared;
+    created_at: Date;
+    updated_at: Date;
+    deleted_at?: Date;
+}
+
 
 interface User {
 	email: string;
