@@ -99,7 +99,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 
 				if (file.encryption_status === EncryptionStatus.Encrypted) {
 					const originalCid = file.cid_original_encrypted;
-					binaryData = await blobToArrayBuffer(binaryData);
+					binaryData = await blobToArrayBuffer(binaryData).catch((error) => {
+						console.error("Error transforming blob to array buffer:", error);
+						toast.error("Error transforming blob to array buffer");
+					});
 					binaryData = await decryptFileBuffer(
 						binaryData,
 						originalCid,
@@ -114,8 +117,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 							);
 						}
 					).catch((err) => {
-						console.error("Error downloading file:", err);
-						toast.error("Error downloading file");
+						console.error("Error decrypting file buffer:", err);
+						toast.error("Error decrypting file buffer");
 					});
 
 					dispatch(
@@ -125,9 +128,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 						})
 					);
 				}
+				console.log(file)
 
-				if (file.file_share_state && file.file_share_state.id !== 0) {
-					const originalCid = file.file_share_state.public_file.cid_original_decrypted;
+				if (file.file_share_states_user_shared && file.file_share_states_user_shared.id !== 0 && file.file_share_states_user_shared.public_files_user_shared.id !== 0) {
+					const originalCid = file.file_share_states_user_shared.public_files_user_shared.cid_original_decrypted;
 					if (originalCid != "") {
 						binaryData = await blobToArrayBuffer(binaryData);
 						binaryData = await decryptFileBuffer(
@@ -144,7 +148,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 								);
 							}
 						).catch(() => {
-							toast.error("Error downloading file");
+							toast.error("Error decrypting file");
 						});
 
 						dispatch(
@@ -154,7 +158,11 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 							})
 						);
 					} else {
-						binaryData = await blobToArrayBuffer(binaryData);
+						binaryData = await blobToArrayBuffer(binaryData).catch((error) => {
+							console.error("Error transforming blob to array buffer:", error);
+							toast.error("Error transforming blob to array buffer");
+
+						})
 					}
 
 				}
@@ -172,7 +180,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 				window.URL.revokeObjectURL(url);
 			})
 			.catch(() => {
-				toast.error("Error downloading file");
+				toast.error("Error downloading file from network");
 			});
 	};
 
