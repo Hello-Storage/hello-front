@@ -116,7 +116,7 @@ export const Hero = () => {
           onDrop={handleFileDrop}
         >
           <div className="relative translate-z-10">
-          <a href="https://hello.app/">
+          <a href="https://hello.app/space/login">
             <img
               src="https://media.publit.io/file/3Dbox.svg"
               alt="Upload Box"
