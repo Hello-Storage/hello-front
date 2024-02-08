@@ -60,14 +60,6 @@ export const Footer = () => (
         </a>
       </div>
       <div className="flex flex-col mt-1 md:mt-1">
-        <a
-          href="https://docs.hello.app/"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ fontSize: "15px" }}
-        >
-          More information here
-        </a>
         © 2024 hello.app
       </div>
     </div>
