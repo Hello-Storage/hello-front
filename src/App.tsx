@@ -82,15 +82,15 @@ function App() {
           <Route path="*" element={<NotFound></NotFound>} />
           <Route
             path="/"
-            element={localStorage.getItem("access_token") ? (
-                  <Navigate to="/space/my-storage" replace />
-                ) : (
-                  <Navigate to="/one-page" replace />
-                )
+            element={
+              localStorage.getItem("access_token") ? (
+                <Navigate to="/space/my-storage" replace />
+              ) : (
+                <OnePage />
+              )
             }
           />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/one-page" element={<OnePage />} />
           <Route path="/stats" element={
             <Statistics />
           } />
