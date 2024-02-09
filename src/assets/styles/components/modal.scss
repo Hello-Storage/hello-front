@@ -8,8 +8,74 @@
 	background: #32323280;
 	z-index: 90;
 }
-.action-btns-file-viewer {
+
+.action-btns-file-viewer button {
 	z-index: 101 !important;
+	background-color: #32323280;
+
+	&:first-child {
+		border-radius: 15px 0px 0px 15px;
+		-webkit-border-radius: 15px 0px 0px 15px;
+		-moz-border-radius: 15px 0px 0px 15px;
+		-ms-border-radius: 15px 0px 0px 15px;
+		-o-border-radius: 15px 0px 0px 15px;
+	}
+
+	&:last-child {
+		border-radius: 0px 15px 15px 0px;
+		-webkit-border-radius: 0px 15px 15px 0px;
+		-moz-border-radius: 0px 15px 15px 0px;
+		-ms-border-radius: 0px 15px 15px 0px;
+		-o-border-radius: 0px 15px 15px 0px;
+	}
+
+	&:hover {
+		background-color: #323232;
+	}
+}
+
+.arroy-left-fv,
+.arroy-right-fv {
+	transition: all 0.3s ease;
+	-webkit-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+
+	background-color: #32323280;
+	border-radius: 50%;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	-ms-border-radius: 50%;
+	-o-border-radius: 50%;
+	position: absolute;
+	top: calc(50% - 25px);
+	height: 50px;
+	width: 50px;
+	z-index: 110;
+
+	& svg {
+		height: 100%;
+		width: 100%;
+		color: white;
+	}
+
+	&:hover {
+		background-color: #323232;
+		transform: scale(1.1);
+		-webkit-transform: scale(1.1);
+		-moz-transform: scale(1.1);
+		-ms-transform: scale(1.1);
+		-o-transform: scale(1.1);
+	}
+}
+
+.arroy-left-fv {
+	left: 20px;
+}
+
+.arroy-right-fv {
+	right: 20px;
 }
 
 .modal-wrapper {

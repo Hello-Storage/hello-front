@@ -21,6 +21,7 @@ import { Thumbnail } from "./components/Thumbnail";
 import { enterFullscreen, exitFullscreen, handleFullScreen, handleThumbnail } from "./utils/functions";
 import { textFileExtensions } from "./utils/consts";
 import { Theme } from "state/user/reducer";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 interface CustomFileViewerProps {
     files: File[];
@@ -183,6 +184,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
         }
     };
 
+    // Update download status
     const onDownloadProgress = (
         progressEvent: AxiosProgressEvent,
         file: File
@@ -201,6 +203,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
         );
     };
 
+    // Download the file
     function handleDownload(url: string, name: string) {
         if (!loading) {
             if (!url) {
@@ -217,19 +220,28 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
         }
     }
 
+    // Zoom in the file
     function handleZoomIn() {
-        if (scale < 5) {
-            setScale(scale + 0.2);
-        }
+        setScale((scale) => {
+            if (scale < 1.4) {
+                return scale + 0.1;
+            }
+            return scale;
+        });
     }
 
+    // Zoom out the file
     function handleZoomOut() {
-        if (scale >= 1) {
-            setScale(scale - 0.2);
-        }
+        setScale((scale) => {
+            if (scale >= 0.5) {
+                return scale - 0.1;
+            }
+            return scale;
+        });
     }
 
 
+    // Add event handler for escape key to close the viewer
     const handleKeyDown = (event: any) => {
         if (event.keyCode === 27) {
             dispatch(setImageViewAction({ show: false }));
@@ -237,6 +249,8 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
             onDismiss();
         }
     };
+
+    // Add event listener for escape key to close the viewer
     useEffect(() => {
         dispatch(setImageViewAction({ show: false }));
         document.addEventListener('keydown', handleKeyDown);
@@ -246,6 +260,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
         };
     }, [])
 
+    // When the selected file changes, download and process it
     useEffect(() => {
         if (selectedShowFile) {
             setActualItem(undefined);
@@ -260,6 +275,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
         }
     }, [selectedShowFile]);
 
+    //change the size of the text files
     useEffect(() => {
         if (textFileExtensions.includes(fileExtension) && actualItem) {
             const textFileViewer = document.getElementById("text-file-viewer");
@@ -273,6 +289,46 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
         }
     }, [actualItem, scale]);
 
+    // Add event listener for mouse wheel to zoom in and out
+    //TODO: using react-gesture-responder make it work on mobile
+    useEffect(() => {
+        // Handle zoom in and out with mouse wheel
+        const handleScroll = (event: any) => {
+            if (event.deltaY < 0) {
+                handleZoomIn();
+            } else {
+                handleZoomOut();
+            }
+        };
+
+        const scrollableElement = document.getElementById('image-preview-content');
+
+        if (scrollableElement) {
+            scrollableElement.addEventListener('wheel', handleScroll);
+        }
+
+        return () => {
+            if (scrollableElement) {
+                scrollableElement.removeEventListener('wheel', handleScroll);
+            }
+        };
+    }, []); 
+
+    function handleNext(){
+        if (selectedShowFile) {
+            files.indexOf(selectedShowFile) < files.length - 1 ? 
+                dispatch(setFileViewAction({ file: files[files.indexOf(selectedShowFile) + 1] })) 
+            :   dispatch(setFileViewAction({ file: files[0] }))
+        }
+    }
+
+    function handlePrevious(){
+        if (selectedShowFile) {
+            files.indexOf(selectedShowFile) > 0 ? 
+                dispatch(setFileViewAction({ file: files[files.indexOf(selectedShowFile) - 1] })) 
+            :   dispatch(setFileViewAction({ file: files[files.length - 1] }))
+        }
+    }
 
     const { theme } = useAppSelector((state) => state.user);
 
@@ -282,37 +338,40 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                 <section className="flex flex-row justify-end items-center w-full h-[5%] mt-[1%] m-0 action-btns-file-viewer
                 ">
                     <button
-                        className="modal hover:scale-125 transition-all p-2 bg-[#32323280]"
+                        className="modal hover:scale-125 transition-all p-2"
                         onClick={() => { handleDownload(actualItem?.src as string, selectedShowFile?.name as string) }}
                     >
                         <img src={downloadicon} className="h-[29px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-[10px] bg-[#32323280]"
+                        className="modal hover:scale-125 transition-all p-[10px]"
                         onClick={handleZoomIn}
                     >
                         <img src={zoominicon} className="h-[25px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-[10px] bg-[#32323280]"
+                        className="modal hover:scale-125 transition-all p-[10px]"
                         onClick={handleZoomOut}
                     >
                         <img src={zoomouticon} className="h-[25px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-[10px] bg-[#32323280]"
-                        onClick={handleFullScreen}
+                        className="modal hover:scale-125 transition-all p-[10px]"
+                        onClick={() => {
+                            handleFullScreen()
+                            setScale(1)
+                        }}
                     >
                         <img src={fullscreenicon1} id="fulls-icon" className="h-[25px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-[12px] bg-[#32323280]"
+                        className="modal hover:scale-125 transition-all p-[12px]"
                         onClick={handleThumbnail}
                     >
                         <img src={thumbnailicon} className="h-[21px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-[10px] mr-4 bg-[#32323280] z-[101]"
+                        className="modal hover:scale-125 transition-all p-[10px] mr-4"
                         onClick={() => {
                             dispatch(setImageViewAction({ show: false }));
                             dispatch(setFileViewAction({ file: undefined }));
@@ -323,13 +382,18 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                     </button>
                 </section>
                 <figure className="flex w-full image-preview-content p-5 justify-center items-center m-0" id="image-preview-content">
+                    <button className="arroy-left-fv"
+                        onClick={handlePrevious}
+                    >
+                        <MdKeyboardArrowLeft />
+                    </button>
                     {actualItem ?
                         actualItem.type === "image" ?
-                            <img src={actualItem.src} alt={actualItem.alt}
+                            <img src={actualItem.src} alt={actualItem.alt} id="image-file-viewer"
                                 style={{
                                     transform: `scale(${scale})`
                                 }}
-                                className="max-h-[93%] w-full modal object-contain" />
+                                className="max-h-[93%] w-full modal object-contain transition-all" />
                             :
                             actualItem.type === "video" ?
                                 <video controls className="max-h-[93%] w-[85%] modal object-contain rounded-xl" >
@@ -365,6 +429,11 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                         :
                         <Spinner4 />
                     }
+                    <button className="arroy-right-fv"
+                        onClick={handleNext}
+                    >
+                        <MdKeyboardArrowRight />
+                    </button>
                 </figure>
                 <section className="thumbnails flex items-center justify-center m-0" id="thumbnails" >
                     <div className="flex flex-row gap-2 px-5 custom-scrollbar items-center h-full m-0 overflow-auto modal">

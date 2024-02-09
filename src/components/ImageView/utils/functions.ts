@@ -32,7 +32,6 @@ export function handleThumbnail() {
     document.getElementById("image-preview-content")?.classList.toggle("hidden-thumbnails");
 }
 export function handleFullScreen() {
-    console.log(document.fullscreenElement);
     if (document.fullscreenElement) {
         exitFullscreen();
         document.getElementById("fulls-icon")?.setAttribute("src", fullscreenicon1);
