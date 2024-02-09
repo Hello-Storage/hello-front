@@ -14,12 +14,11 @@ import unknownFileType from "../../assets/images/file-viewer-resources/file-unkn
 import closeicon from "../../assets/images/file-viewer-resources/close-btn.svg";
 import downloadicon from "../../assets/images/file-viewer-resources/download-btn.svg";
 import fullscreenicon1 from "../../assets/images/file-viewer-resources/fullscreen-1.svg";
-import fullscreenicon2 from "../../assets/images/file-viewer-resources/fullscreen-2.svg";
 import thumbnailicon from "../../assets/images/file-viewer-resources/thumbnail-btn.svg";
 import zoominicon from "../../assets/images/file-viewer-resources/zoom-in.svg";
 import zoomouticon from "../../assets/images/file-viewer-resources/zoom-out.svg";
 import { Thumbnail } from "./components/Thumbnail";
-import { enterFullscreen, exitFullscreen } from "./utils/functions";
+import { enterFullscreen, exitFullscreen, handleFullScreen, handleThumbnail } from "./utils/functions";
 import { textFileExtensions } from "./utils/consts";
 import { Theme } from "state/user/reducer";
 
@@ -35,6 +34,8 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
     const dispatch = useDispatch();
     //state for loading
     const [loading, setLoading] = useState(false);
+    //state for scale
+    const [scale, setScale] = useState(1);
 
     const downloadAndProcessFile = async (
         file: File
@@ -217,37 +218,32 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
     }
 
     function handleZoomIn() {
-        console.log("zoom in");
-    }
-
-    function handleZoomOut() {
-        console.log("zoom in");
-    }
-
-    function handleFullScreen() {
-        console.log(document.fullscreenElement);
-        if (document.fullscreenElement) {
-            exitFullscreen();
-            document.getElementById("fulls-icon")?.setAttribute("src", fullscreenicon1);
-            if (document.getElementById("thumbnails")?.classList.contains("hidden-thumbnails")) {
-                handleThumbnail();
-            }
-        } else {
-            document.getElementById("fulls-icon")?.setAttribute("src", fullscreenicon2);
-            enterFullscreen(document.documentElement);
-            if (!document.getElementById("thumbnails")?.classList.contains("hidden-thumbnails")) {
-                handleThumbnail();
-            }
+        if (scale < 5) {
+            setScale(scale + 0.2);
         }
     }
 
-    function handleThumbnail() {
-        document.getElementById("thumbnails")?.classList.toggle("hidden-thumbnails");
-        document.getElementById("image-preview-content")?.classList.toggle("hidden-thumbnails");
+    function handleZoomOut() {
+        if (scale >= 1) {
+            setScale(scale - 0.2);
+        }
     }
 
+
+    const handleKeyDown = (event: any) => {
+        if (event.keyCode === 27) {
+            dispatch(setImageViewAction({ show: false }));
+            dispatch(setFileViewAction({ file: undefined }));
+            onDismiss();
+        }
+    };
     useEffect(() => {
         dispatch(setImageViewAction({ show: false }));
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
     }, [])
 
     useEffect(() => {
@@ -264,44 +260,59 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
         }
     }, [selectedShowFile]);
 
+    useEffect(() => {
+        if (textFileExtensions.includes(fileExtension) && actualItem) {
+            const textFileViewer = document.getElementById("text-file-viewer");
+            let x = setInterval(() => {
+                if (textFileViewer) {
+                    const objectDocument = (textFileViewer as any).contentDocument || (textFileViewer as any).contentWindow.document
+                    objectDocument.body.style.fontSize = scale + "rem";
+                    clearInterval(x);
+                }
+            }, 100);
+        }
+    }, [actualItem, scale]);
+
+
     const { theme } = useAppSelector((state) => state.user);
 
     return (
         <>
             <div className="flex flex-col w-screen h-screen m-0">
-                <section className="flex flex-row justify-end items-center w-full h-[5%] mt-[1%] m-0">
+                <section className="flex flex-row justify-end items-center w-full h-[5%] mt-[1%] m-0 action-btns-file-viewer
+                ">
                     <button
-                        className="modal hover:scale-125 transition-all p-2"
+                        className="modal hover:scale-125 transition-all p-2 bg-[#32323280]"
                         onClick={() => { handleDownload(actualItem?.src as string, selectedShowFile?.name as string) }}
                     >
                         <img src={downloadicon} className="h-[29px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-3"
+                        className="modal hover:scale-125 transition-all p-[10px] bg-[#32323280]"
                         onClick={handleZoomIn}
                     >
                         <img src={zoominicon} className="h-[25px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-3"
+                        className="modal hover:scale-125 transition-all p-[10px] bg-[#32323280]"
                         onClick={handleZoomOut}
                     >
                         <img src={zoomouticon} className="h-[25px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-3"
+                        className="modal hover:scale-125 transition-all p-[10px] bg-[#32323280]"
                         onClick={handleFullScreen}
                     >
                         <img src={fullscreenicon1} id="fulls-icon" className="h-[25px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-4"
+                        className="modal hover:scale-125 transition-all p-[12px] bg-[#32323280]"
                         onClick={handleThumbnail}
                     >
                         <img src={thumbnailicon} className="h-[21px]"></img>
                     </button>
                     <button
-                        className="modal hover:scale-125 transition-all p-3 mr-4"
+                        className="modal hover:scale-125 transition-all p-[10px] mr-4 bg-[#32323280] z-[101]"
                         onClick={() => {
                             dispatch(setImageViewAction({ show: false }));
                             dispatch(setFileViewAction({ file: undefined }));
@@ -314,7 +325,11 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                 <figure className="flex w-full image-preview-content p-5 justify-center items-center m-0" id="image-preview-content">
                     {actualItem ?
                         actualItem.type === "image" ?
-                            <img src={actualItem.src} alt={actualItem.alt} className="max-h-[93%] w-full modal object-contain" />
+                            <img src={actualItem.src} alt={actualItem.alt}
+                                style={{
+                                    transform: `scale(${scale})`
+                                }}
+                                className="max-h-[93%] w-full modal object-contain" />
                             :
                             actualItem.type === "video" ?
                                 <video controls className="max-h-[93%] w-[85%] modal object-contain rounded-xl" >
@@ -332,6 +347,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                                         <>
                                             {textFileExtensions.includes(fileExtension) ?
                                                 <object data={actualItem.src} type="text/plain"
+                                                    id="text-file-viewer"
                                                     className="h-full w-[85%] modal object-contain rounded-xl bg-white text-black"
                                                 >
                                                     <p>Error loading file</p>
