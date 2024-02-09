@@ -20,10 +20,6 @@ import ShareModal from "./Components/ShareModal";
 import UploadShareModal from "./Components/UploadShareModal";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
-import Imageview from "components/ImageView/Imageview";
-import { Theme } from "state/user/reducer";
-import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
-import Pagination from "components/Pagination";
 
 const Shared = () => {
 	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
