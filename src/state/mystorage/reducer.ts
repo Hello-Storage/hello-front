@@ -114,6 +114,10 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
       ...state,
       files: [],
       folders: [],
+      sharedFiles: {
+        sharedWithMe: [],
+        sharedByMe: [],
+      },
     }))
     .addCase(setFileViewAction, (state, { payload }) => ({
       ...state,

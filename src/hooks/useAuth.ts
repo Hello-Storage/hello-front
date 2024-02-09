@@ -16,31 +16,33 @@ import * as Web3 from "web3";
 
 const useAuth = () => {
   const load = useCallback(async () => {
-		try {
-			state.dispatch(loadingUser());
-			if (localStorage.getItem("access_token")) {
-				const loadResp = await Api.get<LoadUserResponse>("/load");
+    try {
+      state.dispatch(loadingUser());
+      if (localStorage.getItem("access_token")) {
+        const loadResp = await Api.get<LoadUserResponse>("/load");
 
-				const privateKey = loadResp.data.walletPrivateKey;
+        const privateKey = loadResp.data.walletPrivateKey;
+        const accountType = localStorage.getItem("account_type") as AccountType;
+        const sessionPersonalSignature = sessionStorage.getItem("personal_signature");
 
-				if (privateKey) {
-					//sign message with private key
+        if (!sessionPersonalSignature) {
+          //sign message with private key
 
-					const signature = await signPersonalSignature(
-						loadResp.data.walletAddress,
-						localStorage.getItem("account_type") as AccountType,
-						privateKey
-					);
-					setPersonalSignature(signature);
-				}
+          const signature = await signPersonalSignature(
+            loadResp.data.walletAddress,
+            accountType,
+            privateKey
+          );
+          setPersonalSignature(signature);
+        }
 
-				state.dispatch(loadUser(loadResp.data));
-			} else {
-				throw Error("User not found");
-			}
-		} catch (error) {
-			state.dispatch(loadUserFail());
-		}
+        state.dispatch(loadUser(loadResp.data));
+      } else {
+        throw Error("User not found");
+      }
+    } catch (error) {
+      state.dispatch(loadUserFail());
+    }
   }, []);
 
   const login = useCallback(async (wallet_address: string) => {
@@ -50,12 +52,14 @@ const useAuth = () => {
     localStorage.removeItem("account_type")
     setAccountType(undefined);
     sessionStorage.removeItem("personal_signature");
+    console.log("removed a")
     setPersonalSignature(undefined);
 
     const nonceResp = await Api.post<string>("/nonce", {
       wallet_address,
       referral,
     });
+
 
     const message = `Greetings from hello\nSign this message to log into hello\nnonce: ${nonceResp.data}`;
 
@@ -68,14 +72,16 @@ const useAuth = () => {
       signature,
       referral,
     });
+
     setAuthToken(loginResp.data.access_token);
     setAccountType("provider")
 
     await load();
+
   }, []);
 
   // otp (one-time-passcode login)
-  const startOTP = async (email: string ) => {
+  const startOTP = async (email: string) => {
     const referrer_code = new URLSearchParams(window.location.search).get("ref");
     try {
       const account = Web3.eth.accounts.create();
@@ -109,16 +115,16 @@ const useAuth = () => {
       setAuthToken(undefined);
     } else {
       state.dispatch(logoutUser());
-  
+
       setPersonalSignature(undefined);
       setAccountType(undefined);
       state.dispatch(removeContent());
-  
+
       // disconnect when you sign with wallet
       disconnect();
     }
   }, []);
-  
+
 
   return {
     login,
