@@ -6,12 +6,13 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Content from "pages/MyStorage/components/Content";
 import { File as FileType } from "api";
-import Imageview from "components/ImageView/Imageview";
 import { useAppDispatch, useAppSelector } from "state";
 import { refreshAction } from "state/mystorage/actions";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import ShareModal from "pages/Shared/Components/ShareModal";
 import { Theme } from "state/user/reducer";
+import { useModal } from "components/Modal";
+import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 
 export default function Api() {
     const [apiKey, setApiKey] = useState<string | null>(null);
@@ -75,6 +76,16 @@ export default function Api() {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refresh, apiKey])
+
+    const [onPresent] = useModal(<CustomFileViewer
+        files={currentFiles}
+    />);
+
+    useEffect(() => {
+        if (showPreview && currentFiles.length > 0 && !showShareModal) {
+            onPresent();
+        }
+    }, [showPreview]);
 
     const { theme } = useAppSelector((state) => state.user);
 

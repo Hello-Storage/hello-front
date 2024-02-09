@@ -6,13 +6,12 @@ import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { File } from "api";
-import { useDispatch } from "react-redux";
-import "lightbox.js-react/dist/index.css";
 
 import { useAppSelector } from "state";
 import useFetchGroupHashes from "./Utils/useGetHashesFromGroup";
-import Imageview from "components/ImageView/Imageview";
 import Content from "pages/MyStorage/components/Content";
+import { useModal } from "components/Modal";
+import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 dayjs.extend(relativeTime);
 
 const ShareSharedWithMeGroupdWithMe = () => {
@@ -26,6 +25,16 @@ const ShareSharedWithMeGroupdWithMe = () => {
 	const [metadataList, setMetadataList] = useState<File[]>([]);
 
 	const { showPreview } = useAppSelector((state) => state.mystorage);
+
+	const [onPresent] = useModal(<CustomFileViewer
+		files={metadataList}
+	/>);
+
+	useEffect(() => {
+		if (showPreview && metadataList.length > 0) {
+			onPresent();
+		}
+	}, [showPreview]);
 
 	useEffect(() => {
 		//get file metadata from the hash
@@ -73,12 +82,6 @@ const ShareSharedWithMeGroupdWithMe = () => {
 		<>
 			{(metadataList && metadataList.length > 0) && (
 				<section>
-					{/* <Imageview
-						isOpen={showPreview}
-						files={metadataList}
-						loaded={loaded}
-						setloaded={setloaded}
-					></Imageview> */}
 					<div className="w-full flex">
 						<div className="w-[99%] share-content">
 							<Content

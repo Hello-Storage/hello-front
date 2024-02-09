@@ -23,8 +23,6 @@ import {
 } from "state/mystorage/actions";
 import { File as FileType, Folder } from "api";
 
-// import styles
-import "lightbox.js-react/dist/index.css";
 import getAccountType from "api/getAccountType";
 import {
   handleEncryptedFiles,

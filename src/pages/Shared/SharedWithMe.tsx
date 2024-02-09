@@ -7,20 +7,23 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { File } from "api";
 import { useAppDispatch, useAppSelector } from "state";
-import Imageview from "components/ImageView/Imageview";
 import Content from "pages/MyStorage/components/Content";
 import { setFileViewAction, setImageViewAction } from "state/mystorage/actions";
+import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
+import { useModal } from "components/Modal";
 dayjs.extend(relativeTime);
 
 const SharedWithMe = (props: { shareType: string }) => {
   //get the hash from the url
   const { hash } = useParams();
-	const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
   const shareType = props.shareType;
   const [loading, setLoading] = useState(true);
   const [error, seterror] = useState<boolean>()
 
   const [metadata, setMetadata] = useState<File>();
+
+  const { showPreview } = useAppSelector((state) => state.mystorage);
 
   useEffect(() => {
     //get file metadata from the hash
@@ -59,17 +62,12 @@ const SharedWithMe = (props: { shareType: string }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-
-  const { showPreview } = useAppSelector(
-    (state) => state.mystorage
-  );
-
   useEffect(() => {
     if (metadata) {
       toast.info("Loading File");
       dispatch(setFileViewAction({ file: undefined }));
       dispatch(setImageViewAction({ show: false }));
-  
+
       dispatch(
         setFileViewAction({
           file: metadata,
@@ -82,18 +80,22 @@ const SharedWithMe = (props: { shareType: string }) => {
       );
     }
   }, [metadata])
-  
+
+
+  const [onPresent] = useModal(<CustomFileViewer
+    files={metadata ? [metadata] : []}
+  />);
+
+  useEffect(() => {
+    if (showPreview && (metadata ? [metadata] : []).length > 0) {
+      onPresent();
+    }
+  }, [showPreview]);
 
   return (
     <>
       {metadata && (
         <section>
-          {/* <Imageview
-            isOpen={showPreview}
-            files={[metadata]}
-            loaded={loaded}
-            setloaded={setloaded}
-          ></Imageview> */}
           <div className="w-full flex">
             <div className="w-[99%] share-content">
               <Content
