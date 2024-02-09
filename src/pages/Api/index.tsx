@@ -73,8 +73,6 @@ export default function Api() {
                 dispatch(refreshAction(false))
             })
         }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refresh, apiKey])
 
     const [onPresent] = useModal(<CustomFileViewer

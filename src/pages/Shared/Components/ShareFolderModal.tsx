@@ -1,5 +1,3 @@
-
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useDropdown } from "hooks";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "state";
@@ -113,7 +111,6 @@ export function ShareFolderModal() {
 		dispatch(setSelectedSharedFiles());
 		setreadyToshare(false);
 		clearInterval(interval.current)
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handleAddEmail = () => {
@@ -171,11 +168,11 @@ export function ShareFolderModal() {
 					user.email
 				)
 					.then((res) => {
-						let resp = res as AxiosResponse;
+						const resp = res as AxiosResponse;
 						if (resp.status === 200) {
 							toast.success("File shared successfully");
 						} else {
-							let err = res as AxiosError;
+							const err = res as AxiosError;
 							setShareError(err.message);
 							toast.error("Could not be shared to user: " + user.email);
 						}
@@ -194,7 +191,7 @@ export function ShareFolderModal() {
 	}, [readyToshare]);
 
 	const [loading, setLoading] = useState(true);
-	let { folderContent } = selectedShareFolder ? useGetFolderFiles(selectedShareFolder) : { folderContent: null };
+	const { folderContent } = useGetFolderFiles(selectedShareFolder);
 
 	useEffect(() => {
 		interval.current = setInterval(() => {
@@ -506,6 +503,6 @@ export function ShareFolderModal() {
 			)}
 		</>
 	);
-};
+}
 
 export default ShareFolderModal;

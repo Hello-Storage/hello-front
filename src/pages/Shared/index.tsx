@@ -122,7 +122,6 @@ const Shared = () => {
 	useEffect(() => {
 		fetchSharedContent()
 		dispatch(refreshAction(true))
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
@@ -132,7 +131,6 @@ const Shared = () => {
 				dispatch(refreshAction(false))
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sharedFiles]);
 
 	const [onPresent] = useModal(<CustomFileViewer
