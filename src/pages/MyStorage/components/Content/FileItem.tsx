@@ -42,10 +42,9 @@ interface FileItemProps {
 	actionsAllowed: boolean;
 	file: FileType;
 	view: "list" | "grid";
-	setloaded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllowed }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view, actionsAllowed }) => {
 	const dispatch = useAppDispatch();
 	const ref = useRef<HTMLDivElement>(null);
 	const [open, setOpen] = useState(false);
@@ -190,7 +189,6 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 		toast.info("Loading File");
 		dispatch(setFileViewAction({ file: undefined }));
 		dispatch(setImageViewAction({ show: false }));
-		setloaded(false);
 
 		dispatch(
 			setFileViewAction({

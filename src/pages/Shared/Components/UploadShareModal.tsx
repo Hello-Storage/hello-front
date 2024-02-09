@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import getAccountType from "api/getAccountType";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAuth, useDropdown, useFetchData } from "hooks";
@@ -448,10 +447,8 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	};
 
 	useEffect(() => {
-		//dispatch(setSelectedSharedFiles());
 		setProcesing(false);
 		setreadyToshare(false);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {

@@ -9,7 +9,6 @@ import {
 	setSelectedSharedFiles,
 	updateDecryptedSharedFilesAction
 } from "state/mystorage/actions";
-import "lightbox.js-react/dist/index.css";
 import { useAppSelector } from "state";
 import { File as FileType } from "api";
 import { useAuth, useFetchData } from "hooks";
@@ -19,13 +18,14 @@ import Content from "pages/MyStorage/components/Content";
 import { FaSquareShareNodes } from "react-icons/fa6";
 import ShareModal from "./Components/ShareModal";
 import UploadShareModal from "./Components/UploadShareModal";
+import { useModal } from "components/Modal";
+import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 import Imageview from "components/ImageView/Imageview";
 import { Theme } from "state/user/reducer";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import Pagination from "components/Pagination";
 
 const Shared = () => {
-	const [loaded, setloaded] = useState(false);
 	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
 	const dispatch = useDispatch();
 
@@ -193,7 +193,6 @@ const Shared = () => {
 	useEffect(() => {
 		fetchSharedContent()
 		dispatch(refreshAction(true))
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 
@@ -264,10 +263,19 @@ const Shared = () => {
 				dispatch(refreshAction(false))
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sharedFiles]);
 
-	const { theme } = useAppSelector((state) => state.user);
+	const [onPresent] = useModal(<CustomFileViewer
+		files={[...sharedByMe,
+		...sharedWithMe]}
+	/>);
+
+	useEffect(() => {
+		if (showPreview && [...sharedByMe,
+		...sharedWithMe].length > 0 && !showShareModal) {
+			onPresent();
+		}
+	}, [showPreview]);
 
 	return (
 		<section>
@@ -279,13 +287,6 @@ const Shared = () => {
 			)}
 			{showShareModal && <ShareModal />}
 
-			<Imageview
-				isOpen={showPreview}
-				files={[...sharedByMe,
-				...sharedWithMe]}
-				loaded={loaded}
-				setloaded={setloaded}
-			></Imageview>
 			<h3 className="my-2 text-xl">Shared files</h3>
 			<button
 				className="animated-bg-btn w-[230px] mb-2 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
@@ -312,7 +313,6 @@ const Shared = () => {
 						showFolders={true}
 						filesTitle="Shared"
 						identifier={1}
-						setloaded={setloaded}
 					/>
 					{/*
 					<Pagination
@@ -339,7 +339,6 @@ const Shared = () => {
 						showFolders={true}
 						filesTitle="Received"
 						identifier={2}
-						setloaded={setloaded}
 					/>
 				</div>
 
@@ -356,7 +355,6 @@ const Shared = () => {
 						showFolders={true}
 						filesTitle="Shared"
 						identifier={3}
-						setloaded={setloaded}
 					/>
 					{/*
 					<Pagination
@@ -383,7 +381,6 @@ const Shared = () => {
 						showFolders={true}
 						filesTitle="Received"
 						identifier={4}
-						setloaded={setloaded}
 					/>
 					{/*
 					<Pagination

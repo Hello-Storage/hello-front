@@ -1,41 +1,193 @@
 .modal-overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
 
-  background: #32323280;
-  z-index: 90;
+	background: #32323280;
+	z-index: 90;
+}
+
+.action-btns-file-viewer button {
+	z-index: 101 !important;
+	background-color: #32323280;
+
+	&:first-child {
+		border-radius: 15px 0px 0px 15px;
+		-webkit-border-radius: 15px 0px 0px 15px;
+		-moz-border-radius: 15px 0px 0px 15px;
+		-ms-border-radius: 15px 0px 0px 15px;
+		-o-border-radius: 15px 0px 0px 15px;
+	}
+
+	&:last-child {
+		border-radius: 0px 15px 15px 0px;
+		-webkit-border-radius: 0px 15px 15px 0px;
+		-moz-border-radius: 0px 15px 15px 0px;
+		-ms-border-radius: 0px 15px 15px 0px;
+		-o-border-radius: 0px 15px 15px 0px;
+	}
+
+	&:hover {
+		background-color: #323232;
+	}
+}
+
+.arroy-left-fv,
+.arroy-right-fv {
+	transition: all 0.3s ease;
+	-webkit-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+
+	background-color: #32323280;
+	border-radius: 50%;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	-ms-border-radius: 50%;
+	-o-border-radius: 50%;
+	position: absolute;
+	top: calc(50% - 25px);
+	height: 50px;
+	width: 50px;
+	z-index: 110;
+
+	& svg {
+		height: 100%;
+		width: 100%;
+		color: white;
+	}
+
+	&:hover {
+		background-color: #323232;
+		transform: scale(1.1);
+		-webkit-transform: scale(1.1);
+		-moz-transform: scale(1.1);
+		-ms-transform: scale(1.1);
+		-o-transform: scale(1.1);
+	}
+}
+
+.arroy-left-fv {
+	left: 20px;
+}
+
+.arroy-right-fv {
+	right: 20px;
 }
 
 .modal-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  outline: 0;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	outline: 0;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
-  .modal {
-    position: relative;
-    max-width: 500px;
-    z-index: 100;
-  }
+	.modal {
+		position: relative;
+		max-width: 500px;
+		z-index: 100;
+	}
 }
 
 .modal-content {
-  z-index: 110;
+	z-index: 110;
 }
 
+#slideshowAnim {
+	overflow: hidden;
+}
 
-#slideshowAnim{
-  overflow: hidden;
+.thumbnails {
+	min-width: 100%;
+	transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	-webkit-transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	-moz-transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	-ms-transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	-o-transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	height: 15%;
+	opacity: 1;
+	&.hidden-thumbnails {
+		height: 0%;
+		opacity: 0;
+		& div {
+			overflow: hidden;
+		}
+	}
+}
+
+.image-preview-content {
+	height: 78%;
+	transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	-webkit-transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	-moz-transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	-ms-transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	-o-transition: all 0.3s cubic-bezier(1, 0.43, 0.28, 0.56);
+	&.hidden-thumbnails {
+		height: 93%;
+	}
+
+	& * {
+		max-width: 100% !important;
+	}
+}
+
+.thumbnail {
+	display: flex;
+	overflow: hidden;
+	justify-content: center;
+	align-items: center;
+	min-width: 78px;
+	width: 78px;
+	height: 78px;
+	border-radius: 15px;
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	-ms-border-radius: 15px;
+	-o-border-radius: 15px;
+	border: 4px solid transparent;
+	transition: all 0.3s ease;
+	-webkit-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+	&:hover {
+		cursor: pointer;
+	}
+	&.selected {
+		border-width: 4px;
+		border-color: white;
+		&:hover {
+			border-color: gray;
+		}
+		& img {
+			height: 60px;
+			width: 60px;
+		}
+	}
+	& img {
+		min-height: 60px;
+		min-width: 60px;
+		height: 70px;
+		border-radius: 15px;
+		-webkit-border-radius: 15px;
+		-moz-border-radius: 15px;
+		-ms-border-radius: 15px;
+		-o-border-radius: 15px;
+		transition: all 0.2s ease;
+		-webkit-transition: all 0.2s ease;
+		-moz-transition: all 0.2s ease;
+		-ms-transition: all 0.2s ease;
+		-o-transition: all 0.2s ease;
+	}
 }
