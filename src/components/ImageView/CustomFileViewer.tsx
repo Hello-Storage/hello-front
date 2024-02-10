@@ -32,6 +32,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
     const [actualItem, setActualItem] = useState<PreviewImage>();
     const { selectedShowFile, cache } = useAppSelector((state) => state.mystorage);
     const fileExtension = selectedShowFile?.name.split('.').pop() || ''
+    const [viewable, setviewable] = useState(true)
     const dispatch = useDispatch();
     //state for loading
     const [loading, setLoading] = useState(false);
@@ -265,13 +266,29 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
         if (selectedShowFile) {
             setActualItem(undefined);
             setLoading(true);
-            downloadAndProcessFile(selectedShowFile).then((mediaItem) => {
-                if (!mediaItem) {
-                    return;
-                }
-                setActualItem(mediaItem);
+            setviewable(true)
+            if (
+                !textFileExtensions.includes(fileExtension) &&
+                fileExtension !== "pdf" &&
+                !selectedShowFile.mime_type.startsWith("image/") &&
+                !selectedShowFile.mime_type.startsWith("video/")
+            ) {
+                setviewable(false)
+                setActualItem({
+                    type: "other",
+                    src: "",
+                    alt: selectedShowFile.name,
+                });
                 setLoading(false);
-            });
+            } else {
+                downloadAndProcessFile(selectedShowFile).then((mediaItem) => {
+                    if (!mediaItem) {
+                        return;
+                    }
+                    setActualItem(mediaItem);
+                    setLoading(false);
+                });
+            }
         }
     }, [selectedShowFile]);
 
@@ -312,21 +329,21 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                 scrollableElement.removeEventListener('wheel', handleScroll);
             }
         };
-    }, []); 
+    }, []);
 
-    function handleNext(){
+    function handleNext() {
         if (selectedShowFile) {
-            files.indexOf(selectedShowFile) < files.length - 1 ? 
-                dispatch(setFileViewAction({ file: files[files.indexOf(selectedShowFile) + 1] })) 
-            :   dispatch(setFileViewAction({ file: files[0] }))
+            files.indexOf(selectedShowFile) < files.length - 1 ?
+                dispatch(setFileViewAction({ file: files[files.indexOf(selectedShowFile) + 1] }))
+                : dispatch(setFileViewAction({ file: files[0] }))
         }
     }
 
-    function handlePrevious(){
+    function handlePrevious() {
         if (selectedShowFile) {
-            files.indexOf(selectedShowFile) > 0 ? 
-                dispatch(setFileViewAction({ file: files[files.indexOf(selectedShowFile) - 1] })) 
-            :   dispatch(setFileViewAction({ file: files[files.length - 1] }))
+            files.indexOf(selectedShowFile) > 0 ?
+                dispatch(setFileViewAction({ file: files[files.indexOf(selectedShowFile) - 1] }))
+                : dispatch(setFileViewAction({ file: files[files.length - 1] }))
         }
     }
 
@@ -337,12 +354,15 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
             <div className="flex flex-col w-screen h-screen m-0">
                 <section className="flex flex-row justify-end items-center w-full h-[5%] mt-[1%] m-0 action-btns-file-viewer
                 ">
-                    <button
-                        className="modal hover:scale-125 transition-all p-2"
-                        onClick={() => { handleDownload(actualItem?.src as string, selectedShowFile?.name as string) }}
-                    >
-                        <img src={downloadicon} className="h-[29px]"></img>
-                    </button>
+                    {viewable &&
+                        <button
+                            className="modal hover:scale-125 transition-all p-2"
+                            onClick={() => { handleDownload(actualItem?.src as string, selectedShowFile?.name as string) }}
+                        >
+                            <img src={downloadicon} className="h-[29px]"></img>
+                        </button>
+                    }
+
                     <button
                         className="modal hover:scale-125 transition-all p-[10px]"
                         onClick={handleZoomIn}
