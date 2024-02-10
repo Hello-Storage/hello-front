@@ -174,9 +174,6 @@ const Dropzone = () => {
     const customFiles = filesMap.map(fileMap => fileMap.customFile);
     let filesToUpload: { customFile: FileType, file: File }[] = [];
 
-    // let folderRootUID: string;
-    let failed = false;
-
     await Api.post("/file/pool/check", customFiles)
       .then((res) => {
         const filesFound: FileType[] = res.data.filesFound;
@@ -197,6 +194,7 @@ const Dropzone = () => {
           } else {
             formData.append(`cid[${index}]`, fileMap.customFile.cid)
             formData.append("files", fileMap.file)
+            formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path.split("/")[1]+"/")
           }
         })
 
@@ -223,14 +221,8 @@ const Dropzone = () => {
 
       })
       .catch(() => {
-        failed = true;
         toast.error("upload failed!");
       })
-      .finally(() => {
-        if (!failed) {
-          dispatch(setUploadStatusAction({ uploading: false }))
-        }
-      });
 
     if (filesToUpload.length !== 0) {
       await Api.post("/file/upload", formData, {
@@ -303,7 +295,7 @@ const Dropzone = () => {
     const root = getRoot();
 
 
-    let outermostFolderTitle = "";
+    let outermostFolderTitle = "temp";
 
     if (isFolder && files.length > 0 && files[0].path) {
       //alert the entire path of the first file
@@ -462,14 +454,14 @@ const Dropzone = () => {
     isDragAccept,
     isDragReject,
   } = useDropzone({ onDrop });
-  
-	const {theme} = useAppSelector((state) => state.user);
+
+  const { theme } = useAppSelector((state) => state.user);
 
   return (
     <div
       className={[
         "flex-col items-center justify-center p-8 border-2 rounded-sm border-dashed outline-none mb-[15px] hidden sm:flex",
-        `${getColor(isFocused, isDragAccept, isDragReject)}`, (theme===Theme.DARK? "dark-theme3" : " bg-gray-100")
+        `${getColor(isFocused, isDragAccept, isDragReject)}`, (theme === Theme.DARK ? "dark-theme3" : " bg-gray-100")
       ].join(" ")}
       {...getRootProps()}
     >
