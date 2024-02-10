@@ -11,7 +11,7 @@ const OnePage = () => {
       "[data-particle-animation]"
     ) ;
     canvasElements.forEach((canvas1) => {
-      let canvas= canvas1 as HTMLCanvasElement;
+      const canvas= canvas1 as HTMLCanvasElement;
       const options = {
         quantity: canvas.dataset.particleQuantity? parseFloat(canvas.dataset.particleQuantity) : undefined,
         staticity: canvas.dataset.particleStaticity? parseFloat(canvas.dataset.particleStaticity) : undefined,

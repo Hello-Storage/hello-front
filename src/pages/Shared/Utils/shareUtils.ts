@@ -165,7 +165,6 @@ export const getPublishedFile = async (hash: string): Promise<AxiosResponse | Ax
     try {
         const response = await Api.get<File>(`/file/share/published/${hash}`);
         return response;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         toast.error(error.response?.data.error)
     }

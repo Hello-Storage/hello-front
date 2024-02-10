@@ -12,6 +12,7 @@ interface ContentProps {
     setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Pagination: React.FC<ContentProps> = ({totalItems, startIndex, endIndex, currentPage = 1, totalPages, itemsPerPage, setCurrentPage}) => {
 
     const { theme } = useAppSelector((state) => state.user);

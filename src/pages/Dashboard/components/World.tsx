@@ -1,5 +1,3 @@
-/** @format */
-
 import { useEffect, useRef } from "react";
 import Globe from "react-globe.gl";
 import GlobeImg from "@images/globe.jpg";
@@ -15,25 +13,15 @@ export default function World({ size = 0 }: { size: number | undefined }) {
 		if (globeRef.current == null) return;
 		// Auto-rotate
 		(globeRef.current as any).controls().autoRotate = true;
-		(globeRef.current as any).controls().autoRotateSpeed = 1;
+		(globeRef.current as any).controls().autoRotateSpeed = 0.5;
 		(globeRef.current as any).controls().enableZoom = false;
 		(globeRef.current as any).pointOfView({
 			lat: 23.5,
 			lng: 0,
 			altitude: 1.8,
 		});
-
-		setTimeout(() => {
-			// wait for scene to be populated (asynchronously)
-			const directionalLight = (globeRef.current as any)
-				.scene()
-				.children.find(
-					(obj3d: any) => obj3d.type === "DirectionalLight"
-				);
-			// if (directionalLight) directionalLight.intensity = 0.2; // change light position to see the specularMap's effect
-		}, 500);
 	}, []);
-	
+
 	const {theme} = useAppSelector((state) => state.user);
 
 	return (
@@ -47,6 +35,7 @@ export default function World({ size = 0 }: { size: number | undefined }) {
 				atmosphereColor={theme===Theme.DARK? "#dadada" : `#2b2c33`}
 				atmosphereAltitude={0.1}
 				hexPolygonsData={globeData.features}
+				pointResolution={0.1}
 				labelsData={populationData.features}
 				labelAltitude={0.002}
 				labelLat={(d: any) => d.properties.latitude}

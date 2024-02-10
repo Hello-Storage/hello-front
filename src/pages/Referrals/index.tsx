@@ -1,6 +1,5 @@
 import { HiClipboard, HiOutlinePaperAirplane } from "react-icons/hi";
 import { GoPeople } from "react-icons/go";
-import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { useAppSelector } from "state";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -23,8 +22,6 @@ const Referrals = () => {
 
   const [referredAddresses, setReferredAddresses] = useState<string[]>([]);
   const [referredBy, setReferredBy] = useState<string>("");
-
-  const navigate = useNavigate();
 
   const validationSchema = Yup.object().shape({
     email: Yup.string()
@@ -73,7 +70,7 @@ const Referrals = () => {
 
   const totalUsers = parseInt(formatBytes(storageAvailable, 0, false)) / 5;
   const maxUsers = 19;
-  const referredByAddress = referredBy;
+  // const referredByAddress = referredBy;
 
   const onSubmit = (values: any, { setSubmitting }: any) => {
     setTimeout(() => {

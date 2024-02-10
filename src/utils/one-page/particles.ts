@@ -2,7 +2,7 @@ class ParticleAnimation {
   canvas: HTMLCanvasElement;
   canvasContainer: HTMLElement | null=null;
   context: CanvasRenderingContext2D | null=null;
-  dpr: number=0;
+  dpr=0;
   settings: { quantity: number; staticity: number; ease: number }= { quantity: 30, staticity: 50, ease: 50 };
   circles: any[]=[];
   mouse: { x: number; y: number }={ x: 0, y: 0 }

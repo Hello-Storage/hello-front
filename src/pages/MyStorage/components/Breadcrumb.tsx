@@ -92,12 +92,9 @@ export default function Breadcrumb() {
 
   const handleDropSingle = (
     event: React.DragEvent<HTMLLIElement>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any,
     itemType: string
   ) => {
-    // console.log("DragReceived: " + JSON.stringify(dragInfoReceived));
-    // console.log("Drop: " + JSON.stringify(dropInfo));
 
     console.log("Sending payload:", payload);
     Api.put(`/${itemType}/update/root`, payload, {

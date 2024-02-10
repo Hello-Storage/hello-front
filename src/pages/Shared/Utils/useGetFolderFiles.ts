@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Api, File, Folder, RootResponse } from 'api';
 import getAccountType from 'api/getAccountType';
 import getPersonalSignature from 'api/getPersonalSignature';

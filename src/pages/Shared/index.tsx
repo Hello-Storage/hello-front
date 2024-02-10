@@ -1,4 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
@@ -57,14 +58,12 @@ const Shared = () => {
 	const [totalSharedPages, setTotalSharedPages] = useState(0);
 	const [currentSharedPage, setCurrentSharedPage] = useState(1);
 	const [startSharedIndex, setStartSharedIndex] = useState(0);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [endSharedIndex, setEndSharedIndex] = useState(itemsPerPage - 1);
 
 	const [totalReceivedItems, setTotalReceivedItems] = useState(0);
 	const [totalReceivedPages, setTotalReceivedPages] = useState(0);
 	const [currentReceivedPage, setCurrentReceivedPage] = useState(1);
 	const [startReceivedIndex, setStartReceivedIndex] = useState(0);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [endReceivedIndex, setEndReceivedIndex] = useState(itemsPerPage - 1);
 
 
@@ -248,7 +247,7 @@ const Shared = () => {
 				dispatch(refreshAction(false))
 			})
 		})
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		
 	}, [sharedFiles.sharedWithMe.length, sharedFiles.sharedByMe.length, currentSharedPage, currentReceivedPage])
 
 

@@ -1,6 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
@@ -20,7 +17,7 @@ import { Api, EncryptionStatus, File as FileType } from "api";
 
 import { useAppDispatch, useAppSelector } from "state";
 import { AxiosProgressEvent } from "axios";
-import { createFileAction, createFolderAction, refreshAction } from "state/mystorage/actions";
+import { createFileAction, refreshAction } from "state/mystorage/actions";
 import { Theme } from "state/user/reducer";
 
 const getColor = (
@@ -102,7 +99,7 @@ const Dropzone = () => {
       toast.error("Failed to encrypt metadata");
       return null;
     }
-    const { encryptedFilename, encryptedFiletype, fileSize, fileLastModified } =
+    const { encryptedFilename, encryptedFiletype, fileLastModified } =
       encryptedMetadataResult;
     const {
       cidOriginalStr,
@@ -177,13 +174,13 @@ const Dropzone = () => {
     const customFiles = filesMap.map(fileMap => fileMap.customFile);
     let filesToUpload: { customFile: FileType, file: File }[] = [];
 
-    let folderRootUID = "";
+    // let folderRootUID: string;
     let failed = false;
 
     await Api.post("/file/pool/check", customFiles)
       .then((res) => {
         const filesFound: FileType[] = res.data.filesFound;
-        folderRootUID = res.data.firstRootUID;
+        // folderRootUID = res.data.firstRootUID;
 
         filesToUpload = filesMap.filter((fileMap) => {
           const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
@@ -453,11 +450,8 @@ const Dropzone = () => {
   };
 
   const onDrop = useCallback((acceptedFiles: any[]) => {
-    // console.log(localStorage.getItem("encryptionEnabled")); 
-    // if acceptefDiles[0] contains "/" in path, it is a folder
     const isFolderUpload = acceptedFiles[0]?.path?.includes("/");
     handleFileUpload(acceptedFiles, !!isFolderUpload);
-    // Do something with the files
   }, []);
 
   const {

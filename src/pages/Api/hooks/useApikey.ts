@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+
 import { Api } from "api";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "state";

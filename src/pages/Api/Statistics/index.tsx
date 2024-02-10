@@ -18,8 +18,7 @@ import Txt from "assets/images/Outline/document_m.png";
 import Pdf from "assets/images/Outline/invoice_m.png";
 import SharedFiles from "assets/images/Outline/shared-box_m.png";
 import useTitle from "hooks/useTitle";
-import { Link, useNavigate } from "react-router-dom";
-/* import Chart from "./Components/Chart"; */
+import { Link } from "react-router-dom";
 
 type IconWithTooltipProps = {
     IconComponent: any; // Esto es para componentes sin props
@@ -147,9 +146,6 @@ const Statistics = () => {
 
         return () => clearInterval(intervalId);
     }, []);
-
-    const navigate = useNavigate();
-
 
     return (
         <div

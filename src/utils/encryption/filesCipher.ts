@@ -2,7 +2,6 @@ import { CID } from "multiformats/cid"
 import { sha256 } from "multiformats/hashes/sha2"
 import { logoutUser } from "state/user/actions";
 import { EncryptionStatus, File as FileType, Folder } from "api";
-import { toast } from "react-toastify";
 
 const RAW_CODEC = 0x55
 
@@ -281,6 +280,7 @@ export const decryptFileBuffer = async (cipher: ArrayBuffer, originalCid: string
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handleEncryptedFiles = async (files: FileType[], personalSignature: string, name: string, autoEncryptionEnabled: boolean, accountType: string | undefined, logout: () => void) => {
 
     if (personalSignature === undefined) {

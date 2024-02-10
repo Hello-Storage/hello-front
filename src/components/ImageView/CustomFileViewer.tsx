@@ -18,7 +18,7 @@ import thumbnailicon from "../../assets/images/file-viewer-resources/thumbnail-b
 import zoominicon from "../../assets/images/file-viewer-resources/zoom-in.svg";
 import zoomouticon from "../../assets/images/file-viewer-resources/zoom-out.svg";
 import { Thumbnail } from "./components/Thumbnail";
-import { enterFullscreen, exitFullscreen, handleFullScreen, handleThumbnail } from "./utils/functions";
+import { handleFullScreen, handleThumbnail } from "./utils/functions";
 import { textFileExtensions } from "./utils/consts";
 import { Theme } from "state/user/reducer";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
@@ -279,7 +279,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
     useEffect(() => {
         if (textFileExtensions.includes(fileExtension) && actualItem) {
             const textFileViewer = document.getElementById("text-file-viewer");
-            let x = setInterval(() => {
+            const x = setInterval(() => {
                 if (textFileViewer) {
                     const objectDocument = (textFileViewer as any).contentDocument || (textFileViewer as any).contentWindow.document
                     objectDocument.body.style.fontSize = scale + "rem";

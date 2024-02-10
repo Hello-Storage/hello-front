@@ -48,6 +48,8 @@ const SharedWithMe = (props: { shareType: string }) => {
             }
           }).catch((err) => {
             toast.error("An error occured while fetching the file metadata");
+            seterror(true)
+            console.log(err);
           });
 
         break;
@@ -59,7 +61,7 @@ const SharedWithMe = (props: { shareType: string }) => {
       default:
         break;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [])
 
   useEffect(() => {

@@ -24,7 +24,6 @@ export default function Api() {
         showPreview,
     } = useAppSelector((state) => state.mystorage);
     useApikey(setApiKey)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [loading, setLoading] = useState(false);
     const [currentFiles, setCurrentFiles] = useState<FileType[]>([]);
     const [totalItems, setTotalItems] = useState(0);

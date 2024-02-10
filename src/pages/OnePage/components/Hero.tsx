@@ -5,7 +5,7 @@ export const Hero = () => {
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState("");
   const uploadRef = useRef<HTMLDivElement>(null);
-  const [dragging, setDragging] = useState(false);
+  // const [dragging, setDragging] = useState(false);
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -52,17 +52,17 @@ export const Hero = () => {
   // Drag and drop functionality
   const handleDragOver = (e: any) => {
     e.preventDefault();
-    setDragging(true);
+    // setDragging(true);
   };
 
   const handleDragLeave = (e: any) => {
     e.preventDefault();
-    setDragging(false);
+    // setDragging(false);
   };
 
   const handleFileDrop = (e: any) => {
     e.preventDefault();
-    setDragging(false);
+    // setDragging(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       // handle the files

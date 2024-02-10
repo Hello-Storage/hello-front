@@ -18,6 +18,7 @@ import useGetFolderFiles from "../Utils/useGetFolderFiles";
 import { FolderContentClass } from "../Utils/types";
 import { shareDetails } from "./shareDetails";
 import { ListUserElement } from "./UserListElement";
+import { User } from "api";
 
 
 export function ShareFolderModal() {
@@ -29,7 +30,6 @@ export function ShareFolderModal() {
 	const dropRef = useRef<HTMLDivElement>(null);
 	const interval = useRef<NodeJS.Timer>()
 	const [open, setOpen] = useState(false);
-	const [privateUserAvailable, setprivateUserAvailable] = useState(true);
 	useDropdown(dropRef, open, setOpen);
 	const dispatch = useAppDispatch();
 	const [pinnedDescriptionIndex, setPinnedDescriptionIndex] = useState<
@@ -260,15 +260,6 @@ export function ShareFolderModal() {
 												}
 											>
 												Folder is Empty.
-											</p>
-											<p
-												className={
-													(!privateUserAvailable)
-														? "mb-3 text-xs"
-														: "hidden"
-												}
-											>
-												The folder cannot be shared with users because it contains encrypted files.
 											</p>
 											{selectedShareTypes !== "" && (
 												<>

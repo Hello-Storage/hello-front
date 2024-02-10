@@ -185,7 +185,7 @@ export default function Home() {
       setPersonalSignatureDefined(true);
       setCurrentPage(1)
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [path, files.length, folders.length]);
 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -196,7 +196,7 @@ export default function Home() {
       fetchRootContent()
       dispatch(refreshAction(true))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [window.location.href]);
 
   useEffect(() => {
@@ -205,7 +205,7 @@ export default function Home() {
       dispatch(refreshAction(true))
       setIsInitialLoad(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   useEffect(() => {
@@ -217,7 +217,7 @@ export default function Home() {
         dispatch(refreshAction(false))
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [refresh]);
 
   const paginateContent = async () => {
@@ -267,7 +267,7 @@ export default function Home() {
         dispatch(refreshAction(false))
       })
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [files.length, folders.length, currentPage])
 
   const [filter, setFilter] = useState("all");
@@ -288,7 +288,6 @@ export default function Home() {
 
   const [view, setView] = useState<"list" | "grid">("list");
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
   };
@@ -301,7 +300,7 @@ export default function Home() {
       }
       fetchRootContent();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   const { theme } = useAppSelector((state) => state.user);

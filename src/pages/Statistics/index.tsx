@@ -1,4 +1,3 @@
-import { useResizeDetector } from "react-resize-detector";
 import { GrCircleInformation } from "react-icons/gr";
 import { useEffect, useState } from "react";
 import { API_ENDPOINT } from "config";
@@ -21,6 +20,7 @@ import { PiTiktokLogoFill } from "react-icons/pi";
 import { BiLogoInstagramAlt } from "react-icons/bi";
 import { BsLinkedin } from "react-icons/bs";
 import LogoHello from "@images/beta.png";
+import { Spinner3 } from "components/Spinner";
 
 type IconWithTooltipProps = {
   IconComponent: React.ComponentType; // Esto es para componentes sin props
@@ -65,7 +65,6 @@ export default function Statistics() {
   const [publicfiles, setpublicfiles] = useState("");
   const [totalusers, settotalusers] = useState("");
   const [totalusedstorage, settotalusedstorage] = useState<number>(0);
-  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
 
   useTitle("hello.app | Stats");
 
@@ -141,6 +140,12 @@ export default function Statistics() {
 
     return () => clearInterval(intervalId);
   }, []);
+
+  if (loading) {
+    return (
+      <Spinner3 />
+    );
+  }
 
   return (
     <div
