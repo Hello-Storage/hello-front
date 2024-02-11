@@ -1,3 +1,5 @@
+import { ShareDetails } from "api";
+
 export const shareDetails: ShareDetails[] = [
     {
         id: 1,

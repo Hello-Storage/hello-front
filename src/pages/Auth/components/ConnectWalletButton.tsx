@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
 import { ConnectKitButton } from "connectkit";
 import { useAccount } from "wagmi";
@@ -40,10 +41,9 @@ export default function ConnectWalletButton() {
       {({ isConnected, show, truncatedAddress }: ConnectButtonProps) => {
         return (
           <button
-            onClick={isConnected ? undefined : () => onClick(show!)}
+            onClick={isConnected ? undefined : () => onClick(show? show : () => {console.log("show no esta definido");})}
             className="w-full inline-flex items-center justify-center text-white p-4 rounded-xl bg-gradient-to-b from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800"
           >
-            {/* {isConnected ? truncatedAddress : "Connect with Wallet"} */}
             {loading ? "Connecting..." : "Connect with Wallet"}
           </button>
         );

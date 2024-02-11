@@ -21,7 +21,6 @@ const getPersonalSignature = async (walletAddress: string, autoEncryption: boole
                 console.log(error)
                 //if error is ConnectorNotFoundError:
                 if (error.includes("ConnectorNotFoundError")) {
-                    //logoutUser();
                     return;
                 }
 

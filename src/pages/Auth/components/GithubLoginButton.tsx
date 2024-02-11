@@ -20,6 +20,7 @@ export default function GithubLoginButton() {
   const { load } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onCode = async (code: string, params: any) => {
 
     const account = Web3.eth.accounts.create();

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Api } from 'api';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';

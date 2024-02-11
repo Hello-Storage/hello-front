@@ -26,8 +26,6 @@ export default function CreateFolderModal() {
 		window.location.pathname.includes("/space/folder")
 			? window.location.pathname.split("/")[3]
 			: "/";
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const onChange: ChangeEventHandler = (e: any) => {
 		setTitle(e.target.value);
 	};

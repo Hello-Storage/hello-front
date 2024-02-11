@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+
 import { useDispatch } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
@@ -16,7 +16,7 @@ import { FaPlusCircle } from "react-icons/fa";
 import { PiShareFatFill } from "react-icons/pi";
 import { Theme } from "state/user/reducer";
 import { ListUserElement } from "./UserListElement";
-import { Api } from "api";
+import { Api, ShareState, User } from "api";
 
 const ShareModal = () => {
 	const [fileSharedState, setFileSharedState] = useState<ShareState>();

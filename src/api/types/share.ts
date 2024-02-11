@@ -1,4 +1,4 @@
-interface ShareDetails {
+export interface ShareDetails {
     id: number,
     type: string;
     title: string;
@@ -6,7 +6,7 @@ interface ShareDetails {
     state: string; //selected, enabled or disabled
 }
 
-interface PublicFile {
+export interface PublicFile {
     id: number;
     cid: string;
     cid_original_decrypted: string;
@@ -22,7 +22,7 @@ interface PublicFile {
     deleted_at?: Date;
 }
 
-interface PublicFileUserShared {
+export interface PublicFileUserShared {
     id: number;
     cid: string;
     cid_original_decrypted: string;
@@ -33,9 +33,8 @@ interface PublicFileUserShared {
     size: number;
 }
 
-interface ShareState {
+export interface ShareState {
     id: number;
-    //File: FileDB;
     file_uid: string;
     public_file: PublicFile;
     created_at: Date;
@@ -43,9 +42,8 @@ interface ShareState {
     deleted_at?: Date;
 }
 
-interface ShareStateUserShared {
+export interface ShareStateUserShared {
     id: number;
-    //File: FileDB;
     file_uid: string;
     public_files_user_shared: PublicFileUserShared;
     created_at: Date;
@@ -54,7 +52,7 @@ interface ShareStateUserShared {
 }
 
 
-interface User {
+export interface User {
 	email: string;
 	color: string;
 }

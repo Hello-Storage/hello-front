@@ -277,7 +277,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   const handleDropSingle = (
     event: React.DragEvent<HTMLTableRowElement>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any,
     itemType: string
   ) => {
@@ -356,7 +355,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   useEffect(() => {
     handleFocusResize()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [windowWidth])
 
   useEffect(() => {
@@ -376,13 +375,13 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       };
     }
     handleResize();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [folders]);
 
   useLayoutEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   const { theme } = useAppSelector((state) => state.user);
