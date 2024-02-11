@@ -1,4 +1,4 @@
-import { Api } from "api";
+import { Api, ShareState } from "api";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
