@@ -363,7 +363,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     const visScroll = document.getElementById("scroll-visible-section");
     const widthHelper = document.getElementById("width-section-helper");
     const size = folders.length * 240 + 240 + "px";
-    if (widthHelper) widthHelper.style.width = size;
+    if (widthHelper) {
+      widthHelper.style.width = size;
+      widthHelper.style.height = "1px";
+    }
     if (invScroll && visScroll) {
       invScroll.onscroll = function () {
         if (invScroll && visScroll)

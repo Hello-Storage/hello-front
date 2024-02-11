@@ -119,20 +119,20 @@ export default function Breadcrumb() {
       <ol className="flex flex-row items-center overflow-auto text-lg font-medium custom-scrollbar">
         <h3
           onClick={() => onClick("/space/my-storage")}
-          className={"hover:text-blue-600 cursor-pointer text-xl min-w-[85px]"+ (theme===Theme.DARK? " text-white" : " text-gray-700")}
+          className={"inline hover:text-blue-600 cursor-pointer text-xl min-w-[125px]"+ (theme===Theme.DARK? " text-white" : " text-gray-700")}
         >
-          <strong>My Storage</strong>
+          <strong className="whitespace-nowrap">My Storage</strong>
         </h3>
         {mystorage.path.map((v, i, array) => (
           <li onDrop={handleDrop} key={i} aria-label={v.uid}
             className={`min-w-fit flex items-center flex-nowrap 
-            ${i === array.length - 1 ? 'mr-[50px]' : ''}`}
+            ${i === array.length - 1 ? 'mr-[50px]' : ''}`+ (theme===Theme.DARK? " text-gray-300" : " text-gray-700")}
           >
             <>
               <span className="h-full"> <HiChevronRight /></span>
               <a
                 onClick={() => onClick(`/space/folder/${v.uid}`)}
-                className="ml-1 text-gray-700 cursor-pointer hover:text-blue-600 md:ml-2 forlder-path"
+                className="ml-1 cursor-pointer hover:text-blue-600 md:ml-2 forlder-path"
               >
                 <FaFolder
                   className="inline-flex mr-2"
