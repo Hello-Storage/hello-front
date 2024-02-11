@@ -1,7 +1,7 @@
 .custom-scrollbar {
   overflow: auto;
   scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
+  scrollbar-color: #888 transparent;
 
   &::-webkit-scrollbar {
     width: 5px; /* Adjust width */
@@ -9,7 +9,7 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Adjust track background color */
+    background: transparent; /* Adjust track background color */
     border-radius: 10px; /* Round corners */
   }
 
