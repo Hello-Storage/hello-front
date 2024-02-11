@@ -149,7 +149,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   useEffect(() => {
     fetchUserDetail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getRoot = () =>
@@ -576,7 +575,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
 
   const [isLinkDisabled, setLinkDisabled] = useState(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLinkClick = (v: any) => {
 
     setLinkDisabled(true);

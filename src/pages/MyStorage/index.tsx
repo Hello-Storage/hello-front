@@ -15,13 +15,14 @@ import { useAuth, useDropdown, useFetchData } from "hooks";
 import UploadProgress from "./components/UploadProgress";
 import {
   refreshAction,
+  resetCache,
+  setFileViewAction,
+  setImageViewAction,
   updateDecryptedFilesAction,
   updateDecryptedFoldersAction
 } from "state/mystorage/actions";
 import { File as FileType, Folder } from "api";
 
-// import styles
-import "lightbox.js-react/dist/index.css";
 import getAccountType from "api/getAccountType";
 import {
   handleEncryptedFiles,
@@ -30,15 +31,13 @@ import {
 import { toast } from "react-toastify";
 import getPersonalSignature from "api/getPersonalSignature";
 import ShareModal from "pages/Shared/Components/ShareModal";
-import Imageview from "components/ImageView/Imageview";
 import { Theme } from "state/user/reducer";
 import ShareFolderModal from "pages/Shared/Components/ShareFolderModal";
+import { useModal } from "components/Modal";
+import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 
 
 export default function Home() {
-
-  const [loaded, setloaded] = useState(false);
-
   const dispatch = useAppDispatch();
   const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { name } = useAppSelector((state) => state.user);
@@ -89,6 +88,23 @@ export default function Home() {
 
   const [personalSignatureDefined, setPersonalSignatureDefined] = useState(false);
   const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
+
+  const [onPresent] = useModal(<CustomFileViewer
+    files={currentFiles}
+  />);
+
+  useEffect(() => {
+    if (showPreview && currentFiles.length > 0 && !showShareModal) {
+      onPresent();
+    }
+  }, [showPreview]);
+
+  useEffect(() => {
+    dispatch(setImageViewAction({ show: false }));
+    dispatch(resetCache())
+		dispatch(setFileViewAction({ file: undefined }));
+  }, [])
+
 
   async function fetchContent() {
     setLoading(true);
@@ -169,7 +185,7 @@ export default function Home() {
       setPersonalSignatureDefined(true);
       setCurrentPage(1)
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [path, files.length, folders.length]);
 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -180,16 +196,16 @@ export default function Home() {
       fetchRootContent()
       dispatch(refreshAction(true))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [window.location.href]);
 
   useEffect(() => {
     if (isInitialLoad && (window.location.href.includes("space/my-storage") || window.location.href.includes("space/folder"))) {
       fetchRootContent()
       dispatch(refreshAction(true))
-    setIsInitialLoad(false)
+      setIsInitialLoad(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   useEffect(() => {
@@ -201,8 +217,8 @@ export default function Home() {
         dispatch(refreshAction(false))
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh ]);
+    
+  }, [refresh]);
 
   const paginateContent = async () => {
     const itemsPerPage = 10;
@@ -251,7 +267,7 @@ export default function Home() {
         dispatch(refreshAction(false))
       })
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [files.length, folders.length, currentPage])
 
   const [filter, setFilter] = useState("all");
@@ -272,7 +288,6 @@ export default function Home() {
 
   const [view, setView] = useState<"list" | "grid">("list");
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onRadioChange = (e: any) => {
     setFilter(e.target.value);
   };
@@ -285,7 +300,7 @@ export default function Home() {
       }
       fetchRootContent();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   const { theme } = useAppSelector((state) => state.user);
@@ -399,7 +414,7 @@ export default function Home() {
         <Dropzone />
       </div>
 
-      <section className="flex-grow custom-scrollbar invisible-scrollbar" id="scroll-invisible-section">
+      <section className="invisible-scrollbar " id="scroll-invisible-section">
         <Content
           loading={loading}
           actionsAllowed={true}
@@ -410,7 +425,6 @@ export default function Home() {
           showFolders={true}
           filesTitle="Files"
           identifier={1}
-          setloaded={setloaded}
         />
       </section>
       <div className="flex-shrink-0 mb-0">
@@ -453,14 +467,6 @@ export default function Home() {
 
       {/* Upload Info */}
       {uploading && <UploadProgress />}
-
-      {/* lightbox */}
-      <Imageview
-        isOpen={showPreview}
-        files={filteredFiles}
-        loaded={loaded}
-        setloaded={setloaded}
-      ></Imageview>
     </div>
   );
 }

@@ -8,14 +8,12 @@ export const Api = axios.create({
 	baseURL: import.meta.env.VITE_API_ENDPOINT,
 	headers: {
 		"Content-Type": "application/json",
-		// "Cross-Origin-Opener-Policy": "same-origin",
 	},
 	maxBodyLength: 5 * 1024 * 1024 * 1024, // 5GB
 });
 
 Api.interceptors.response.use(
 	(res) => res,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(err: any) => {
 		const error = err.response?.data.error;
 		if (

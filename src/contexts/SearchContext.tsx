@@ -9,6 +9,7 @@ export const SearchContext = createContext<SearchContextProps | undefined>(
   undefined
 );
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSearchContext() {
   const context = useContext(SearchContext);
   if (!context) {

@@ -1,16 +1,16 @@
-/*.table-with-lines th:not(:last-child),
-.table-with-lines td:not(:last-child) {
-  border-right: 1px solid #eeeeee;
-  margin: 10px;
-}*/
+.content-text{
+	text-wrap: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
 .table-div {
 	overflow-y: auto;
 }
 
 @media only screen and (min-width: 1024px) {
 	.table-div {
-		min-height: calc(100vh - 535px);
-		max-height: calc(100vh - 535px);
+		min-height: calc(100vh - 540px);
+		max-height: calc(100vh - 540px);
 	}
 }
 
@@ -23,22 +23,15 @@
 
 @media only screen and (min-width: 640px) and (max-width: 768px) {
 	.table-div {
-		min-height: calc(100vh - 655px);
-		max-height: calc(100vh - 655px);
+		min-height: calc(100vh - 640px);
+		max-height: calc(100vh - 640px);
 	}
 }
 
 @media only screen and (max-width: 640px) {
 	.table-div {
-		min-height: calc(100vh - 550px);
-		max-height: calc(100vh - 550px);
-	}
-}
-
-@media only screen and (max-width: 500px) {
-	.table-div {
-		min-height: calc(100vh - 565px);
-		max-height: calc(100vh - 565px);
+		min-height: calc(100vh - 535px);
+		max-height: calc(100vh - 535px);
 	}
 }
 
@@ -55,8 +48,12 @@
 	overflow-x: auto;
 }
 
-.invisible-scrollbar::-webkit-scrollbar {
-	display: none !important;
+.invisible-scrollbar{
+	overflow-x: auto;
+	overflow-y: auto;
+	&::-webkit-scrollbar{
+		display: none;
+	}
 }
 
 #scroll-visible-section {

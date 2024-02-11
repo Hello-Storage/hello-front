@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createReducer } from "@reduxjs/toolkit";
 
 import {
@@ -20,6 +21,8 @@ import {
   refreshAction,
   setSelectedShareFolder,
   fetchSharedContentActionFolders,
+  addCache,
+  resetCache,
 } from "./actions";
 import { File as FileType, Folder, RootResponse } from "api";
 
@@ -34,6 +37,7 @@ interface MyStorageProps extends RootResponse {
   sharedFiles: { sharedWithMe: FileType[], sharedByMe: FileType[] };
   sharedFolders: { sharedWithMe: Folder[]; sharedByMe: Folder[] }
   refresh: boolean;
+  cache: { [key: string]: Blob }
 }
 
 const initialState: MyStorageProps = {
@@ -56,13 +60,23 @@ const initialState: MyStorageProps = {
   selectedShareFile: undefined,
   selectedSharedFiles: undefined,
   refresh: false,
+  cache: {},
 };
+
 
 export default createReducer<MyStorageProps>(initialState, (builder) => {
   builder
     .addCase(fetchContentAction, (state, { payload }) => ({
       ...state,
       ...payload,
+    }))
+    .addCase(addCache, (state, { payload }) => ({
+      ...state,
+      cache: { ...state.cache, ...payload }
+    }))
+    .addCase(resetCache, (state, { payload }) => ({
+      ...state,
+      cache: {}
     }))
     .addCase(setSelectedShareFolder, (state, { payload }) => ({
       ...state,
@@ -101,6 +115,10 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
       ...state,
       files: [],
       folders: [],
+      sharedFiles: {
+        sharedWithMe: [],
+        sharedByMe: [],
+      },
     }))
     .addCase(setFileViewAction, (state, { payload }) => ({
       ...state,

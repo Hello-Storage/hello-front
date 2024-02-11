@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Api, RootResponse, SharedResponse, UserDetailResponse } from "api";
@@ -25,7 +24,7 @@ const useFetchData = () => {
           personalSignatureRef.current =
             sessionStorage.getItem("personal_signature") ?? undefined;
           if (!personalSignatureRef.current) {
-            toast.error("Failed to fetch root");
+            toast.error("Failed to fetch root!");
             return;
           }
           const decryptedPath = await handleEncryptedFolders(

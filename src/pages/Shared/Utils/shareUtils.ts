@@ -15,6 +15,8 @@ export const shareFile = async (selectedFile: FileType | null, type: string, use
                 response = await publishFile(selectedFile, `/file/share/custom-type/` + type)
                 break;
             case "email":
+                response = await publishFile(selectedFile, `/file/share/${type}/` + user)
+                break;
             case "wallet":
                 response = await publishFile(selectedFile, `/file/share/${type}/` + user)
                 break;
@@ -37,6 +39,8 @@ export const shareFolder = async (selectedFolder: FolderContentClass, type: stri
                 response = await publishFolder(selectedFolder, `/folder/share/` + type)
                 break;
             case "email":
+                response = await publishFolder(selectedFolder, `/folder/share/${type}/` + user)
+                break;
             case "wallet":
                 response = await publishFolder(selectedFolder, `/folder/share/${type}/` + user)
                 break;
@@ -126,8 +130,8 @@ const publishFolder = async (selectedFolder: FolderContentClass, apiUrl: string)
 //     return responseLink;
 // }
 
-const publishFile = async (selectedShareFolder: FileType, apiUrl: string): Promise<AxiosError | AxiosResponse | undefined> => {
-    const responseLink = await Api.post(apiUrl, selectedShareFolder
+const publishFile = async (selectedShareFile: FileType, apiUrl: string): Promise<AxiosError | AxiosResponse | undefined> => {
+    const responseLink = await Api.post(apiUrl, selectedShareFile
     ).then((response: AxiosResponse) => {
         return response;
     }).catch((error: AxiosError) => {
@@ -161,7 +165,6 @@ export const getPublishedFile = async (hash: string): Promise<AxiosResponse | Ax
     try {
         const response = await Api.get<File>(`/file/share/published/${hash}`);
         return response;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         toast.error(error.response?.data.error)
     }

@@ -1,3 +1,4 @@
+import { User } from "api";
 import { useEffect, useState } from "react";
 
 interface ListUserElementProps {

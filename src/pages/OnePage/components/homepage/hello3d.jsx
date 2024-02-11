@@ -68,9 +68,7 @@ const ThreeDScene = () => {
       });
     }
 
-
-    const container = containerRef.current as HTMLElement;
-    container.appendChild(renderer.domElement);
+    containerRef.current.appendChild(renderer.domElement);
 
     // scene settings
     renderer.shadowMap.enabled = true;

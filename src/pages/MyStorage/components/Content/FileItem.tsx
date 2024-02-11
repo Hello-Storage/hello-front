@@ -42,10 +42,9 @@ interface FileItemProps {
 	actionsAllowed: boolean;
 	file: FileType;
 	view: "list" | "grid";
-	setloaded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllowed }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, view, actionsAllowed }) => {
 	const dispatch = useAppDispatch();
 	const ref = useRef<HTMLDivElement>(null);
 	const [open, setOpen] = useState(false);
@@ -99,7 +98,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 
 				if (file.encryption_status === EncryptionStatus.Encrypted) {
 					const originalCid = file.cid_original_encrypted;
-					binaryData = await blobToArrayBuffer(binaryData);
+					binaryData = await blobToArrayBuffer(binaryData).catch((error) => {
+						console.error("Error transforming blob to array buffer:", error);
+						toast.error("Error transforming blob to array buffer");
+					});
 					binaryData = await decryptFileBuffer(
 						binaryData,
 						originalCid,
@@ -114,8 +116,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 							);
 						}
 					).catch((err) => {
-						console.error("Error downloading file:", err);
-						toast.error("Error downloading file");
+						console.error("Error decrypting file buffer:", err);
+						toast.error("Error decrypting file buffer");
 					});
 
 					dispatch(
@@ -126,8 +128,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 					);
 				}
 
-				if (file.file_share_state && file.file_share_state.id !== 0) {
-					const originalCid = file.file_share_state.public_file.cid_original_decrypted;
+				if (file.file_share_states_user_shared && file.file_share_states_user_shared.id !== 0 && file.file_share_states_user_shared.public_files_user_shared.id !== 0) {
+					const originalCid = file.file_share_states_user_shared.public_files_user_shared.cid_original_decrypted;
 					if (originalCid != "") {
 						binaryData = await blobToArrayBuffer(binaryData);
 						binaryData = await decryptFileBuffer(
@@ -144,7 +146,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 								);
 							}
 						).catch(() => {
-							toast.error("Error downloading file");
+							toast.error("Error decrypting file");
 						});
 
 						dispatch(
@@ -154,7 +156,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 							})
 						);
 					} else {
-						binaryData = await blobToArrayBuffer(binaryData);
+						binaryData = await blobToArrayBuffer(binaryData).catch((error) => {
+							console.error("Error transforming blob to array buffer:", error);
+							toast.error("Error transforming blob to array buffer");
+						})
 					}
 
 				}
@@ -172,7 +177,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 				window.URL.revokeObjectURL(url);
 			})
 			.catch(() => {
-				toast.error("Error downloading file");
+				toast.error("Error downloading file from network");
 			});
 	};
 
@@ -182,7 +187,6 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 		toast.info("Loading File");
 		dispatch(setFileViewAction({ file: undefined }));
 		dispatch(setImageViewAction({ show: false }));
-		setloaded(false);
 
 		dispatch(
 			setFileViewAction({
@@ -223,17 +227,17 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 						+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
 				>
 					<div className="flex items-center gap-3 ">
-						{getFileIcon(file.name, theme)}
+						{getFileIcon(file, theme)}
 						{file.is_in_pool && (
 							<GoAlertFill
 								style={{ color: "#FF6600" }}
 								title="File is in Hello Pool"
 							/>
 						)}
-						<span className="hidden md:inline">
+						<span className="hidden md:inline content-text">
 							{truncate(file.name, 40)}
 						</span>
-						<span className="inline md:hidden">
+						<span className="inline md:hidden content-text">
 							{truncate(file.name, 24)}
 						</span>
 					</div>
@@ -354,11 +358,11 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, setloaded, actionsAllow
 						<div className={"flex items-center w-full gap-2 overflow-hidden font-medium text-center whitespace-nowrap overflow-ellipsis"
 							+ (theme === Theme.DARK ? " text-white" : "  text-gray-900")}
 						>
-							{getFileIcon(file.name, theme)}
+							{getFileIcon(file, theme)}
 							{file.is_in_pool && (
 								<GoAlertFill style={{ color: "#FF6600" }} />
 							)}
-							<span className="hidden md:inline">
+							<span className="hidden md:inline content-text">
 								{truncate(file.name, 40)}
 							</span>
 							<span className="inline md:hidden">

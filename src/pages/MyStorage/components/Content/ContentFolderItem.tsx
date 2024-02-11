@@ -208,7 +208,7 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
                     className={"px-3 font-medium whitespace-nowrap "
                         + (theme === Theme.DARK ? " text-white" : " text-gray-900")}
                 >
-                    <div className="flex items-center gap-3 ">
+                    <div className="flex items-center gap-3 " title="Double click to open">
                         <FaFolder
                             className="inline-block mr-2 align-middle"
                             size={24}
@@ -222,10 +222,7 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
                                 />
                             )}
                         </span>
-                        <span className="hidden md:inline">
-                            {truncate(folder.title, 40)}
-                        </span>
-                        <span className="inline md:hidden">
+                        <span className="inline content-text">
                             {truncate(folder.title, 24)}
                         </span>
                     </div>
@@ -316,7 +313,7 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
     else
         return (
             < >
-                <div>
+                <div title="Double click to open">
                     <div className="flex flex-col items-center gap-3">
                         <div className={"flex items-center w-full gap-2 overflow-hidden font-medium text-center whitespace-nowrap overflow-ellipsis"
                             + (theme === Theme.DARK ? " text-white" : "  text-gray-900")}
@@ -334,10 +331,10 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
                                     />
                                 )}
                             </span>
-                            <span className="hidden md:inline">
+                            <span className="hidden md:inline content-text">
                                 {truncate(folder.title, 40)}
                             </span>
-                            <span className="inline md:hidden">
+                            <span className="inline md:hidden content-text">
                                 {truncate(folder.title, 24)}
                             </span>
                         </div>

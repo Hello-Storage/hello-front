@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { File as FileType } from "api";
 
 export function buff2base64(buffer: Uint8Array): string {
@@ -43,7 +44,7 @@ const arrbuff2str = (arr: ArrayBuffer) => {
 
 const readFile = (file: File) => {
   return new Promise<ArrayBuffer>((resolve, reject) => {
-    var fr = new FileReader();
+    const fr = new FileReader();
     fr.onload = () => {
       resolve(fr.result as ArrayBuffer);
     };
@@ -56,7 +57,7 @@ const createAES = async (
   secret: string,
   type: "encrypt" | "decrypt"
 ) => {
-  var passphrasekey = await window.crypto.subtle.importKey(
+  const passphrasekey = await window.crypto.subtle.importKey(
     "raw",
     str2arrbuff(secret),
     { name: "PBKDF2" },
@@ -93,11 +94,11 @@ export const encrypt = async (
   secret: string,
   salt?: Uint8Array
 ) => {
-  var buffer = await readFile(file);
+  let buffer = await readFile(file);
   buffer = new Uint8Array(buffer);
 
   // Generate a 16 byte long initialization vector
-  var pbkdf2salt = salt ?? crypto.getRandomValues(new Uint8Array(8));
+  const pbkdf2salt = salt ?? crypto.getRandomValues(new Uint8Array(8));
   const { key, iv } = await createAES(pbkdf2salt, secret, "encrypt");
 
   //   encrypt file metadata
@@ -111,7 +112,7 @@ export const encrypt = async (
       key,
       str2arrbuff(value)
     );
-    var name = new Uint8Array(enc.byteLength + 8);
+    const name = new Uint8Array(enc.byteLength + 8);
     name.set(pbkdf2salt);
     name.set(new Uint8Array(enc), 8);
 
@@ -149,17 +150,17 @@ export const decryptMeta = async (file: FileType, secret: string) => {
     base642buff(file.name).slice(8)
   );
 
-  var result = file;
+  const result = file;
   result.name = arrbuff2str(file_name);
 
   return result;
 };
 
 export const decrypt = async (file: File, secret: string) => {
-  var buffer = await readFile(file);
+  let buffer = await readFile(file);
   buffer = new Uint8Array(buffer);
 
-  var pbkdf2salt = buffer.slice(0, 8);
+  const pbkdf2salt = buffer.slice(0, 8);
 
   const { key, iv } = await createAES(
     new Uint8Array(pbkdf2salt),
@@ -182,7 +183,7 @@ export const decrypt = async (file: File, secret: string) => {
 };
 
 export const encryptStr = async (str: string, secret: string) => {
-  var pbkdf2salt = crypto.getRandomValues(new Uint8Array(8));
+  const pbkdf2salt = crypto.getRandomValues(new Uint8Array(8));
   const { key, iv } = await createAES(pbkdf2salt, secret, "encrypt");
 
   //   encrypt file metadata

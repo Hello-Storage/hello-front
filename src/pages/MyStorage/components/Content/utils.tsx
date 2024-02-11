@@ -6,6 +6,7 @@ import { Theme } from "state/user/reducer";
 
 // Map of file extensions with their corresponding icons
 import { fileIcons } from "./FileIcons";
+import { File } from "api";
 
 // Set of viewable file extensions
 export const viewableExtensions = new Set([
@@ -31,6 +32,24 @@ export const viewableExtensions = new Set([
   "json",
   "css",
   "pdf",
+  "yml",
+  "yaml",
+  "php",
+  "py",
+  "java",
+  "gitignore",
+  "sh",
+  "c",
+  "cpp",
+  "h",
+  "cs",
+  "css",
+  "scss",
+  "sass",
+  "gitconfig",
+  "md",
+  "reg",
+  "toml",
 ]);
 
 // Takes a file name and returns the file extension
@@ -45,15 +64,14 @@ export const getFileExtension = (fileName: string): string => {
   return parts[parts.length - 1].toLowerCase();
 };
 
-export const getFileIcon = (fileName: string, theme: Theme) => {
+export const getFileIcon = (file: File, theme: Theme) => {
   // find extension
-  const ext = getFileExtension(fileName);
+  const ext = getFileExtension(file.name);
   const color = (theme === Theme.DARK ? "#ffffff" : "#272727")
-  const classn = "p-2 rounded-lg " + (theme === Theme.DARK ? "bg-[#32334b]" : "bg-gray-200")
+  const classn = "p-2 rounded-lg min-w-[32px] min-h-[32px] max-w-[32px] max-h-[32px] " + (theme === Theme.DARK ? "bg-[#32334b]" : "bg-gray-200")
   const IconComponent = (fileIcons as { [key: string]: (color: string, classn: string) => ReactNode })[ext];
   return IconComponent ? IconComponent(color, classn) : (
     <FaFile
-      size={32}
       color={color}
       className={classn}
     />

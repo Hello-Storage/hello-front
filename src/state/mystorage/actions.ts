@@ -4,8 +4,8 @@ import { Folder, File as FileType, RootResponse, SharedRFiles, SharedRFolders } 
 export interface PreviewImage {
   src?: string;
   alt: string;
-  type?: "htmlVideo";
-  videoSrc?: string;
+  type?: "video" | "image" | "other";
+  tmbSrc?: string;
 }
 
 export const fetchContentAction = createAction<RootResponse>(
@@ -52,7 +52,7 @@ export const setImageViewAction = createAction<{
 }>("mystorage/image-view");
 
 export const setFileViewAction = createAction<{
-  file?: FileType ;
+  file?: FileType;
 }>("mystorage/file-view");
 
 
@@ -62,6 +62,14 @@ export const setShowShareModal = createAction<boolean>(
 
 export const setSelectedShareFile = createAction<FileType | undefined>(
   "mystorage/set-selected-share-file"
+);
+
+export const addCache = createAction<{ [key: string]: Blob }>(
+  "mystorage/add-cache"
+);
+
+export const resetCache = createAction<undefined>(
+  "mystorage/clear-cache"
 );
 
 export const setSelectedShareFolder = createAction<Folder | undefined>(
