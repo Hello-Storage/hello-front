@@ -160,7 +160,7 @@ const ShareModal = () => {
 							} else {
 								const err = res as AxiosError;
 								setShareError(err.message);
-								toast.error("Could not be shared to user: " + user.email);
+								toast.error("Could not share to user: " + user.email);
 							}
 						})
 				}
@@ -383,7 +383,8 @@ const ShareModal = () => {
 															htmlFor={`flexSwitch${sd.type}`}
 														>
 															<div className="flex flex-col">
-																<div className="flex flex-row items-center">
+																<div className="flex flex-row items-center"
+																>
 																	<input
 																		type="checkbox"
 																		className="w-5 h-5 text-blue-600 form-checkbox"

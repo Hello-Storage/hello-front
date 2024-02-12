@@ -546,7 +546,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								}else{
 									const err = res as AxiosError;
 									setShareError(err.message);
-									toast.error("Could not be shared to user: " + user.email);
+									toast.error("Could not share to user: " + user.email);
 								}
 							})
 					}
