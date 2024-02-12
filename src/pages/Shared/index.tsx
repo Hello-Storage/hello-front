@@ -21,6 +21,7 @@ import ShareModal from "./Components/ShareModal";
 import UploadShareModal from "./Components/UploadShareModal";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
+import Pagination from "components/Pagination";
 
 const Shared = () => {
 	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
@@ -74,6 +75,7 @@ const Shared = () => {
 	const [sharedWithMe, setSharedWithMe] = useState<FileType[]>([]);
 
 	const [loading, setLoading] = useState(false);
+	const [focusedContent, setFocusedContent] = useState(0);
 
 	const personalSignatureRef = useRef<string | undefined>();
 
@@ -112,7 +114,7 @@ const Shared = () => {
 		const totalSharedPagesTemp = Math.ceil(totalSharedItemsTemp / itemsPerPage);
 		setTotalSharedPages(totalSharedPagesTemp);
 		const tempStartSharedIndex =
-			currentSharedPage === 1 ? 0 : 1 + (currentSharedPage - 2) * itemsPerPage;
+			currentSharedPage === 1 ? 0 : itemsPerPage + (currentSharedPage - 2) * itemsPerPage;
 		const tempEndSharedIndex = tempStartSharedIndex + itemsPerPage;
 		setStartSharedIndex(tempStartSharedIndex);
 		setEndSharedIndex(Math.min(tempEndSharedIndex, totalSharedItemsTemp));
@@ -130,7 +132,7 @@ const Shared = () => {
 		const tempStartReceivedIndex =
 			currentReceivedPage === 1
 				? 0
-				: 1 + (currentReceivedPage - 2) * itemsPerPage;
+				: itemsPerPage + (currentReceivedPage - 2) * itemsPerPage;
 		const tempEndReceivedIndex = tempStartReceivedIndex + itemsPerPage;
 		setStartReceivedIndex(tempStartReceivedIndex);
 		setEndReceivedIndex(Math.min(tempEndReceivedIndex, totalReceivedItemsTemp));
@@ -194,7 +196,6 @@ const Shared = () => {
 	const paginateContent = async () => {
 
 		const totalSharedItemsTemp = sharedFiles.sharedByMe.length;
-		console.log(sharedFiles.sharedByMe)
 		const totalSharedPagesTemp = Math.ceil(totalSharedItemsTemp / itemsPerPage);
 		const totalReceivedItemsTemp = sharedFiles.sharedWithMe.length;
 		const totalReceivedPagesTemp = Math.ceil(totalReceivedItemsTemp / itemsPerPage);
@@ -204,9 +205,9 @@ const Shared = () => {
 		setTotalReceivedPages(totalReceivedPagesTemp);
 
 		const tempSharedStartIndex =
-			currentSharedPage === 1 ? 0 : 1 + (currentSharedPage - 2) * itemsPerPage;
+			currentSharedPage === 1 ? 0 : itemsPerPage + (currentSharedPage - 2) * itemsPerPage;
 		const tempReceivedStartIndex =
-			currentReceivedPage === 1 ? 0 : 1 + (currentReceivedPage - 2) * itemsPerPage;
+			currentReceivedPage === 1 ? 0 : itemsPerPage + (currentReceivedPage - 2) * itemsPerPage;
 		const tempSharedEndIndex = tempSharedStartIndex + itemsPerPage;
 		const tempReceivedEndIndex = tempReceivedStartIndex + itemsPerPage;
 
@@ -240,14 +241,30 @@ const Shared = () => {
 		setSharedWithMe(currentReceivedFiles);
 	}
 
+	// Refs to store previous values
+	const prevSharedWithMeLength = useRef(sharedFiles.sharedWithMe.length);
+	const prevSharedByMeLength = useRef(sharedFiles.sharedByMe.length);
+	const prevCurrentSharedPage = useRef(currentSharedPage);
+	const prevCurrentReceivedPage = useRef(currentReceivedPage);
+
+
 	useEffect(() => {
+		// Determine what changed
+		if (prevCurrentSharedPage.current !== currentSharedPage) {
+			setFocusedContent(1)
+		}
+		if (prevCurrentReceivedPage.current !== currentReceivedPage) {
+			setFocusedContent(2)
+		}
+
+
 		paginateContent().then(() => {
 			fetchContent().then(() => {
 				setLoading(false);
 				dispatch(refreshAction(false))
 			})
 		})
-		
+
 	}, [sharedFiles.sharedWithMe.length, sharedFiles.sharedByMe.length, currentSharedPage, currentReceivedPage])
 
 
@@ -301,6 +318,7 @@ const Shared = () => {
 					<Content
 						actionsAllowed={true}
 						loading={loading}
+						focusedContent={focusedContent}
 						showHorizontalFolders={false}
 						files={sharedByMe}
 						folders={sharedFolders.sharedByMe}
@@ -309,7 +327,6 @@ const Shared = () => {
 						filesTitle="Shared"
 						identifier={1}
 					/>
-					{/*
 					<Pagination
 						totalItems={totalSharedItems}
 						startIndex={startSharedIndex}
@@ -319,7 +336,6 @@ const Shared = () => {
 						itemsPerPage={itemsPerPage}
 						setCurrentPage={setCurrentSharedPage}
 					/>
-			*/}
 				</div>
 
 				<span className="w-[2%]"></span>
@@ -327,6 +343,7 @@ const Shared = () => {
 					<Content
 						actionsAllowed={true}
 						loading={loading}
+						focusedContent={focusedContent}
 						files={sharedWithMe}
 						showHorizontalFolders={false}
 						folders={sharedFolders.sharedWithMe}
@@ -335,49 +352,6 @@ const Shared = () => {
 						filesTitle="Received"
 						identifier={2}
 					/>
-				</div>
-
-			</div>
-			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
-				<div>
-					<Content
-						actionsAllowed={true}
-						loading={loading}
-						files={sharedByMe}
-						showHorizontalFolders={false}
-						folders={sharedFolders.sharedByMe}
-						view="list"
-						showFolders={true}
-						filesTitle="Shared"
-						identifier={3}
-					/>
-					{/*
-					<Pagination
-						totalItems={totalSharedItems}
-						startIndex={startSharedIndex}
-						endIndex={endSharedIndex}
-						currentPage={currentSharedPage}
-						totalPages={totalSharedPages}
-						itemsPerPage={itemsPerPage}
-						setCurrentPage={setCurrentSharedPage}
-					/>
-			*/}
-
-				</div>
-
-				<div>
-					<Content
-						actionsAllowed={true}
-						loading={loading}
-						files={sharedWithMe}
-						showHorizontalFolders={false}
-						folders={sharedFolders.sharedWithMe}
-						view="list"
-						showFolders={true}
-						filesTitle="Received"
-						identifier={4}
-					/>
-					{/*
 					<Pagination
 						totalItems={totalReceivedItems}
 						startIndex={startReceivedIndex}
@@ -387,7 +361,57 @@ const Shared = () => {
 						itemsPerPage={itemsPerPage}
 						setCurrentPage={setCurrentReceivedPage}
 					/>
-		*/}
+				</div>
+
+			</div>
+			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
+				<div>
+					<Content
+						actionsAllowed={true}
+						loading={loading}
+						focusedContent={focusedContent}
+						files={sharedByMe}
+						showHorizontalFolders={false}
+						folders={sharedFolders.sharedByMe}
+						view="list"
+						showFolders={true}
+						filesTitle="Shared"
+						identifier={3}
+					/>
+					<Pagination
+						totalItems={totalSharedItems}
+						startIndex={startSharedIndex}
+						endIndex={endSharedIndex}
+						currentPage={currentSharedPage}
+						totalPages={totalSharedPages}
+						itemsPerPage={itemsPerPage}
+						setCurrentPage={setCurrentSharedPage}
+					/>
+
+				</div>
+
+				<div>
+					<Content
+						actionsAllowed={true}
+						loading={loading}
+						focusedContent={focusedContent}
+						files={sharedWithMe}
+						showHorizontalFolders={false}
+						folders={sharedFolders.sharedWithMe}
+						view="list"
+						showFolders={true}
+						filesTitle="Received"
+						identifier={4}
+					/>
+					<Pagination
+						totalItems={totalReceivedItems}
+						startIndex={startReceivedIndex}
+						endIndex={endReceivedIndex}
+						currentPage={currentReceivedPage}
+						totalPages={totalReceivedPages}
+						itemsPerPage={itemsPerPage}
+						setCurrentPage={setCurrentReceivedPage}
+					/>
 				</div>
 			</div>
 		</section>

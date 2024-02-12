@@ -117,7 +117,7 @@ export default function Home() {
     setTotalPages(totalPagesTemp);
 
     const tempStartIndex =
-      currentPage === 1 ? 0 : 10 + (currentPage - 2) * itemsPerPage;
+      currentPage === 1 ? 0 : itemsPerPage + (currentPage - 2) * itemsPerPage;
     const tempEndIndex = tempStartIndex + itemsPerPage;
 
     setStartIndex(tempStartIndex);
