@@ -26,14 +26,14 @@ export class FolderContentClass {
         if (this.uid === folder?.uid) {
             this.files = content?.files;
             this.folders = content?.folders;
-            return
+            return this
         }
         if (this.folders) {
             for (const folderContentClass of this.folders) {
                 folderContentClass.folder?.searchFolderAndSetContent(folder, content);
             }
         }
-        return
+        return this
     }
 }
 
