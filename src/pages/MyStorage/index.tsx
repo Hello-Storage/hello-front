@@ -102,7 +102,7 @@ export default function Home() {
   useEffect(() => {
     dispatch(setImageViewAction({ show: false }));
     dispatch(resetCache())
-		dispatch(setFileViewAction({ file: undefined }));
+    dispatch(setFileViewAction({ file: undefined }));
   }, [])
 
 
@@ -185,7 +185,7 @@ export default function Home() {
       setPersonalSignatureDefined(true);
       setCurrentPage(1)
     });
-    
+
   }, [path, files.length, folders.length]);
 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -196,7 +196,7 @@ export default function Home() {
       fetchRootContent()
       dispatch(refreshAction(true))
     }
-    
+
   }, [window.location.href]);
 
   useEffect(() => {
@@ -205,7 +205,7 @@ export default function Home() {
       dispatch(refreshAction(true))
       setIsInitialLoad(false)
     }
-    
+
   }, []);
 
   useEffect(() => {
@@ -217,7 +217,7 @@ export default function Home() {
         dispatch(refreshAction(false))
       });
     }
-    
+
   }, [refresh]);
 
   const paginateContent = async () => {
@@ -267,7 +267,7 @@ export default function Home() {
         dispatch(refreshAction(false))
       })
     })
-    
+
   }, [files.length, folders.length, currentPage])
 
   const [filter, setFilter] = useState("all");
@@ -300,7 +300,7 @@ export default function Home() {
       }
       fetchRootContent();
     }
-    
+
   }, []);
 
   const { theme } = useAppSelector((state) => state.user);
@@ -416,6 +416,7 @@ export default function Home() {
 
       <section className="invisible-scrollbar " id="scroll-invisible-section">
         <Content
+          focusedContent={null}
           loading={loading}
           actionsAllowed={true}
           showHorizontalFolders={true}

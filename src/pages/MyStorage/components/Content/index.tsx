@@ -15,7 +15,7 @@ import { Theme } from "state/user/reducer";
 import ContentFolderItem from "./ContentFolderItem";
 
 interface ContentProps {
-  focusedContent: number;
+  focusedContent: number|undefined|null;
   loading: boolean;
   folders: Folder[];
   files: File[];
@@ -532,7 +532,7 @@ const Content: React.FC<ContentProps> = ({ focusedContent, loading, view, folder
               <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
                 + (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
                 <tbody>
-                  {loading && (identifier === 1 && focusedContent === 1 || identifier === 2 && focusedContent === 2 || identifier === 3 && focusedContent === 1 || identifier === 4 && focusedContent === 2) || loading && focusedContent === 0 || loading && focusedContent === undefined ? (
+                  {loading && (identifier === 1 && focusedContent === 1 || identifier === 2 && focusedContent === 2 || identifier === 3 && focusedContent === 1 || identifier === 4 && focusedContent === 2) || loading && focusedContent === 0 || loading && (focusedContent === undefined || focusedContent === null) ? (
                     <tr className="w-full h-64">
                       <td colSpan={6}>
                         <div className="flex flex-col items-center justify-center w-full h-full text-center">

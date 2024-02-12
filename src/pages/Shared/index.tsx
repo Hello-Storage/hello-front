@@ -11,7 +11,7 @@ import {
 	updateDecryptedSharedFilesAction
 } from "state/mystorage/actions";
 import { useAppSelector } from "state";
-import { File as FileType } from "api";
+import { File as FileType, Folder } from "api";
 import { useAuth, useFetchData } from "hooks";
 import getAccountType from "api/getAccountType";
 import getPersonalSignature from "api/getPersonalSignature";
@@ -67,8 +67,12 @@ const Shared = () => {
 	const [startReceivedIndex, setStartReceivedIndex] = useState(0);
 	const [endReceivedIndex, setEndReceivedIndex] = useState(itemsPerPage - 1);
 
+	const [thisSharedFolders, setThisSharedFolders] = useState<{
+		sharedWithMe: Folder[];
+		sharedByMe: Folder[];
+	}>(sharedFolders);
 
-	console.log(sharedFolders);
+
 
 	const [sharedByMe, setSharedByMe] = useState<FileType[]>([]);
 
@@ -178,8 +182,22 @@ const Shared = () => {
 			);
 		}
 
+
+		const currentSharedFolders: { sharedByMe: Folder[], sharedWithMe: Folder[] } = {
+			sharedByMe: sharedFolders.sharedByMe.slice(
+				sharedByMeStartIndex,
+				sharedByMeStartIndex + itemsPerPage
+			),
+			sharedWithMe: sharedFolders.sharedWithMe.slice(
+				sharedWithMeStartIndex,
+				sharedWithMeStartIndex + itemsPerPage
+			)
+		}
+
 		setSharedByMe(decryptedFilesSharedByMe || []);
 		setSharedWithMe(decryptedFilesSharedWithMe || []);
+		setThisSharedFolders(currentSharedFolders)
+		//setThisSharedFolders(sharedFolders)
 
 		if (!decryptedFilesSharedByMe || !decryptedFilesSharedWithMe) {
 			toast.error("Failed to decrypt content");
@@ -191,6 +209,11 @@ const Shared = () => {
 		fetchSharedContent()
 		dispatch(refreshAction(true))
 	}, []);
+
+	// Pagination logic for shared and received content
+	const paginate = (array: Array<any>, startIndex: number, itemsPerPage: number) => {
+		return array.slice(startIndex, startIndex + itemsPerPage);
+	};
 
 
 	const paginateContent = async () => {
@@ -221,15 +244,26 @@ const Shared = () => {
 		const filesItemsCount = itemsPerPage;
 		const filesReceivedStartIndex = Math.max(0, tempReceivedStartIndex);
 
-		const currentSharedFiles = sharedFiles.sharedByMe.slice(
-			filesSharedStartIndex,
-			filesSharedStartIndex + filesItemsCount
-		)
-		const currentReceivedFiles = sharedFiles.sharedWithMe.slice(
-			filesReceivedStartIndex,
-			filesReceivedStartIndex + filesItemsCount
-		)
 
+		const currentSharedFolders: { sharedByMe: Folder[], sharedWithMe: Folder[] } = {
+			sharedByMe: sharedFolders.sharedByMe.slice(
+				Math.min(filesSharedStartIndex, filesReceivedStartIndex),
+				Math.min(filesSharedStartIndex, filesReceivedStartIndex) + filesItemsCount
+			),
+			/*
+			sharedWithMe: sharedFolders.sharedWithMe.slice(
+				Math.min(0 , filesReceivedStartIndex),
+				Math.min(0, filesReceivedStartIndex) + filesItemsCount
+			)
+			*/
+			sharedWithMe: sharedFolders.sharedWithMe.slice(
+				0,
+				1
+			)
+		}
+
+		const currentSharedFiles = paginate(sharedFiles.sharedByMe, filesSharedStartIndex, filesItemsCount)
+		const currentReceivedFiles = paginate(sharedFiles.sharedWithMe, filesReceivedStartIndex, filesItemsCount)
 		// TODO: decrypt files
 
 		if (!currentSharedFiles || !currentReceivedFiles) {
@@ -237,13 +271,15 @@ const Shared = () => {
 			fetchSharedContent(setLoading);
 		}
 
+
+
+		console.log("current currentSharedFolders:", currentSharedFolders)
+		setThisSharedFolders(currentSharedFolders)
 		setSharedByMe(currentSharedFiles);
 		setSharedWithMe(currentReceivedFiles);
 	}
 
 	// Refs to store previous values
-	const prevSharedWithMeLength = useRef(sharedFiles.sharedWithMe.length);
-	const prevSharedByMeLength = useRef(sharedFiles.sharedByMe.length);
 	const prevCurrentSharedPage = useRef(currentSharedPage);
 	const prevCurrentReceivedPage = useRef(currentReceivedPage);
 
@@ -321,7 +357,7 @@ const Shared = () => {
 						focusedContent={focusedContent}
 						showHorizontalFolders={false}
 						files={sharedByMe}
-						folders={sharedFolders.sharedByMe}
+						folders={thisSharedFolders.sharedByMe}
 						view="list"
 						showFolders={true}
 						filesTitle="Shared"
@@ -346,7 +382,7 @@ const Shared = () => {
 						focusedContent={focusedContent}
 						files={sharedWithMe}
 						showHorizontalFolders={false}
-						folders={sharedFolders.sharedWithMe}
+						folders={thisSharedFolders.sharedWithMe}
 						view="list"
 						showFolders={true}
 						filesTitle="Received"
@@ -372,7 +408,7 @@ const Shared = () => {
 						focusedContent={focusedContent}
 						files={sharedByMe}
 						showHorizontalFolders={false}
-						folders={sharedFolders.sharedByMe}
+						folders={thisSharedFolders.sharedByMe}
 						view="list"
 						showFolders={true}
 						filesTitle="Shared"
@@ -397,7 +433,7 @@ const Shared = () => {
 						focusedContent={focusedContent}
 						files={sharedWithMe}
 						showHorizontalFolders={false}
-						folders={sharedFolders.sharedWithMe}
+						folders={thisSharedFolders.sharedWithMe}
 						view="list"
 						showFolders={true}
 						filesTitle="Received"
