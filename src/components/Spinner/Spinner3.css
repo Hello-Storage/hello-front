@@ -5,3 +5,15 @@
 .spinner.flip::before {
     background: #777778;
 }
+
+.mini-spinner{
+    width: 18px !important;
+    height: 18px !important;
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+}
+
+.mini-spinner::before {
+    max-width: 18px;
+    max-height: 18px;
+}

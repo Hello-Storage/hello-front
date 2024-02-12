@@ -1,11 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import getAccountType from "api/getAccountType";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { HiPlus } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "state";
-import { Api, EncryptionStatus, File as FileType } from "api";
+import { Api, EncryptionStatus, File as FileType, ShareState, User } from "api";
 import { toast } from "react-toastify";
 import { PiShareFatFill } from "react-icons/pi";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
@@ -448,10 +447,8 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	};
 
 	useEffect(() => {
-		//dispatch(setSelectedSharedFiles());
 		setProcesing(false);
 		setreadyToshare(false);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {

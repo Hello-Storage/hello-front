@@ -5,10 +5,10 @@ import { useParams } from "react-router-dom"
 import { ShareFolderResponse } from "./Utils/types"
 import Content from "pages/MyStorage/components/Content"
 import { useAppSelector } from "state"
-import Imageview from "components/ImageView/Imageview"
+import { useModal } from "components/Modal";
+import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 
 export function FolderShared() {
-    const [loaded, setloaded] = useState(false);
     const [loading, setLoading] = useState(true);
     const [content, setContent] = useState<ShareFolderResponse>()
     const [error, seterror] = useState()
@@ -16,6 +16,16 @@ export function FolderShared() {
     const {
         showPreview,
     } = useAppSelector((state) => state.mystorage);
+
+    const [onPresent] = useModal(<CustomFileViewer
+        files={content ? content.files ? content.files : [] : []}
+    />);
+
+    useEffect(() => {
+        if (showPreview && (content ? content.files ? content.files : [] : []).length > 0) {
+            onPresent();
+        }
+    }, [showPreview]);
 
     const { folderuid } = useParams<{ folderuid: string }>()
 
@@ -32,12 +42,6 @@ export function FolderShared() {
         <>
             {(content && ((content.files && content.files.length > 0) || (content.folders && content.folders.length > 0)) && !loading) && (
                 <section>
-                    <Imageview
-                        isOpen={showPreview}
-                        files={content.files ? content.files : []}
-                        loaded={loaded}
-                        setloaded={setloaded}
-                    ></Imageview>
                     <h3 className="my-2 text-xl">Shared Folder</h3>
                     <div className="flex items-center mb-2">
                         <MdFolderShared className="mr-2" />
@@ -55,7 +59,6 @@ export function FolderShared() {
                                 showFolders={true}
                                 filesTitle=""
                                 identifier={1}
-                                setloaded={setloaded}
                             />
                         </div>
                     </div>

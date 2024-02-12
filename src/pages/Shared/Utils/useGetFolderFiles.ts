@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Api, EncryptionStatus, File, Folder, RootResponse } from 'api';
+import { Api, File, Folder, RootResponse } from 'api';
 import getAccountType from 'api/getAccountType';
 import getPersonalSignature from 'api/getPersonalSignature';
 import { FolderContentClass, InternalFolderClass } from './types';
 import { useAuth } from 'hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useAppSelector } from 'state';
 import { handleEncryptedFiles, handleEncryptedFolders } from 'utils/encryption/filesCipher';
 
-const useGetFolderFiles = (selectedShareFolder: Folder) => {
+const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
     const personalSignatureRef = useRef<string | undefined>();
     const folderContent = useRef<FolderContentClass>(new FolderContentClass(selectedShareFolder, undefined));
     const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);

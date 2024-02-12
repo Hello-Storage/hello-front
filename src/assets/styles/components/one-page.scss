@@ -1,0 +1,132 @@
+.one-page-btn * {
+  font-family: "Inter", sans-serif;
+  scroll-behavior: smooth;
+}
+
+.gradient-01 {
+  background-image: linear-gradient(270deg,
+      #ff6cf560 0%,
+      #b163ff60 50%,
+      #5cff6d60 100%);
+  filter: blur(125px);
+}
+
+.hero-gradient {
+  background: linear-gradient(97.86deg,
+      #a509ff 0%,
+      #34acc7 53.65%,
+      #a134c7 100%);
+}
+
+.gradient-02 {
+  position: absolute;
+  width: 70%;
+  height: 300px;
+  top: -100px;
+  left: -50px;
+
+  background: #7aebfb90;
+  filter: blur(190px);
+}
+
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.gradient-03 {
+  position: absolute;
+  width: 404px;
+  height: 800px;
+  left: 20%;
+  top: 5%;
+
+  background: rgba(149, 66, 232, 0.35);
+  filter: blur(175px);
+  transform: rotate(-114.2deg);
+}
+
+.gradient-04 {
+  position: absolute;
+  width: 304px;
+  height: 100vh;
+  left: 30%;
+  top: 10%;
+
+  background: rgba(45, 72, 152, 0.75);
+  filter: blur(200px);
+  transform: rotate(-53.13deg);
+}
+
+.gradient-05 {
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0) 100%);
+}
+
+.feedback-gradient {
+  position: absolute;
+  width: 200px;
+  height: 316px;
+  left: 0px;
+  top: 0px;
+
+  background: #8d39a3;
+  filter: blur(175px);
+}
+
+.footer-gradient {
+  width: 500px;
+  height: 100px;
+
+  background: #65c4fa;
+  filter: blur(150px);
+}
+
+#spline {
+  display: block;
+  height: 500px !important;
+}
+
+.rainbow-border {
+  border: 3px solid gray;
+  animation: rainbow-border 2s linear infinite;
+  background-image: linear-gradient(#ff7a7a,
+      #ffd26f 10%,
+      #f1fd6e 20%,
+      #70fe68 30%,
+      #4ffaef 40%,
+      #63ebfb 50%,
+      rgb(107, 162, 249) 60%,
+      rgb(134, 102, 250) 70%,
+      #e076fd 80%,
+      #f673e9 90%,
+      #ff6f6f);
+  background-size: 200% 200%;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  transition: transform 0.3s ease;
+}
+
+@keyframes rainbow-border {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 0 -200%;
+  }
+}
+
+//:hover
+.group .rainbow-border {
+  border: 4px solid transparent;
+  border-radius: 48px;
+  transform: perspective(5000px) rotateX(20deg) rotateY(-16deg) rotateZ(7deg) translateY(-20px) translateX(-20px) !important;
+  transform-origin: center;
+  transition: transform 0.1s ease;
+}

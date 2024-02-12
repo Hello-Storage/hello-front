@@ -4,7 +4,6 @@ import setAccountType from "api/setAccountType";
 import { GoogleIcon } from "components";
 import { useAuth } from "hooks";
 import { useState } from "react";
-import { toast } from "react-toastify";
 import { Theme } from "state/user/reducer";
 import { getTheme } from "utils/user";
 import * as Web3 from "web3";

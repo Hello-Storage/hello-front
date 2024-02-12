@@ -1,3 +1,5 @@
+import { ShareState, ShareStateUserShared } from "./share";
+
 export enum EncryptionStatus {
   Public = "public",
   Encrypted = "encrypted",

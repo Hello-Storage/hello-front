@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Api, RootResponse, SharedResponse, UserDetailResponse } from "api";

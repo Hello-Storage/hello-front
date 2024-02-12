@@ -8,12 +8,13 @@ import { useAppSelector } from "state";
 import { useEffect, useState } from "react";
 import useFetchData from "hooks/useFetchData";
 import { Theme } from "state/user/reducer";
+import { SpinnerMini } from "components/Spinner";
 
 export default function Dashboard() {
 	const { fetchUserDetail } = useFetchData();
 	const [selectedRange, setselectedRange] = useState("Day")
 
-	const { width, height, ref } = useResizeDetector();
+	const { width, ref } = useResizeDetector();
 	const { uid } = useAppSelector((state) => state.user);
 	const [counttotalusedstorageuser, setcounttotalusedstorageuser] =
 		useState(0);
@@ -80,54 +81,70 @@ export default function Dashboard() {
 
 		return () => clearInterval(intervalId);
 	}, []);
-	
-	const {theme} = useAppSelector((state) => state.user);
+
+	const { theme } = useAppSelector((state) => state.user);
 
 	return (
-		<div className={"dashboard-container"+ (theme===Theme.DARK? " dark-theme" : "")}>
+		<div className={"dashboard-container" + (theme === Theme.DARK ? " dark-theme" : "")}>
 			<h1 className="text-xl font-medium">Dashboard</h1>
 			<div className="grid grid-cols-1 gap-5 mt-4 md:grid-cols-2 lg:grid-cols-5 md:gap-10">
 				<div className="p-3 border rounded-md">
 					<label>Used Storage</label>
 					<div className="">
-						<label className="text-sm text-gray-500">
-							<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
-								{formatBytes(counttotalusedstorageuser)}
-							</label>
-						</label>
+						{loading ? <SpinnerMini /> :
+							<>
+								<label className="text-sm text-gray-500">
+									<label className={"text-2xl font-semibold " + (theme === Theme.DARK ? " text-white" : "text-black")}>
+										{formatBytes(counttotalusedstorageuser)}
+									</label>
+								</label>
+							</>
+						}
 					</div>
 				</div>
 
 				<div className="p-3 border rounded-md">
 					<label>Total files</label>
 					<div className="">
-						<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
-							{counttotalfilesuser}
-						</label>
+						{loading ? <SpinnerMini /> :
+							<>
+								<label className={"text-2xl font-semibold " + (theme === Theme.DARK ? " text-white" : "text-black")}>
+									{counttotalfilesuser}
+								</label>
+							</>
+						}
 					</div>
 				</div>
 
 				<div className="p-3 border rounded-md">
 					<label>Public files</label>
 					<div className="">
-						<label className="text-sm text-gray-500">
-							<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
-								{counttotalpublicfilesuser}
-							</label>{" "}
-							/ files
-						</label>
+						{loading ? <SpinnerMini /> :
+							<>
+								<label className="text-sm text-gray-500">
+									<label className={"text-2xl font-semibold " + (theme === Theme.DARK ? " text-white" : "text-black")}>
+										{counttotalpublicfilesuser}
+									</label>{" "}
+									/ files
+								</label>
+							</>
+						}
 					</div>
 				</div>
 
 				<div className="p-3 border rounded-md">
 					<label>Encrypted files</label>
 					<div className="">
-						<label className="text-sm text-gray-500">
-							<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
-								{counttotalencryptedfilesuser}
-							</label>{" "}
-							/ files
-						</label>
+						{loading ? <SpinnerMini /> :
+							<>
+								<label className="text-sm text-gray-500">
+									<label className={"text-2xl font-semibold " + (theme === Theme.DARK ? " text-white" : "text-black")}>
+										{counttotalencryptedfilesuser}
+									</label>{" "}
+									/ files
+								</label>
+							</>
+						}
 					</div>
 				</div>
 
@@ -135,10 +152,14 @@ export default function Dashboard() {
 					<label>Folders</label>
 					<div className="">
 						<label className="text-sm text-gray-500">
-							<label className={"text-2xl font-semibold "+ (theme===Theme.DARK? " text-white" : "text-black")}>
-								{counttotalpublicfoldersuser}
-							</label>{" "}
-							/ folders
+							{loading ? <SpinnerMini /> :
+								<>
+									<label className={"text-2xl font-semibold " + (theme === Theme.DARK ? " text-white" : "text-black")}>
+										{counttotalpublicfoldersuser}
+									</label>{" "}
+									/ folders
+								</>
+							}
 						</label>
 					</div>
 				</div>
@@ -169,27 +190,27 @@ export default function Dashboard() {
 				<div className="flex-1 mb-[90px] ">
 					<div className="flex flex-row items-center justify-center">
 						<h5 className="mr-2 text-xl font-medium">
-							Storage used by{" "+selectedRange}
+							Storage used by{" " + selectedRange}
 						</h5>
 					</div>
 
 					<div className="w-full h-[90%] flex flex-col justify-center items-center">
-						<Chart period={selectedRange.toLowerCase()}/>
+						<Chart period={selectedRange.toLowerCase()} />
 					</div>
 					<div className="flex items-center justify-center w-full mt-4 ">
 						<p className="mr-2">
-						Select Time Period
+							Select Time Period
 						</p>
 						<select
 							id="timePeriod"
 							name="timePeriod"
-							className={"block px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"+ (theme===Theme.DARK? " dark-theme3" : "")}
+							className={"block px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" + (theme === Theme.DARK ? " dark-theme3" : "")}
 							defaultValue="day"
-							onChange={(e)=>{
-								const selected=e.target.querySelector('option:checked')?.textContent
-								setselectedRange(selected+"");
+							onChange={(e) => {
+								const selected = e.target.querySelector('option:checked')?.textContent
+								setselectedRange(selected + "");
 							}}
-							>
+						>
 							<option value="day">Day</option>
 							<option value="week">Week</option>
 							<option value="month">Month</option>

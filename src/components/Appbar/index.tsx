@@ -15,7 +15,7 @@ import { setTheme } from "state/user/actions";
 import { Theme } from "state/user/reducer";
 import { formatName } from "utils";
 import { getTheme } from "utils/user";
-import { Modal, useModal } from "components/Modal";
+import { useModal } from "components/Modal";
 import { Support } from "./components/Support";
 
 interface AppbarProps {

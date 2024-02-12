@@ -24,7 +24,9 @@ export default function AppLayout() {
 
   const accountType = getAccountType();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { connector: activeConnector, isConnected } = useAccount();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect();
 

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Folder, File, Api } from "api";
 import FolderItem from "./FolderItem";
 import FileItem from "./FileItem";
@@ -24,10 +24,9 @@ interface ContentProps {
   showFolders: boolean;
   filesTitle: string;
   identifier: number;
-  setloaded: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, setloaded, showHorizontalFolders, actionsAllowed }) => {
+const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, showHorizontalFolders, actionsAllowed }) => {
   type itemInfo = {
     type: string;
     id: string;
@@ -278,7 +277,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   const handleDropSingle = (
     event: React.DragEvent<HTMLTableRowElement>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any,
     itemType: string
   ) => {
@@ -357,7 +355,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   useEffect(() => {
     handleFocusResize()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [windowWidth])
 
   useEffect(() => {
@@ -365,7 +363,10 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     const visScroll = document.getElementById("scroll-visible-section");
     const widthHelper = document.getElementById("width-section-helper");
     const size = folders.length * 240 + 240 + "px";
-    if (widthHelper) widthHelper.style.width = size;
+    if (widthHelper) {
+      widthHelper.style.width = size;
+      widthHelper.style.height = "1px";
+    }
     if (invScroll && visScroll) {
       invScroll.onscroll = function () {
         if (invScroll && visScroll)
@@ -377,13 +378,13 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       };
     }
     handleResize();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [folders]);
 
   useLayoutEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   const { theme } = useAppSelector((state) => state.user);
@@ -616,7 +617,6 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                                 file={v}
                                 key={i}
                                 view="list"
-                                setloaded={setloaded}
                               />
                             </tr>
                           ))}
@@ -698,7 +698,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                     <FileItem file={v} key={i}
                       view="grid"
                       actionsAllowed={actionsAllowed}
-                      setloaded={setloaded} />
+                      />
                   </div>
                 ))}
               </section>

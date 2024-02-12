@@ -26,13 +26,6 @@ import { Theme } from "state/user/reducer";
 export default function Login() {
   useTitle("hello.app | Space");
   const { authenticated, loading, redirectUrl } = useAppSelector((state) => state.user);
-  const [isRef, setIsRef] = useState(false);
-
-  // Capture the ref query parameter
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setIsRef(params.get('ref') === 'ns');
-  }, [location.search]);
 
   const { startOTP } = useAuth();
   const [email, setEmail] = useState("");
