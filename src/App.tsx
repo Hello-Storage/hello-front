@@ -78,7 +78,8 @@ function App() {
       <TrackPageViews />
       <Suspense fallback={<Spinner3 />}>
         <Routes>
-          <Route path="*" element={<NotFound></NotFound>} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
+          <Route path="/404" element={<NotFound />} />
           <Route
             path="/"
             element={

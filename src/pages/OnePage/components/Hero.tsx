@@ -98,15 +98,15 @@ export const Hero = () => {
           alt="Illustration"
         />
       </div>
-      <section className="relative flex flex-col justify-start mt-8 items-center mx-8 md:mx-0">
+      <section className="relative flex flex-col justify-center h-screen items-center mx-8 top-[-104px]">
         <div className="max-w-3xl flex flex-col md:gap-10 gap-5 justify-center text-center mb-8 one-page-btn">
-          <h1 className="font-extrabold tracking-tight text-white md:text-6xl text-4xl text-center antialiased">
-            dream with us{" "}
+          <h2 className="font-extrabold tracking-tight text-white md:text-6xl text-4xl text-center antialiased">
+            Dream with us{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500/80 to-sky-500/80">
               upload anything you want
             </span>
-          </h1>
-      
+          </h2>
+
         </div>
         <div
           ref={uploadRef}
@@ -116,30 +116,31 @@ export const Hero = () => {
           onDrop={handleFileDrop}
         >
           <div className="relative translate-z-10">
-          <a href="https://hello.app/space/login">
-            <img
-              src="https://media.publit.io/file/3Dbox.svg"
-              alt="Upload Box"
-              className="w-[280px] h-[260px] rounded-[2rem]"
-            />
-            <div className="absolute w-[240px] h-[240px] inset-0 rainbow-border 
+            <a href="/space/login">
+              <img
+                src="https://media.publit.io/file/3Dbox.svg"
+                alt="Upload Box"
+                className="w-[150px] h-[150px] md:w-[280px] md:h-[260px] rounded-[2rem]"
+              />
+              <div className="absolute w-[90%] h-[90%] inset-0 rainbow-border 
             opacity-0 group-hover:opacity-100 transform group-hover:scale-90"></div>{" "}
-          </a>
+            </a>
           </div>
         </div>
-        <div className="flex items-center gap-4 md:mt-16 mt-8">
-        <a href="https://docs.hello.app/" className="relative px-12 py-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-900 hover:from-violet-600 hover:to-violet-900 cursor-pointer inline-block">
-  <span className="relative z-10 text-white">About</span>
-  <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
-</a>
-
-<a href="/space/login" className="relative px-12 py-3 bg-gradient-to-b from-violet-500 to-violet-800 hover:from-violet-600 hover:to-violet-900 rounded-xl cursor-pointer inline-block">
-  <span className="relative z-10 text-white">Enter</span>
-  <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
-</a>
-
+        <div className="flex items-center gap-4 md:my-16 my-8">
+          <a href="https://docs.hello.app/" 
+          title="Read the Documentation"
+          className="relative px-12 py-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-900 hover:from-violet-600 hover:to-violet-900 cursor-pointer inline-block">
+            <span className="relative z-10 text-white">About</span>
+            <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
+          </a>
+          <a href="/space/login" 
+          title="Go to Login Page"
+          className="relative px-12 py-3 bg-gradient-to-b from-violet-500 to-violet-800 hover:from-violet-600 hover:to-violet-900 rounded-xl cursor-pointer inline-block">
+            <span className="relative z-10 text-white">Enter</span>
+            <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
+          </a>
         </div>
-
         {showModal && (
           <div className="inset-0 overflow-y-auto">
             <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">

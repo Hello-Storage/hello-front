@@ -90,7 +90,6 @@
   display: block;
   height: 500px !important;
 }
-
 .rainbow-border {
   border: 3px solid gray;
   animation: rainbow-border 2s linear infinite;
@@ -106,12 +105,12 @@
       #f673e9 90%,
       #ff6f6f);
   background-size: 200% 200%;
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
   -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   transition: transform 0.3s ease;
 }
-
 @keyframes rainbow-border {
   0% {
     background-position: 0 0;
@@ -124,9 +123,22 @@
 
 //:hover
 .group .rainbow-border {
+  transition: all 0.3s ease;
   border: 4px solid transparent;
-  border-radius: 48px;
-  transform: perspective(5000px) rotateX(20deg) rotateY(-16deg) rotateZ(7deg) translateY(-20px) translateX(-20px) !important;
+  border-radius: 21%;
+  transform: perspective(5000px) rotateX(20deg) rotateY(-16deg) rotateZ(7deg) translateY(-10%) translateX(-10%) !important;
   transform-origin: center;
   transition: transform 0.1s ease;
+  -webkit-border-radius: 21%;
+  -moz-border-radius: 21%;
+  -ms-border-radius: 21%;
+  -o-border-radius: 21%;
+  -webkit-transform: perspective(5000px) rotateX(20deg) rotateY(-16deg) rotateZ(7deg) translateY(-10%) translateX(-10%) !important;
+  -moz-transform: perspective(5000px) rotateX(20deg) rotateY(-16deg) rotateZ(7deg) translateY(-10%) translateX(-10%) !important;
+  -ms-transform: perspective(5000px) rotateX(20deg) rotateY(-16deg) rotateZ(7deg) translateY(-10%) translateX(-10%) !important;
+  -o-transform: perspective(5000px) rotateX(20deg) rotateY(-16deg) rotateZ(7deg) translateY(-10%) translateX(-10%) !important;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
 }
