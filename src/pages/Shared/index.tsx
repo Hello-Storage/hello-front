@@ -182,7 +182,6 @@ const Shared = () => {
 			);
 		}
 
-
 		const currentSharedFolders: { sharedByMe: Folder[], sharedWithMe: Folder[] } = {
 			sharedByMe: sharedFolders.sharedByMe.slice(
 				sharedByMeStartIndex,
@@ -203,6 +202,8 @@ const Shared = () => {
 			toast.error("Failed to decrypt content");
 			fetchSharedContent(setLoading);
 		}
+		setLoading(false)
+		dispatch(refreshAction(false))
 	}
 
 	useEffect(() => {
@@ -217,6 +218,7 @@ const Shared = () => {
 
 
 	const paginateContent = async () => {
+		setLoading(true)
 
 		const totalSharedItemsTemp = sharedFiles.sharedByMe.length;
 		const totalSharedPagesTemp = Math.ceil(totalSharedItemsTemp / itemsPerPage);
@@ -234,6 +236,9 @@ const Shared = () => {
 		const tempSharedEndIndex = tempSharedStartIndex + itemsPerPage;
 		const tempReceivedEndIndex = tempReceivedStartIndex + itemsPerPage;
 
+		const sharedByMeStartIndex = Math.max(0, tempSharedStartIndex);
+		const sharedWithMeStartIndex = Math.max(0, tempReceivedStartIndex);
+
 		setStartSharedIndex(tempSharedStartIndex);
 		setStartReceivedIndex(tempReceivedStartIndex);
 		setEndSharedIndex(Math.min(tempSharedEndIndex, totalSharedItemsTemp));
@@ -245,27 +250,24 @@ const Shared = () => {
 		const filesReceivedStartIndex = Math.max(0, tempReceivedStartIndex);
 
 
+
+
+
+
 		const currentSharedFolders: { sharedByMe: Folder[], sharedWithMe: Folder[] } = {
 			sharedByMe: sharedFolders.sharedByMe.slice(
-				Math.min(filesSharedStartIndex, filesReceivedStartIndex),
-				Math.min(filesSharedStartIndex, filesReceivedStartIndex) + filesItemsCount
+				sharedByMeStartIndex,
+				sharedByMeStartIndex + itemsPerPage
 			),
-			/*
 			sharedWithMe: sharedFolders.sharedWithMe.slice(
-				Math.min(0 , filesReceivedStartIndex),
-				Math.min(0, filesReceivedStartIndex) + filesItemsCount
-			)
-			*/
-			sharedWithMe: sharedFolders.sharedWithMe.slice(
-				0,
-				1
+				sharedWithMeStartIndex,
+				sharedWithMeStartIndex + itemsPerPage
 			)
 		}
 
 		const currentSharedFiles = paginate(sharedFiles.sharedByMe, filesSharedStartIndex, filesItemsCount)
 		const currentReceivedFiles = paginate(sharedFiles.sharedWithMe, filesReceivedStartIndex, filesItemsCount)
 		// TODO: decrypt files
-
 		if (!currentSharedFiles || !currentReceivedFiles) {
 			toast.error("Failed to decrypt content");
 			fetchSharedContent(setLoading);
@@ -273,10 +275,51 @@ const Shared = () => {
 
 
 
+
+
+
+		const decryptedFilesSharedWithMe = await handleEncryptedFiles(
+			currentReceivedFiles
+				? currentReceivedFiles.slice()
+				: [],
+			personalSignatureRef.current || "",
+			name,
+			autoEncryptionEnabled,
+			accountType,
+			logout
+		);
+
+
+		const decryptedFilesSharedByMe = await handleEncryptedFiles(
+			currentSharedFiles ? currentSharedFiles.slice() : [],
+			personalSignatureRef.current || "",
+			name,
+			autoEncryptionEnabled,
+			accountType,
+			logout
+		);
+
+		if (
+			decryptedFilesSharedWithMe &&
+			decryptedFilesSharedByMe &&
+			decryptedFilesSharedWithMe.length > 0 &&
+			decryptedFilesSharedByMe.length > 0
+		) {
+			dispatch(
+				updateDecryptedSharedFilesAction({
+					sharedByMe: decryptedFilesSharedByMe,
+					sharedWithMe: decryptedFilesSharedWithMe,
+				})
+			);
+		}
+
+
+
 		console.log("current currentSharedFolders:", currentSharedFolders)
 		setThisSharedFolders(currentSharedFolders)
-		setSharedByMe(currentSharedFiles);
-		setSharedWithMe(currentReceivedFiles);
+		setSharedByMe(decryptedFilesSharedByMe || []);
+		setSharedWithMe(decryptedFilesSharedWithMe || []);
+		setLoading(false)
 	}
 
 	// Refs to store previous values
@@ -294,22 +337,14 @@ const Shared = () => {
 		}
 
 
-		paginateContent().then(() => {
-			fetchContent().then(() => {
-				setLoading(false);
-				dispatch(refreshAction(false))
-			})
-		})
+		paginateContent()
 
 	}, [sharedFiles.sharedWithMe.length, sharedFiles.sharedByMe.length, currentSharedPage, currentReceivedPage])
 
 
 	useEffect(() => {
 		if (refresh) {
-			fetchContent().then(() => {
-				setLoading(false);
-				dispatch(refreshAction(false))
-			});
+			fetchContent()
 		}
 	}, [sharedFiles]);
 
