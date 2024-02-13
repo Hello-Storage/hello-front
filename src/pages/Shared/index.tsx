@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
@@ -28,6 +26,8 @@ const Shared = () => {
 	const dispatch = useDispatch();
 
 
+	const [sharedByMe, setSharedByMe] = useState<FileType[]>([]);
+	const [sharedWithMe, setSharedWithMe] = useState<FileType[]>([]);
 
 	const {
 		sharedFiles,
@@ -55,6 +55,21 @@ const Shared = () => {
 		};
 	}, []);
 
+
+
+	const [onPresent] = useModal(<CustomFileViewer
+		files={[...sharedByMe,
+		...sharedWithMe]}
+	/>);
+
+	useEffect(() => {
+		if (showPreview && [...sharedByMe,
+		...sharedWithMe].length > 0 && !showShareModal) {
+			onPresent();
+		}
+	}, [showPreview]);
+
+
 	const [totalSharedItems, setTotalSharedItems] = useState(0);
 	const [totalSharedPages, setTotalSharedPages] = useState(0);
 	const [currentSharedPage, setCurrentSharedPage] = useState(1);
@@ -74,9 +89,7 @@ const Shared = () => {
 
 
 
-	const [sharedByMe, setSharedByMe] = useState<FileType[]>([]);
 
-	const [sharedWithMe, setSharedWithMe] = useState<FileType[]>([]);
 
 	const [loading, setLoading] = useState(false);
 	const [focusedContent, setFocusedContent] = useState(0);
@@ -277,11 +290,9 @@ const Shared = () => {
 
 
 
-
 		const decryptedFilesSharedWithMe = await handleEncryptedFiles(
 			currentReceivedFiles
-				? currentReceivedFiles.slice()
-				: [],
+			,
 			personalSignatureRef.current || "",
 			name,
 			autoEncryptionEnabled,
@@ -291,13 +302,14 @@ const Shared = () => {
 
 
 		const decryptedFilesSharedByMe = await handleEncryptedFiles(
-			currentSharedFiles ? currentSharedFiles.slice() : [],
+			currentSharedFiles,
 			personalSignatureRef.current || "",
 			name,
 			autoEncryptionEnabled,
 			accountType,
 			logout
 		);
+
 
 		if (
 			decryptedFilesSharedWithMe &&
@@ -315,7 +327,6 @@ const Shared = () => {
 
 
 
-		console.log("current currentSharedFolders:", currentSharedFolders)
 		setThisSharedFolders(currentSharedFolders)
 		setSharedByMe(decryptedFilesSharedByMe || []);
 		setSharedWithMe(decryptedFilesSharedWithMe || []);
@@ -348,17 +359,6 @@ const Shared = () => {
 		}
 	}, [sharedFiles]);
 
-	const [onPresent] = useModal(<CustomFileViewer
-		files={[...sharedByMe,
-		...sharedWithMe]}
-	/>);
-
-	useEffect(() => {
-		if (showPreview && [...sharedByMe,
-		...sharedWithMe].length > 0 && !showShareModal) {
-			onPresent();
-		}
-	}, [showPreview]);
 
 	return (
 		<section>
@@ -387,6 +387,7 @@ const Shared = () => {
 			<div className="hidden w-full lg:flex">
 				<div className="w-[99%] share-content">
 					<Content
+						contentIsShared={true}
 						actionsAllowed={true}
 						loading={loading}
 						focusedContent={focusedContent}
@@ -412,6 +413,7 @@ const Shared = () => {
 				<span className="w-[2%]"></span>
 				<div className="w-[99%] share-content">
 					<Content
+						contentIsShared={true}
 						actionsAllowed={true}
 						loading={loading}
 						focusedContent={focusedContent}
@@ -438,6 +440,7 @@ const Shared = () => {
 			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
 				<div>
 					<Content
+						contentIsShared={true}
 						actionsAllowed={true}
 						loading={loading}
 						focusedContent={focusedContent}
@@ -463,6 +466,7 @@ const Shared = () => {
 
 				<div>
 					<Content
+						contentIsShared={true}
 						actionsAllowed={true}
 						loading={loading}
 						focusedContent={focusedContent}

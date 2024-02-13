@@ -462,7 +462,6 @@ export default function Home() {
 
       <section className="invisible-scrollbar " id="scroll-invisible-section">
         <Content
-          focusedContent={null}
           loading={loading}
           actionsAllowed={true}
           showHorizontalFolders={true}
