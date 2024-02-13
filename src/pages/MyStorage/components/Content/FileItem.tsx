@@ -25,6 +25,7 @@ import {
 import React from "react";
 import { useAppDispatch, useAppSelector } from "state";
 import {
+	removeSharedFileAction,
 	setFileViewAction,
 	setImageViewAction,
 	setSelectedShareFile,
@@ -39,12 +40,13 @@ import { Theme } from "state/user/reducer";
 dayjs.extend(relativeTime);
 
 interface FileItemProps {
+	contentIsShared?: boolean;
 	actionsAllowed: boolean;
 	file: FileType;
 	view: "list" | "grid";
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, view, actionsAllowed }) => {
+const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view, actionsAllowed }) => {
 	const dispatch = useAppDispatch();
 	const ref = useRef<HTMLDivElement>(null);
 	const [open, setOpen] = useState(false);
@@ -184,7 +186,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, actionsAllowed }) => {
 	const handleView = () => {
 		viewRef.current = true;
 
-		toast.info("Loading File");
+		toast.info("Loading " + file.name);
 		dispatch(setFileViewAction({ file: undefined }));
 		dispatch(setImageViewAction({ show: false }));
 
@@ -206,7 +208,11 @@ const FileItem: React.FC<FileItemProps> = ({ file, view, actionsAllowed }) => {
 		Api.delete(`/file/delete/${file.uid}`)
 			.then(() => {
 				toast.success("File deleted!");
-				dispatch(removeFileAction(file.uid));
+				if (contentIsShared) {
+					dispatch(removeSharedFileAction(file.uid));
+				} else {
+					dispatch(removeFileAction(file.uid));
+				}
 			})
 			.catch((err) => {
 				console.error("Error deleting file:", err);

@@ -44,7 +44,8 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
     ) => {
         try {
             // Check if the file is already in the cache
-            if (!cache[file.uid]) {
+            const blob = cache[file.uid];
+            if (!(blob instanceof Blob)) {
                 // If file not in cache, download it
                 const res = await Api.get(`/file/download/${file.uid}`, {
                     responseType: "blob",
@@ -89,8 +90,8 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                     );
                 }
 
-                if (file.file_share_state && file.file_share_state.id !== 0) {
-                    const originalCid = file.file_share_state.public_file.cid_original_decrypted;
+                if (file.file_share_states_user_shared && file.file_share_states_user_shared.id !== 0 && file.file_share_states_user_shared.public_files_user_shared.id !== 0) {
+                    const originalCid = file.file_share_states_user_shared.public_files_user_shared.cid_original_decrypted;
                     if (originalCid != "") {
                         binaryData = await blobToArrayBuffer(binaryData);
                         binaryData = await decryptFileBuffer(
@@ -155,7 +156,6 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                 }
                 return mediaItem;
             } else {
-                const blob = cache[file.uid];
                 const url = window.URL.createObjectURL(blob);
 
                 // Process file based on MIME type
@@ -464,7 +464,9 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                                     uid={file.uid}
                                     loading={loading}
                                     name={file.name}
-                                    src={cache[file.uid] ? window.URL.createObjectURL(cache[file.uid]) : ""}
+                                    src={
+                                        cache[file.uid] instanceof Blob ? window.URL.createObjectURL(cache[file.uid]) : ""
+                                    }
                                     selected={selectedShowFile?.uid === file.uid}
                                     files={files}
                                 />

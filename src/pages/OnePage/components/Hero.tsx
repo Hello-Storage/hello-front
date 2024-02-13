@@ -133,7 +133,7 @@ export const Hero = () => {
   <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
 </a>
 
-<a href="https://hello.app/space/login" className="relative px-12 py-3 bg-gradient-to-b from-violet-500 to-violet-800 hover:from-violet-600 hover:to-violet-900 rounded-xl cursor-pointer inline-block">
+<a href="/space/login" className="relative px-12 py-3 bg-gradient-to-b from-violet-500 to-violet-800 hover:from-violet-600 hover:to-violet-900 rounded-xl cursor-pointer inline-block">
   <span className="relative z-10 text-white">Enter</span>
   <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
 </a>
