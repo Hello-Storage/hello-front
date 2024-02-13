@@ -132,6 +132,11 @@ export default function Home() {
       filesStartIndex + itemsPerPage
     );
 
+    const currentEncryptedFolders = folders.slice(
+      filesStartIndex,
+      filesStartIndex + itemsPerPage
+    );
+
 
     if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
       hasCalledGetPersonalSignatureRef.current = true;
@@ -164,7 +169,7 @@ export default function Home() {
     setCurrentFiles(decryptedFiles || []);
 
     const decryptedFolders = await handleEncryptedFolders(
-      folders,
+      currentEncryptedFolders,
       personalSignatureRef.current || "",
     );
 
@@ -177,6 +182,7 @@ export default function Home() {
       toast.error("Failed to decrypt content");
       fetchRootContent(setLoading);
     }
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -221,6 +227,7 @@ export default function Home() {
   }, [refresh]);
 
   const paginateContent = async () => {
+    setLoading(true);
     const itemsPerPage = 10;
 
     const totalItemsTemp = files.length;
@@ -244,28 +251,67 @@ export default function Home() {
       filesStartIndex + filesItemsCount
     )
 
-    // TODO: decrypt files
+    const thisCurrentFolders = folders.slice(
+      filesStartIndex,
+      filesStartIndex + filesItemsCount
+    )
+
 
     if (!currentFiles || !currentFolders) {
       toast.error("Failed to decrypt content");
       fetchRootContent(setLoading);
     }
 
-    setCurrentFiles(currentFiles);
-    setCurrentFolders(currentFolders);
+    const decryptedFiles = await handleEncryptedFiles(
+      currentFiles,
+      personalSignatureRef.current || "",
+      name,
+      autoEncryptionEnabled,
+      accountType,
+      logout
+    );
+
+    if (decryptedFiles && decryptedFiles.length > 0) {
+      dispatch(updateDecryptedFilesAction(decryptedFiles));
+    }
+
+
+    const decryptedFolders = await handleEncryptedFolders(
+      thisCurrentFolders,
+      personalSignatureRef.current || "",
+    );
+    console.log("decrypted foldears.: ", decryptedFolders)
+
+    if (decryptedFolders && decryptedFolders.length > 0) {
+      dispatch(updateDecryptedFoldersAction(decryptedFolders));
+    }
+
+
+    setCurrentFiles(decryptedFiles || []);
+
+
+
+    setCurrentFolders(decryptedFolders || []);
+
+    setLoading(false);
   }
 
   useEffect(() => {
     setCurrentFolders(folders);
   }, [folders.length, folders]);
 
+  const mounted = useRef(false);
+
   useEffect(() => {
     paginateContent().then(() => {
-      fetchContent().then(() => {
-        setLoading(false);
-        setPersonalSignatureDefined(true);
-        dispatch(refreshAction(false))
-      })
+      if (!mounted.current) {
+        fetchContent().then(() => {
+
+          setPersonalSignatureDefined(true);
+          dispatch(refreshAction(false))
+        })
+        mounted.current = true;
+      }
     })
 
   }, [files.length, folders.length, currentPage])
