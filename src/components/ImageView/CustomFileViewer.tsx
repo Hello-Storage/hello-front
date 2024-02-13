@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { useAppSelector } from "state";
-import { PreviewImage, addCache, resetCache, setFileViewAction, setImageViewAction } from "state/mystorage/actions";
+import { PreviewImage, addCache, setFileViewAction, setImageViewAction } from "state/mystorage/actions";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { blobToArrayBuffer, decryptFileBuffer } from "utils/encryption/filesCipher";
 
