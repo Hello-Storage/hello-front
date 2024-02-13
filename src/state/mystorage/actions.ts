@@ -28,6 +28,8 @@ export const removeContent = createAction<undefined>("dashboard/remove-content")
 
 export const removeFileAction = createAction<string>("dashboard/remove-file");
 
+export const removeSharedFileAction = createAction<string>("dashboard/remove-shared-file");
+
 export const removeFolder = createAction<string>("dashboard/remove-folder");
 
 export const createFileAction = createAction<FileType>("dashboard/create-file");

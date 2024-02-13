@@ -8,13 +8,15 @@ import { RiFolderAddLine } from "react-icons/ri";
 import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
 import { useAppDispatch, useAppSelector } from "state";
-import { removeFileAction } from "state/mystorage/actions";
+import { removeFileAction, removeSharedFileAction } from "state/mystorage/actions";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { Theme } from "state/user/reducer";
 import ContentFolderItem from "./ContentFolderItem";
 
 interface ContentProps {
+  contentIsShared?: boolean | undefined;
+  focusedContent?: number | undefined;
   loading: boolean;
   folders: Folder[];
   files: File[];
@@ -26,7 +28,7 @@ interface ContentProps {
   identifier: number;
 }
 
-const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFolders, filesTitle, identifier, showHorizontalFolders, actionsAllowed }) => {
+const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedContent, loading, view, folders, files, showFolders, filesTitle, identifier, showHorizontalFolders, actionsAllowed }) => {
   type itemInfo = {
     type: string;
     id: string;
@@ -43,9 +45,9 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
   >(null);
   const [onPresent] = useModal(<CreateFolderModal />);
   const onFolderDoubleClick = (folderUID: string) => {
-    if(window.location.pathname.includes("/shared/folder")){
+    if (window.location.pathname.includes("/shared/folder")) {
       navigate(`/space/shared/folder/${folderUID}`);
-    }else{
+    } else {
       navigate(`/space/folder/${folderUID}`);
     }
   };
@@ -287,7 +289,11 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
     })
       .then((res) => {
         console.log("Folder root updated:", res.data);
-        dispatch(removeFileAction(payload.Uid));
+        if (contentIsShared) {
+          dispatch(removeSharedFileAction(payload.Uid));
+        } else {
+          dispatch(removeFileAction(payload.Uid));
+        }
       })
       .catch((err) => {
         console.log("Error updating folder root:", err);
@@ -305,7 +311,11 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       if (deletedCount === selectedItems.length) {
         toast.success("All files deleted!");
       }
-      dispatch(removeFileAction(fileUid));
+      if (contentIsShared) {
+        dispatch(removeSharedFileAction(fileUid));
+      } else {
+        dispatch(removeFileAction(fileUid));
+      }
     };
 
     for (const file of selectedItems) {
@@ -355,7 +365,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
 
   useEffect(() => {
     handleFocusResize()
-    
+
   }, [windowWidth])
 
   useEffect(() => {
@@ -378,13 +388,13 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
       };
     }
     handleResize();
-    
+
   }, [folders]);
 
   useLayoutEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-    
+
   }, []);
 
   const { theme } = useAppSelector((state) => state.user);
@@ -531,7 +541,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
               <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
                 + (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
                 <tbody>
-                  {loading ? (
+                  {loading && (identifier === 1 && focusedContent === 1 || identifier === 2 && focusedContent === 2 || identifier === 3 && focusedContent === 1 || identifier === 4 && focusedContent === 2) || loading && focusedContent === 0 || loading && (focusedContent === undefined || focusedContent === null) ? (
                     <tr className="w-full h-64">
                       <td colSpan={6}>
                         <div className="flex flex-col items-center justify-center w-full h-full text-center">
@@ -613,6 +623,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                               onClick={handleOnClick}
                             >
                               <FileItem
+                              contentIsShared={contentIsShared}
                                 actionsAllowed={actionsAllowed}
                                 file={v}
                                 key={i}
@@ -698,7 +709,7 @@ const Content: React.FC<ContentProps> = ({ loading, view, folders, files, showFo
                     <FileItem file={v} key={i}
                       view="grid"
                       actionsAllowed={actionsAllowed}
-                      />
+                    />
                   </div>
                 ))}
               </section>

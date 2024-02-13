@@ -23,6 +23,7 @@ import {
   fetchSharedContentActionFolders,
   addCache,
   resetCache,
+  removeSharedFileAction,
 } from "./actions";
 import { File as FileType, Folder, RootResponse } from "api";
 
@@ -106,6 +107,13 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
     .addCase(removeFileAction, (state, { payload }) => ({
       ...state,
       files: state.files.filter(file => file.uid !== payload),
+    }))
+    .addCase(removeSharedFileAction, (state, { payload }) => ({
+      ...state,
+      sharedFiles: {
+        sharedWithMe: state.sharedFiles.sharedWithMe.filter(file => file.uid !== payload),
+        sharedByMe: state.sharedFiles.sharedByMe.filter(file => file.uid !== payload),
+      },
     }))
     .addCase(removeFolder, (state, { payload }) => ({
       ...state,

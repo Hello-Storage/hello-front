@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { useAppSelector } from "state";
-import { PreviewImage, addCache, setFileViewAction, setImageViewAction } from "state/mystorage/actions";
+import { PreviewImage, addCache, resetCache, setFileViewAction, setImageViewAction } from "state/mystorage/actions";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { blobToArrayBuffer, decryptFileBuffer } from "utils/encryption/filesCipher";
 
@@ -44,7 +44,8 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
     ) => {
         try {
             // Check if the file is already in the cache
-            if (!cache[file.uid]) {
+            const blob = cache[file.uid];
+            if (!(blob instanceof Blob)) {
                 // If file not in cache, download it
                 const res = await Api.get(`/file/download/${file.uid}`, {
                     responseType: "blob",
@@ -155,7 +156,6 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                 }
                 return mediaItem;
             } else {
-                const blob = cache[file.uid];
                 const url = window.URL.createObjectURL(blob);
 
                 // Process file based on MIME type
@@ -464,7 +464,9 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                                     uid={file.uid}
                                     loading={loading}
                                     name={file.name}
-                                    src={cache[file.uid] ? window.URL.createObjectURL(cache[file.uid]) : ""}
+                                    src={
+                                        cache[file.uid] instanceof Blob ? window.URL.createObjectURL(cache[file.uid]) : ""
+                                    }
                                     selected={selectedShowFile?.uid === file.uid}
                                     files={files}
                                 />
