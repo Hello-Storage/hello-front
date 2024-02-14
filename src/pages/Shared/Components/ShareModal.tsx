@@ -156,7 +156,12 @@ const ShareModal = () => {
 						.then((res) => {
 							const resp = res as AxiosResponse;
 							if (resp.status === 200) {
-								toast.success("File shared successfully");
+								// if user.email contains an email, toast "Email sent successfully to user: " + user.email
+								if (isValidEmail(user.email)) {
+									toast.success("Email sent successfully to user: " + user.email);
+								} else {
+									toast.success("File shared successfully to user: " + user.email);
+								}
 							} else {
 								const err = res as AxiosError;
 								setShareError(err.message);
@@ -186,7 +191,6 @@ const ShareModal = () => {
 							setSelectedShareTypes("public");
 						}
 					}
-					console.log(shareState)
 				} else {
 					toast.error(JSON.stringify(res));
 				}

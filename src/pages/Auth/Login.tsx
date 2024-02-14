@@ -51,7 +51,7 @@ export default function Login() {
 
       const res = await Api.get(`/file/share/published/name/${share_hash}`);
 
-      let publishedFileName = "";
+      let publishedFileName: any = {};
       if ((res as AxiosResponse).status === 200) {
         publishedFileName = res.data;
       }
@@ -63,7 +63,7 @@ export default function Login() {
         }
       }
 
-      return setRedirectMessage(`Log in to view/download: ${publishedFileName}`);
+      return setRedirectMessage(`Login to view/download: ${publishedFileName.name}`);
     }
     return setRedirectMessage("");
   };

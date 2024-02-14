@@ -61,15 +61,19 @@ const SharedWithMe = (props: { shareType: string }) => {
       default:
         break;
     }
-    
+
   }, [])
+
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (metadata) {
-      toast.info("Loading File");
+      toast.info("Loading " + metadata.name + "...");
+      setLoaded(!loaded)
       dispatch(setFileViewAction({ file: undefined }));
       dispatch(setImageViewAction({ show: false }));
 
+      alert(JSON.stringify(metadata))
       dispatch(
         setFileViewAction({
           file: metadata,

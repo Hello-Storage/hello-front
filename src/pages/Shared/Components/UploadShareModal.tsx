@@ -542,8 +542,13 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							.then((res) => {
 								const resp = res as AxiosResponse;
 								if (resp.status === 200) {
-									toast.success("File shared successfully");
-								}else{
+									//if user.email includes @m and selectedShareTypes is email, then it is an email
+									if (user.email.includes("@")) {
+										toast.success("Email sent to " + user.email + " successfully");
+									} else {
+										toast.success("File shared successfully to " + user.email);
+									}
+								} else {
 									const err = res as AxiosError;
 									setShareError(err.message);
 									toast.error("Could not be shared to user: " + user.email);
