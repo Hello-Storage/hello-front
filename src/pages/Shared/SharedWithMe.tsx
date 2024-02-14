@@ -73,7 +73,6 @@ const SharedWithMe = (props: { shareType: string }) => {
       dispatch(setFileViewAction({ file: undefined }));
       dispatch(setImageViewAction({ show: false }));
 
-      alert(JSON.stringify(metadata))
       dispatch(
         setFileViewAction({
           file: metadata,

@@ -63,7 +63,16 @@ export default function Login() {
         }
       }
 
-      return setRedirectMessage(`Login to view/download: ${publishedFileName.name}`);
+      console.log(publishedFileName);
+      let newFilename = publishedFileName.name;
+      if (publishedFileName.name === undefined || publishedFileName.name === "") {
+        if (publishedFileName.file_share_state.public_file.name !== undefined && publishedFileName.file_share_state.public_file.name !== "") {
+          newFilename = publishedFileName.file_share_state.public_file.name;
+        } else {
+          newFilename = publishedFileName.file_share_states_user_shared.public_files_user_shared.name;
+        }
+      }
+      return setRedirectMessage(`Login to view/download: ${newFilename}`);
     }
     return setRedirectMessage("");
   };
