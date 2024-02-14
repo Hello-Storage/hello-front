@@ -21,7 +21,8 @@ import { ListUserElement } from "./UserListElement";
 import { User } from "api";
 
 
-export function ShareFolderModal() {
+const ShareFolderModal = () => {
+
 
 	const { showShareModal, selectedShareFolder } = useAppSelector(
 		(state) => state.mystorage
@@ -174,7 +175,7 @@ export function ShareFolderModal() {
 						} else {
 							const err = res as AxiosError;
 							setShareError(err.message);
-							toast.error("Could not be shared to user: " + user.email);
+							toast.error("Could not share to user: " + user.email);
 						}
 					})
 			}
@@ -191,17 +192,18 @@ export function ShareFolderModal() {
 	}, [readyToshare]);
 
 	const [loading, setLoading] = useState(true);
-	const { folderContent } = useGetFolderFiles(selectedShareFolder);
+	const [folderAContent, setFolderContent] = useState<FolderContentClass>(new FolderContentClass(selectedShareFolder, undefined));
+	const [trigger, setTrigger] = useState<boolean>(false)
+	const { folderContent } = useGetFolderFiles(trigger, setTrigger, selectedShareFolder, folderAContent, setFolderContent);
+
 
 	useEffect(() => {
-		interval.current = setInterval(() => {
-			if (folderContent && folderContent.current) {
-				setselectedSharedFiles(folderContent.current);
-				setLoading(false);
-			}
-		}, 500);
+		if (folderContent.files?.length !== 0) {
+			setselectedSharedFiles(folderContent);
+			setLoading(false);
+		}
 
-	}, [folderContent?.current]);
+	}, [trigger]);
 
 	const { theme } = useAppSelector((state) => state.user);
 

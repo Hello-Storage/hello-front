@@ -1,67 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<!-- Character set declaration -->
+		<meta charset="UTF-8" />
 
-<head>
-  <link rel="canonical" href="https://hello.app/" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>hello.app: Revolutionizing File Storage with Blockchain Technology</title>
-  <meta name="description"
-    content="Get 100GB for free storage.
-  Discover how hello.app is transforming file storage with a decentralized web3 infrastructure and blockchain for secure, efficient, and accessible storage for everyone.">
-  <meta name="keywords"
-    content="file storage management, decentralized storage web3, blockchain technology storage, hello.app tech entrepreneurs, secure file storage, decentralized node network, blockchain tech entrepreneurship">
-  <meta charset="UTF-8" />
-  <script>
-    (function () {
-      const path = window.location.pathname;
-      let title;
+		<!-- Viewport meta tag for responsive design -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-      if (path.startsWith('/space')) {
-        title = 'hello.app | Space';
-      } else if (path.startsWith('/login')) {
-        title = 'hello.app | Space';
-      } else if (path === '/') {
-        title = 'hello.app | Decentralized';
-      } else {
-        title = 'hello.app | Decentralized'; // default title for other routes
-      }
+		<!-- Page title -->
+		<title>
+			hello.app: Revolutionizing File Storage with Blockchain Technology
+		</title>
 
-      document.title = title;
-    })();
-  </script>
-  <link rel="apple-touch-icon" sizes="180x180" href="/src/assets/images/multicolor.jpg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/src/assets/images/multicolor.jpg" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/src/assets/images/multicolor.jpg" />
-  <link rel="manifest" href="/site.webmanifest" />
+		<!-- Meta tags for SEO -->
+		<meta
+			name="title"
+			content="hello.app: Revolutionizing File Storage with Blockchain Technology"
+		/>
+		<meta name="author" content="hello.app" />
+		<meta
+			name="description"
+			content="Get 100GB for free storage. Discover how hello.app is transforming file storage with a decentralized web3 infrastructure and blockchain for secure, efficient, and accessible storage for everyone."
+		/>
+		<meta
+			name="keywords"
+			content="file storage management, decentralized storage web3, blockchain technology storage, hello.app tech entrepreneurs, secure file storage, decentralized node network, blockchain tech entrepreneurship"
+		/>
 
+		<!-- Script to dynamically change the page title based on the route -->
+		<script>
+			(function () {
+				const path = window.location.pathname;
+				let title;
 
-  <!-- spinners: -->
-  <link rel="stylesheet" href=https://cdn.jsdelivr.net/npm/scss-spinners />
+				if (path.startsWith("/space")) {
+					title = "hello.app | Space";
+				} else if (path.startsWith("/login")) {
+					title = "hello.app | Space";
+				} else if (path === "/") {
+					title = "hello.app | Decentralized";
+				} else {
+					title = "hello.app | Decentralized"; // default title for other routes
+				}
 
+				document.title = title;
+			})();
+		</script>
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/src/assets/images/multicolor.jpg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/src/assets/images/multicolor.jpg" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/src/assets/images/multicolor.jpg" />
+		<!-- Stylesheets -->
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/scss-spinners"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Outfit:wght@400..600"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://stijndv.com/fonts/Eudoxus-Sans.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+			crossorigin="anonymous"
+		/>
 
-  <!-- Google Font -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400..600" />
-  <!-- End Google Font -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="preconnect" href="https://stijndv.com" />
-  <link rel="stylesheet" href="https://stijndv.com/fonts/Eudoxus-Sans.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    crossOrigin="anonymous" />
-</head>
+		<!-- Icons -->
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="/src/assets/images/multicolor.jpg"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="/src/assets/images/multicolor.jpg"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="/src/assets/images/multicolor.jpg"
+		/>
 
-<body>
-  <div id="root" class="h-screen"></div>
-  <!-- Privacy Policy Link -->
-  <footer aria-hidden="true" style="position: absolute; left: -9999px;">
-    <a href="/privacy-policy">Privacy Policy</a>
-  </footer>
-  <script type="module" src="/src/main.tsx"></script>
-  <h2 style="position: fixed; top: -10; left: 0; z-index: 1000;"><a href="/blog.html">hello.app</a></h2>
-</body>
+		<!-- Other related links -->
+		<link rel="canonical" href="https://hello.app" />
+		<link rel="manifest" href="/site.webmanifest" />
+		<link rel="preconnect" href="https://stijndv.com" />
+	</head>
 
-
+	<body>
+		<div id="root" class="h-screen"></div>
+		<!-- Privacy Policy Link -->
+		<footer aria-hidden="true">
+			<a href="/privacy-policy">Privacy Policy</a>
+		</footer>
+		<script type="module" src="/src/main.tsx"></script>
+		<h2 style="position: fixed; top: -10; left: 0; z-index: 1000;">
+			<a href="/blog.html">hello.app</a>
+		</h2>
+	</body>
 </html>

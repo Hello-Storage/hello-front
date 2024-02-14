@@ -3,21 +3,22 @@ import getAccountType from 'api/getAccountType';
 import getPersonalSignature from 'api/getPersonalSignature';
 import { FolderContentClass, InternalFolderClass } from './types';
 import { useAuth } from 'hooks';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useAppSelector } from 'state';
 import { handleEncryptedFiles, handleEncryptedFolders } from 'utils/encryption/filesCipher';
 
-const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
+
+const useGetFolderFiles = (trigger: boolean, setTrigger: React.Dispatch<React.SetStateAction<boolean>>, selectedShareFolder: Folder | undefined, folderContent: FolderContentClass, setFolderContent: React.Dispatch<React.SetStateAction<FolderContentClass>>) => {
     const personalSignatureRef = useRef<string | undefined>();
-    const folderContent = useRef<FolderContentClass>(new FolderContentClass(selectedShareFolder, undefined));
+
     const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
     const { name } = useAppSelector((state) => state.user);
     const { autoEncryptionEnabled } = useAppSelector((state) => state.userdetail);
     const accountType = getAccountType();
     const { logout } = useAuth();
 
-    async function fetchContent(files: File[], folders: Folder[]) {
+    const fetchContent = async (files: File[], folders: Folder[]) => {
         const currentEncryptedFiles = files
 
         if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
@@ -55,53 +56,61 @@ const useGetFolderFiles = (selectedShareFolder: Folder | undefined) => {
         };
     }
 
+    const fetchData = useCallback(async (selectedShareFolder: FolderContentClass) => {
 
-    const fetchData = async (selectedShareFolder: FolderContentClass) => {
-        if (selectedShareFolder) {
-            const root = "/folder/" + selectedShareFolder.uid;
-            Api.get<RootResponse>(root)
-                .then(async (res) => {
-                    personalSignatureRef.current =
-                        sessionStorage.getItem("personal_signature") ?? undefined;
-                    if (!personalSignatureRef.current) {
-                        toast.error("Failed to fetch root!");
-                        return;
+        if (!selectedShareFolder) return;
+        const root = "/folder/" + selectedShareFolder.uid;
+        try {
+            const res = await Api.get<RootResponse>(root)
+            personalSignatureRef.current =
+                sessionStorage.getItem("personal_signature") ?? undefined;
+            if (!personalSignatureRef.current) {
+                toast.error("Failed to fetch root!");
+                return;
+            }
+
+            const contentD = await fetchContent(res.data.files, res.data.folders)
+            if (contentD) {
+                const Data = {
+                    files: contentD.files,
+                    folders: contentD.folders,
+                };
+
+                const contentfolders: InternalFolderClass[] = []
+
+                if (Data.folders.length > 0) {
+                    for (const folder of Data.folders) {
+                        const folderContentIn = new InternalFolderClass(folder);
+                        contentfolders.push(folderContentIn);
+                        await fetchData(folderContentIn.folder)
                     }
+                }
 
-                    fetchContent(res.data.files, res.data.folders).then((contentD) => {
-                        if (contentD) {
-                            const Data = {
-                                files: contentD.files,
-                                folders: contentD.folders,
-                            };
+                if (selectedShareFolder.folder) {
+                    setTrigger(!trigger)
+                    const newFolderContent = selectedShareFolder.searchFolderAndSetContent(selectedShareFolder.folder,
+                        { files: Data.files, folders: contentfolders })
+                    setFolderContent(newFolderContent);
+                }
+            }
 
-                            const contentfolders: InternalFolderClass[] = []
 
-                            if (Data.folders.length > 0) {
-                                for (const folder of Data.folders) {
-                                    const folderContentIn = new InternalFolderClass(folder);
-                                    contentfolders.push(folderContentIn);
-                                    fetchData(folderContentIn.folder)
-                                }
-                            }
-
-                            if (selectedShareFolder.folder) {
-                                folderContent.current.searchFolderAndSetContent(selectedShareFolder.folder, {
-                                    files: Data.files,
-                                    folders: contentfolders,
-                                });
-                            }
-                        }
-
-                    })
-
-                })
+        } catch (error) {
+            console.error("failed to fetch folder content:", error);
         }
-    };
+
+        return folderContent;
+
+
+
+    }, [folderContent]);
 
     useEffect(() => {
-        fetchData(folderContent.current);
-    }, [selectedShareFolder]);
+        if (selectedShareFolder) {
+            fetchData(folderContent);
+        }
+
+    }, [selectedShareFolder, fetchData, folderContent]);
 
     return { folderContent };
 };

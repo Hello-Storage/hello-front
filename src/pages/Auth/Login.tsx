@@ -89,9 +89,9 @@ export default function Login() {
   return (
     <div className={"flex flex-col justify-between min-h-screen p-8 md:h-screen" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
       <div className="flex items-center gap-3">
-        <label className="text-2xl font-semibold font-[Outfit]">
+        <h1 className="text-2xl font-semibold font-[Outfit]">
           hello.app
-        </label>
+        </h1>
         <img src={LogoHello} alt="logo" className="w-12 h-6" />
       </div>
       {redirectMessage && <p>{redirectMessage}</p>}
@@ -99,9 +99,9 @@ export default function Login() {
       <div className="flex flex-col h-full gap-8 md:flex-row md:gap-0">
         <div className="flex items-center justify-center flex-1">
           <div className="md:min-w-[400px] md:mt-0">
-            <h1 className="text-4xl font-semibold tracking-tighter text-center">
+            <h2 className="text-4xl font-semibold tracking-tighter text-center">
               Welcome 👋
-            </h1>
+            </h2>
             <h3 className="block mt-4 text-lg tracking-tighter text-center">
               Select your favorite login option
             </h3>
@@ -154,26 +154,37 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <footer className={"p-0 mb-[50px] text-sm text-black md:mx-12 md:p-2 md:mb-0" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
+      <footer className={"p-0 min-w-[350px] text-sm flex justify-between flex-row items-center text-black md:mx-12 md:p-2 md:mb-0" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
         <div className="flex flex-col items-start">
           <div className="flex p-0 space-x-4 md:p-0">
-            <a href="mailto:team@hello.app" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
+            <a href="mailto:team@hello.app" 
+              title="Email us" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
               <HiMail />
             </a>
-            <a href="https://www.linkedin.com/company/hellostorage" target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px' }}>
+            <a href="https://www.linkedin.com/company/hellostorage"
+              title="Join us on LinkedIn"
+              target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px' }}>
               <BsLinkedin />
             </a>
-            <a href="https://github.com/hello-storage" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
+            <a href="https://github.com/hello-storage"
+              title="Join us on GitHub"
+              target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
               <FaGithubSquare />
             </a>
 
-            <a href="https://twitter.com/joinhelloapp" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
+            <a href="https://twitter.com/joinhelloapp"
+              title="Join us on Twitter"
+              target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
               <TbBrandTwitterFilled />
             </a>
-            <a href="https://www.instagram.com/joinhelloapp/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
+            <a href="https://www.instagram.com/joinhelloapp/"
+              title="Join us on Instagram"
+              target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
               <BiLogoInstagramAlt />
             </a>
-            <a href="https://www.tiktok.com/@hello.app_" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
+            <a href="https://www.tiktok.com/@hello.app_"
+              title="Join us on TikTok"
+              target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
               <PiTiktokLogoFill />
             </a>
           </div>
@@ -183,11 +194,13 @@ export default function Login() {
             </a>
             © 2024 hello.app
           </div>
-          <div className="mt-1 md:mt-1 flex flex-col absolute bottom-10 right-10 text-right">
-            <a href="https://hello.app/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
-              Privacy Policy
-            </a>
-          </div>
+        </div>
+        <div className="mt-1 md:mt-1 flex flex-col text-right">
+          <a href="https://hello.app/privacy-policy"
+            title="Privacy Policy"
+            target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
+            Privacy Policy
+          </a>
         </div>
       </footer>
     </div >

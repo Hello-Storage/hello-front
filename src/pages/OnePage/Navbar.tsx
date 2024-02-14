@@ -9,8 +9,8 @@ export const Navbar = () => (
     whileInView="show"
     className="p-8 relative z-10"
   >
-    <div className="relative w-full flex justify-between items-start">
-      <p className="text-2xl font-semibold text-white flex items-center font-[outfit]">
+    <div className="relative w-full flex justify-between items-start min-w-[350px]">
+      <h1 className="text-2xl font-semibold text-white flex items-center font-[outfit]">
         {" "}
         hello.app
         <img
@@ -20,8 +20,9 @@ export const Navbar = () => (
           alt="hello beta"
           className="ml-3"
         />
-      </p>
-      <a href="/space/login">
+      </h1>
+      <a href="/space/login"
+        title="Go to Login Page">
         <button
           type="button"
           className="md:px-10 md:py-3 py-2 px-6 bg-gradient-to-b from-violet-500 to-violet-800 hover:cursor-pointer rounded-xl hover:from-violet-600 hover:to-violet-900"

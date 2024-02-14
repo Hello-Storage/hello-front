@@ -280,15 +280,13 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								fileMap.customFile
 									.cid_original_encrypted_base64_url
 							);
-						formData.append(
-							`webkitRelativePath[${index}]`,
-							fileMap.customFile.path
-						);
+						formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
 					} else {
 						formData.append(
 							`cid[${index}]`,
 							fileMap.customFile.cid
 						);
+						formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
 						formData.append("files", fileMap.file);
 					}
 				});
@@ -345,7 +343,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 			})
 				.then((res) => {
 					if (res.status !== 200) {
-						toast.error("upload failed!");
+						toast.error("upload response gave error!");
 						return;
 					}
 					toast.success("upload Succeed!");
@@ -359,36 +357,43 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 					//getAll files and encryptedFils into a single files variable from formData
 					const filesRes = res.data.files;
 
-					for (let i = 0; i < filesRes.length; i++) {
-						//get file at index from formdata
-						const fileRes = filesRes[i];
-						const file = customFiles[i];
 
-						const fileObject: FileType = {
-							name: file.name_unencrypted || file.name,
-							cid: fileRes.cid,
-							id: fileRes.id,
-							uid: fileRes.uid,
-							cid_original_encrypted:
-								file.cid_original_unencrypted ||
-								file.cid_original_encrypted,
-							size: file.size,
-							root: fileRes.root,
-							mime_type:
-								file.mime_type_unencrypted || file.mime_type,
-							media_type: file.media_type,
-							path: file.path,
-							encryption_status: fileRes.encryption_status,
-							created_at: fileRes.created_at,
-							updated_at: fileRes.updated_at,
-							deleted_at: fileRes.deleted_at,
-						};
-						filesuploaded.push(fileObject);
-						if (!isFolder) dispatch(createFileAction(fileObject));
+					if (filesRes) {
+						for (let i = 0; i < filesRes.length; i++) {
+							//get file at index from formdata
+							const fileRes = filesRes[i];
+							const file = customFiles[i];
+
+							const fileObject: FileType = {
+								name: file.name_unencrypted || file.name,
+								cid: fileRes.cid,
+								id: fileRes.id,
+								uid: fileRes.uid,
+								cid_original_encrypted:
+									file.cid_original_unencrypted ||
+									file.cid_original_encrypted,
+								size: file.size,
+								root: fileRes.root,
+								mime_type:
+									file.mime_type_unencrypted || file.mime_type,
+								media_type: file.media_type,
+								path: file.path,
+								encryption_status: fileRes.encryption_status,
+								created_at: fileRes.created_at,
+								updated_at: fileRes.updated_at,
+								deleted_at: fileRes.deleted_at,
+							};
+							filesuploaded.push(fileObject);
+							if (!isFolder) dispatch(createFileAction(fileObject));
+						}
+					} else {
+						toast.error("file upload failed!");
+						console.log("filesRes is null or undefined");
 					}
 				})
-				.catch(() => {
-					toast.error("upload failed!");
+				.catch((e) => {
+					toast.error("file upload failed!");
+					console.log(e)
 				})
 				.finally(() => {
 					dispatch(setUploadStatusAction({ uploading: false }));
@@ -516,7 +521,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		const res = handleAddEmail();
 		if (res || userList.length > 0) {
 			setreadyToshare(true);
-			toast.info("Sharing in progress");
+			toast.info("Sharing in progress...");
 		}
 		if (!res && userList.length === 0) {
 			toast.error("No users specified");
@@ -551,8 +556,11 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 								} else {
 									const err = res as AxiosError;
 									setShareError(err.message);
-									toast.error("Could not be shared to user: " + user.email);
+									toast.error("Could not share to user: " + user.email);
 								}
+							}).catch((err) => {
+								setShareError(err.message);
+								toast.error("Could not share to user: " + user.email);
 							})
 					}
 				}
