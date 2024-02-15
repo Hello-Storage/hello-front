@@ -164,41 +164,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 						})
 					}
 
-				} else if (file.file_share_state && file.file_share_state.id !== 0) {
-					const originalCid = file.file_share_state.public_file.cid_original_decrypted;
-					if (originalCid != "") {
-						binaryData = await blobToArrayBuffer(binaryData);
-						binaryData = await decryptFileBuffer(
-							binaryData,
-							originalCid,
-							(percentage) => {
-								dispatch(
-									setUploadStatusAction({
-										info: "Decrypting...",
-										read: percentage,
-										size: 100,
-										uploading: true,
-									})
-								);
-							}
-						).catch(() => {
-							toast.error("Error downloading file");
-						});
-
-						dispatch(
-							setUploadStatusAction({
-								info: "Decryption done",
-								uploading: false,
-							})
-						);
-					} else {
-						binaryData = await blobToArrayBuffer(binaryData);
-					}
 				}
-
-
-
-
 				const blob = new Blob([binaryData], { type: file.mime_type });
 
 				// Create a link element and set the blob as its href
