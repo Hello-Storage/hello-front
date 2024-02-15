@@ -1,4 +1,4 @@
-import { ShareState, ShareStateUserShared } from "./share";
+import { ShareState } from "./share";
 
 export enum EncryptionStatus {
   Public = "public",
@@ -36,7 +36,6 @@ export interface File extends Base, UnencryptedBase {
   //base64 data
   data?: string;
   file_share_state?: ShareState;
-  file_share_states_user_shared?: ShareStateUserShared;
   isOwner?: boolean;
 }
 

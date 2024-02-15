@@ -18,6 +18,8 @@ import {
   resetCache,
   setFileViewAction,
   setImageViewAction,
+  setSelectedShareFile,
+  setShowShareModal,
   updateDecryptedFilesAction,
   updateDecryptedFoldersAction
 } from "state/mystorage/actions";
@@ -340,6 +342,8 @@ export default function Home() {
 
   useEffect(() => {
     fetchUserDetail();
+    dispatch(setShowShareModal(false));
+    dispatch(setSelectedShareFile(undefined));
     if (personalSignatureDefined) {
       if (!personalSignatureRef.current) {
         return;
