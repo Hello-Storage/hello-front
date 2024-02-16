@@ -194,7 +194,8 @@ const Dropzone = () => {
           } else {
             formData.append(`cid[${index}]`, fileMap.customFile.cid)
             formData.append("files", fileMap.file)
-            formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path.split("/")[1]+"/")
+            const root = fileMap.customFile.path.split("/")[1] ? fileMap.customFile.path.split("/")[1] + "/" : ""
+            formData.append(`webkitRelativePath[${index}]`, root)
           }
         })
 

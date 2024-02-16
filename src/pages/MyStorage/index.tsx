@@ -282,7 +282,6 @@ export default function Home() {
       thisCurrentFolders,
       personalSignatureRef.current || "",
     );
-    console.log("decrypted foldears.: ", decryptedFolders)
 
     if (decryptedFolders && decryptedFolders.length > 0) {
       dispatch(updateDecryptedFoldersAction(decryptedFolders));
@@ -290,9 +289,6 @@ export default function Home() {
 
 
     setCurrentFiles(decryptedFiles || []);
-
-
-
     setCurrentFolders(decryptedFolders || []);
 
     setLoading(false);

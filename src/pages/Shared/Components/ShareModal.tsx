@@ -177,15 +177,14 @@ const ShareModal = () => {
 	useEffect(() => {
 		if (selectedShareFile && showShareModal) {
 			const params = new URLSearchParams();
-			params.append("file_uids", selectedShareFile?.uid);
-			// find if the selected file is already shared (the false parameter is for no creating a new share state)
-			Api.get(`/file/share/states/false`, { params }).then((res) => {
+			params.append("file_uid", selectedShareFile?.uid);
+			Api.get(`/file/share/state`, { params }).then((res) => {
 				// if 404, log error
 				if ((res as AxiosResponse).status === 200) {
 					res = res as AxiosResponse;
-					const shareState = res?.data as ShareState[];
-					if (shareState && shareState.length > 0 && shareState[0].public_file.share_hash !== "") {
-						setFileSharedState(shareState[0]);
+					const shareState = res?.data as ShareState;
+					if (shareState && shareState.public_file.share_hash !== "") {
+						setFileSharedState(shareState);
 						setSelectedShareTypes("public");
 					}
 				} else {
