@@ -46,6 +46,8 @@ const ShareFolderModal = () => {
 	const [shareError, setShareError] = useState("");
 	const [selectedShareTypes, setSelectedShareTypes] = useState<string>("");
 
+	const [folderShared, setFolderShared] = useState<boolean>(false);
+
 	const handleShareChange = (type: string) => async (
 		e: React.ChangeEvent<HTMLInputElement>
 	) => {
@@ -66,6 +68,7 @@ const ShareFolderModal = () => {
 					shareFolder(selectedSharedFiles, type, user)
 						.then(() => {
 							toast.success("Folder shared successfully");
+							setFolderShared(true)
 						})
 						.catch((err) => {
 							setShareError(err.message);
@@ -271,7 +274,7 @@ const ShareFolderModal = () => {
 														"monthly",
 													].includes(
 														selectedShareTypes
-													) &&
+													) && folderShared &&
 														<div className="flex flex-col my-3">
 															<label
 																htmlFor="shareLink"

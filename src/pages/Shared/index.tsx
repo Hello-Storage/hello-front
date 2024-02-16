@@ -4,6 +4,9 @@ import { useDispatch } from "react-redux";
 import { handleEncryptedFiles } from "utils/encryption/filesCipher";
 import {
 	refreshAction,
+	resetCache,
+	setFileViewAction,
+	setImageViewAction,
 	setSelectedShareFile,
 	setSelectedSharedFiles,
 	updateDecryptedSharedFilesAction
@@ -24,7 +27,12 @@ import Pagination from "components/Pagination";
 const Shared = () => {
 	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
 	const dispatch = useDispatch();
-
+	
+	useEffect(() => {
+		dispatch(setImageViewAction({ show: false }));
+		dispatch(resetCache())
+		dispatch(setFileViewAction({ file: undefined }));
+	}, [])
 
 	const [sharedByMe, setSharedByMe] = useState<FileType[]>([]);
 	const [sharedWithMe, setSharedWithMe] = useState<FileType[]>([]);
@@ -262,11 +270,7 @@ const Shared = () => {
 		const filesItemsCount = itemsPerPage;
 		const filesReceivedStartIndex = Math.max(0, tempReceivedStartIndex);
 
-
-
-
-
-
+		
 		const currentSharedFolders: { sharedByMe: Folder[], sharedWithMe: Folder[] } = {
 			sharedByMe: sharedFolders.sharedByMe.slice(
 				sharedByMeStartIndex,
@@ -310,7 +314,6 @@ const Shared = () => {
 			logout
 		);
 
-
 		if (
 			decryptedFilesSharedWithMe &&
 			decryptedFilesSharedByMe &&
@@ -324,8 +327,6 @@ const Shared = () => {
 				})
 			);
 		}
-
-
 
 		setThisSharedFolders(currentSharedFolders)
 		setSharedByMe(decryptedFilesSharedByMe || []);
