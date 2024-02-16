@@ -473,6 +473,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 			const uids = selectedSharedFiles.map((file) => file.uid);
 			const params = new URLSearchParams();
 			uids.forEach((uid) => params.append("file_uids", uid));
+			// create share state for selected files (the true parameter is to create shared state for all selected files if not exists)
 			Api.get("/file/share/states", { params })
 				.then((res) => {
 					if ((res as AxiosResponse).status === 200) {

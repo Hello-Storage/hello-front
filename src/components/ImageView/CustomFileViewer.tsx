@@ -39,13 +39,13 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
     //state for scale
     const [scale, setScale] = useState(1);
 
+
     const downloadAndProcessFile = async (
         file: File
     ) => {
         try {
             // Check if the file is already in the cache
             const blob = cache[file.uid];
-
             if (!(blob instanceof Blob)) {
                 // If file not in cache, download it
                 const res = await Api.get(`/file/download/${file.uid}`, {
@@ -91,8 +91,8 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                     );
                 }
 
-                if (file.file_share_states_user_shared && file.file_share_states_user_shared.id !== 0 && file.file_share_states_user_shared.public_files_user_shared.id !== 0) {
-                    const originalCid = file.file_share_states_user_shared.public_files_user_shared.cid_original_decrypted;
+                if (file.file_share_state && file.file_share_state.id !== 0) {
+                    const originalCid = file.file_share_state.public_file.cid_original_decrypted;
                     if (originalCid != "") {
                         binaryData = await blobToArrayBuffer(binaryData);
                         binaryData = await decryptFileBuffer(
@@ -121,40 +121,6 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                     } else {
                         binaryData = await blobToArrayBuffer(binaryData);
                     }
-                } else if (file.file_share_state && file.file_share_state.id !== 0 && file.file_share_state.public_file.id !== 0) {
-                    const originalCid = file.file_share_state.public_file.cid_original_decrypted;
-                    if (originalCid != "") {
-                        binaryData = await blobToArrayBuffer(binaryData);
-                        binaryData = await decryptFileBuffer(
-                            binaryData,
-                            originalCid,
-                            (percentage) => {
-                                dispatch(
-                                    setUploadStatusAction({
-                                        info: "Decrypting...",
-                                        read: percentage,
-                                        size: 100,
-                                        uploading: true,
-                                    })
-                                );
-                            }
-                        ).catch(() => {
-                            toast.error("Error decrypting file");
-                        });
-
-                        dispatch(
-                            setUploadStatusAction({
-                                info: "Decryption done",
-                                uploading: false,
-                            })
-                        );
-                    } else {
-                        binaryData = await blobToArrayBuffer(binaryData).catch((error) => {
-                            console.error("Error transforming blob to array buffer:", error);
-                            toast.error("Error transforming blob to array buffer");
-                        })
-                    }
-
                 }
 
                 const blob = new Blob([binaryData], {
@@ -219,6 +185,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
             toast.error(err.message);
         }
     };
+
 
     // Update download status
     const onDownloadProgress = (

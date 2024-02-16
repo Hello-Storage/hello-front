@@ -44,9 +44,11 @@ export default function GoogleLoginButton() {
 
   return (
     <button
-      className={"w-full inline-flex items-center justify-center gap-4 rounded-xl p-4 bg-gray-100 hover:bg-gray-200"+ (getTheme()===Theme.DARK? " dark-theme2" : "")}
+      className={"w-full inline-flex items-center justify-center gap-4 rounded-xl p-4 bg-gray-100 hover:bg-gray-200" + (getTheme() === Theme.DARK ? " dark-theme2" : "")}
       onClick={() => {
-        login();
+        setTimeout(() => { // this is to prevent the opened window from being hiden by the browser, it's a hack but it works (wtf XD)
+          login();
+        }, 500);
         setLoading(true);
       }}
       disabled={loading ? true : false}

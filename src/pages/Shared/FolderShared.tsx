@@ -7,6 +7,8 @@ import Content from "pages/MyStorage/components/Content"
 import { useAppSelector } from "state"
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
+import { useDispatch } from "react-redux";
+import { resetCache, setFileViewAction, setImageViewAction } from "state/mystorage/actions";
 
 export function FolderShared() {
     const [loading, setLoading] = useState(true);
@@ -29,6 +31,13 @@ export function FolderShared() {
 
     const { folderuid } = useParams<{ folderuid: string }>()
 
+	const dispatch = useDispatch();
+	
+	useEffect(() => {
+		dispatch(setImageViewAction({ show: false }));
+		dispatch(resetCache())
+		dispatch(setFileViewAction({ file: undefined }));
+	}, [])
     useEffect(() => {
         Api.get<ShareFolderResponse>(`/folder/shared-uid/${folderuid}`).then((response) => {
             setContent(response.data)

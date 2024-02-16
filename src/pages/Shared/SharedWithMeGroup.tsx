@@ -12,6 +12,8 @@ import useFetchGroupHashes from "./Utils/useGetHashesFromGroup";
 import Content from "pages/MyStorage/components/Content";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
+import { resetCache, setFileViewAction, setImageViewAction } from "state/mystorage/actions";
+import { useDispatch } from "react-redux";
 dayjs.extend(relativeTime);
 
 const ShareSharedWithMeGroupdWithMe = () => {
@@ -35,6 +37,14 @@ const ShareSharedWithMeGroupdWithMe = () => {
 			onPresent();
 		}
 	}, [showPreview]);
+	
+	const dispatch = useDispatch();
+	
+	useEffect(() => {
+		dispatch(setImageViewAction({ show: false }));
+		dispatch(resetCache())
+		dispatch(setFileViewAction({ file: undefined }));
+	}, [])
 
 	useEffect(() => {
 		//get file metadata from the hash

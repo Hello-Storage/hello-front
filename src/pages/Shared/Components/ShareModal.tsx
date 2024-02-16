@@ -54,8 +54,6 @@ const ShareModal = () => {
 				setShareError("Invalid share type");
 			} else if (shareTypeObject.state === "disabled") {
 				setShareError("This share type is not available yet");
-			} else if (["wallet", "email"].includes(type)) {
-				setSelectedShareTypes(type);
 			} else {
 				setSelectedShareTypes(type);
 				if (e.target.checked) {
@@ -63,7 +61,7 @@ const ShareModal = () => {
 					shareFile(selectedShareFile, type, user)
 						.then((res) => {
 							res = res as AxiosResponse;
-							if (res.status === 200) {
+							if (res && res.status === 200) {
 								const shareState = res?.data as ShareState;
 								setFileSharedState(shareState);
 								toast.success("File shared successfully");
@@ -177,19 +175,17 @@ const ShareModal = () => {
 	}, [readyToshare]);
 
 	useEffect(() => {
-		if (selectedShareFile) {
+		if (selectedShareFile && showShareModal) {
 			const params = new URLSearchParams();
-			params.append("file_uids", selectedShareFile?.uid);
-			Api.get(`/file/share/states`, { params }).then((res) => {
+			params.append("file_uid", selectedShareFile?.uid);
+			Api.get(`/file/share/state`, { params }).then((res) => {
 				// if 404, log error
 				if ((res as AxiosResponse).status === 200) {
 					res = res as AxiosResponse;
-					const shareState = res?.data as ShareState[];
-					if (shareState) {
-						setFileSharedState(shareState[0]);
-						if (shareState[0].public_file) {
-							setSelectedShareTypes("public");
-						}
+					const shareState = res?.data as ShareState;
+					if (shareState && shareState.public_file.share_hash !== "") {
+						setFileSharedState(shareState);
+						setSelectedShareTypes("public");
 					}
 				} else {
 					toast.error(JSON.stringify(res));
