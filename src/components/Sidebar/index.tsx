@@ -363,8 +363,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         }
 
         filesMap.push({ customFile, file });
-
-
       }
     }
 
@@ -425,9 +423,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
         )
 
 
-
         filesToUpload.forEach((fileMap, index) => {
-          // Append the files that need to be uploaded to formData.
           if (fileMap.customFile.encryption_status === EncryptionStatus.Encrypted) {
             formData.append("encryptedFiles", fileMap.file)
             formData.append(`cid[${index}]`, fileMap.customFile.cid)
@@ -437,6 +433,8 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           } else {
             formData.append(`cid[${index}]`, fileMap.customFile.cid)
             formData.append("files", fileMap.file)
+            const root = fileMap.customFile.path.split("/")[1] ? fileMap.customFile.path.split("/")[1] + "/" : ""
+            formData.append(`webkitRelativePath[${index}]`, root)
           }
         })
 
@@ -449,23 +447,17 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
           if (filesFound) {
             const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
 
-            //replace for customFile in fileMap values:
-            //- put name_unencrypted to name
-            //- put cid_original_unencrypted to cid_original_encrypted
-            //- put mime_type_unencrypted to mime_type
-
             fileMap.customFile.id = fileFound?.id || 0;
-            fileMap.customFile.uid = fileFound?.uid || '';
+            fileMap.customFile.uid = fileFound?.uid || "";
             fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
             fileMap.customFile.updated_at = fileFound ? fileFound.updated_at.toString() : "";
             fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
 
-            fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
-            fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
-            fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
+            fileMap.customFile.name = fileMap.customFile.name_unencrypted || "";
+            fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || "";
+            fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || "";
 
-
-            if (!isFolder) dispatch(createFileAction(fileMap.customFile))
+            if (!isFolder) dispatch(createFileAction(fileMap.customFile));
           }
 
         })
@@ -564,7 +556,6 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
     event
   ) => {
     handleInputChange(event, false);
-    setSidebarOpen(false);
   };
 
   const handleFolderInputChange: ChangeEventHandler<HTMLInputElement> = (

@@ -473,6 +473,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 			const uids = selectedSharedFiles.map((file) => file.uid);
 			const params = new URLSearchParams();
 			uids.forEach((uid) => params.append("file_uids", uid));
+			// create share state for selected files (the true parameter is to create shared state for all selected files if not exists)
 			Api.get("/file/share/states", { params })
 				.then((res) => {
 					if ((res as AxiosResponse).status === 200) {
@@ -547,7 +548,12 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 							.then((res) => {
 								const resp = res as AxiosResponse;
 								if (resp.status === 200) {
-									toast.success("File shared successfully");
+									//if user.email includes @m and selectedShareTypes is email, then it is an email
+									if (user.email.includes("@")) {
+										toast.success("Email sent to " + user.email + " successfully");
+									} else {
+										toast.success("File shared successfully to " + user.email);
+									}
 								} else {
 									const err = res as AxiosError;
 									setShareError(err.message);

@@ -39,6 +39,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
     //state for scale
     const [scale, setScale] = useState(1);
 
+
     const downloadAndProcessFile = async (
         file: File
     ) => {
@@ -90,8 +91,8 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                     );
                 }
 
-                if (file.file_share_states_user_shared && file.file_share_states_user_shared.id !== 0 && file.file_share_states_user_shared.public_files_user_shared.id !== 0) {
-                    const originalCid = file.file_share_states_user_shared.public_files_user_shared.cid_original_decrypted;
+                if (file.file_share_state && file.file_share_state.id !== 0) {
+                    const originalCid = file.file_share_state.public_file.cid_original_decrypted;
                     if (originalCid != "") {
                         binaryData = await blobToArrayBuffer(binaryData);
                         binaryData = await decryptFileBuffer(
@@ -184,6 +185,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
             toast.error(err.message);
         }
     };
+
 
     // Update download status
     const onDownloadProgress = (
@@ -464,9 +466,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                                     uid={file.uid}
                                     loading={loading}
                                     name={file.name}
-                                    src={
-                                        cache[file.uid] instanceof Blob ? window.URL.createObjectURL(cache[file.uid]) : ""
-                                    }
+                                    src={cache[file.uid] ? window.URL.createObjectURL(cache[file.uid]) : ""}
                                     selected={selectedShowFile?.uid === file.uid}
                                     files={files}
                                 />

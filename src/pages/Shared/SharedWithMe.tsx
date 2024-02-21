@@ -6,17 +6,19 @@ import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { File } from "api";
-import { useAppDispatch, useAppSelector } from "state";
+import { useAppSelector } from "state";
 import Content from "pages/MyStorage/components/Content";
-import { setFileViewAction, setImageViewAction } from "state/mystorage/actions";
+import { resetCache, setFileViewAction, setImageViewAction } from "state/mystorage/actions";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 import { useModal } from "components/Modal";
+import { useDispatch } from "react-redux";
 dayjs.extend(relativeTime);
 
 const SharedWithMe = (props: { shareType: string }) => {
   //get the hash from the url
   const { hash } = useParams();
-  const dispatch = useAppDispatch();
+  
+	const dispatch = useDispatch();
   const shareType = props.shareType;
   const [loading, setLoading] = useState(true);
   const [error, seterror] = useState<boolean>()
@@ -25,6 +27,11 @@ const SharedWithMe = (props: { shareType: string }) => {
 
   const { showPreview } = useAppSelector((state) => state.mystorage);
 
+	useEffect(() => {
+		dispatch(setImageViewAction({ show: false }));
+		dispatch(resetCache())
+		dispatch(setFileViewAction({ file: undefined }));
+	}, [])
   useEffect(() => {
     //get file metadata from the hash
     switch (shareType) {
@@ -61,12 +68,15 @@ const SharedWithMe = (props: { shareType: string }) => {
       default:
         break;
     }
-    
+
   }, [])
+
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (metadata) {
-      toast.info("Loading File");
+      toast.info("Loading " + metadata.name + "...");
+      setLoaded(!loaded)
       dispatch(setFileViewAction({ file: undefined }));
       dispatch(setImageViewAction({ show: false }));
 

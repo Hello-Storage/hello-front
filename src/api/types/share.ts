@@ -42,16 +42,6 @@ export interface ShareState {
     deleted_at?: Date;
 }
 
-export interface ShareStateUserShared {
-    id: number;
-    file_uid: string;
-    public_files_user_shared: PublicFileUserShared;
-    created_at: Date;
-    updated_at: Date;
-    deleted_at?: Date;
-}
-
-
 export interface User {
 	email: string;
 	color: string;
