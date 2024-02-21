@@ -41,6 +41,10 @@ export default defineConfig({
           to: 'dist/blog.html' 
         },
         {
+          from: 'sitemap.xml', 
+          to: 'dist/sitemap.xml'
+        },
+        {
           from: 'robots.txt', 
           to: 'dist/robots.txt' 
         }
