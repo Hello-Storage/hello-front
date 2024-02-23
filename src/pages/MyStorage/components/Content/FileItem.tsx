@@ -36,6 +36,8 @@ import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { removeFileAction } from "state/mystorage/actions";
 import { Theme } from "state/user/reducer";
+import { downloadMultipart, triggerDownload, viewMultipart } from "utils/upload/filesDownload";
+const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB or 10000 bytes
 
 dayjs.extend(relativeTime);
 
@@ -80,60 +82,43 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 	};
 
 	// Function to handle file download
-	const handleDownload = () => {
+	const handleDownload = async () => {
 		viewRef.current = false;
 		toast.info("Starting download for " + file.name + "...");
 		// Make a request to download the file with responseType 'blob'
-		Api.get(`/file/download/${file.uid}`, {
-			responseType: "blob",
-			onDownloadProgress: onDownloadProgress,
-		})
-			.then(async (res) => {
-				dispatch(
-					setUploadStatusAction({
-						info: "Finished downloading data",
-						uploading: false,
-					})
-				);
-				// Create a blob from the response data
-				let binaryData = res.data;
+		if (file.size > MULTIPART_THRESHOLD) {
+			const blob = await downloadMultipart(file, dispatch)
 
-				if (file.encryption_status === EncryptionStatus.Encrypted) {
-					const originalCid = file.cid_original_encrypted;
-					binaryData = await blobToArrayBuffer(binaryData).catch((error) => {
-						console.error("Error transforming blob to array buffer:", error);
-						toast.error("Error transforming blob to array buffer");
-					});
-					binaryData = await decryptFileBuffer(
-						binaryData,
-						originalCid,
-						(percentage) => {
-							dispatch(
-								setUploadStatusAction({
-									info: "Decrypting...",
-									read: percentage,
-									size: 100,
-									uploading: true,
-								})
-							);
-						}
-					).catch((err) => {
-						console.error("Error decrypting file buffer:", err);
-						toast.error("Error decrypting file buffer");
-					});
 
+			dispatch(
+				setUploadStatusAction({
+					info: "Finished downloading data",
+					uploading: false,
+				})
+			);
+			triggerDownload(blob, file.name);
+
+		} else {
+			Api.get(`/file/download/${file.uid}`, {
+				responseType: "blob",
+				onDownloadProgress: onDownloadProgress,
+			})
+				.then(async (res) => {
 					dispatch(
 						setUploadStatusAction({
-							info: "Decryption done",
+							info: "Finished downloading data",
 							uploading: false,
 						})
 					);
-				}
+					// Create a blob from the response data
+					let binaryData = res.data;
 
-                if (file.file_share_state && file.file_share_state.id !== 0) {
-                    const originalCid = file.file_share_state.public_file.cid_original_decrypted;
-					if (originalCid != "") {
-						binaryData = await blobToArrayBuffer(binaryData);
+					if (file.encryption_status === EncryptionStatus.Encrypted) {
+						const originalCid = file.cid_original_encrypted;
+						binaryData = await blobToArrayBuffer(binaryData).catch((error) => {
+							console.error("Error transforming blob to array buffer:", error);
+							toast.error("Error transforming blob to array buffer");
+						});
 						binaryData = await decryptFileBuffer(
 							binaryData,
 							originalCid,
@@ -147,8 +132,9 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 									})
 								);
 							}
-						).catch(() => {
-							toast.error("Error decrypting file");
+						).catch((err) => {
+							console.error("Error decrypting file buffer:", err);
+							toast.error("Error decrypting file buffer");
 						});
 
 						dispatch(
@@ -157,49 +143,47 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 								uploading: false,
 							})
 						);
-					} else {
-						binaryData = await blobToArrayBuffer(binaryData).catch((error) => {
-							console.error("Error transforming blob to array buffer:", error);
-							toast.error("Error transforming blob to array buffer");
-						})
 					}
+					const blob = new Blob([binaryData], { type: file.mime_type });
 
-				}
-				const blob = new Blob([binaryData], { type: file.mime_type });
+					// Create a link element and set the blob as its href
+					const url = window.URL.createObjectURL(blob);
+					const a = document.createElement("a");
+					a.href = url;
+					a.download = file.name; // Set the file name
+					a.click(); // Trigger the download
+					toast.success("Download complete!");
 
-				// Create a link element and set the blob as its href
-				const url = window.URL.createObjectURL(blob);
-				const a = document.createElement("a");
-				a.href = url;
-				a.download = file.name; // Set the file name
-				a.click(); // Trigger the download
-				toast.success("Download complete!");
-
-				// Clean up
-				window.URL.revokeObjectURL(url);
-			})
-			.catch(() => {
-				toast.error("Error downloading file from network");
-			});
+					// Clean up
+					window.URL.revokeObjectURL(url);
+				})
+				.catch((err) => {
+					console.error("Error downloading file:", err);
+				});
+		}
 	};
 
 	const handleView = () => {
 		viewRef.current = true;
 
-		toast.info("Loading " + file.name + "...");
-		dispatch(setFileViewAction({ file: undefined }));
-		dispatch(setImageViewAction({ show: false }));
+		if (file.size > MULTIPART_THRESHOLD) {
+			viewMultipart(file, dispatch)
+		} else {
+			toast.info("Loading " + file.name + "...");
+			dispatch(setFileViewAction({ file: undefined }));
+			dispatch(setImageViewAction({ show: false }));
 
-		dispatch(
-			setFileViewAction({
-				file: file,
-			})
-		);
-		dispatch(
-			setImageViewAction({
-				show: true,
-			})
-		);
+			dispatch(
+				setFileViewAction({
+					file: file,
+				})
+			);
+			dispatch(
+				setImageViewAction({
+					show: true,
+				})
+			);
+		}
 	};
 
 	const handleDelete = () => {
@@ -227,7 +211,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 		return (
 			<>
 				<td
-					onDoubleClick={handleView}
+					onDoubleClick={viewableExtensions.has(fileExtension) ? handleView : undefined}
 					scope="row"
 					className={"px-3 font-medium whitespace-nowrap "
 						+ (theme === Theme.DARK ? " text-white" : " text-gray-900")}
@@ -276,7 +260,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 					</div>
 				</td>
 				<td className="py-1 pr-8 whitespace-nowrap">
-					{dayjs(formatDate(file.updated_at)).fromNow()}
+					{dayjs(formatDate(file.created_at)).fromNow()}
 				</td>
 				<td className="py-1 pr-8 text-right">
 					<button

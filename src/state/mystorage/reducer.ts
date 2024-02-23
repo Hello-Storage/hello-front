@@ -65,6 +65,7 @@ const initialState: MyStorageProps = {
 };
 
 
+
 export default createReducer<MyStorageProps>(initialState, (builder) => {
   builder
     .addCase(fetchContentAction, (state, { payload }) => ({
@@ -91,10 +92,15 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
       ...state,
       ...payload,
     }))
-    .addCase(createFolderAction, (state, { payload }) => ({
-      ...state,
-      folders: [...state.folders, payload],
-    }))
+    .addCase(createFolderAction, (state, { payload }) => {
+      const doesFolderExist = state.folders.some(folder => folder.root === payload.root);
+
+      if (!doesFolderExist) {
+        // Only add the folder if it doesn't exist
+        state.folders = [...state.folders, payload];
+      }
+      
+    })
     .addCase(refreshAction, (state, { payload }) => ({
       ...state,
       refresh: payload,

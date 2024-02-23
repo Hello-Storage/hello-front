@@ -11,7 +11,7 @@ import {
 import setPersonalSignature from "api/setPersonalSignature";
 import setAccountType from "api/setAccountType";
 import { removeContent } from "state/mystorage/actions";
-import { signPersonalSignature } from "utils/encryption/cipherUtils";
+import { signPersonalSignature } from "utils/encryption/web3Utils";
 import * as Web3 from "web3";
 
 const useAuth = () => {
@@ -27,18 +27,21 @@ const useAuth = () => {
 
         if (!sessionPersonalSignature) {
           //sign message with private key
+          if (privateKey) {
+            //sign message with private key
 
-          const signature = await signPersonalSignature(
-            loadResp.data.walletAddress,
-            accountType,
-            privateKey
-          );
-          setPersonalSignature(signature);
+            const signature = await signPersonalSignature(
+              loadResp.data.walletAddress,
+              accountType,
+              privateKey
+            );
+            setPersonalSignature(signature);
+          }
+
+          state.dispatch(loadUser(loadResp.data));
+        } else {
+          throw Error("User not found");
         }
-
-        state.dispatch(loadUser(loadResp.data));
-      } else {
-        throw Error("User not found");
       }
     } catch (error) {
       state.dispatch(loadUserFail());

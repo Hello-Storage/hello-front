@@ -7,7 +7,7 @@ export enum Theme {
   LIGHT = 'light'
 }
 
-interface User {
+export interface User {
   uid: string;
   name: string;
   role: string;

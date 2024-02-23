@@ -143,26 +143,21 @@ export default function Home() {
     if (!personalSignatureRef.current && !hasCalledGetPersonalSignatureRef.current) {
       hasCalledGetPersonalSignatureRef.current = true;
 
-      personalSignatureRef.current = await getPersonalSignature(
-        name,
-        autoEncryptionEnabled,
-        accountType
-      );//Promie<string | undefined>
-      if (!personalSignatureRef.current) {
-        toast.error("Failed to get personal signature");
-        logout();
-        return;
+        personalSignatureRef.current = await getPersonalSignature(
+          name,
+          autoEncryptionEnabled,
+          accountType
+        );//Promie<string | undefined>
+        if (!personalSignatureRef.current) {
+          toast.error("Failed to get personal signature");
+          logout();
+          return;
+        }
       }
-    }
-
-    const decryptedFiles = await handleEncryptedFiles(
-      currentEncryptedFiles,
-      personalSignatureRef.current || "",
-      name,
-      autoEncryptionEnabled,
-      accountType,
-      logout
-    );
+      const decryptedFiles = await handleEncryptedFiles(
+        currentEncryptedFiles,
+        personalSignatureRef.current || "",
+      );
 
     if (decryptedFiles && decryptedFiles.length > 0) {
       dispatch(updateDecryptedFilesAction(decryptedFiles));
@@ -267,10 +262,6 @@ export default function Home() {
     const decryptedFiles = await handleEncryptedFiles(
       currentFiles,
       personalSignatureRef.current || "",
-      name,
-      autoEncryptionEnabled,
-      accountType,
-      logout
     );
 
     if (decryptedFiles && decryptedFiles.length > 0) {

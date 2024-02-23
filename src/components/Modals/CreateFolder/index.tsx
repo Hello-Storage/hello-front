@@ -49,6 +49,7 @@ export default function CreateFolderModal() {
 				logout
 			);
 			const encryptedTitleBuffer = await encryptBuffer(
+        true,
 				new TextEncoder().encode(title),
 				personalSignature
 			);

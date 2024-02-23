@@ -1,9 +1,8 @@
 import { Api } from "api";
-import { EncryptionStatus, Folder } from "api/types";
+import { Folder } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useAuth, useDropdown } from "hooks";
-import JSZip from "jszip";
 import { useEffect, useRef, useState } from "react";
 import { FaFolder } from "react-icons/fa";
 import {
@@ -13,16 +12,9 @@ import {
 	HiOutlineTrash,
 } from "react-icons/hi";
 import { toast } from "react-toastify";
-import {
-	decryptContent,
-	decryptFileBuffer,
-	decryptMetadata,
-	hexToBuffer,
-} from "utils/encryption/filesCipher";
 import getPersonalSignature from "api/getPersonalSignature";
 import { useAppDispatch, useAppSelector } from "state";
 import getAccountType from "api/getAccountType";
-import { logoutUser } from "state/user/actions";
 import { truncate } from "utils/format";
 import { removeFolder, setSelectedShareFile, setSelectedShareFolder, setShowShareModal } from "state/mystorage/actions";
 
@@ -33,6 +25,7 @@ import { DeleteFolderModal } from "components/Modals/DeleteItem/DeleteFolder";
 import { useModal } from "components/Modal";
 import { Theme } from "state/user/reducer";
 import { GoAlertFill } from "react-icons/go";
+import { folderDownload } from "utils/upload/foldersDownload";
 
 interface FolderItemProps {
 	actionsAllowed: boolean;
@@ -69,105 +62,12 @@ const FolderItem: React.FC<FolderItemProps> = ({ folder, actionsAllowed }) => {
 			toast.error("Failed ta get personal signature");
 			return;
 		}
-		// Make a request to download the file with responseType 'blob'
-		Api.get(`/folder/download/${folder.uid}`)
-			.then(async (res) => {
-				const zip = new JSZip();
+		//downloadFolderMultipart(folder, dispatch, personalSignature);
 
-				// Iterate through the files and add them to the ZIP
-				for (const file of res.data.files) {
-					const fileData = atob(file.data);
-					if (file.encryption_status === EncryptionStatus.Encrypted) {
-						const decryptionResult = await decryptMetadata(
-							file.name,
-							file.mime_type,
-							file.cid_original_encrypted,
-							personalSignature
-						);
-						if (!decryptionResult) {
-							logoutUser();
-							return;
-						}
-						const {
-							decryptedFilename,
-							decryptedFiletype,
-							decryptedCidOriginal,
-						} = decryptionResult;
-						const stringToArrayBuffer = (
-							str: string
-						): ArrayBuffer => {
-							const buf = new ArrayBuffer(str.length);
-							const bufView = new Uint8Array(buf);
-							for (let i = 0; i < str.length; i++) {
-								bufView[i] = str.charCodeAt(i);
-							}
-							return buf;
-						};
-
-						//transform fileData string to Array Buffer
-						const fileDataBufferEncrypted = stringToArrayBuffer(
-							fileData
-						);
-						const fileDataBuffer = await decryptFileBuffer(
-							fileDataBufferEncrypted,
-							decryptedCidOriginal,
-							() => void 0
-						);
-						if (!fileDataBuffer) {
-							toast.error("Failed to decrypt file");
-							return;
-						}
-						//transform buffer to Blob
-						const fileDataBlob = new Blob([fileDataBuffer], {
-							type: decryptedFiletype,
-						});
-
-						const decryptedPathComponents = [];
-						const pathComponents = file.path.split("/");
-						// Decrypt the path components
-						for (let i = 0; i < pathComponents.length - 1; i++) {
-							const component = pathComponents[i];
-							const encryptedComponentUint8Array = hexToBuffer(
-								component
-							);
-
-							const decryptedComponentBuffer = await decryptContent(
-								encryptedComponentUint8Array,
-								personalSignature
-							);
-							const decryptedComponentStr = new TextDecoder().decode(
-								decryptedComponentBuffer
-							);
-							decryptedPathComponents.push(decryptedComponentStr);
-						}
-						decryptedPathComponents.push(decryptedFilename);
-
-						const decryptedFilePath = decryptedPathComponents.join(
-							"/"
-						);
-						zip.file(decryptedFilePath, fileDataBlob, {
-							binary: true,
-						});
-					} else {
-						zip.file(file.path, fileData, { binary: true });
-					}
-				}
-
-				//Generate the ZIP file and trigger the download
-				zip.generateAsync({ type: "blob" }).then((content) => {
-					const url = window.URL.createObjectURL(content);
-					const a = document.createElement("a");
-					a.href = url;
-					a.download = `${folder.title}.zip`; // Set the file name
-					a.click(); // Trigger the download
-					// Clean up
-					window.URL.revokeObjectURL(url);
-				});
-			})
-			.catch((err) => {
-				console.error("Error downloading folder:", err);
-				toast.error("Error downloading folder");
-			});
+		folderDownload(personalSignature, folder, dispatch).catch((err) => {
+			console.error(err);
+			toast.error("Error downloading folder");
+		});
 	};
 
 	const handleDelete = () => {
