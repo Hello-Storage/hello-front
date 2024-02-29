@@ -103,17 +103,12 @@ export const encryptWebkitRelativePath = async (
 
 // Main functions
 
-
-export const encryptMetadata = async (file: File, personalSignature: string | undefined): Promise<{ encryptedFilenameBase64Url: string, encryptedFiletypeHex: string, fileSize: number, fileLastModified: number } | undefined> => {
+export const encryptMetadata = async (file: File, personalSignature: string | undefined): Promise<{ encryptedFilename: Uint8Array, encryptedFiletype: Uint8Array, fileSize: number, fileLastModified: number } | undefined> => {
     if (!personalSignature) {
         logoutUser();
-        return undefined;
+        return;
     }
-    //const salt = new Uint8Array(16).fill(0);
-    //const iv = new Uint8Array(12).fill(0);
-    const salt = window.crypto.getRandomValues(new Uint8Array(16));
-    const iv = window.crypto.getRandomValues(new Uint8Array(12));
-    const { aesKey } = await getAesKey(personalSignature, ['encrypt'], salt, iv);
+    const { aesKey, salt, iv } = await getAesKey(personalSignature, ['encrypt']);
 
 
     const encryptValue = async (value: string): Promise<Uint8Array> => {
@@ -125,14 +120,9 @@ export const encryptMetadata = async (file: File, personalSignature: string | un
     const encryptedFilename = await encryptValue(file.name)
     const encryptedFiletype = await encryptValue(file.type)
 
-    const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
-    const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
 
-
-
-    return { encryptedFilenameBase64Url, encryptedFiletypeHex, fileSize: file.size, fileLastModified: file.lastModified };
+    return { encryptedFilename, encryptedFiletype, fileSize: file.size, fileLastModified: file.lastModified };
 }
-
 
 
 export const decryptContent = async (cipherBytes: Uint8Array | string, personalSignature: string | undefined): Promise<ArrayBuffer | undefined> => {
@@ -159,6 +149,7 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
         logoutUser();
         return;
     }
+    const encryptedFilenameBuffer = base64UrlToBuffer(encryptedFilenameBase64Url)
     const encryptedCidOriginalBuffer = base64UrlToBuffer(cidOriginalEncrypted)
     const encryptedFiletypeBuffer = hexToBuffer(encryptedFiletypeBase64Url)
 
@@ -179,12 +170,6 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
         return new TextDecoder().decode(decryptedValueArrayBuffer);
     }
 
-    const decryptedFilename = await decryptFilename(encryptedFilenameBase64Url, personalSignature)
-    if (!decryptedFilename) {
-        return;
-    }
-    const decryptedCidOriginal = await decryptValue(encryptedCidOriginalBuffer)
-    const decryptedFiletype = await decryptValue(encryptedFiletypeBuffer)
     const decryptedFilename = await decryptValue(encryptedFilenameBuffer).catch((err) => {
         console.log("Error decrypting filename:")
         console.log(err)
@@ -620,7 +605,7 @@ export const handleEncryptedFolders = async (folders: Folder[], personalSignatur
 
             // encrypt file metadata and blob
             const folderTitleBuffer = hexToBuffer(folder.title);
-            
+
             const decryptedTitleBuffer = await decryptContent(
                 folderTitleBuffer,
                 personalSignature
