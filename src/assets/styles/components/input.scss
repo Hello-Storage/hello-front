@@ -19,3 +19,28 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.flex-login-btns{
+  display: flex;
+  flex-direction: row;
+}
+
+@media (min-height: 500px) and (min-width: 768px) {
+  .flex-login-btns{
+    display: flex;
+    flex-direction: row;
+  }
+  .button-text-login::after{
+    content: '';
+  }
+}
+
+@media (min-height: 768px) and (min-width: 1024px) {
+  .flex-login-btns{
+    display: flex;
+    flex-direction: column;
+  }
+  .button-text-login::after{
+    content: 'Connect with';
+  }
+}

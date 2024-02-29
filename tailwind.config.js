@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       screens: {
-        "min100": "100px",
+        
       },
       colors: {
         "primary-black": "#0D1117",

@@ -90,6 +90,7 @@
   display: block;
   height: 500px !important;
 }
+
 .rainbow-border {
   border: 3px solid gray;
   animation: rainbow-border 2s linear infinite;
@@ -111,6 +112,7 @@
   mask-composite: exclude;
   transition: transform 0.3s ease;
 }
+
 @keyframes rainbow-border {
   0% {
     background-position: 0 0;
@@ -141,4 +143,20 @@
   -moz-transition: all 0.3s ease;
   -ms-transition: all 0.3s ease;
   -o-transition: all 0.3s ease;
+}
+
+.one-page-title {
+  font-size: 1.6rem;
+}
+
+@media (min-height: 500px) and (min-width: 768px) {
+  .one-page-title {
+    font-size: 2rem;
+  }
+}
+
+@media (min-height: 768px) and (min-width: 1024px) {
+  .one-page-title {
+    font-size: 3rem;
+  }
 }

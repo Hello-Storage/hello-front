@@ -24,7 +24,7 @@ const OnePage = () => {
 
   return (
     <div className="relative overflow-hidden h-screen text-gray-100 bg-slate-950">
-      <div className="absolute inset-0 bg-[url('https://media.publit.io/file/-Pngtree-noise-texture-black-background-1575880.png')] opacity-5"></div>
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5"></div>
       <canvas
         data-particle-animation
         data-particle-quantity="200"
