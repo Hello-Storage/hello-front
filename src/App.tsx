@@ -86,7 +86,7 @@ function App() {
               localStorage.getItem("access_token") ? (
                 <Navigate to="/space/my-storage" replace />
               ) : (
-                <OnePage />
+                <Navigate to="/space/login" replace />
               )
             }
           />
