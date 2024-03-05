@@ -249,7 +249,7 @@ export const fileUpload = async (
                         if (firstFile) {
                             let cidOriginalUnencrypted = "";
                             if (firstFile.customFile.encryption_status === EncryptionStatus.Encrypted) {
-                                cidOriginalUnencrypted = firstFile.customFile.cid_original_unencrypted || "";
+                                cidOriginalUnencrypted = firstFile.customFile.cid_original_unencrypted ?? "";
                             }
                             const { encryptionTime } = await uploadFileMultipart(filesToUpload[0].file, dispatch, encryptionEnabled, cidOriginalUnencrypted, filesToUpload[0].customFile.cid)
                             encryptionTimeTotalThis += encryptionTime;
@@ -280,9 +280,9 @@ export const fileUpload = async (
 
                             customFile.is_in_pool = fileCreated?.is_in_pool || false;
 
-                            customFile.name = customFile.name_unencrypted || '';
-                            customFile.cid_original_encrypted = customFile.cid_original_unencrypted || '';
-                            customFile.mime_type = customFile.mime_type_unencrypted || '';
+                            customFile.name = customFile.name_unencrypted ?? '';
+                            customFile.cid_original_encrypted = customFile.cid_original_unencrypted ?? '';
+                            customFile.mime_type = customFile.mime_type_unencrypted ?? '';
 
                             if (!isFolder) {
                                 dispatch(createFileAction(customFile))
@@ -323,9 +323,9 @@ export const fileUpload = async (
                                     customFile.updated_at = fileCreated ? fileCreated.updated_at.toString() : "";
                                     customFile.is_in_pool = fileCreated?.is_in_pool || false;
 
-                                    customFile.name = customFile.name_unencrypted || '';
-                                    customFile.cid_original_encrypted = customFile.cid_original_unencrypted || '';
-                                    customFile.mime_type = customFile.mime_type_unencrypted || '';
+                                    customFile.name = customFile.name_unencrypted ?? '';
+                                    customFile.cid_original_encrypted = customFile.cid_original_unencrypted ?? '';
+                                    customFile.mime_type = customFile.mime_type_unencrypted ?? '';
 
 
                                     dispatch(createFileAction(customFile))
@@ -390,11 +390,14 @@ export const fileUpload = async (
         fetchUserDetail();
         return;
     }
+
+    const filesMessage = files.length === 1
+        ? files[0].name
+        : `uploading ${files.length} files`
+
     const infoText = isFolder
         ? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
-        : files.length === 1
-            ? files[0].name
-            : `uploading ${files.length} files`;
+        : filesMessage;
 
     dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
     postData(folderRootUID, formData, filesMapThis, outermostFolderTitle, isFolder, dispatch, onUploadProgress, fetchUserDetail, root, encryptionEnabled);
@@ -435,9 +438,9 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
                         fileMap.customFile.updated_at = filesFound[foundIndex].updated_at.toString();
                         fileMap.customFile.is_in_pool = filesFound[foundIndex].is_in_pool;
 
-                        fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
-                        fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
-                        fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
+                        fileMap.customFile.name = fileMap.customFile.name_unencrypted ?? '';
+                        fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted ?? '';
+                        fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted ?? '';
 
                         if (!isFolder) dispatch(createFileAction(fileMap.customFile))
                         usedFileIndices.add(foundIndex)
@@ -521,14 +524,14 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
                                 const file = customFiles[i];
 
                                 const fileObject: FileType = {
-                                    name: file.name_unencrypted || file.name,
+                                    name: file.name_unencrypted ?? file.name,
                                     cid: fileRes.cid,
                                     id: fileRes.id,
                                     uid: fileRes.uid,
-                                    cid_original_encrypted: file.cid_original_unencrypted || file.cid_original_encrypted,
+                                    cid_original_encrypted: file.cid_original_unencrypted ?? file.cid_original_encrypted,
                                     size: file.size,
                                     root: fileRes.root,
-                                    mime_type: file.mime_type_unencrypted || file.mime_type,
+                                    mime_type: file.mime_type_unencrypted ?? file.mime_type,
                                     media_type: file.media_type,
                                     path: file.path,
                                     encryption_status: fileRes.encryption_status,
@@ -576,9 +579,9 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
 
                             file.customFile.is_in_pool = fileCreated?.is_in_pool || false;
 
-                            file.customFile.name = file.customFile.name_unencrypted || '';
-                            file.customFile.cid_original_encrypted = file.customFile.cid_original_unencrypted || '';
-                            file.customFile.mime_type = file.customFile.mime_type_unencrypted || '';
+                            file.customFile.name = file.customFile.name_unencrypted ?? '';
+                            file.customFile.cid_original_encrypted = file.customFile.cid_original_unencrypted ?? '';
+                            file.customFile.mime_type = file.customFile.mime_type_unencrypted ?? '';
 
                             if (!isFolder) {
                                 dispatch(createFileAction(file.customFile))
@@ -591,143 +594,6 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
                 });
 
                 await Promise.all(createPromises);
-
-
-
-
-
-
-
-
-                /*
-                    // Dispatch actions for files that were found in S3.
-                    filesToUpload = filesMap.filter((fileMap) => {
-                    const fileInFilesFound = (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid);
-                    return !fileInFilesFound;
-                    })
-                */
-
-
-                /*
-                                filesToUpload.forEach((fileMap, index) => {
-                                    // Append the files that need to be uploaded to formData.
-                                    if (fileMap.customFile.encryption_status === EncryptionStatus.Encrypted) {
-                                        formData.append("encryptedFiles", fileMap.file)
-                                        formData.append(`cid[${index}]`, fileMap.customFile.cid)
-                                        if (fileMap.customFile.cid_original_encrypted_base64_url)
-                                            formData.append(`cidOriginalEncrypted[${index}]`, fileMap.customFile.cid_original_encrypted_base64_url)
-                                        formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
-                                    } else {
-                                        formData.append(`cid[${index}]`, fileMap.customFile.cid)
-                                        formData.append("files", fileMap.file)
-                                    }
-                                })
-                */
-
-
-                /*
-                                const filesFoundInS3 = filesMap.filter((fileMap) =>
-                                    (filesFound || []).some(fileFound => fileFound.cid === fileMap.customFile.cid)
-                                )
-                
-                                filesFoundInS3.forEach((fileMap) => {
-                                    if (filesFound) {
-                                        const fileFound = filesFound.find(f => f.cid === fileMap.customFile.cid);
-                
-                                        //replace for customFile in fileMap values:
-                                        //- put name_unencrypted to name
-                                        //- put cid_original_unencrypted to cid_original_encrypted
-                                        //- put mime_type_unencrypted to mime_type
-                
-                                        fileMap.customFile.id = fileFound?.id || 0;
-                                        fileMap.customFile.uid = fileFound?.uid || '';
-                                        fileMap.customFile.created_at = fileFound ? fileFound.created_at.toString() : "";
-                                        fileMap.customFile.updated_at = fileFound ? fileFound.updated_at.toString() : "";
-                
-                                        fileMap.customFile.is_in_pool = fileFound?.is_in_pool || false;
-                
-                                        fileMap.customFile.name = fileMap.customFile.name_unencrypted || '';
-                                        fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || '';
-                                        fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || '';
-                
-                
-                                        if (!isFolder) dispatch(createFileAction(fileMap.customFile))
-                                    }
-                
-                                })
-                            })
-                            .catch((err) => {
-                                console.log(err);
-                            });
-                            
-            }
-            */
-                /*
-                                if (filesToUpload.length !== 0) {
-                                    await Api.post("/file/upload", formData, {
-                                        headers: {
-                                            "Content-Type": "multipart/form-data",
-                                        },
-                                        onUploadProgress,
-                                    })
-                                        .then((res) => {
-                                            toast.success("upload Succeed!");
-                                            dispatch(
-                                                setUploadStatusAction({
-                                                    info: "Finished uploading data",
-                                                    uploading: false,
-                                                })
-                                            );
-                
-                                            //getAll files and encryptedFils into a single files variable from formData
-                                            const filesRes = res.data.files;
-                
-                
-                
-                                            for (let i = 0; i < filesRes.length; i++) {
-                                                //get file at index from formdata
-                                                const fileRes = filesRes[i];
-                                                const file = customFiles[i];
-                
-                                                const fileObject: FileType = {
-                                                    name: file.name_unencrypted || file.name,
-                                                    cid: fileRes.cid,
-                                                    id: fileRes.id,
-                                                    uid: fileRes.uid,
-                                                    cid_original_encrypted: file.cid_original_unencrypted || file.cid_original_encrypted,
-                                                    size: file.size,
-                                                    root: fileRes.root,
-                                                    mime_type: file.mime_type_unencrypted || file.mime_type,
-                                                    media_type: file.media_type,
-                                                    path: file.path,
-                                                    encryption_status: fileRes.encryption_status,
-                                                    created_at: fileRes.created_at,
-                                                    updated_at: fileRes.updated_at,
-                                                    deleted_at: fileRes.deleted_at,
-                                                }
-                                                if (!isFolder) dispatch(createFileAction(
-                                                    fileObject
-                                                ))
-                
-                                            }
-                
-                                        })
-                                        .catch((err) => {
-                                            console.log(err);
-                                            toast.error("upload failed!");
-                                        })
-                                        .finally(() => dispatch(setUploadStatusAction({ uploading: false })));
-                                } else {
-                                    toast.success("upload Succeed!");
-                                    dispatch(
-                                        setUploadStatusAction({
-                                            info: "Finished uploading data",
-                                            uploading: false,
-                                        })
-                                    );
-                
-                                }
-                                */
             })
             .catch((err) => {
                 console.log(err);

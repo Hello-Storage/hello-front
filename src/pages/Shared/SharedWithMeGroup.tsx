@@ -16,14 +16,14 @@ import { resetCache, setFileViewAction, setImageViewAction } from "state/mystora
 import { useDispatch } from "react-redux";
 dayjs.extend(relativeTime);
 
-const ShareSharedWithMeGroupdWithMe = () => {
+const ShareSharedWithMeGroupWithMe = () => {
 	//get the hash from the url
 	const { group_id } = useParams();
 
 	const { grouphashes, loading } = useFetchGroupHashes(
-		group_id ? group_id : ""
+		group_id ?? ""
 	);
-	const [error, seterror] = useState<boolean>()
+	const [error, setError] = useState<boolean>()
 	const [metadataList, setMetadataList] = useState<File[]>([]);
 
 	const { showPreview } = useAppSelector((state) => state.mystorage);
@@ -79,8 +79,8 @@ const ShareSharedWithMeGroupdWithMe = () => {
 				).then(() => {
 					setMetadataList(tempMetadataList);
 				}).catch(() => {
-					toast.error("An error occured while fetching the file metadata");
-					seterror(true)
+					toast.error("An error occurred while fetching the file metadata");
+					setError(true)
 				});
 			}
 		}
@@ -118,4 +118,4 @@ const ShareSharedWithMeGroupdWithMe = () => {
 	);
 };
 
-export default ShareSharedWithMeGroupdWithMe;
+export default ShareSharedWithMeGroupWithMe;

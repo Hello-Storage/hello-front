@@ -379,12 +379,10 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
     }
     if (invScroll && visScroll) {
       invScroll.onscroll = function () {
-        if (invScroll && visScroll)
-          visScroll.scrollLeft = invScroll.scrollLeft;
+        visScroll.scrollLeft = invScroll.scrollLeft;
       };
       visScroll.onscroll = function () {
-        if (invScroll && visScroll)
-          invScroll.scrollLeft = visScroll.scrollLeft;
+        invScroll.scrollLeft = visScroll.scrollLeft;
       };
     }
     handleResize();

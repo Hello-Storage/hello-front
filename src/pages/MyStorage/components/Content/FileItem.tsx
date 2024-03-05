@@ -22,19 +22,18 @@ import {
 	blobToArrayBuffer,
 	decryptFileBuffer,
 } from "utils/encryption/filesCipher";
-import React from "react";
 import { useAppDispatch, useAppSelector } from "state";
 import {
 	removeSharedFileAction,
 	setFileViewAction,
 	setImageViewAction,
 	setSelectedShareFile,
-	setShowShareModal,
+	setShowShareModal, 
+	removeFileAction
 } from "state/mystorage/actions";
 import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
-import { removeFileAction } from "state/mystorage/actions";
 import { Theme } from "state/user/reducer";
 import { downloadMultipart, triggerDownload, viewMultipart } from "utils/upload/filesDownload";
 const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB or 10000 bytes

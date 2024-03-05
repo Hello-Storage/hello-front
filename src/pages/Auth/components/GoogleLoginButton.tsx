@@ -51,7 +51,7 @@ export default function GoogleLoginButton() {
         }, 500);
         setLoading(true);
       }}
-      disabled={loading ? true : false}
+      disabled={!!loading}
     >
       <GoogleIcon />
       <p>

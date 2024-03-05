@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { Api } from "api/api";
+import useTitle from "hooks/useTitle";
 
 ChartJS.register(
     CategoryScale,
@@ -62,6 +63,7 @@ const determineLargestUnit = (data: WeeklyData[]) => {
 };
 
 export default function FilesChart() {
+    useTitle("Hello Storage | Stats");
     const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([{ week: "", usedStorage: 0 }]);
     const [largestUnit, setLargestUnit] = useState<string>('Bytes');
 
@@ -188,7 +190,6 @@ export default function FilesChart() {
     }
 
     useEffect(() => {
-        document.title = "Hello Storage | Stats";
         fetchData();
 
         // 15 seconds update interval

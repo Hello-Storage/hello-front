@@ -18,7 +18,7 @@ import { PiTiktokLogoFill } from "react-icons/pi";
 import { BiLogoInstagramAlt } from "react-icons/bi";
 import { BsLinkedin } from 'react-icons/bs';
 import { Api } from "api";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { getTheme } from "utils/user";
 import { Theme } from "state/user/reducer";
@@ -52,18 +52,16 @@ export default function Login() {
       const res = await Api.get(`/file/share/published/name/${share_hash}`);
 
       let publishedFileName: any = {};
-      if ((res as AxiosResponse).status === 200) {
+      if ((res).status === 200) {
         publishedFileName = res.data;
       }
 
       if ((res as unknown as AxiosError).isAxiosError) {
-        toast.error("An error occured while fetching the file name");
+        toast.error("An error occurred while fetching the file name");
         if ((res as unknown as AxiosError).response?.status === 404 || (res as unknown as AxiosError).response?.status === 503) {
           return;
         }
       }
-
-      console.log(publishedFileName);
       let newFilename = publishedFileName.name;
       if (publishedFileName.name === undefined || publishedFileName.name === "") {
         if (publishedFileName.file_share_state.public_file.name !== undefined && publishedFileName.file_share_state.public_file.name !== "") {
@@ -157,7 +155,7 @@ export default function Login() {
       <footer className={"p-0 min-w-[350px] text-sm flex justify-between flex-row items-center text-black md:mx-12 md:p-2 mb-[100px] md:mb-0" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
         <div className="flex flex-col items-start">
           <div className="flex p-0 space-x-4 md:p-0">
-            <a href="mailto:team@hello.app" 
+            <a href="mailto:team@hello.app"
               title="Email us" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px' }}>
               <HiMail />
             </a>

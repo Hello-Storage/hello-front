@@ -132,7 +132,6 @@ export default function Statistics() {
   };
 
   useEffect(() => {
-    document.title = "hello.app | Stats";
     fetchData();
 
     // 15 seconds update interval

@@ -1,3 +1,4 @@
+
 import { useCallback } from "react";
 import { AccountType, Api, LoadUserResponse, LoginResponse, setAuthToken } from "api";
 import { signMessage, disconnect } from "@wagmi/core";
@@ -27,21 +28,18 @@ const useAuth = () => {
 
         if (!sessionPersonalSignature) {
           //sign message with private key
-          if (privateKey) {
-            //sign message with private key
 
-            const signature = await signPersonalSignature(
-              loadResp.data.walletAddress,
-              accountType,
-              privateKey
-            );
-            setPersonalSignature(signature);
-          }
-
-          state.dispatch(loadUser(loadResp.data));
-        } else {
-          throw Error("User not found");
+          const signature = await signPersonalSignature(
+            loadResp.data.walletAddress,
+            accountType,
+            privateKey
+          );
+          setPersonalSignature(signature);
         }
+
+        state.dispatch(loadUser(loadResp.data));
+      } else {
+        throw Error("User not found");
       }
     } catch (error) {
       state.dispatch(loadUserFail());
@@ -51,12 +49,12 @@ const useAuth = () => {
   const login = useCallback(async (wallet_address: string) => {
     const referral = new URLSearchParams(window.location.search).get("ref");
     localStorage.removeItem("access_token");
-    setAuthToken(undefined);
+    setAuthToken();
     localStorage.removeItem("account_type")
-    setAccountType(undefined);
+    setAccountType();
     sessionStorage.removeItem("personal_signature");
     console.log("removed a")
-    setPersonalSignature(undefined);
+    setPersonalSignature();
 
     const nonceResp = await Api.post<string>("/nonce", {
       wallet_address,
@@ -115,12 +113,12 @@ const useAuth = () => {
 
   const logout = useCallback(() => {
     if (localStorage.getItem("access_token")) {
-      setAuthToken(undefined);
+      setAuthToken();
     } else {
       state.dispatch(logoutUser());
 
-      setPersonalSignature(undefined);
-      setAccountType(undefined);
+      setPersonalSignature();
+      setAccountType();
       state.dispatch(removeContent());
 
       // disconnect when you sign with wallet
@@ -139,4 +137,3 @@ const useAuth = () => {
 };
 
 export default useAuth;
-
