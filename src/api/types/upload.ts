@@ -17,4 +17,5 @@ export type FilesUpload = {
   dispatch: (action: any) => void;
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void;
   fetchUserDetail: () => void;
+  shareModal?: boolean | undefined;
 }

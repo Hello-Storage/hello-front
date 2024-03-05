@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { Api, EncryptionStatus, File as FileType } from "api";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { getCid } from "utils/encryption/filesCipher";
-import { createFileAction, createFolderAction } from "state/mystorage/actions";
+import { createFileAction, createFolderAction, setSelectedSharedFiles } from "state/mystorage/actions";
 import { AxiosProgressEvent } from "axios";
 import { handleSinglepartEncryption } from "./singlepartEncryption";
 
@@ -155,7 +155,7 @@ export const filesUpload = async (filesUpload: FilesUpload) => {
     filesUpload.dispatch(setUploadStatusAction({ info: infoText, uploading: true }))
 
 
-    postData(formData, filesMap, outermostFolderTitle, filesUpload.onUploadProgress, filesUpload.dispatch, filesUpload.isFolder, filesUpload.encryptionEnabled);
+    postData(formData, filesMap, outermostFolderTitle, filesUpload.onUploadProgress, filesUpload.dispatch, filesUpload.isFolder, filesUpload.encryptionEnabled, filesUpload.shareModal);
 
 }
 
@@ -166,11 +166,14 @@ export const postData = async (
     onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
     dispatch: (action: any) => void,
     isFolder: boolean,
-    encryptionEnabled: boolean | undefined
+    encryptionEnabled: boolean | undefined,
+    shareModal?: boolean | undefined
 ) => {
 
     // iterate over each file and make a get request to check if cid exists in Api
     // post file metadata to api in case file is already in the pool
+
+    const filesUploaded: FileType[] = [];
 
     // get customFiles from filesMap
     const customFiles = filesMap.map(fileMap => fileMap.customFile);
@@ -223,6 +226,8 @@ export const postData = async (
                     fileMap.customFile.cid_original_encrypted = fileMap.customFile.cid_original_unencrypted || "";
                     fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted || "";
 
+                    
+                    if (!isFolder && shareModal) filesUploaded.push(fileMap.customFile);
                     if (!isFolder) dispatch(createFileAction(fileMap.customFile));
                 }
             })
@@ -273,6 +278,7 @@ export const postData = async (
                         updated_at: fileRes.updated_at,
                         deleted_at: fileRes.deleted_at,
                     }
+                    if (!isFolder && shareModal) filesUploaded.push(fileObject);
                     if (!isFolder) dispatch(createFileAction(fileObject));
                 }
             })
@@ -291,6 +297,9 @@ export const postData = async (
         );
     }
 
+    
+    console.log("filesUploaded", filesUploaded)
+    if (shareModal) dispatch(setSelectedSharedFiles(filesUploaded));
     if (isFolder && folderRootUID !== "" && outermostFolderTitle !== "") {
         dispatch(createFolderAction({
             title: outermostFolderTitle,
