@@ -190,7 +190,7 @@ export const fileUpload = async (
                     //dispatch fileFound
                     multipartFilesThis.forEach(({ customFile, file, cidOriginal }) => {
                         // Find a matching file in filesFound where the CID matches and it hasn't been used
-                        const foundIndex = filesFound.findIndex((fileFound, index) =>
+                        const foundIndex = (filesFound??[]).findIndex((fileFound, index) =>
                             fileFound.cid === customFile.cid && !usedFileIndices.has(index)
                         );
                         if (foundIndex !== -1) {
@@ -405,7 +405,6 @@ export const fileUpload = async (
 
 export const postData = async (folderRootUID: string, formData: FormData, filesMap: { customFile: FileType, file: File }[], outermostFolderTitle: string, isFolder: boolean, dispatch: AppDispatch, onUploadProgress: (progressEvent: AxiosProgressEvent) => void, fetchUserDetail: () => void, root: string, encryptionEnabled: boolean | undefined) => {
 
-
     //iterate over each file and make a get request to check if cid exists in Api
     //post file metadata to api
     //get customFiles from filesMap
@@ -428,7 +427,7 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
                 //dispatch fileFound
                 filesMap.forEach((fileMap) => {
                     // Find a matching file in filesFound where the CID matches and it hasn't been used
-                    const foundIndex = filesFound.findIndex((fileFound, index) =>
+                    const foundIndex = (filesFound??[]).findIndex((fileFound, index) =>
                         fileFound.cid === fileMap.customFile.cid && !usedFileIndices.has(index)
                     );
                     if (foundIndex !== -1) {
@@ -450,9 +449,10 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
 
                 // Remove the files that were found for later upload to S3
                 filesToUpload = filesMap.filter((fileMap) => {
-                    const isFound = filesFound.some(fileFound => fileFound.cid === fileMap.customFile.cid);
+                    const isFound = (filesFound??[]).some(fileFound => fileFound.cid === fileMap.customFile.cid);
                     return !isFound;
                 });
+
 
                 // group filesToUpload by cid
                 const filesToUploadGroupedByCid: { [cid: string]: FileMap[] } = {};
@@ -482,12 +482,14 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
                             formData.append("encryptedFiles", firstFile.file)
                             formData.append(`cid[${index}]`, firstFile.customFile.cid)
                             if (firstFile.customFile.cid_original_encrypted_base64_url)
-                                formData.append(`cidOriginalEncrypted[${index}]`, firstFile.customFile.cid_original_encrypted_base64_url)
+                              formData.append(`cidOriginalEncrypted[${index}]`, firstFile.customFile.cid_original_encrypted_base64_url)
                             formData.append(`webkitRelativePath[${index}]`, firstFile.customFile.path)
-                        } else {
+                          } else {
                             formData.append(`cid[${index}]`, firstFile.customFile.cid)
                             formData.append("files", firstFile.file)
-                        }
+                            const root = firstFile.customFile.path.split("/")[1] ? firstFile.customFile.path.split("/")[1] + "/" : ""
+                            formData.append(`webkitRelativePath[${index}]`, root)
+                          }
 
                         // remove the first file from the group
                         filesGroup.shift();
@@ -495,7 +497,6 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
                 })
 
                 await Promise.all(uploadPromises);
-
 
                 if (filesToUpload.length > 0) {
                     await Api.post("file/upload", formData, {
@@ -515,8 +516,6 @@ export const postData = async (folderRootUID: string, formData: FormData, filesM
 
                             //getAll files and encryptedFils into a single files variable from formData
                             const filesRes = res.data.files;
-
-
 
                             for (let i = 0; i < filesRes.length; i++) {
                                 //get file at index from formdata

@@ -23,8 +23,8 @@ export const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uin
     const passwordKey = await window.crypto.subtle.importKey('raw', passwordBytes, 'PBKDF2', false, ['deriveKey']);
     //salt = salt || window.crypto.getRandomValues(new Uint8Array(16));
     //iv = iv || window.crypto.getRandomValues(new Uint8Array(12));
-    salt = salt || new Uint8Array(16).fill(0);
-    iv = iv || new Uint8Array(12).fill(0);
+    salt = salt ?? new Uint8Array(16).fill(0);
+    iv = iv ?? new Uint8Array(12).fill(0);
     const keyDerivationParams = {
         name: 'PBKDF2',
         salt: salt,
@@ -102,7 +102,6 @@ export const encryptWebkitRelativePath = async (
 
 
 // Main functions
-
 export const encryptMetadata = async (file: File, personalSignature: string | undefined): Promise<{ encryptedFilename: Uint8Array, encryptedFiletype: Uint8Array, fileSize: number, fileLastModified: number } | undefined> => {
     if (!personalSignature) {
         logoutUser();
@@ -581,7 +580,6 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignature:
                     };
                 }
             } catch (error) {
-                console.log(error);
                 return file;
             }
         }

@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { AppDispatch } from "state";
-import { cidToEncryptedBase64Url, encryptFileBuffer, encryptMetadata, encryptWebkitRelativePath } from "utils/encryption/filesCipher";
+import { bufferToBase64Url, bufferToHex, cidToEncryptedBase64Url, encryptFileBuffer, encryptMetadata, encryptWebkitRelativePath } from "utils/encryption/filesCipher";
 
 export const handleSinglepartFileEncryption = async (
     file: File,
@@ -40,11 +40,11 @@ export const handleSinglepartFileEncryption = async (
         toast.error("Failed to encrypt metadata");
         return null;
     }
-    const { encryptedFilenameBase64Url, encryptedFiletypeHex } =
+    const { encryptedFilename, encryptedFiletype } =
         encryptedMetadataResult;
 
-
-
+        const encryptedFilenameBase64Url = bufferToBase64Url(encryptedFilename);
+        const encryptedFiletypeHex = bufferToHex(encryptedFiletype);
 
     const encryptedFileBlob = new Blob([encryptedFileBuffer]);
     const encryptedFile = new File(
