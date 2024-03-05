@@ -232,13 +232,13 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 					</div>
 				</td>
 				<td className="py-1 pr-8">
-					<div
+					<button
 						className="flex items-center gap-1 select-none hover:text-blue-500"
 						onClick={onCopy}
 					>
 						{formatUID(file.cid)}
 						<HiDocumentDuplicate />
-					</div>
+					</button>
 				</td>
 				<td className="py-1 pr-8 whitespace-nowrap">
 					{formatBytes(file.size)}

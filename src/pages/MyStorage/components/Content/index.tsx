@@ -15,8 +15,8 @@ import { Theme } from "state/user/reducer";
 import ContentFolderItem from "./ContentFolderItem";
 
 interface ContentProps {
-  contentIsShared?: boolean | undefined;
-  focusedContent?: number | undefined;
+  contentIsShared: boolean | undefined;
+  focusedContent: number | undefined;
   loading: boolean;
   folders: Folder[];
   files: File[];
@@ -77,9 +77,9 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       event.preventDefault();
 
       const selInfo = {
-        type: event.currentTarget.ariaValueText?.toString() || "",
+        type: event.currentTarget.ariaValueText?.toString() ?? "",
         id: event.currentTarget.id.toString(),
-        uid: event.currentTarget.ariaLabel?.toString() || "",
+        uid: event.currentTarget.ariaLabel?.toString() ?? "",
       };
 
       const isAlreadySelected = selectedItems.some(
@@ -302,35 +302,38 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
 
   function handleMultipleDelete() {
     toast.info("Deleting files...");
-    setSelectedItems([])
-    setSeleccionMultipleActivada(false)
-    let deletedCount = 0;
-
+    setSelectedItems([]);
+    setSeleccionMultipleActivada(false);
+  
     const handleDeleteSuccess = (fileUid: string) => {
-      deletedCount++;
-      if (deletedCount === selectedItems.length) {
-        toast.success("All files deleted!");
-      }
       if (contentIsShared) {
         dispatch(removeSharedFileAction(fileUid));
       } else {
         dispatch(removeFileAction(fileUid));
       }
     };
-
-    for (const file of selectedItems) {
-      // Make a request to delete each file with response code 200
-      Api.delete(`/file/delete/${file.uid}`)
-        .then(() => {
-          handleDeleteSuccess(file.uid);
-        })
-        .catch((err) => {
-          console.error("Error deleting file:", err);
-          toast.error("Error deleting file");
-        });
-    }
+  
+    const deleteFileAtIndex = async (index: number) => {
+      if (index >= selectedItems.length) {
+        toast.success("All files deleted!");
+        return;
+      }
+  
+      const file = selectedItems[index];
+  
+      try {
+        await Api.delete(`/file/delete/${file.uid}`);
+        handleDeleteSuccess(file.uid);
+      } catch (err) {
+        console.error("Error deleting file:", err);
+        toast.error("Error deleting file");
+      }
+  
+      await deleteFileAtIndex(index + 1);
+    };
+  
+    deleteFileAtIndex(0);
   }
-
 
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
