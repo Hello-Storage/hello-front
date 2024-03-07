@@ -302,15 +302,10 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
 
   function handleMultipleDelete() {
     toast.info("Deleting files...");
-    setSelectedItems([])
-    setSeleccionMultipleActivada(false)
-    let deletedCount = 0;
+    setSelectedItems([]);
+    setSeleccionMultipleActivada(false);
 
     const handleDeleteSuccess = (fileUid: string) => {
-      deletedCount++;
-      if (deletedCount === selectedItems.length) {
-        toast.success("All files deleted!");
-      }
       if (contentIsShared) {
         dispatch(removeSharedFileAction(fileUid));
       } else {
@@ -318,17 +313,26 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       }
     };
 
-    for (const file of selectedItems) {
-      // Make a request to delete each file with response code 200
-      Api.delete(`/file/delete/${file.uid}`)
-        .then(() => {
-          handleDeleteSuccess(file.uid);
-        })
-        .catch((err) => {
-          console.error("Error deleting file:", err);
-          toast.error("Error deleting file");
-        });
-    }
+    const deleteFileAtIndex = async (index: number) => {
+      if (index >= selectedItems.length) {
+        toast.success("All files deleted!");
+        return;
+      }
+
+      const file = selectedItems[index];
+
+      try {
+        await Api.delete(`/file/delete/${file.uid}`);
+        handleDeleteSuccess(file.uid);
+      } catch (err) {
+        console.error("Error deleting file:", err);
+        toast.error("Error deleting file");
+      }
+
+      await deleteFileAtIndex(index + 1);
+    };
+
+    deleteFileAtIndex(0);
   }
 
 
@@ -379,12 +383,10 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
     }
     if (invScroll && visScroll) {
       invScroll.onscroll = function () {
-        if (invScroll && visScroll)
-          visScroll.scrollLeft = invScroll.scrollLeft;
+        visScroll.scrollLeft = invScroll.scrollLeft;
       };
       visScroll.onscroll = function () {
-        if (invScroll && visScroll)
-          invScroll.scrollLeft = visScroll.scrollLeft;
+        invScroll.scrollLeft = visScroll.scrollLeft;
       };
     }
     handleResize();
@@ -470,14 +472,14 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                 </button>
 
                 {(selectedItems.length > 0) ? (
-                  <span className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                  <button className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
                     + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " text-gray-900 bg-white hover:bg-gray-200")}
 
                     title="Delete selected items"
                     onClick={handleMultipleDelete}
                   >
                     <FaRegTrashAlt className="mx-2 text-lg" />
-                  </span>
+                  </button>
                 ) : (<></>)}
               </>
             )}
@@ -623,7 +625,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                               onClick={handleOnClick}
                             >
                               <FileItem
-                              contentIsShared={contentIsShared}
+                                contentIsShared={contentIsShared}
                                 actionsAllowed={actionsAllowed}
                                 file={v}
                                 key={i}
@@ -633,21 +635,19 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                           ))}
                         </>
                         :
-                        <>
-                          <tr
-                          >
-                            <td
-                              scope="row"
-                              className={"w-full px-3 font-medium  whitespace-nowrap"
-                                + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
-                              <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
-                                <div className="mt-4 mb-4">
-                                  No files found
-                                </div>
+                        <tr
+                        >
+                          <td
+                            scope="row"
+                            className={"w-full px-3 font-medium  whitespace-nowrap"
+                              + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
+                            <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
+                              <div className="mt-4 mb-4">
+                                No files found
                               </div>
-                            </td>
-                          </tr>
-                        </>
+                            </div>
+                          </td>
+                        </tr>
                       }
 
                     </>

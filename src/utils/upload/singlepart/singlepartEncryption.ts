@@ -57,7 +57,7 @@ export const handleSinglepartEncryption = async (
 
     let encryptedWebkitRelativePath = "";
     if (isFolder) {
-        const pathComponents = file.webkitRelativePath.split("/");
+        const pathComponents = [(file as any).path.split("/")[1]];
         const encryptedPathComponents = [];
         for (const component of pathComponents) {
             // If this component has been encrypted before, use the cached value

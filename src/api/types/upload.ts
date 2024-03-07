@@ -1,4 +1,5 @@
 import { AxiosProgressEvent } from "axios";
+import { AppDispatch } from "state";
 
 export interface UploadStatus {
   name: string;
@@ -14,7 +15,7 @@ export type FilesUpload = {
   encryptionEnabled: boolean | undefined;
   name: string;
   logout: () => void;
-  dispatch: (action: any) => void;
+  dispatch: AppDispatch;
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void;
   fetchUserDetail: () => void;
   shareModal?: boolean | undefined;

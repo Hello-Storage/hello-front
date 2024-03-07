@@ -18,7 +18,6 @@ import {
     decryptMetadata,
     hexToBuffer
 } from "utils/encryption/filesCipher";
-import React from "react";
 import { useAppDispatch, useAppSelector } from "state";
 import {
     removeFolder, setSelectedShareFile,
@@ -251,30 +250,32 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
                 </td>
                 <td className="py-1 pr-8 text-right h-[46px]">
                     {actionsAllowed && (
-                        <>
-                            <button
-                                className={"p-3 rounded-full "
-                                    + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                                onClick={() => setOpen(!open)}
-                            >
-                                <HiDotsVertical />
-                                <div className="drop-down-menu" ref={ref}>
-                                    {open && (
-                                        <ul
-                                            id="dropdown"
-                                            className={"absolute right-0 z-[100] mt-2 text-left origin-top-right divide-y shadow w-36 border"
-                                                + (theme === Theme.DARK ? " dark-theme4" : " bg-white")}
-                                        >
-                                            <li
-                                                className={"block px-4 py-2 "
+                        <button
+                            className={"p-3 rounded-full "
+                                + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                            onClick={() => setOpen(!open)}
+                        >
+                            <HiDotsVertical />
+                            <div className="drop-down-menu" ref={ref}>
+                                {open && (
+                                    <ul
+                                        id="dropdown"
+                                        className={"absolute right-0 z-[100] mt-2 text-left origin-top-right divide-y shadow w-36 border"
+                                            + (theme === Theme.DARK ? " dark-theme4" : " bg-white")}
+                                    >
+                                        <li className="block">
+                                            <button
+                                                className={"block px-4 py-2 w-full text-left "
                                                     + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
                                                 onClick={handleDownload}
                                             >
                                                 <HiOutlineDownload className="inline-flex mr-3" />
                                                 Download
-                                            </li>
-                                            {!folder.is_in_pool && (
-                                                <li
+                                            </button>
+                                        </li>
+                                        {!folder.is_in_pool && (
+                                            <li className="block">
+                                                <button
                                                     onClick={() => {
                                                         dispatch(
                                                             setShowShareModal(true)
@@ -286,68 +287,68 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
                                                             setSelectedShareFolder(folder)
                                                         );
                                                     }}
-                                                    className={"block px-4 py-2 "
+                                                    className={"block px-4 py-2 w-full text-left "
                                                         + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                                                 >
                                                     <HiOutlineShare className="inline-flex mr-3" />
                                                     Share
-                                                </li>
-                                            )}
-                                            <li
-                                                className={"block px-4 py-2 "
+                                                </button>
+                                            </li>
+                                        )}
+                                        <li className="block">
+                                            <button
+                                                className={"block px-4 py-2 w-full text-left "
                                                     + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
                                                 onClick={onPresent}
                                             >
                                                 <HiOutlineTrash className="inline-flex mr-3" />
                                                 Delete
-                                            </li>
-                                        </ul>
-                                    )}
-                                </div>
-                            </button>
-                        </>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                )}
+                            </div>
+                        </button>
                     )}
                 </td>
             </>
         );
     else
         return (
-            < >
-                <div title="Double click to open">
-                    <div className="flex flex-col items-center gap-3">
-                        <div className={"flex items-center w-full gap-2 overflow-hidden font-medium text-center whitespace-nowrap overflow-ellipsis"
-                            + (theme === Theme.DARK ? " text-white" : "  text-gray-900")}
-                        >
-                            <FaFolder
-                                className="inline-block mr-2 align-middle"
-                                size={24}
-                                color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
-                            />
-                            <span className="mr-2" >
-                                {folder.is_in_pool && (
-                                    <GoAlertFill
-                                        style={{ color: "#FF6600" }}
-                                        title="Folder is in Hello Pool"
-                                    />
-                                )}
-                            </span>
-                            <span className="hidden md:inline content-text">
-                                {truncate(folder.title, 40)}
-                            </span>
-                            <span className="inline md:hidden content-text">
-                                {truncate(folder.title, 24)}
-                            </span>
-                        </div>
+            <div title="Double click to open">
+                <div className="flex flex-col items-center gap-3">
+                    <div className={"flex items-center w-full gap-2 overflow-hidden font-medium text-center whitespace-nowrap overflow-ellipsis"
+                        + (theme === Theme.DARK ? " text-white" : "  text-gray-900")}
+                    >
+                        <FaFolder
+                            className="inline-block mr-2 align-middle"
+                            size={24}
+                            color={(theme === Theme.DARK ? "#ffffff" : "#272727")}
+                        />
+                        <span className="mr-2" >
+                            {folder.is_in_pool && (
+                                <GoAlertFill
+                                    style={{ color: "#FF6600" }}
+                                    title="Folder is in Hello Pool"
+                                />
+                            )}
+                        </span>
+                        <span className="hidden md:inline content-text">
+                            {truncate(folder.title, 40)}
+                        </span>
+                        <span className="inline md:hidden content-text">
+                            {truncate(folder.title, 24)}
+                        </span>
+                    </div>
 
-                        <div
-                            className="gap-1 mt-3 text-xs"
-                        >
-                            <label>
-                                {dayjs(formatDate(folder.updated_at)).fromNow()}</label>
-                        </div>
+                    <div
+                        className="gap-1 mt-3 text-xs"
+                    >
+                        <label>
+                            {dayjs(formatDate(folder.updated_at)).fromNow()}</label>
                     </div>
                 </div>
-            </>
+            </div>
         );
 };
 
