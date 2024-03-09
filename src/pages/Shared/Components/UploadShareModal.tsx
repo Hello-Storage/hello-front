@@ -9,11 +9,6 @@ import { toast } from "react-toastify";
 import { PiShareFatFill } from "react-icons/pi";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { getCid } from "utils/encryption/filesCipher";
-import {
-	createFileAction,
-	createFolderAction,
-	setSelectedSharedFiles,
-} from "state/mystorage/actions";
 import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
@@ -24,6 +19,7 @@ import { FaPlusCircle } from "react-icons/fa";
 import { isValidEmail } from "utils/validations";
 import { Theme } from "state/user/reducer";
 import { ListUserElement } from "./UserListElement";
+import { postData } from "utils/upload/filesUpload";
 
 interface UploadShareModalProps {
 	isOpen: boolean;
@@ -148,286 +144,92 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		const files = event.target.files;
 
 		if (!files) return;
-		let outermostFolderTitle = "";
 
-		if (isFolder && files.length > 0 && files[0].webkitRelativePath) {
-			outermostFolderTitle = files[0].webkitRelativePath.split("/")[0];
-		}
-
-		const formData = new FormData();
-		formData.append("root", root);
-
-		let personalSignature;
-		if (encryptionEnabled) {
-			personalSignature = await getPersonalSignature(
-				name,
-				autoEncryptionEnabled,
-				accountType,
-				logout
-			);
-			if (!personalSignature) {
-				toast.error("Failed to get personal signature");
-				logout();
-				return;
-			}
-		}
-
-		let encryptionTimeTotal = 0;
-
-		const filesMap: { customFile: FileType; file: File }[] = [];
-
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i];
-			const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
-			const cidStr = await getCid(uint8ArrayBuffer);
-
-			const customFile: FileType = {
-				name: file.name,
-				cid: cidStr,
-				id: 0,
-				uid: "",
-				cid_original_encrypted: "",
-				size: file.size,
-				root: root,
-				mime_type: file.type,
-				media_type: file.type.split("/")[0],
-				path: file.webkitRelativePath,
-				isOwner: true,
-				encryption_status: EncryptionStatus.Public,
-				created_at: "",
-				updated_at: "",
-				deleted_at: "",
-			};
-
-			filesMap.push({ customFile, file });
-		}
-
-		//parse encryption total of all files with encrypted option
-		if (encryptionTimeTotal > 0) {
-			let encryptionSuffix = "milliseconds";
-			if (encryptionTimeTotal >= 1000 && encryptionTimeTotal < 60000) {
-				encryptionTimeTotal /= 1000;
-				encryptionSuffix = "seconds";
-			} else if (encryptionTimeTotal >= 60000) {
-				encryptionTimeTotal /= 60000;
-				encryptionSuffix = "minutes";
-			}
-			const encryptionTimeParsed =
-				"Encrypting the data took " +
-				encryptionTimeTotal.toFixed(2).toString() +
-				" " +
-				encryptionSuffix;
-			toast.success(`${encryptionTimeParsed}`);
-		}
-
-		const infoText = isFolder
-			? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
-			: files.length === 1
-				? files[0].name
-				: `uploading ${files.length} files`;
-
-		dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-
-		postData(formData, filesMap, outermostFolderTitle, isFolder);
-	};
-
-	const postData = async (
-		formData: FormData,
-		filesMap: { customFile: FileType; file: File }[],
-		outermostFolderTitle: string,
-		isFolder: boolean
-	) => {
-		//iterate over each file and make a get request to check if cid exists in Api
-		//post file metadata to api
-		const filesuploaded: FileType[] = [];
-
-		//get customFiles from filesMap
-		const customFiles = filesMap.map((fileMap) => fileMap.customFile);
-		let filesToUpload: { customFile: FileType; file: File }[] = [];
-
-		let folderRootUID = "";
-		await Api.post(`/file/pool/check`, customFiles)
-
-			.then((res) => {
-				// CIDs of files that were FOUND in S3 and need to be dispatched.
-				const filesFound: FileType[] = res.data.filesFound;
-				folderRootUID = res.data.firstRootUID;
-
-				// Dispatch actions for files that were found in S3.
-				filesToUpload = filesMap.filter((fileMap) => {
-					const fileInFilesFound = (filesFound || []).some(
-						(fileFound) => fileFound.cid === fileMap.customFile.cid
+				let outermostFolderTitle = "";
+		
+				if (isFolder && files.length > 0 && files[0].webkitRelativePath) {
+					outermostFolderTitle = files[0].webkitRelativePath.split("/")[0];
+				}
+		
+				const formData = new FormData();
+				formData.append("root", root);
+		
+				let personalSignature;
+				if (encryptionEnabled) {
+					personalSignature = await getPersonalSignature(
+						name,
+						autoEncryptionEnabled,
+						accountType,
+						logout
 					);
-					return !fileInFilesFound;
-				});
-
-				filesToUpload.forEach((fileMap, index) => {
-					// Append the files that need to be uploaded to formData.
-					if (
-						fileMap.customFile.encryption_status ===
-						EncryptionStatus.Encrypted
-					) {
-						formData.append("encryptedFiles", fileMap.file);
-						formData.append(
-							`cid[${index}]`,
-							fileMap.customFile.cid
-						);
-						if (
-							fileMap.customFile.cid_original_encrypted_base64_url
-						)
-							formData.append(
-								`cidOriginalEncrypted[${index}]`,
-								fileMap.customFile
-									.cid_original_encrypted_base64_url
-							);
-						formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
-					} else {
-						formData.append(
-							`cid[${index}]`,
-							fileMap.customFile.cid
-						);
-						formData.append(`webkitRelativePath[${index}]`, fileMap.customFile.path)
-						formData.append("files", fileMap.file);
-					}
-				});
-
-				const filesFoundInS3 = filesMap.filter((fileMap) =>
-					(filesFound || []).some(
-						(fileFound) => fileFound.cid === fileMap.customFile.cid
-					)
-				);
-
-				filesFoundInS3.forEach((fileMap) => {
-					if (filesFound) {
-						const fileFound = filesFound.find(
-							(f) => f.cid === fileMap.customFile.cid
-						);
-
-						//replace for customFile in fileMap values:
-						//- put name_unencrypted to name
-						//- put cid_original_unencrypted to cid_original_encrypted
-						//- put mime_type_unencrypted to mime_type
-
-						fileMap.customFile.id = fileFound?.id || 0;
-						fileMap.customFile.uid = fileFound?.uid || "";
-						fileMap.customFile.created_at = fileFound
-							? fileFound.created_at.toString()
-							: "";
-						fileMap.customFile.updated_at = fileFound
-							? fileFound.updated_at.toString()
-							: "";
-						fileMap.customFile.is_in_pool =
-							fileFound?.is_in_pool || false;
-
-						fileMap.customFile.name = fileFound?.name_unencrypted || fileFound?.name || "";
-						fileMap.customFile.cid_original_encrypted =
-							fileFound?.cid_original_unencrypted || "";
-						fileMap.customFile.mime_type =
-							fileFound?.mime_type_unencrypted || fileFound?.mime || "";
-
-						if (!isFolder) filesuploaded.push(fileMap.customFile);
-						dispatch(createFileAction(fileMap.customFile));
-					}
-				});
-			})
-			.catch((err) => {
-				console.log(err);
-			});
-
-		if (filesToUpload.length !== 0) {
-			await Api.post("/file/upload", formData, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-				onUploadProgress,
-			})
-				.then((res) => {
-					if (res.status !== 200) {
-						toast.error("upload response gave error!");
+					if (!personalSignature) {
+						toast.error("Failed to get personal signature");
+						logout();
 						return;
 					}
-					toast.success("upload Succeed!");
-					dispatch(
-						setUploadStatusAction({
-							info: "Finished uploading data",
-							uploading: false,
-						})
-					);
-
-					//getAll files and encryptedFils into a single files variable from formData
-					const filesRes = res.data.files;
-
-
-					if (filesRes) {
-						for (let i = 0; i < filesRes.length; i++) {
-							//get file at index from formdata
-							const fileRes = filesRes[i];
-							const file = customFiles[i];
-
-							const fileObject: FileType = {
-								name: file.name_unencrypted || file.name,
-								cid: fileRes.cid,
-								id: fileRes.id,
-								uid: fileRes.uid,
-								cid_original_encrypted:
-									file.cid_original_unencrypted ||
-									file.cid_original_encrypted,
-								size: file.size,
-								root: fileRes.root,
-								mime_type:
-									file.mime_type_unencrypted || file.mime_type,
-								media_type: file.media_type,
-								path: file.path,
-								encryption_status: fileRes.encryption_status,
-								created_at: fileRes.created_at,
-								updated_at: fileRes.updated_at,
-								deleted_at: fileRes.deleted_at,
-							};
-							filesuploaded.push(fileObject);
-							if (!isFolder) dispatch(createFileAction(fileObject));
-						}
-					} else {
-						toast.error("file upload failed!");
-						console.log("filesRes is null or undefined");
+				}
+		
+				let encryptionTimeTotal = 0;
+		
+				const filesMap: { customFile: FileType; file: File }[] = [];
+		
+				for (let i = 0; i < files.length; i++) {
+					const file = files[i];
+					const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
+					const cidStr = await getCid(uint8ArrayBuffer);
+		
+					const customFile: FileType = {
+						name: file.name,
+						cid: cidStr,
+						id: 0,
+						uid: "",
+						cid_original_encrypted: "",
+						size: file.size,
+						root: root,
+						mime_type: file.type,
+						media_type: file.type.split("/")[0],
+						path: file.webkitRelativePath,
+						isOwner: true,
+						encryption_status: EncryptionStatus.Public,
+						created_at: "",
+						updated_at: "",
+						deleted_at: "",
+					};
+		
+					filesMap.push({ customFile, file });
+				}
+		
+				//parse encryption total of all files with encrypted option
+				if (encryptionTimeTotal > 0) {
+					let encryptionSuffix = "milliseconds";
+					if (encryptionTimeTotal >= 1000 && encryptionTimeTotal < 60000) {
+						encryptionTimeTotal /= 1000;
+						encryptionSuffix = "seconds";
+					} else if (encryptionTimeTotal >= 60000) {
+						encryptionTimeTotal /= 60000;
+						encryptionSuffix = "minutes";
 					}
-				})
-				.catch((e) => {
-					toast.error("file upload failed!");
-					console.log(e)
-				})
-				.finally(() => {
-					dispatch(setUploadStatusAction({ uploading: false }));
-				});
-		} else {
-			toast.success("upload Succeed!");
-			dispatch(
-				setUploadStatusAction({
-					info: "Finished uploading data",
-					uploading: false,
-				})
-			);
-		}
-		dispatch(setSelectedSharedFiles(filesuploaded));
-		if (isFolder && folderRootUID !== "" && outermostFolderTitle !== "") {
-			dispatch(
-				createFolderAction({
-					title: outermostFolderTitle,
-					uid: folderRootUID,
-					root: "/",
-					created_at: "",
-					updated_at: "",
-					deleted_at: "",
-					id: 0,
-					path: "/",
-					encryption_status: encryptionEnabled
-						? EncryptionStatus.Encrypted
-						: EncryptionStatus.Public,
-				})
-			);
-		}
-		fetchUserDetail();
-		dispatch(setUploadStatusAction({ uploading: false }));
+					const encryptionTimeParsed =
+						"Encrypting the data took " +
+						encryptionTimeTotal.toFixed(2).toString() +
+						" " +
+						encryptionSuffix;
+					toast.success(`${encryptionTimeParsed}`);
+				}
+		
+				const infoText = isFolder
+					? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
+					: files.length === 1
+						? files[0].name
+						: `uploading ${files.length} files`;
+		
+				dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
+		
+				await postData(formData, filesMap, outermostFolderTitle, onUploadProgress, dispatch, isFolder, encryptionEnabled, true);
+				fetchUserDetail();
+				
 	};
+
 
 	const handleClickOutside = (
 		event: React.MouseEvent<HTMLDivElement, MouseEvent>

@@ -22,7 +22,6 @@ import {
 	blobToArrayBuffer,
 	decryptFileBuffer,
 } from "utils/encryption/filesCipher";
-import React from "react";
 import { useAppDispatch, useAppSelector } from "state";
 import {
 	removeSharedFileAction,
@@ -30,12 +29,14 @@ import {
 	setImageViewAction,
 	setSelectedShareFile,
 	setShowShareModal,
+	removeFileAction
 } from "state/mystorage/actions";
 import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
-import { removeFileAction } from "state/mystorage/actions";
 import { Theme } from "state/user/reducer";
+const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB or 10000 bytes
+
 
 dayjs.extend(relativeTime);
 
@@ -130,8 +131,8 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 					);
 				}
 
-                if (file.file_share_state && file.file_share_state.id !== 0) {
-                    const originalCid = file.file_share_state.public_file.cid_original_decrypted;
+				if (file.file_share_state && file.file_share_state.id !== 0) {
+					const originalCid = file.file_share_state.public_file.cid_original_decrypted;
 					if (originalCid != "") {
 						binaryData = await blobToArrayBuffer(binaryData);
 						binaryData = await decryptFileBuffer(
@@ -249,13 +250,13 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 					</div>
 				</td>
 				<td className="py-1 pr-8">
-					<div
+					<button
 						className="flex items-center gap-1 select-none hover:text-blue-500"
 						onClick={onCopy}
 					>
 						{formatUID(file.cid)}
 						<HiDocumentDuplicate />
-					</div>
+					</button>
 				</td>
 				<td className="py-1 pr-8 whitespace-nowrap">
 					{formatBytes(file.size)}
@@ -294,58 +295,65 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 								>
 									<ul className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
 									>
-										<li
-											className={"block px-4 py-2 "
-												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-											onClick={handleDownload}
-										>
-											<HiOutlineDownload className="inline-flex mr-3" />
-											Download
-										</li>
-										{(actionsAllowed) && (<>
-											<li
-												onClick={() => {
-													dispatch(
-														setShowShareModal(true)
-													);
-													dispatch(
-														setSelectedShareFile(file)
-													);
-												}}
-												className={"block px-4 py-2 "
+										<li className="block">
+											<button
+												className={"block px-4 py-2 w-full text-left "
 													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+												onClick={handleDownload}
 											>
-												<HiOutlineShare className="inline-flex mr-3" />
-												Share
+												<HiOutlineDownload className="inline-flex mr-3" />
+												Download
+											</button>
+										</li>
+										{(actionsAllowed) && (
+											<li className="block">
+												<button
+													onClick={() => {
+														dispatch(
+															setShowShareModal(true)
+														);
+														dispatch(
+															setSelectedShareFile(file)
+														);
+													}}
+													className={"block px-4 py-2 w-full text-left "
+														+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+												>
+													<HiOutlineShare className="inline-flex mr-3" />
+													Share
+												</button>
+
 											</li>
-										</>)}
+										)}
 
 										{viewableExtensions.has(
 											fileExtension
 										) && (
-												<li
-													className={"block px-4 py-2 "
-														+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-													onClick={() => handleView()}
-												>
-													<HiOutlineEye className="inline-flex mr-3" />
-													View
+												<li className="block">
+													<button
+														className={"block px-4 py-2 w-full text-left "
+															+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+														onClick={() => handleView()}
+													>
+														<HiOutlineEye className="inline-flex mr-3" />
+														View
+													</button>
 												</li>
 											)}
 									</ul>
 
 									<div className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
 									>
-										{actionsAllowed && (<>
-											<p
-												className={"block px-4 py-3 "
+										{actionsAllowed && (
+											<button
+												className={"block px-4 py-3 w-full text-left "
 													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 												onClick={handleDelete}
 											>
 												<HiOutlineTrash className="inline-flex mr-3" />
 												Delete
-											</p>
-										</>)}
+											</button>
+										)}
 									</div>
 								</div>
 							)}
@@ -377,16 +385,16 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 						</div>
 					</div>
 				</div>
-				<div
+				<button
 					className="flex items-center gap-1 mt-4 text-xs text-center select-none justify-left hover:text-blue-500"
 					onClick={(e) => {
 						e.stopPropagation(); // Prevent triggering the parent's onClick
 						onCopy(e);
 					}}
 				>
-					<label>{formatUID(file.cid)}</label>
+					{formatUID(file.cid)}
 					<HiDocumentDuplicate className="inline-block" />
-				</div>
+				</button>
 			</div>
 		);
 };

@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AppLayout } from "layouts";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -9,11 +9,10 @@ import PrivateRoute from "components/PrivateRoute";
 
 import { Spinner3 } from "components/Spinner";
 
-import { Navigate } from "react-router-dom";
 import ShareSharedWithMeGroupdWithMe from "pages/Shared/SharedWithMeGroup";
 import { FolderShared } from "pages/Shared/FolderShared";
 import NotFound from "pages/NotFound";
-import OnePage from "pages/OnePage/layouts/page";
+// import OnePage from "pages/OnePage/layouts/page";
 
 
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -60,11 +59,9 @@ function App() {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "access_token" && !localStorage.getItem("access_token")) {
         logout();
-      } else {
-        if (window.location.pathname.includes("login") && localStorage.getItem("access_token")) {
+      } else if (window.location.pathname.includes("login") && localStorage.getItem("access_token")) {
           window.location.reload();
         }
-      }
     }
     window.addEventListener("storage", handleStorageChange);
 

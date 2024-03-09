@@ -2,6 +2,11 @@ import { CID } from "multiformats/cid"
 import { sha256 } from "multiformats/hashes/sha2"
 import { logoutUser } from "state/user/actions";
 import { EncryptionStatus, File as FileType, Folder } from "api";
+import { toast } from "react-toastify";
+import { setUploadStatusAction } from "state/uploadstatus/actions";
+import * as digest from 'multiformats/hashes/digest'
+import { AppDispatch } from "state";
+import { createSHA256 } from "hash-wasm";
 
 const RAW_CODEC = 0x55
 
@@ -11,13 +16,11 @@ const RAW_CODEC = 0x55
 const getPasswordBytes = (signature: string): Uint8Array => {
     return new TextEncoder().encode(signature);
 }
-
-const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uint8Array, iv?: Uint8Array): Promise<{ aesKey: CryptoKey, salt: Uint8Array, iv: Uint8Array }> => {
+export const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uint8Array, iv?: Uint8Array): Promise<{ aesKey: CryptoKey, salt: Uint8Array, iv: Uint8Array }> => {
     const passwordBytes = getPasswordBytes(signature);
     const passwordKey = await window.crypto.subtle.importKey('raw', passwordBytes, 'PBKDF2', false, ['deriveKey']);
-    salt = salt || window.crypto.getRandomValues(new Uint8Array(16));
-    iv = iv || window.crypto.getRandomValues(new Uint8Array(12));
-
+    salt = salt ?? new Uint8Array(16).fill(0);
+    iv = iv ?? new Uint8Array(12).fill(0);
     const keyDerivationParams = {
         name: 'PBKDF2',
         salt: salt,
@@ -29,13 +32,13 @@ const getAesKey = async (signature: string, usage: KeyUsage[], salt?: Uint8Array
     return { aesKey, salt, iv };
 }
 
-const getCipherBytes = async (content: ArrayBuffer | Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<Uint8Array> => {
+export const getCipherBytes = async (content: ArrayBuffer | Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<Uint8Array> => {
     const cipherBytes = await window.crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, aesKey, content);
     return new Uint8Array(cipherBytes);
 }
 
 
-const getResultBytes = (cipherBytesArray: Uint8Array, salt: Uint8Array, iv: Uint8Array): Uint8Array => {
+export const getResultBytes = (cipherBytesArray: Uint8Array, salt: Uint8Array, iv: Uint8Array): Uint8Array => {
     const resultBytes = new Uint8Array(cipherBytesArray.byteLength + salt.byteLength + iv.byteLength);
     resultBytes.set(salt, 0);
     resultBytes.set(iv, salt.byteLength);
@@ -43,7 +46,7 @@ const getResultBytes = (cipherBytesArray: Uint8Array, salt: Uint8Array, iv: Uint
     return resultBytes;
 }
 
-const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> => {
+export const decryptContentUtil = async (cipherBytes: Uint8Array, aesKey: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> => {
 
     return await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, aesKey, cipherBytes).catch((err) => {
         console.log(err)
@@ -98,6 +101,138 @@ export const decryptContent = async (cipherBytes: Uint8Array | string, personalS
     return decryptContentUtil(data, aesKey, iv);
 }
 
+export const cidToEncryptedBase64Url = async (cidOriginal: string, personalSignature: string | undefined): Promise<string> => {
+    if (!personalSignature) {
+        logoutUser();
+        return "";
+    }
+
+    const cidOriginalBuffer = new TextEncoder().encode(cidOriginal);
+
+    const cidOriginalEncryptedBuffer = await encryptBuffer2(
+        false,
+        cidOriginalBuffer,
+        personalSignature
+    );
+    const cidOriginalEncryptedBase64Url = bufferToBase64Url(
+        cidOriginalEncryptedBuffer
+    );
+    return cidOriginalEncryptedBase64Url;
+}
+
+export const encryptWebkitRelativePath = async (
+    pathComponents: string[],
+    personalSignature: string | undefined,
+): Promise<string> => {
+
+    const encryptedPathsMapping: { [path: string]: string } = {};
+    const encryptedPathComponents = [];
+    let encryptedWebkitRelativePath = "";
+
+    for (const component of pathComponents) {
+        // If this component has been encrypted before, use the cached value
+        if (encryptedPathsMapping[component]) {
+            encryptedPathComponents.push(encryptedPathsMapping[component]);
+        } else {
+            const encodedComponent = new TextEncoder().encode(component);
+            const encryptedComponentBuffer = await encryptBuffer2(
+                false,
+                encodedComponent,
+                personalSignature
+            );
+            if (!encryptedComponentBuffer) {
+                toast.error("Failed to encrypt buffer");
+                return "";
+            }
+            const encryptedComponentHex = bufferToHex(encryptedComponentBuffer);
+            encryptedPathsMapping[component] = encryptedComponentHex;
+            encryptedPathComponents.push(encryptedComponentHex);
+        }
+    }
+
+    // Reconstruct the encrypted webkitRelativePath
+    encryptedWebkitRelativePath = encryptedPathComponents.join("/");
+
+    return encryptedWebkitRelativePath;
+}
+
+
+export async function generateEncryptedFileCID(file: File, dispatch: AppDispatch, cidOriginal: string): Promise<{ cidOfEncryptedBufferStr: string, totalEncryptionTime: number }> {
+    const chunkSize = 100 << 20; // 100 MB
+    //make 1KB chunksize:
+    let offset = 0;
+    const hasher = await createSHA256();
+    let totalEncryptionTime = 0;
+    const { aesKey, salt, iv } = await getAesKey(cidOriginal, ['encrypt']);
+
+    dispatch(setUploadStatusAction({
+        info: "Hashing file...",
+        size: file.size,
+        read: 0,
+    }))
+
+
+    return new Promise((resolve, reject) => {
+        const readChunk = () => {
+            const fileSlice = file.slice(offset, offset + chunkSize);
+            const reader = new FileReader();
+
+            reader.onload = async (e) => {
+                try {
+                    if (e.target?.result) {
+                        const chunkArrayBuffer = e.target.result as ArrayBuffer;
+
+                        const start = performance.now();
+                        let encryptedChunk = await getCipherBytes(chunkArrayBuffer, aesKey, iv);
+                        if (offset === 0) {
+                            //get result bytes
+                            encryptedChunk = getResultBytes(encryptedChunk, salt, iv);
+                        }
+                        const end = performance.now();
+                        totalEncryptionTime += end - start;
+                        hasher.update(new Uint8Array(encryptedChunk));
+
+                    }
+
+                    offset += chunkSize;
+
+                    const actualProcessed = Math.min(offset, file.size);
+
+                    dispatch(setUploadStatusAction({
+                        read: actualProcessed,
+                    }))
+
+                    if (offset < file.size) {
+                        readChunk();
+                    } else {
+                        const hashBytes = hasher.digest('binary'); //(property) digest: (outputType?: "hex" | undefined) => string (+1 overload)
+                        const mhdigest = digest.create(sha256.code, hashBytes);
+                        const cidOfEncryptedBufferStr = CID.create(1, sha256.code, mhdigest).toString(); //(method) CID.create(version: CIDVersion, code: number, digest: MultihashDigest<number>): CID
+
+
+
+
+
+                        resolve({ cidOfEncryptedBufferStr, totalEncryptionTime });
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            reader.onerror = () => {
+                reject(reader.error);
+            };
+
+            reader.readAsArrayBuffer(fileSlice);
+        };
+
+        readChunk();
+    })
+}
+
+
+
 export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryptedFiletypeBase64Url: string, cidOriginalEncrypted: string, personalSignature: string | undefined): Promise<{ decryptedFilename: string, decryptedFiletype: string, decryptedCidOriginal: string } | undefined> => {
     if (!personalSignature) {
         logoutUser();
@@ -106,8 +241,6 @@ export const decryptMetadata = async (encryptedFilenameBase64Url: string, encryp
     const encryptedFilenameBuffer = base64UrlToBuffer(encryptedFilenameBase64Url)
     const encryptedCidOriginalBuffer = base64UrlToBuffer(cidOriginalEncrypted)
     const encryptedFiletypeBuffer = hexToBuffer(encryptedFiletypeBase64Url)
-
-    //TODO: check if the file is encrypted before trying to decrypt, this causes problems
 
     const decryptValue = async (cipherBytes: Uint8Array) => {
         const salt = cipherBytes.slice(0, 16)
@@ -157,6 +290,28 @@ export const encryptBuffer = async (buffer: ArrayBuffer, personalSignature: stri
 
 }
 
+
+export const encryptBuffer2 = async (random: boolean, buffer: ArrayBuffer, personalSignature: string | undefined): Promise<Uint8Array> => {
+    if (!personalSignature) {
+        logoutUser();
+        return new Uint8Array(0);
+    }
+    let salt: Uint8Array;
+    let iv: Uint8Array;
+    if (random) {
+        salt = window.crypto.getRandomValues(new Uint8Array(16));
+        iv = window.crypto.getRandomValues(new Uint8Array(12));
+    } else {
+        salt = new Uint8Array(16).fill(0);
+        iv = new Uint8Array(12).fill(0);
+    }
+    const { aesKey } = await getAesKey(personalSignature, ['encrypt'], salt, iv);
+
+    const cipherBytesArray = await getCipherBytes(buffer, aesKey, iv);
+
+    return getResultBytes(cipherBytesArray, salt, iv);
+}
+
 export const getCid = async (buffer: Uint8Array): Promise<string> => {
     const uint8FileBuffer = new Uint8Array(buffer)
     const hash = await sha256.digest(uint8FileBuffer)
@@ -164,6 +319,84 @@ export const getCid = async (buffer: Uint8Array): Promise<string> => {
 
     return cid.toString()
 }
+
+export const getCid2 = async (buffer: ArrayBuffer | File, dispatch: AppDispatch): Promise<string> => {
+    let cid = "";
+    if (buffer instanceof ArrayBuffer) {
+        dispatch(setUploadStatusAction({
+            info: "Hashing file...",
+        }));
+        const hash = await sha256.digest(new Uint8Array(buffer))
+        cid = CID.create(1, RAW_CODEC, hash).toString()
+    } else {
+        cid = await generateFileCID(buffer, dispatch).catch((err) => { toast.error("Error generating CID: " + err); throw err })
+    }
+
+    return cid.toString()
+}
+export async function generateFileCID(file: File, dispatch: AppDispatch): Promise<string> {
+    const chunkSize = 100 << 20; // 100 MB
+    //make 1KB chunksize:
+    let offset = 0;
+    const hasher = await createSHA256();
+
+    dispatch(setUploadStatusAction({
+        info: "Generating CID...",
+        size: file.size,
+        read: 0,
+    }))
+
+
+    return new Promise((resolve, reject) => {
+        const readChunk = () => {
+            const fileSlice = file.slice(offset, offset + chunkSize);
+            const reader = new FileReader();
+
+            reader.onload = async (e) => {
+                try {
+                    if (e.target?.result) {
+                        const arrayBuffer = e.target.result as ArrayBuffer;
+                        hasher.update(new Uint8Array(arrayBuffer)); //this is the line that makes it take a lot of time
+                    }
+
+                    offset += chunkSize;
+
+                    const actualProcessed = Math.min(offset, file.size);
+
+                    dispatch(setUploadStatusAction({
+                        read: actualProcessed,
+                    }))
+
+
+                    if (offset < file.size) {
+                        readChunk();
+                    } else {
+                        const hashBytes = hasher.digest('binary'); //(property) digest: (outputType?: "hex" | undefined) => string (+1 overload)
+                        const mhdigest = digest.create(sha256.code, hashBytes);
+                        const cid = CID.create(1, sha256.code, mhdigest); //(method) CID.create(version: CIDVersion, code: number, digest: MultihashDigest<number>): CID
+
+
+
+
+
+                        resolve(cid.toString());
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            reader.onerror = () => {
+                reject(reader.error);
+            };
+
+            reader.readAsArrayBuffer(fileSlice);
+        };
+
+        readChunk();
+    })
+}
+
 
 export function bufferToBase64Url(buffer: Uint8Array): string {
     const str = String.fromCharCode(...buffer);
@@ -207,6 +440,16 @@ export function base64UrlToBuffer(base64Url: string): Uint8Array {
         console.error(error)
         throw error
     }
+}
+
+export const decryptFilename = async (encryptedFilenameBase64Url: string, personalSignature: string | undefined): Promise<string | undefined> => {
+    if (!personalSignature) {
+        logoutUser();
+        return;
+    }
+    const encryptedFilenameBuffer = base64UrlToBuffer(encryptedFilenameBase64Url)
+    const decryptedFilename = await decryptContent(encryptedFilenameBuffer, personalSignature);
+    return new TextDecoder().decode(decryptedFilename);
 }
 
 export const encryptFileBuffer = async (fileArrayBuffer: ArrayBuffer) => {
@@ -335,7 +578,7 @@ export const handleEncryptedFolders = async (folders: Folder[], personalSignatur
 
             // encrypt file metadata and blob
             const folderTitleBuffer = hexToBuffer(folder.title);
-            
+
             const decryptedTitleBuffer = await decryptContent(
                 folderTitleBuffer,
                 personalSignature

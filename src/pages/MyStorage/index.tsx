@@ -157,7 +157,7 @@ export default function Home() {
 
     const decryptedFiles = await handleEncryptedFiles(
       currentEncryptedFiles,
-      personalSignatureRef.current || "",
+      personalSignatureRef.current ?? "",
       name,
       autoEncryptionEnabled,
       accountType,
@@ -168,17 +168,17 @@ export default function Home() {
       dispatch(updateDecryptedFilesAction(decryptedFiles));
     }
 
-    setCurrentFiles(decryptedFiles || []);
+    setCurrentFiles(decryptedFiles ?? []);
 
     const decryptedFolders = await handleEncryptedFolders(
       currentEncryptedFolders,
-      personalSignatureRef.current || "",
+      personalSignatureRef.current ?? "",
     );
 
     if (decryptedFolders && decryptedFolders.length > 0) {
       dispatch(updateDecryptedFoldersAction(decryptedFolders));
     }
-    setCurrentFolders(decryptedFolders || []);
+    setCurrentFolders(decryptedFolders ?? []);
 
     if (!currentFiles || !currentFolders) {
       toast.error("Failed to decrypt content");
@@ -266,7 +266,7 @@ export default function Home() {
 
     const decryptedFiles = await handleEncryptedFiles(
       currentFiles,
-      personalSignatureRef.current || "",
+      personalSignatureRef.current ?? "",
       name,
       autoEncryptionEnabled,
       accountType,
@@ -280,7 +280,7 @@ export default function Home() {
 
     const decryptedFolders = await handleEncryptedFolders(
       thisCurrentFolders,
-      personalSignatureRef.current || "",
+      personalSignatureRef.current ?? "",
     );
 
     if (decryptedFolders && decryptedFolders.length > 0) {
@@ -288,8 +288,8 @@ export default function Home() {
     }
 
 
-    setCurrentFiles(decryptedFiles || []);
-    setCurrentFolders(decryptedFolders || []);
+    setCurrentFiles(decryptedFiles ?? []);
+    setCurrentFolders(decryptedFolders ?? []);
 
     setLoading(false);
   }
