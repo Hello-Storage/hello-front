@@ -1,14 +1,11 @@
-import getAccountType from "api/getAccountType";
-import getPersonalSignature from "api/getPersonalSignature";
 import { useAuth, useDropdown, useFetchData } from "hooks";
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { HiPlus } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "state";
-import { Api, EncryptionStatus, File as FileType, ShareState, User } from "api";
+import { Api, ShareState, User } from "api";
 import { toast } from "react-toastify";
 import { PiShareFatFill } from "react-icons/pi";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
-import { getCid } from "utils/encryption/filesCipher";
 import { AxiosError, AxiosProgressEvent, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { shareFile, unshareFile } from "../Utils/shareUtils";
@@ -19,7 +16,8 @@ import { FaPlusCircle } from "react-icons/fa";
 import { isValidEmail } from "utils/validations";
 import { Theme } from "state/user/reducer";
 import { ListUserElement } from "./UserListElement";
-import { postData } from "utils/upload/filesUpload";
+import { filesUpload } from "utils/upload/filesUpload";
+import { FilesUpload } from "api/types/upload";
 
 interface UploadShareModalProps {
 	isOpen: boolean;
@@ -35,10 +33,11 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 	const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
 		(state) => state.userdetail
 	);
+	const thisEncryptionEnabledRef = useRef(encryptionEnabled);
+	const thisAutoEncryptionEnabledRef = useRef(autoEncryptionEnabled);
 	const [Procesing, setProcesing] = useState(false);
 	const { fetchUserDetail } = useFetchData();
 	const { name } = useAppSelector((state) => state.user);
-	const accountType = getAccountType();
 
 	const { logout } = useAuth();
 
@@ -134,6 +133,11 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		);
 	};
 
+	useEffect(() => {
+		thisEncryptionEnabledRef.current = encryptionEnabled;
+		thisAutoEncryptionEnabledRef.current = autoEncryptionEnabled;
+	}, [autoEncryptionEnabled, encryptionEnabled])
+
 	const handleInputChange = async (
 		event: React.ChangeEvent<HTMLInputElement>,
 		isFolder: boolean
@@ -145,89 +149,22 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 		if (!files) return;
 
-				let outermostFolderTitle = "";
-		
-				if (isFolder && files.length > 0 && files[0].webkitRelativePath) {
-					outermostFolderTitle = files[0].webkitRelativePath.split("/")[0];
-				}
-		
-				const formData = new FormData();
-				formData.append("root", root);
-		
-				let personalSignature;
-				if (encryptionEnabled) {
-					personalSignature = await getPersonalSignature(
-						name,
-						autoEncryptionEnabled,
-						accountType,
-						logout
-					);
-					if (!personalSignature) {
-						toast.error("Failed to get personal signature");
-						logout();
-						return;
-					}
-				}
-		
-				let encryptionTimeTotal = 0;
-		
-				const filesMap: { customFile: FileType; file: File }[] = [];
-		
-				for (let i = 0; i < files.length; i++) {
-					const file = files[i];
-					const uint8ArrayBuffer = new Uint8Array(await file.arrayBuffer());
-					const cidStr = await getCid(uint8ArrayBuffer);
-		
-					const customFile: FileType = {
-						name: file.name,
-						cid: cidStr,
-						id: 0,
-						uid: "",
-						cid_original_encrypted: "",
-						size: file.size,
-						root: root,
-						mime_type: file.type,
-						media_type: file.type.split("/")[0],
-						path: file.webkitRelativePath,
-						isOwner: true,
-						encryption_status: EncryptionStatus.Public,
-						created_at: "",
-						updated_at: "",
-						deleted_at: "",
-					};
-		
-					filesMap.push({ customFile, file });
-				}
-		
-				//parse encryption total of all files with encrypted option
-				if (encryptionTimeTotal > 0) {
-					let encryptionSuffix = "milliseconds";
-					if (encryptionTimeTotal >= 1000 && encryptionTimeTotal < 60000) {
-						encryptionTimeTotal /= 1000;
-						encryptionSuffix = "seconds";
-					} else if (encryptionTimeTotal >= 60000) {
-						encryptionTimeTotal /= 60000;
-						encryptionSuffix = "minutes";
-					}
-					const encryptionTimeParsed =
-						"Encrypting the data took " +
-						encryptionTimeTotal.toFixed(2).toString() +
-						" " +
-						encryptionSuffix;
-					toast.success(`${encryptionTimeParsed}`);
-				}
-		
-				const infoText = isFolder
-					? `uploading ${files[0].webkitRelativePath.split("/")[0]} folder`
-					: files.length === 1
-						? files[0].name
-						: `uploading ${files.length} files`;
-		
-				dispatch(setUploadStatusAction({ info: infoText, uploading: true }));
-		
-				await postData(formData, filesMap, outermostFolderTitle, onUploadProgress, dispatch, isFolder, encryptionEnabled, true);
-				fetchUserDetail();
-				
+		const encapsulatedFile: FilesUpload = {
+			files,
+			isFolder,
+			root,
+			encryptionEnabled: thisEncryptionEnabledRef.current,
+			name,
+			logout,
+			dispatch,
+			onUploadProgress,
+			fetchUserDetail,
+		}
+
+		filesUpload(encapsulatedFile).then(() => {
+			fetchUserDetail();
+		})
+
 	};
 
 
@@ -381,10 +318,9 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 		return <></>;
 	} else {
 		return (
-			<div
+			<dialog
 				className="fixed inset-0 z-10"
 				aria-labelledby="modal-title"
-				role="dialog"
 				aria-modal="true"
 			>
 				<div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 my-3 text-center sm:p-0">
@@ -683,7 +619,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 						</div>
 					</section>
 				</div>
-			</div>
+			</dialog>
 		);
 	}
 };
