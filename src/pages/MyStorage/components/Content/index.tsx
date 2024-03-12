@@ -8,11 +8,12 @@ import { RiFolderAddLine } from "react-icons/ri";
 import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
 import { useAppDispatch, useAppSelector } from "state";
-import { removeFileAction, removeSharedFileAction } from "state/mystorage/actions";
+import { removeFileAction, removeFolder, removeSharedFileAction } from "state/mystorage/actions";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { Theme } from "state/user/reducer";
 import ContentFolderItem from "./ContentFolderItem";
+import { getRoot } from "utils/upload/filesUpload";
 
 interface ContentProps {
   contentIsShared?: boolean | undefined;
@@ -231,7 +232,6 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
 
   const handleDrop = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
-    // setDragEnterCount((prev) => prev - 1);
 
     const dragInfoReceived = JSON.parse(
       event.dataTransfer.getData("text/plain")
@@ -241,6 +241,13 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       uid: event.currentTarget.ariaLabel?.toString(),
       type: "folder",
     };
+
+    //if trying to drop on the same folder
+    if (dropInfo.uid == getRoot()) {
+      // console.log("Same folder");
+      toast.error("Cannot drop on the same folder");
+      return;
+    }
 
     // Check if selectedItems is empty
     if (selectedItems.length === 0) {
@@ -256,8 +263,6 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       };
       handleDropSingle(event, payload, dragInfoReceived.type);
     } else {
-      // If not empty, handle drop as batch
-
       // Check if the drop target is one of the selected items
       if (selectedItems.some((item) => item.id === dropInfo.id)) {
         // console.log("Drop target is one of the selected items");
@@ -282,20 +287,25 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
     payload: any,
     itemType: string
   ) => {
+    toast.info("Moving to folder...");
     Api.put(`/${itemType}/update/root`, payload, {
       headers: {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        console.log("Folder root updated:", res.data);
-        if (contentIsShared) {
-          dispatch(removeSharedFileAction(payload.Uid));
-        } else {
+      .then(() => {
+        toast.dismiss();
+        toast.success("Item moved to folder");
+        //dispatch the file/folder uid removal
+        if(itemType === "folder"){
+          dispatch(removeFolder(payload.Uid));
+        }else{
           dispatch(removeFileAction(payload.Uid));
         }
       })
       .catch((err) => {
+        toast.dismiss();
+        toast.error("Error moving item to folder");
         console.log("Error updating folder root:", err);
       });
   };
