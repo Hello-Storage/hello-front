@@ -16,8 +16,8 @@ import ContentFolderItem from "./ContentFolderItem";
 import { getRoot } from "utils/upload/filesUpload";
 
 interface ContentProps {
-  contentIsShared?: boolean | undefined;
-  focusedContent?: number | undefined;
+  contentIsShared?: boolean;
+  focusedContent?: number;
   loading: boolean;
   folders: Folder[];
   files: File[];
@@ -78,9 +78,9 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       event.preventDefault();
 
       const selInfo = {
-        type: event.currentTarget.ariaValueText?.toString() || "",
+        type: event.currentTarget.ariaValueText?.toString() ?? "",
         id: event.currentTarget.id.toString(),
-        uid: event.currentTarget.ariaLabel?.toString() || "",
+        uid: event.currentTarget.ariaLabel?.toString() ?? "",
       };
 
       const isAlreadySelected = selectedItems.some(

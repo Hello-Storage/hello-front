@@ -35,8 +35,6 @@ import { truncate, formatDate } from "utils/format";
 import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { Theme } from "state/user/reducer";
-const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB or 10000 bytes
-
 
 dayjs.extend(relativeTime);
 

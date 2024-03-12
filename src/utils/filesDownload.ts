@@ -279,7 +279,7 @@ export const viewMultipart = async (file: FileType, dispatch: AppDispatch) => {
 
 
 
-export const downloadSingle=(file:FileType)=>{
-    // TODO centralize download logic for tiny files
-    return "coming soon"
-}
+// export const downloadSingle=(file:FileType)=>{
+//     // TODO centralize download logic for tiny files
+//     return "coming soon"
+// }
