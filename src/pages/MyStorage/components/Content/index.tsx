@@ -297,9 +297,9 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
         toast.dismiss();
         toast.success("Item moved to folder");
         //dispatch the file/folder uid removal
-        if(itemType === "folder"){
+        if (itemType === "folder") {
           dispatch(removeFolder(payload.Uid));
-        }else{
+        } else {
           dispatch(removeFileAction(payload.Uid));
         }
       })
@@ -312,32 +312,50 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
 
   function handleMultipleDelete() {
     toast.info("Deleting files...");
-    setSelectedItems([]);
     setSeleccionMultipleActivada(false);
 
-    const handleDeleteSuccess = (fileUid: string) => {
+    const handleDeleteSuccess = (fileUid: string, type: string) => {
       if (contentIsShared) {
-        dispatch(removeSharedFileAction(fileUid));
+        if (type === "file") {
+          dispatch(removeSharedFileAction(fileUid));
+        } else if (type === "folder") {
+          dispatch(removeFolder(fileUid));
+        }
       } else {
-        dispatch(removeFileAction(fileUid));
+        if (type === "file") {
+          dispatch(removeFileAction(fileUid));
+        } else if (type === "folder") {
+          dispatch(removeFolder(fileUid));
+        }
       }
     };
 
     const deleteFileAtIndex = async (index: number) => {
       if (index >= selectedItems.length) {
         toast.success("All files deleted!");
+        setSelectedItems([]);
         return;
       }
 
       const file = selectedItems[index];
-
-      try {
-        await Api.delete(`/file/delete/${file.uid}`);
-        handleDeleteSuccess(file.uid);
-      } catch (err) {
-        console.error("Error deleting file:", err);
-        toast.error("Error deleting file");
+      if (file.type === "file") {
+        try {
+          await Api.delete(`/file/delete/${file.uid}`);
+          handleDeleteSuccess(file.uid, file.type);
+        } catch (err) {
+          console.error("Error deleting file:", err);
+          toast.error("Error deleting file");
+        }
+      } else if (file.type === "folder") {
+        try {
+          await Api.delete(`/folder/${file.uid}`)
+          handleDeleteSuccess(file.uid, file.type);
+        } catch (err) {
+          console.error("Error deleting folder:", err);
+          toast.error("Error deleting folder");
+        }
       }
+
 
       await deleteFileAtIndex(index + 1);
     };
