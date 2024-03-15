@@ -12,7 +12,7 @@ import { Spinner3 } from "components/Spinner";
 import ShareSharedWithMeGroupdWithMe from "pages/Shared/SharedWithMeGroup";
 import { FolderShared } from "pages/Shared/FolderShared";
 import NotFound from "pages/NotFound";
-// import OnePage from "pages/OnePage/layouts/page";
+ import OnePage from "pages/OnePage/layouts/page";
 
 
 const Dashboard = lazy(() => import("pages/Dashboard"));
@@ -83,7 +83,7 @@ function App() {
               localStorage.getItem("access_token") ? (
                 <Navigate to="/space/my-storage" replace />
               ) : (
-                <Navigate to="/space/login" replace />
+                <OnePage />
               )
             }
           />
