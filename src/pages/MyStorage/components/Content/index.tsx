@@ -8,15 +8,16 @@ import { RiFolderAddLine } from "react-icons/ri";
 import { CreateFolderModal } from "components";
 import { useModal } from "components/Modal";
 import { useAppDispatch, useAppSelector } from "state";
-import { removeFileAction, removeSharedFileAction } from "state/mystorage/actions";
+import { removeFileAction, removeFolder, removeSharedFileAction } from "state/mystorage/actions";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { Theme } from "state/user/reducer";
 import ContentFolderItem from "./ContentFolderItem";
+import { getRoot } from "utils/upload/filesUpload";
 
 interface ContentProps {
-  contentIsShared?: boolean | undefined;
-  focusedContent?: number | undefined;
+  contentIsShared?: boolean;
+  focusedContent?: number;
   loading: boolean;
   folders: Folder[];
   files: File[];
@@ -77,9 +78,9 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       event.preventDefault();
 
       const selInfo = {
-        type: event.currentTarget.ariaValueText?.toString() || "",
+        type: event.currentTarget.ariaValueText?.toString() ?? "",
         id: event.currentTarget.id.toString(),
-        uid: event.currentTarget.ariaLabel?.toString() || "",
+        uid: event.currentTarget.ariaLabel?.toString() ?? "",
       };
 
       const isAlreadySelected = selectedItems.some(
@@ -231,7 +232,6 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
 
   const handleDrop = (event: React.DragEvent<HTMLTableRowElement>) => {
     event.preventDefault();
-    // setDragEnterCount((prev) => prev - 1);
 
     const dragInfoReceived = JSON.parse(
       event.dataTransfer.getData("text/plain")
@@ -241,6 +241,13 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       uid: event.currentTarget.ariaLabel?.toString(),
       type: "folder",
     };
+
+    //if trying to drop on the same folder
+    if (dropInfo.uid == getRoot()) {
+      // console.log("Same folder");
+      toast.error("Cannot drop on the same folder");
+      return;
+    }
 
     // Check if selectedItems is empty
     if (selectedItems.length === 0) {
@@ -256,8 +263,6 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       };
       handleDropSingle(event, payload, dragInfoReceived.type);
     } else {
-      // If not empty, handle drop as batch
-
       // Check if the drop target is one of the selected items
       if (selectedItems.some((item) => item.id === dropInfo.id)) {
         // console.log("Drop target is one of the selected items");
@@ -282,53 +287,80 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
     payload: any,
     itemType: string
   ) => {
+    toast.info("Moving to folder...");
     Api.put(`/${itemType}/update/root`, payload, {
       headers: {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        console.log("Folder root updated:", res.data);
-        if (contentIsShared) {
-          dispatch(removeSharedFileAction(payload.Uid));
+      .then(() => {
+        toast.dismiss();
+        toast.success("Item moved to folder");
+        //dispatch the file/folder uid removal
+        if (itemType === "folder") {
+          dispatch(removeFolder(payload.Uid));
         } else {
           dispatch(removeFileAction(payload.Uid));
         }
       })
       .catch((err) => {
+        toast.dismiss();
+        toast.error("Error moving item to folder");
         console.log("Error updating folder root:", err);
       });
   };
 
   function handleMultipleDelete() {
     toast.info("Deleting files...");
-    setSelectedItems([])
-    setSeleccionMultipleActivada(false)
-    let deletedCount = 0;
+    setSeleccionMultipleActivada(false);
 
-    const handleDeleteSuccess = (fileUid: string) => {
-      deletedCount++;
-      if (deletedCount === selectedItems.length) {
-        toast.success("All files deleted!");
-      }
+    const handleDeleteSuccess = (fileUid: string, type: string) => {
       if (contentIsShared) {
-        dispatch(removeSharedFileAction(fileUid));
+        if (type === "file") {
+          dispatch(removeSharedFileAction(fileUid));
+        } else if (type === "folder") {
+          dispatch(removeFolder(fileUid));
+        }
       } else {
-        dispatch(removeFileAction(fileUid));
+        if (type === "file") {
+          dispatch(removeFileAction(fileUid));
+        } else if (type === "folder") {
+          dispatch(removeFolder(fileUid));
+        }
       }
     };
 
-    for (const file of selectedItems) {
-      // Make a request to delete each file with response code 200
-      Api.delete(`/file/delete/${file.uid}`)
-        .then(() => {
-          handleDeleteSuccess(file.uid);
-        })
-        .catch((err) => {
+    const deleteFileAtIndex = async (index: number) => {
+      if (index >= selectedItems.length) {
+        toast.success("All files deleted!");
+        setSelectedItems([]);
+        return;
+      }
+
+      const file = selectedItems[index];
+      if (file.type === "file") {
+        try {
+          await Api.delete(`/file/delete/${file.uid}`);
+          handleDeleteSuccess(file.uid, file.type);
+        } catch (err) {
           console.error("Error deleting file:", err);
           toast.error("Error deleting file");
-        });
-    }
+        }
+      } else if (file.type === "folder") {
+        try {
+          await Api.delete(`/folder/${file.uid}`)
+          handleDeleteSuccess(file.uid, file.type);
+        } catch (err) {
+          console.error("Error deleting folder:", err);
+          toast.error("Error deleting folder");
+        }
+      }
+
+
+      await deleteFileAtIndex(index + 1);
+    };
+
+    deleteFileAtIndex(0);
   }
 
 
@@ -379,12 +411,10 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
     }
     if (invScroll && visScroll) {
       invScroll.onscroll = function () {
-        if (invScroll && visScroll)
-          visScroll.scrollLeft = invScroll.scrollLeft;
+        visScroll.scrollLeft = invScroll.scrollLeft;
       };
       visScroll.onscroll = function () {
-        if (invScroll && visScroll)
-          invScroll.scrollLeft = visScroll.scrollLeft;
+        invScroll.scrollLeft = visScroll.scrollLeft;
       };
     }
     handleResize();
@@ -470,14 +500,14 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                 </button>
 
                 {(selectedItems.length > 0) ? (
-                  <span className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
+                  <button className={"py-2 ml-3 font-medium rounded-lg ml-3px-4 border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700"
                     + (theme === Theme.DARK ? " text-white bg-[#32334b] hover:bg-[#4b4d70]" : " text-gray-900 bg-white hover:bg-gray-200")}
 
                     title="Delete selected items"
                     onClick={handleMultipleDelete}
                   >
                     <FaRegTrashAlt className="mx-2 text-lg" />
-                  </span>
+                  </button>
                 ) : (<></>)}
               </>
             )}
@@ -623,7 +653,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                               onClick={handleOnClick}
                             >
                               <FileItem
-                              contentIsShared={contentIsShared}
+                                contentIsShared={contentIsShared}
                                 actionsAllowed={actionsAllowed}
                                 file={v}
                                 key={i}
@@ -633,21 +663,19 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                           ))}
                         </>
                         :
-                        <>
-                          <tr
-                          >
-                            <td
-                              scope="row"
-                              className={"w-full px-3 font-medium  whitespace-nowrap"
-                                + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
-                              <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
-                                <div className="mt-4 mb-4">
-                                  No files found
-                                </div>
+                        <tr
+                        >
+                          <td
+                            scope="row"
+                            className={"w-full px-3 font-medium  whitespace-nowrap"
+                              + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
+                            <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
+                              <div className="mt-4 mb-4">
+                                No files found
                               </div>
-                            </td>
-                          </tr>
-                        </>
+                            </div>
+                          </td>
+                        </tr>
                       }
 
                     </>

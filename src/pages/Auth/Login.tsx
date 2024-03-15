@@ -109,7 +109,7 @@ export default function Login() {
               Get your <b>100GB</b> free storage now!
             </h3>
 
-            <div className="mt-[20px] flex gap-[15px] flex-col justify-around">
+            <div className="mt-[20px] flex-login-btns gap-[15px] justify-around">
               <GoogleLoginButton />
               <ConnectWalletButton />
             </div>
@@ -154,7 +154,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <footer className={"p-0 min-w-[350px] text-sm flex justify-between flex-row items-center text-black md:mx-12 md:p-2 md:mb-0" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
+      <footer className={"p-0 min-w-[350px] text-sm flex justify-between flex-row items-center text-black md:mx-12 md:p-2 mb-[100px] md:mb-0" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
         <div className="flex flex-col items-start">
           <div className="flex p-0 space-x-4 md:p-0">
             <a href="mailto:team@hello.app" 

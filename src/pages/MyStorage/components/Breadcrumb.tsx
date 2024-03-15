@@ -3,8 +3,10 @@ import { HiChevronRight } from "react-icons/hi";
 import { FaFolder } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "state";
-import { removeFileAction } from "state/mystorage/actions";
+import { removeFileAction, removeFolder } from "state/mystorage/actions";
 import { Theme } from "state/user/reducer";
+import { getRoot } from "utils/upload/filesUpload";
+import { toast } from "react-toastify";
 
 export default function Breadcrumb() {
   const mystorage = useAppSelector((state) => state.mystorage);
@@ -22,6 +24,7 @@ export default function Breadcrumb() {
   const handleDrop = (event: React.DragEvent<HTMLLIElement>) => {
     // Llamar a index de content para tener selected items y a partir de ahi hacer el update
     event.preventDefault();
+    toast.dismiss()
     const dragInfoReceived = JSON.parse(
       event.dataTransfer.getData("text/plain")
     );
@@ -29,7 +32,14 @@ export default function Breadcrumb() {
       id: event.currentTarget.id.toString(),
       uid: event.currentTarget.ariaLabel?.toString(),
     };
-    // check if array or single item
+
+    //if trying to drop on the same folder
+    if (dropInfo.uid == getRoot()) {
+      // console.log("Same folder");
+      toast.error("Cannot drop on the same folder");
+      return;
+    }
+
     // Check if selectedItems is empty
 
     if (dragInfoReceived.length === undefined) {
@@ -63,31 +73,6 @@ export default function Breadcrumb() {
         handleDropSingle(event, payload, item.type);
       });
     }
-
-    // console.log("DragReceived: " + JSON.stringify(dragInfoReceived));
-    // console.log("Drop: " + JSON.stringify(dropInfo));
-    // if (dropInfo.id != dragInfoReceived.id) {
-    //   const payload = {
-    //     Id: dragInfoReceived.id,
-    //     Uid: dragInfoReceived.uid,
-    //     Root: dropInfo.uid
-    //   };
-
-    //   console.log("Sending payload:", payload);
-    //   const type=dragInfoReceived.type;
-    //   Api.put(`/${type}/update/root`, payload, {
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //   })
-    //     .then((res) => {
-    //       console.log("Folder root updated:", res.data);
-    //       fetchRootContent();
-    //     })
-    //     .catch((err) => {
-    //       console.log("Error updating folder root:", err);
-    //     });
-    // }
   };
 
   const handleDropSingle = (
@@ -95,53 +80,61 @@ export default function Breadcrumb() {
     payload: any,
     itemType: string
   ) => {
-
-    console.log("Sending payload:", payload);
+    toast.info("Moving to folder...");
     Api.put(`/${itemType}/update/root`, payload, {
       headers: {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        console.log("Folder root updated:", res.data);
-        //dispatch the file uid removal
-        dispatch(removeFileAction(payload.Uid));
+      .then(() => {
+        toast.dismiss();
+        toast.success("Item moved to folder");
+        //dispatch the file/folder uid removal
+        if(itemType === "folder"){
+          dispatch(removeFolder(payload.Uid));
+        }else{
+          dispatch(removeFileAction(payload.Uid));
+        }
       })
       .catch((err) => {
+        toast.dismiss();
+        toast.error("Error moving item to folder");
         console.log("Error updating folder root:", err);
       });
   };
-  
-	const {theme} = useAppSelector((state) => state.user);
+
+  const { theme } = useAppSelector((state) => state.user);
 
   return (
     <nav className="flex flex-row items-center mr-2" aria-label="Breadcrumb">
       <ol className="flex flex-row items-center overflow-auto text-lg font-medium custom-scrollbar">
-        <h3
-          onClick={() => onClick("/space/my-storage")}
-          className={"inline hover:text-blue-600 cursor-pointer text-xl min-w-[125px]"+ (theme===Theme.DARK? " text-white" : " text-gray-700")}
+        <li onDrop={handleDrop}
+         aria-label={"/"}
         >
-          <strong className="whitespace-nowrap">My Storage</strong>
-        </h3>
+          <button
+            onClick={() => onClick("/space/my-storage")}
+            className={"inline hover:text-blue-600 cursor-pointer text-xl min-w-[125px]" + (theme === Theme.DARK ? " text-white" : " text-gray-700")}
+          >
+            <strong className="whitespace-nowrap">My Storage</strong>
+          </button>
+        </li>
         {mystorage.path.map((v, i, array) => (
           <li onDrop={handleDrop} key={i} aria-label={v.uid}
             className={`min-w-fit flex items-center flex-nowrap 
-            ${i === array.length - 1 ? 'mr-[50px]' : ''}`+ (theme===Theme.DARK? " text-gray-300" : " text-gray-700")}
+            ${i === array.length - 1 ? 'mr-[50px]' : ''}` + (theme === Theme.DARK ? " text-gray-300" : " text-gray-700")}
           >
-            <>
-              <span className="h-full"> <HiChevronRight /></span>
-              <a
-                onClick={() => onClick(`/space/folder/${v.uid}`)}
-                className="ml-1 cursor-pointer hover:text-blue-600 md:ml-2 forlder-path"
-              >
-                <FaFolder
-                  className="inline-flex mr-2"
-                  size={26}
-                  color="#737373"
-                />
-                {v.title} 
-              </a>
-            </>
+            <span className="h-full"> <HiChevronRight /></span>
+            <button
+              onClick={() => onClick(`/space/folder/${v.uid}`)}
+              className="ml-1 cursor-pointer hover:text-blue-600 md:ml-2 forlder-path"
+            >
+              <FaFolder
+                className="inline-flex mr-2"
+                size={26}
+                color="#737373"
+              />
+              {v.title}
+            </button>
           </li>
         ))}
       </ol>

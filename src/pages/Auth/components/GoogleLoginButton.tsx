@@ -54,7 +54,12 @@ export default function GoogleLoginButton() {
       disabled={loading ? true : false}
     >
       <GoogleIcon />
-      {loading ? "Connecting..." : "Connect with Google"}
+      <p>
+        {loading ? "Connecting..." : <span className="button-text-login">
+        </span>}
+        {" "}
+        Google
+      </p>
     </button>
   );
 }
