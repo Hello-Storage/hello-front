@@ -1,6 +1,9 @@
 
 import { useEffect, useRef, useState } from "react";
-import Button3D from "../../../assets/one-page/Button3D.png"
+import Button3D from "../../../assets/one-page/Button3D.svg"
+import TextureBlackground from "../../../assets/one-page/-Pngtree-noise-texture-black-background-1575880.png"
+
+
 
 export const Hero = () => {
   const [showModal, setShowModal] = useState(false);
@@ -107,7 +110,7 @@ export const Hero = () => {
           title="Read the Documentation"
           className="relative px-12 py-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-900 hover:from-violet-600 hover:to-violet-900 cursor-pointer inline-block">
           <span className="relative z-10 text-white">About</span>
-          <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
+          <div className="absolute inset-0 rounded-xl bg-[src={TextureBlackground}] opacity-25"></div>
         </a>
         <a href="/space/login"
           title="Go to Login Page"
