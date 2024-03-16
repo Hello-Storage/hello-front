@@ -57,7 +57,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 	const onCopy = (event: React.MouseEvent) => {
 		if (event.shiftKey) return;
 		copy(`${file.cid}`);
-		toast.success("copied CID");
+		toast.success("Successfully copied content Identifier");
 	};
 
 	const viewRef = useRef(false);
@@ -85,7 +85,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 		viewRef.current = false
 		toast.info("Starting download for " + file.name + "...");
 		// Make a request to download the file with responseType 'blob'
-		if (file.size > MULTIPART_THRESHOLD) {
+		if (file.size >= MULTIPART_THRESHOLD) {
 			const blob = await downloadMultipart(file, dispatch)
 
 
@@ -165,7 +165,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 	const handleView = () => {
 		viewRef.current = true;
 
-		if (file.size > MULTIPART_THRESHOLD) {
+		if (file.size >= MULTIPART_THRESHOLD) {
 			viewMultipart(file, dispatch)
 		} else {
 			toast.info("Loading " + file.name + "...");

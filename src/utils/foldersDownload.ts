@@ -43,7 +43,7 @@ export const folderDownload = async (personalSignature: string, folder: Folder,
     }
 
     for (const file of decryptedFiles) {
-        if (file.size > MULTIPART_THRESHOLD) {
+        if (file.size >= MULTIPART_THRESHOLD) {
             const fileDataBlob = await downloadMultipart(file, dispatch);
             console.log("downloading file:", file.name)
             console.log(file.path)
