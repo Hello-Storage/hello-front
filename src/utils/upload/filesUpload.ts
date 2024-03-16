@@ -551,7 +551,7 @@ async function ProcessFiles(files: File[], filesUpload: FilesUpload,
         }))
 
         // if file size is bigger than 10 KB:
-        if (file.size > MULTIPART_THRESHOLD) {
+        if (file.size >= MULTIPART_THRESHOLD) {
             const multipartResult = await multipartFileUploadProcessing(file, filesUpload.isFolder, filesUpload.dispatch, filesUpload.encryptionEnabled, personalSignature, encryptionTimeTotalThis, filesUpload.root);
             if (multipartResult) {
                 const { multipartFiles, encryptionTimeTotal } = multipartResult;

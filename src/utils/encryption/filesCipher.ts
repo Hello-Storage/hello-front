@@ -341,7 +341,7 @@ export async function generateFileCID(file: File, dispatch: AppDispatch): Promis
     const hasher = await createSHA256();
 
     dispatch(setUploadStatusAction({
-        info: "Generating CID...",
+        info: "Generating the CID...",
         size: file.size,
         read: 0,
     }))
