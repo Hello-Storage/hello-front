@@ -1,6 +1,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Button3D from "../../../assets/one-page/Button3D.svg"
+import { Link } from "react-router-dom";
 
 
 export const Hero = () => {
@@ -92,7 +93,7 @@ export const Hero = () => {
         onDrop={handleFileDrop}
       >
         <div className="relative translate-z-10">
-          <a href="/space/login">
+      <Link to={"/space/login"}>
             <img
               src={Button3D}
               alt="Upload Box"
@@ -100,7 +101,7 @@ export const Hero = () => {
             />
             <div className="absolute w-[90%] h-[90%] inset-0 rainbow-border 
             opacity-0 group-hover:opacity-100 transform group-hover:scale-90"></div>{" "}
-          </a>
+          </Link>
         </div>
       </div>
       <div className="flex items-center gap-4 md:my-16 my-8">
@@ -110,12 +111,12 @@ export const Hero = () => {
           <span className="relative z-10 text-white">About</span>
           <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
         </a>
-        <a href="/space/login"
+      <Link to={"/space/login"}
           title="Go to Login Page"
           className="relative px-12 py-3 bg-gradient-to-b from-violet-500 to-violet-800 hover:from-violet-600 hover:to-violet-900 rounded-xl cursor-pointer inline-block">
           <span className="relative z-10 text-white">Enter</span>
           <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
-        </a>
+        </Link>
       </div>
       {showModal && (
         <div className="inset-0 overflow-y-auto">

@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate, HashRouter } from "react-router-dom";
 import { AppLayout } from "layouts";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -71,7 +71,7 @@ function App() {
   }, [load, logout]);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <TrackPageViews />
       <Suspense fallback={<Spinner3 />}>
         <Routes>
@@ -110,7 +110,7 @@ function App() {
           <Route path="/space/login" element={<Login />} />
         </Routes>
       </Suspense>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
