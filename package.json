@@ -2,7 +2,7 @@
   "name": "helloapp",
   "private": true,
   "version": "0.0.0",
-  "homepage": ".",
+  "homepage": "/ipfs/bafybeicm4w4vstqisfm6y67sfuusemftosfhmf4kluzeczaweyynunxele/",
   "type": "module",
   "scripts": {
     "dev": "vite",
