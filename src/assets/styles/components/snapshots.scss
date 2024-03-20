@@ -1,0 +1,56 @@
+.snapshots-p-container{
+    background-color: #32334b;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin: auto;
+    --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    width: 80vw;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    & table td{
+        max-width: 50vw !important;
+        text-overflow: ellipsis;
+        overflow: hidden;
+
+    }
+
+    @media (max-width: 600px) {
+        & table td{
+            max-width: 40vw !important;
+    
+        }
+    }
+    @media (max-width: 400px) {
+        & table td{
+            max-width: 30vw !important;
+    
+        }
+    }
+
+
+
+    & button{
+        border: 1px solid gray !important;
+        background-color: #373972;
+        border-radius: 10px;
+        padding: 5px;
+        &:hover{        
+            background-color: #424597;
+            color: white;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        & button{
+            min-width: 200px !important;
+        }
+    }
+}
+

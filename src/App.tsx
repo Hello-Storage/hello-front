@@ -26,6 +26,8 @@ const Migration = lazy(() => import("pages/Migration"));
 const Api = lazy(() => import("pages/Api"));
 const Statistics = lazy(() => import("pages/Statistics"));
 const PrivacyPolicy = lazy(() => import("pages/PrivacyPolicy"));
+const Snapshots = lazy(() => import("pages/Snapshots"));
+
 
 const Login = lazy(() => import("pages/Auth/Login"));
 
@@ -88,6 +90,8 @@ function App() {
             }
           />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/snapshots" element={< Snapshots />} />
+
           <Route path="/stats" element={
             <Statistics />
           } />
