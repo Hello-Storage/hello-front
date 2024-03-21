@@ -37,19 +37,14 @@ const Referrals = () => {
     Api.get(`/referrals/${walletAddress}`)
       .then((res) => {
         if (res.data.status === "success") {
-          setReferredAddresses(res.data.referredAddresses || []);
+          setReferredAddresses((res.data.referredAddresses && res.data.referredAddresses.length) ? 
+            ["you", ...res.data.referredAddresses] : ["you"]);
           setReferredBy(res.data.referredBy || "");
         }
       })
       .catch((err) => {
         console.log(err);
       });
-    //const account = Web3.eth.accounts.create();
-    //console.log(account.address);
-    //const string = "gu22mGm7puJQ3wFGjmKBiRoV+AFGk1gOwbOGqUXLYyZ7uvWV7NBm8thELyEAi2KhOrBN6YCUk0R8aEMutRTX+WwNig9JFcSLQWX5w+e6UHIm/zAueNaMZvHCGU/4Og==";
-    //const data = Buffer.from(string, 'base64');
-
-    //console.log(data.toString('latin1'));
   }, [walletAddress]);
 
   const formatBytes = (bytes: number, decimals = 2, symbol = true) => {
