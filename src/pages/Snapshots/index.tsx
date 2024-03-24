@@ -31,7 +31,7 @@ export default function Snapshots() {
 
 
   return (
-    <div className="custom-scrollbar max-h-screen  bg-[#05072b] flex items-center flex-col relative w-screen overflow-hidden">
+    <div className="custom-scrollbar h-screen  bg-[#05072b] flex items-center flex-col relative w-screen overflow-hidden">
       <p className="absolute top-0 right-2 bg-[#32334b] text-white p-2 rounded-lg m-2">
         Updated: 20/03/2024
       </p>

@@ -32,11 +32,11 @@ export const SnapshotContainer: React.FC<SnapshotContainerProps> = ({
           </tr>
           <tr>
             <td className="p-2">owner</td>
-            <td className="p-2 cursor-pointer" onClick={() => { copyToClipboard(owner) }}>{owner}<HiClipboardCopy className="ml-2 w-50 h-50" /></td>
+            <td className="flex flex-row m-2 p-2 cursor-pointer" onClick={() => { copyToClipboard(owner) }}>{owner}<HiClipboardCopy className="ml-2 w-50 h-50" /></td>
           </tr>
           <tr>
             <td className="p-2">cid</td>
-            <td className="p-2 cursor-pointer" onClick={() => { copyToClipboard(cid) }}>{cid}<HiClipboardCopy className="ml-2 w-50 h-50" /></td>
+            <td className="flex flex-row m-2 p-2 cursor-pointer" onClick={() => { copyToClipboard(cid) }}>{cid}<HiClipboardCopy className="ml-2 w-50 h-50" /></td>
           </tr>
         </tbody>
       </table>
