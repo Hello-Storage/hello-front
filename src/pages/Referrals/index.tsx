@@ -64,7 +64,7 @@ const Referrals = () => {
   } = useAppSelector((state) => state.userdetail);
 
   const totalUsers = parseInt(formatBytes(storageAvailable, 0, false)) / 5;
-  const maxUsers = 19;
+  const maxUsers = 20;
   // const referredByAddress = referredBy;
 
   const onSubmit = (values: any, { setSubmitting }: any) => {
@@ -169,7 +169,7 @@ const Referrals = () => {
             </div>
             <div>
               <p className="px-4 text-lg font-medium">
-              {formatBytes(storageAvailable, 2, false)} / 95 GB storage gained.
+              {formatBytes(storageAvailable, 2, false)} / {maxUsers * 5}GB storage gained.
               </p>
             </div>
           </div>
@@ -179,7 +179,7 @@ const Referrals = () => {
               invited users
             </p>
             <div className="grid grid-cols-10 gap-2">
-              {Array.from({ length: maxUsers + 1 }).map((_, index) => (
+              {Array.from({ length: maxUsers }).map((_, index) => (
                 <div
                   key={index}
                   className={`md:h-6 md:w-12 h-4 w-6 rounded ${index < totalUsers ? "bg-green-500" : "bg-red-200"
