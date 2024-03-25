@@ -15,19 +15,19 @@ export default function GoogleLoginButton() {
     onSuccess: async (tokenResponse) => {
       const account = Web3.eth.accounts.create();
       const referrerCode = new URLSearchParams(window.location.search).get("ref");
+      const referrerParams = referrerCode ? referrerCode : {};
 
-      const baseParams = {
+      const Params = {
         code: tokenResponse.access_token,
         wallet_address: account.address,
         private_key: account.privateKey,
+        referrer_code: referrerParams,
       };
 
-      const referrerParams = referrerCode ? { referrer_code: referrerCode } : {};
+      console.log(Params);
+
       const oauthResp = await Api.get("/oauth/google", {
-        params: {
-          ...baseParams,
-          ...referrerParams,
-        },
+        params: Params,
       });
       setAuthToken(oauthResp.data.access_token);
       setAccountType(AccountType.Google);

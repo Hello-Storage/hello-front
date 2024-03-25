@@ -663,8 +663,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                           ))}
                         </>
                         :
-                        <tr
-                        >
+                        <tr>
                           <td
                             scope="row"
                             className={"w-full px-3 font-medium  whitespace-nowrap"

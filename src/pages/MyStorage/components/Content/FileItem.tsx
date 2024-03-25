@@ -87,8 +87,6 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 		// Make a request to download the file with responseType 'blob'
 		if (file.size >= MULTIPART_THRESHOLD) {
 			const blob = await downloadMultipart(file, dispatch)
-
-
 			dispatch(
 				setUploadStatusAction({
 					info: "Finished downloading data",
@@ -164,11 +162,11 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 
 	const handleView = () => {
 		viewRef.current = true;
+		toast.info("Loading " + file.name + "...");
 
 		if (file.size >= MULTIPART_THRESHOLD) {
 			viewMultipart(file, dispatch)
 		} else {
-			toast.info("Loading " + file.name + "...");
 			dispatch(setFileViewAction({ file: undefined }));
 			dispatch(setImageViewAction({ show: false }));
 
@@ -268,25 +266,27 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 						onClick={() => setOpen(!open)}
 					>
 						<HiDotsVertical />
-						<div className="relative " ref={ref}>
-							{open && (
-								<div
-									id="dropdown"
-									className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-36 "
-									style={{ bottom: "100%" }}
+						<div className="relative " ref={ref}>{open && (
+							<div
+								id="dropdown"
+								className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-36 "
+								style={{ bottom: "100%" }}
+							>
+								<ul className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
 								>
-									<ul className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
-									>
-										<li
-											className={"block px-4 py-2 "
+									<li className="block">
+										<button
+											className={"block px-4 py-2 w-full text-left "
 												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 											onClick={handleDownload}
 										>
 											<HiOutlineDownload className="inline-flex mr-3" />
 											Download
-										</li>
-										{(actionsAllowed) && (<>
-											<li
+										</button>
+									</li>
+									{(actionsAllowed) && (
+										<li className="block">
+											<button
 												onClick={() => {
 													dispatch(
 														setShowShareModal(true)
@@ -295,43 +295,46 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 														setSelectedShareFile(file)
 													);
 												}}
-												className={"block px-4 py-2 "
+												className={"block px-4 py-2 w-full text-left "
 													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 											>
 												<HiOutlineShare className="inline-flex mr-3" />
 												Share
-											</li>
-										</>)}
+											</button>
+										</li>
+									)}
 
-										{viewableExtensions.has(
-											fileExtension
-										) && (
-												<li
-													className={"block px-4 py-2 "
+									{viewableExtensions.has(
+										fileExtension
+									) && (
+											<li className="block">
+												<button
+													className={"block px-4 py-2 w-full text-left "
 														+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 													onClick={() => handleView()}
 												>
 													<HiOutlineEye className="inline-flex mr-3" />
 													View
-												</li>
-											)}
-									</ul>
+												</button>
+											</li>
+										)}
+								</ul>
 
-									<div className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
-									>
-										{actionsAllowed && (<>
-											<p
-												className={"block px-4 py-3 "
-													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-												onClick={handleDelete}
-											>
-												<HiOutlineTrash className="inline-flex mr-3" />
-												Delete
-											</p>
-										</>)}
-									</div>
+								<div className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
+								>
+									{actionsAllowed && (
+										<button
+											className={"block px-4 py-3 w-full text-left "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+											onClick={handleDelete}
+										>
+											<HiOutlineTrash className="inline-flex mr-3" />
+											Delete
+										</button>
+									)}
 								</div>
-							)}
+							</div>
+						)}
 						</div>
 					</button>
 				</td>

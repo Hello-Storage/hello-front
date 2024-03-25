@@ -28,7 +28,6 @@
     "highcharts": "^11.1.0",
     "highcharts-react-official": "^3.2.1",
     "jszip": "^3.10.1",
-    "lightbox.js-react": "^0.8.9",
     "moment": "^2.29.4",
     "multiformats": "^13.1.0",
     "react": "^18.2.0",

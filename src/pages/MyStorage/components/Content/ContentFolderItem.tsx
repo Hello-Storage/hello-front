@@ -1,5 +1,5 @@
 import { Api } from "api";
-import { EncryptionStatus, Folder } from "api/types";
+import { Folder } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -12,12 +12,6 @@ import {
 import { toast } from "react-toastify";
 import { useAuth, useDropdown } from "hooks";
 import { useRef, useState, Fragment, useEffect } from "react";
-import {
-    decryptContent,
-    decryptFileBuffer,
-    decryptMetadata,
-    hexToBuffer
-} from "utils/encryption/filesCipher";
 import { useAppDispatch, useAppSelector } from "state";
 import {
     removeFolder, setSelectedShareFile,
@@ -26,14 +20,17 @@ import {
 } from "state/mystorage/actions";
 import { truncate, formatDate } from "utils/format";
 import { Theme } from "state/user/reducer";
-import { logoutUser } from "state/user/actions";
-import JSZip from "jszip";
 import { DeleteFolderModal } from "components/Modals/DeleteItem/DeleteFolder";
 import { useModal } from "components/Modal";
 import getAccountType from "api/getAccountType";
 import getPersonalSignature from "api/getPersonalSignature";
 import { FaFolder } from "react-icons/fa";
 import { GoAlertFill } from "react-icons/go";
+import { downloadFolderMultipart, folderDownload } from "utils/foldersDownload";
+import { FolderContentClass } from "pages/Shared/Utils/types";
+import useGetFolderFiles from "pages/Shared/Utils/useGetFolderFiles";
+const MULTIPART_THRESHOLD =
+	import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB
 
 dayjs.extend(relativeTime);
 
@@ -61,118 +58,58 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
     const { logout } = useAuth();
     const accountType = getAccountType();
     useDropdown(ref, open, setOpen);
+    const { cache } = useAppSelector((state) => state.mystorage);
 
-    const handleDownload = async () => {
-        const personalSignature = await getPersonalSignature(
-            name,
-            autoEncryptionEnabled,
-            accountType,
-            logout
-        );
-        if (!personalSignature) {
-            toast.error("Failed ta get personal signature");
-            return;
-        }
-        // Make a request to download the file with responseType 'blob'
-        Api.get(`/folder/download/${folder.uid}`)
-            .then(async (res) => {
-                const zip = new JSZip();
+	const [selectedSharedFiles, setselectedSharedFiles] = useState<FolderContentClass>()
+	const [start, setStart] = useState<boolean>(false)
+	const [trigger, setTrigger] = useState<boolean>(false)
+	const [selectedShareFolder, setselectedShareFolder] = useState<Folder>()
+	const [folderAContent, setFolderContent] = useState<FolderContentClass>(new FolderContentClass(undefined, undefined));
+	const { folderContent } = useGetFolderFiles(start, trigger, setTrigger, selectedShareFolder, folderAContent, setFolderContent);
 
-                // Iterate through the files and add them to the ZIP
-                for (const file of res.data.files) {
-                    const fileData = atob(file.data);
-                    if (file.encryption_status === EncryptionStatus.Encrypted) {
-                        const decryptionResult = await decryptMetadata(
-                            file.name,
-                            file.mime_type,
-                            file.cid_original_encrypted,
-                            personalSignature
-                        );
-                        if (!decryptionResult) {
-                            logoutUser();
-                            return;
-                        }
-                        const {
-                            decryptedFilename,
-                            decryptedFiletype,
-                            decryptedCidOriginal,
-                        } = decryptionResult;
-                        const stringToArrayBuffer = (
-                            str: string
-                        ): ArrayBuffer => {
-                            const buf = new ArrayBuffer(str.length);
-                            const bufView = new Uint8Array(buf);
-                            for (let i = 0; i < str.length; i++) {
-                                bufView[i] = str.charCodeAt(i);
-                            }
-                            return buf;
-                        };
+	useEffect(() => {
+		if (folderContent.files?.length !== 0) {
+			setselectedSharedFiles(folderContent);
+		}
+	}, [trigger]);
 
-                        //transform fileData string to Array Buffer
-                        const fileDataBufferEncrypted = stringToArrayBuffer(
-                            fileData
-                        );
-                        const fileDataBuffer = await decryptFileBuffer(
-                            fileDataBufferEncrypted,
-                            decryptedCidOriginal,
-                            () => void 0
-                        );
-                        if (!fileDataBuffer) {
-                            toast.error("Failed to decrypt file");
-                            return;
-                        }
-                        //transform buffer to Blob
-                        const fileDataBlob = new Blob([fileDataBuffer], {
-                            type: decryptedFiletype,
-                        });
 
-                        const decryptedPathComponents = [];
-                        const pathComponents = file.path.split("/");
-                        // Decrypt the path components
-                        for (let i = 0; i < pathComponents.length - 1; i++) {
-                            const component = pathComponents[i];
-                            const encryptedComponentUint8Array = hexToBuffer(
-                                component
-                            );
+	const handleDownload = async () => {
+		toast.info("Downloading folder...");
+		//trigger the preload of the content of the folder using the getFolderFiles hook
+		setselectedShareFolder(folder)
+		setFolderContent(new FolderContentClass(folder, undefined))
+		setStart(true)
+	};
 
-                            const decryptedComponentBuffer = await decryptContent(
-                                encryptedComponentUint8Array,
-                                personalSignature
-                            );
-                            const decryptedComponentStr = new TextDecoder().decode(
-                                decryptedComponentBuffer
-                            );
-                            decryptedPathComponents.push(decryptedComponentStr);
-                        }
-                        decryptedPathComponents.push(decryptedFilename);
+	useEffect(() => {
+		async function downloadFolderTrigger() {
+			if (start && selectedSharedFiles && selectedShareFolder && trigger) {
+				setTrigger(false);
+				setStart(false);
+				const personalSignature = await getPersonalSignature(
+					name,
+					autoEncryptionEnabled,
+					accountType,
+					logout
+				);
+				if (!personalSignature) {
+					toast.error("Failed ta get personal signature");
+					return;
+				}
 
-                        const decryptedFilePath = decryptedPathComponents.join(
-                            "/"
-                        );
-                        zip.file(decryptedFilePath, fileDataBlob, {
-                            binary: true,
-                        });
-                    } else {
-                        zip.file(file.path, fileData, { binary: true });
-                    }
-                }
+				if (selectedSharedFiles.getFolderTotalSize() > MULTIPART_THRESHOLD) {
+					// #TODO test this
+                    downloadFolderMultipart(selectedShareFolder, dispatch, personalSignature);
+				}else{
+					folderDownload(personalSignature,selectedShareFolder,dispatch, logout, name, autoEncryptionEnabled, accountType, cache, folderAContent);
+				}
+			}
+		}
 
-                //Generate the ZIP file and trigger the download
-                zip.generateAsync({ type: "blob" }).then((content) => {
-                    const url = window.URL.createObjectURL(content);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `${folder.title}.zip`; // Set the file name
-                    a.click(); // Trigger the download
-                    // Clean up
-                    window.URL.revokeObjectURL(url);
-                });
-            })
-            .catch((err) => {
-                console.error("Error downloading folder:", err);
-                toast.error("Error downloading folder");
-            });
-    };
+		downloadFolderTrigger();
+	}, [start, selectedSharedFiles, trigger]);
+
 
     const handleDelete = () => {
         if (deleteAcepted) {

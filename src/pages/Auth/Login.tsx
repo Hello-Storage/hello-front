@@ -39,6 +39,7 @@ export default function Login() {
   const onSubmit = async (e: any) => {
     e.preventDefault();
 
+    toast.info("Sending OTP...");
     const result = await startOTP(email);
 
     if (result) onPresent();
@@ -63,7 +64,6 @@ export default function Login() {
         }
       }
 
-      console.log(publishedFileName);
       let newFilename = publishedFileName.name;
       if (publishedFileName.name === undefined || publishedFileName.name === "") {
         if (publishedFileName.file_share_state.public_file.name !== undefined && publishedFileName.file_share_state.public_file.name !== "") {

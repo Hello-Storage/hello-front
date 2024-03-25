@@ -9,7 +9,11 @@ import { useAppSelector } from 'state';
 import { handleEncryptedFiles, handleEncryptedFolders } from 'utils/encryption/filesCipher';
 
 
-const useGetFolderFiles = (trigger: boolean, setTrigger: React.Dispatch<React.SetStateAction<boolean>>, selectedShareFolder: Folder | undefined, folderContent: FolderContentClass, setFolderContent: React.Dispatch<React.SetStateAction<FolderContentClass>>) => {
+const useGetFolderFiles = (start: boolean, trigger: boolean, 
+    setTrigger: React.Dispatch<React.SetStateAction<boolean>>, 
+    selectedShareFolder: Folder | undefined, folderContent: FolderContentClass, 
+    setFolderContent: React.Dispatch<React.SetStateAction<FolderContentClass>>) => {
+        
     const personalSignatureRef = useRef<string | undefined>();
 
     const hasCalledGetPersonalSignatureRef = useRef<boolean>(false);
@@ -58,7 +62,7 @@ const useGetFolderFiles = (trigger: boolean, setTrigger: React.Dispatch<React.Se
 
     const fetchData = useCallback(async (selectedShareFolder: FolderContentClass) => {
 
-        if (!selectedShareFolder) return;
+        if (!selectedShareFolder || !selectedShareFolder.folder) return;
         const root = "/folder/" + selectedShareFolder.uid;
         try {
             const res = await Api.get<RootResponse>(root)
@@ -106,11 +110,11 @@ const useGetFolderFiles = (trigger: boolean, setTrigger: React.Dispatch<React.Se
     }, [folderContent]);
 
     useEffect(() => {
-        if (selectedShareFolder) {
+        if (selectedShareFolder && start) {
             fetchData(folderContent);
         }
 
-    }, [selectedShareFolder, fetchData, folderContent]);
+    }, [selectedShareFolder, fetchData, folderContent, start]);
 
     return { folderContent };
 };
