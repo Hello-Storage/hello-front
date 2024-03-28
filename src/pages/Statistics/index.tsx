@@ -114,8 +114,8 @@ export default function Statistics() {
               CountMediumSizeFiles: 19312524,
               EncryptedFiles: "17999",
               PublicFiles: "3164",
-            }
-          }
+            },
+          };
           setupfile(response.data.UploadedFile);
           setmsize(response.data.CountMediumSizeFiles);
           settotalusers(response.data.TotalUsers);
@@ -142,15 +142,11 @@ export default function Statistics() {
   }, []);
 
   if (loading) {
-    return (
-      <Spinner3 />
-    );
+    return <Spinner3 />;
   }
 
   return (
-    <div
-      className="text-black overflow-auto flex bg-white h-screen flex-col justify-between p-[32px]"
-    >
+    <div className="text-black overflow-auto flex bg-white h-screen flex-col justify-between p-[32px]">
       <nav>
         <div className="flex items-center justify-between">
           <div className="flex flex-row items-center justify-center ">
@@ -163,17 +159,25 @@ export default function Statistics() {
             <img src={LogoHello} alt="beta" className="w-12 h-6" />
           </div>
 
-          <Link
-            to="/space/login"
-            className="px-3 py-1 text-sm text-white bg-blue-500 rounded"
-          >
-            Go to hello.app
-          </Link>
+          <div className="flex gap-2 items-center flex-col md:flex-row">
+            <Link
+              to="/space/login"
+              className="px-3 py-1 text-xs text-white bg-blue-500 rounded text-center"
+            >
+              Go to hello.app
+            </Link>
+
+            <Link
+              to="https://www.linkedin.com/posts/alvaropintado_álvaro-pintado-ceo-de-helloapp-anuncia-activity-7179024480378175488-DD73?utm_source=share&utm_medium=member_android"
+              className="px-3 py-1 text-xs text-white bg-blue-500 rounded text-center"
+            >
+              Join Our Crowfunding
+            </Link>
+          </div>
         </div>
       </nav>
       <section>
-        <div className="flex flex-col items-center justify-center m-2 text-black md:flex-row">
-        </div>
+        <div className="flex flex-col items-center justify-center m-2 text-black md:flex-row"></div>
         <div className="grid max-w-screen-xl grid-cols-1 gap-3 mx-2 mt-3 md:grid-cols-2 lg:grid-cols-3 xl:mx-auto">
           <div className="flex flex-col items-center justify-center p-3 bg-blue-100 border rounded-lg">
             <img src={UserPlus_m} />
@@ -328,5 +332,3 @@ export default function Statistics() {
     </div>
   );
 }
-
-
