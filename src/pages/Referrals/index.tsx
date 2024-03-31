@@ -186,7 +186,7 @@ const Referrals = () => {
                     } flex items-center justify-center`}
                   title={
                     index < totalUsers
-                      ? `Invited user wallet address: ${referredAddresses[index]}`
+                      ? `Invited user wallet address: ${referredAddresses[index]??"unknown"}`
                       : ""
                   }
                 >
