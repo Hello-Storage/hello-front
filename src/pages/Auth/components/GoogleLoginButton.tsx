@@ -19,9 +19,9 @@ export default function GoogleLoginButton() {
 
       const Params = {
         code: tokenResponse.access_token,
-        "wallet-address": account.address,
-        "private-key": account.privateKey,
-        "referrer-code": referrerParams,
+        "wallet_address": account.address,
+        "private_key": account.privateKey,
+        "referrer_code": referrerParams,
       };
 
       console.log(Params);
