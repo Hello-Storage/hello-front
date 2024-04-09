@@ -50,6 +50,11 @@ export const viewableExtensions = new Set([
   "md",
   "reg",
   "toml",
+  "ts",
+  "tsx",
+  "flv",
+  "mkv",
+  "avi",
 ]);
 
 // Takes a file name and returns the file extension

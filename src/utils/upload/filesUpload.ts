@@ -19,6 +19,7 @@ export const uploadFileMultipart = async (file: File, dispatch: AppDispatch, enc
     const AES_GCM_TAG_LENGTH = 16;
     const { aesKey, salt, iv } = await getAesKey(cidOriginal, ['encrypt']);
 
+    // TODO: calculate the chunk size based on the file size (to prevent errors like "minimun request size not reached")
     const chunkSize = 5 * 1024 * 1024; // 5MB
     const fileSize = file.size;
     let offset = 0;

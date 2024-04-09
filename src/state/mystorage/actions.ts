@@ -1,5 +1,6 @@
 import { createAction } from "@reduxjs/toolkit";
 import { Folder, File as FileType, RootResponse, SharedRFiles, SharedRFolders } from "api";
+import { CancelTokenSource } from "axios";
 
 export interface PreviewImage {
   src?: string;
@@ -80,4 +81,12 @@ export const setSelectedShareFolder = createAction<Folder | undefined>(
 
 export const setSelectedSharedFiles = createAction<FileType[] | undefined>(
   "mystorage/set-selected-shared-files"
+);
+
+export const addCancelToken = createAction<{ [key: string]: CancelTokenSource }>(
+  "mystorage/add-cancel-token"
+);
+
+export const removeCancelToken = createAction<string>(
+  "mystorage/remove-cancel-token"
 );
