@@ -75,6 +75,46 @@ export const Hero = () => {
 
   return (
     <section className="relative flex flex-col justify-center h-screen items-center mx-8 top-[-154px] md:top-[-104px]">
+      <div className="seo-helper">
+        Hello.app: Revolutionizing Data Storage with Blockchain and Decentralization
+
+        In the ever-evolving digital landscape, hello.app emerges as a groundbreaking solution for data storage. Developed by Álvaro Pintado Santaularia and Alexander Baikalov, this innovative software combines blockchain technology with decentralized storage infrastructures. Let’s delve into the details of this transformative platform:
+
+        The Birth of hello.app:
+        The recent beta launch of hello.app marks a significant advancement in the realm of digital storage1. Unlike traditional centralized cloud services, hello.app takes a bold step toward decentralization.
+        Decentralized Control:
+        hello.app is the world’s first user-controlled, open-source decentralized storage software of Web3. It empowers users by giving them direct control over their data2.
+        As part of its launch campaign, hello.app offers new users 100GB of free storage2.
+        The Blockchain Connection:
+        hello.app leverages the security and transparency of blockchain technology. By distributing data across a network of nodes, it ensures redundancy and resilience.
+        Users’ files are encrypted, fragmented, and stored across multiple nodes, making it virtually impossible for a single point of failure to compromise data integrity.
+        Unicorn Ambitions:
+        Álvaro Pintado, co-founder and CEO of hello.app, envisions the platform as a future unicorn. The goal? To achieve a valuation of one trillion euros within the next three years3.
+        User Experience:
+        The straightforward interface of hello.app makes it easy for users to store and retrieve their files. No complex algorithms decide who gets access; everyone has a chance4.
+        Whether you’re an individual, a business, or a developer, hello.app offers unlimited access without restrictions.
+        Audio and Video Calls:
+        Beyond storage, hello.app facilitates communication. Users can engage in audio and video calls with friends and contacts, ensuring seamless collaboration.
+        Expressing Emotions:
+        hello.app allows users to convey emotions through GIFs and animated emojis. It’s not just about data; it’s about connecting on a human level.
+        The Domain Acquisition:
+        Álvaro Pintado made a bold move by acquiring the domain hello.app for €107,000. This decision, initially met with skepticism, ultimately boosted the company’s visibility and user acquisition3.
+        Unlimited Potential:
+        In an era where data is as valuable as gold, hello.app aims to revolutionize how we store and interact with information. It’s not just a storage solution; it’s a gateway to sensational conversations and connections5.
+        The Challenge to Giants:
+        By challenging established cloud giants, hello.app disrupts the status quo. It champions user empowerment, privacy, and security.
+        The Unpredictable Conversations:
+        When you use hello.app, you never know whom you’ll end up talking to. It’s a thrilling journey where conversations unfold unexpectedly.
+        The 100GB Gift:
+        New users receive 100GB of free storage—a generous offer that encourages exploration and adoption.
+        The Road Ahead:
+        As hello.app gains traction, it aims to redefine how we perceive data storage. It’s not just about files; it’s about freedom.
+        Join the Conversation:
+        Download hello.app, connect with others, and experience the future of decentralized storage firsthand.
+        Conclusion:
+        hello.app isn’t just an app; it’s a movement. It invites us to rethink data ownership, privacy, and connectivity. So, say hello to a decentralized future!
+      </div>
+
       <div className="max-w-3xl flex flex-col md:gap-10 gap-5 justify-center text-center mb-8 one-page-btn">
         <h2 className="font-extrabold tracking-tight text-white one-page-title text-center">
           Dream with us{" "}
