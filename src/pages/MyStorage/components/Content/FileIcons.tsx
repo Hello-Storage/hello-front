@@ -104,6 +104,30 @@ export const fileIcons = {
       className={classn}
     />
   ),
+  mkv: (color: string, classn: string) => (
+    <FaFileVideo
+      color={color}
+      className={classn}
+    />
+  ),
+  flv: (color: string, classn: string) => (
+    <FaFileVideo
+      color={color}
+      className={classn}
+    />
+  ),
+  webm: (color: string, classn: string) => (
+    <FaFileVideo
+      color={color}
+      className={classn}
+    />
+  ),
+  ogg: (color: string, classn: string) => (
+    <FaFileVideo
+      color={color}
+      className={classn}
+    />
+  ),
   avi: (color: string, classn: string) => (
     <FaFileVideo
       color={color}

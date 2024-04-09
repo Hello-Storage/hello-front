@@ -341,7 +341,7 @@ export async function generateFileCID(file: File, dispatch: AppDispatch): Promis
     const hasher = await createSHA256();
 
     dispatch(setUploadStatusAction({
-        info: "Generating CID...",
+        info: "Generating the CID...",
         size: file.size,
         read: 0,
     }))
@@ -552,6 +552,9 @@ export const handleEncryptedFiles = async (files: FileType[], personalSignature:
                         cid_original_encrypted: decryptedCidOriginal,
                         decrypted: true,
                     };
+                }else{
+                    logoutUser();
+                    return file;
                 }
             } catch (error) {
                 console.log(error);
@@ -600,4 +603,20 @@ export const handleEncryptedFolders = async (folders: Folder[], personalSignatur
     // Wait for all promises to resolve
     const decryptedFolders = await Promise.all(decrytpedFoldersPromises);
     return decryptedFolders;
+}
+
+export const decryptFilePath = async (filePath: string, personalSignature: string | undefined): Promise<string | undefined> => {
+    if (!personalSignature) {
+        logoutUser();
+        return;
+    }
+    const finalPath=[];
+    const pathParts = filePath.split('/');
+    for (const pathPart of pathParts) {
+        const encryptedFilenameBuffer = hexToBuffer(pathPart);
+        const decryptedFilename = await decryptContent(encryptedFilenameBuffer, personalSignature);
+        finalPath.push(new TextDecoder().decode(decryptedFilename));
+    }
+
+    return finalPath.join('/');
 }

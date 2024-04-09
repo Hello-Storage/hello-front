@@ -37,19 +37,14 @@ const Referrals = () => {
     Api.get(`/referrals/${walletAddress}`)
       .then((res) => {
         if (res.data.status === "success") {
-          setReferredAddresses(res.data.referredAddresses || []);
+          setReferredAddresses((res.data.referredAddresses && res.data.referredAddresses.length) ? 
+            ["you", ...res.data.referredAddresses] : ["you"]);
           setReferredBy(res.data.referredBy || "");
         }
       })
       .catch((err) => {
         console.log(err);
       });
-    //const account = Web3.eth.accounts.create();
-    //console.log(account.address);
-    //const string = "gu22mGm7puJQ3wFGjmKBiRoV+AFGk1gOwbOGqUXLYyZ7uvWV7NBm8thELyEAi2KhOrBN6YCUk0R8aEMutRTX+WwNig9JFcSLQWX5w+e6UHIm/zAueNaMZvHCGU/4Og==";
-    //const data = Buffer.from(string, 'base64');
-
-    //console.log(data.toString('latin1'));
   }, [walletAddress]);
 
   const formatBytes = (bytes: number, decimals = 2, symbol = true) => {
@@ -69,7 +64,7 @@ const Referrals = () => {
   } = useAppSelector((state) => state.userdetail);
 
   const totalUsers = parseInt(formatBytes(storageAvailable, 0, false)) / 5;
-  const maxUsers = 19;
+  const maxUsers = 20;
   // const referredByAddress = referredBy;
 
   const onSubmit = (values: any, { setSubmitting }: any) => {
@@ -174,7 +169,7 @@ const Referrals = () => {
             </div>
             <div>
               <p className="px-4 text-lg font-medium">
-              {formatBytes(storageAvailable, 2, false)} / 95 GB storage gained.
+              {formatBytes(storageAvailable, 2, false)} / {maxUsers * 5}GB storage gained.
               </p>
             </div>
           </div>
@@ -184,14 +179,14 @@ const Referrals = () => {
               invited users
             </p>
             <div className="grid grid-cols-10 gap-2">
-              {Array.from({ length: maxUsers + 1 }).map((_, index) => (
+              {Array.from({ length: maxUsers }).map((_, index) => (
                 <div
                   key={index}
                   className={`md:h-6 md:w-12 h-4 w-6 rounded ${index < totalUsers ? "bg-green-500" : "bg-red-200"
                     } flex items-center justify-center`}
                   title={
                     index < totalUsers
-                      ? `Invited user wallet address: ${referredAddresses[index]}`
+                      ? `Invited user wallet address: ${referredAddresses[index]??"unknown"}`
                       : ""
                   }
                 >

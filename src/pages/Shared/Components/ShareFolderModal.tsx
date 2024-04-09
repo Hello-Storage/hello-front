@@ -197,7 +197,7 @@ const ShareFolderModal = () => {
 	const [loading, setLoading] = useState(true);
 	const [folderAContent, setFolderContent] = useState<FolderContentClass>(new FolderContentClass(selectedShareFolder, undefined));
 	const [trigger, setTrigger] = useState<boolean>(false)
-	const { folderContent } = useGetFolderFiles(trigger, setTrigger, selectedShareFolder, folderAContent, setFolderContent);
+	const { folderContent } = useGetFolderFiles(true, trigger, setTrigger, selectedShareFolder, folderAContent, setFolderContent);
 
 
 	useEffect(() => {

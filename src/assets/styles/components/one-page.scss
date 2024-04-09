@@ -160,3 +160,13 @@
     font-size: 3rem;
   }
 }
+
+.seo-helper{
+  transform: translateY(10000px);
+  -webkit-transform: translateY(10000px);
+  -moz-transform: translateY(10000px);
+  -ms-transform: translateY(10000px);
+  -o-transform: translateY(10000px);
+  max-height: 20px;
+  overflow: scroll;
+}
