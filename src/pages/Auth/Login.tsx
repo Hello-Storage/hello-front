@@ -18,7 +18,7 @@ import { PiTiktokLogoFill } from "react-icons/pi";
 import { BiLogoInstagramAlt } from "react-icons/bi";
 import { BsLinkedin } from 'react-icons/bs';
 import { Api } from "api";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { getTheme } from "utils/user";
 import { Theme } from "state/user/reducer";
@@ -53,7 +53,7 @@ export default function Login() {
       const res = await Api.get(`/file/share/published/name/${share_hash}`);
 
       let publishedFileName: any = {};
-      if ((res as AxiosResponse).status === 200) {
+      if (res.status === 200) {
         publishedFileName = res.data;
       }
 
@@ -192,7 +192,7 @@ export default function Login() {
             <a href="https://docs.hello.app/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
               More information here
             </a>
-            © 2024 hello.app
+            © {new Date().getFullYear()} hello.app
           </div>
         </div>
         <div className="mt-1 md:mt-1 flex flex-col text-right">

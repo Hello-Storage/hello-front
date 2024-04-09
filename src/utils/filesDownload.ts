@@ -3,9 +3,9 @@ import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { logoutUser } from "state/user/actions";
 import { blobToArrayBuffer, decryptContentUtil, decryptFileBuffer, getAesKey } from "utils/encryption/filesCipher";
 import { Api, EncryptionStatus, File as FileType } from "api";
-import { PreviewImage, addCache, setImageViewAction } from "state/mystorage/actions";
+import { addCache, addCancelToken } from "state/mystorage/actions";
 import { toast } from "react-toastify";
-import { AxiosProgressEvent } from "axios";
+import axios, { AxiosProgressEvent } from "axios";
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -32,7 +32,7 @@ export const downloadMultipart = async (
 	}
 	dispatch(
 		setUploadStatusAction({
-			info: encrypted ? "Decrypting..." : "Downloading...",
+			info: "Downloading...",
 			uploading: true,
 			size: file.size,
 		})
@@ -145,166 +145,144 @@ export const triggerDownload = (blob: Blob, filename: string) => {
 	toast.success("Download complete!");
 	window.URL.revokeObjectURL(url);
 };
+export const viewMultipart = async (file: FileType, dispatch: AppDispatch, videoRef: any) => {
+    const apiEndpoint =
+        import.meta.env.VITE_API_ENDPOINT +
+        `/file/download/multipart/${file.uid}`;
+    if (!localStorage.getItem("access_token")) {
+        logoutUser();
+    }
 
-export const viewMultipart = async (file: FileType, dispatch: AppDispatch) => {
-	const apiEndpoint =
-		import.meta.env.VITE_API_ENDPOINT +
-		`/file/download/multipart/${file.uid}`;
-	if (!localStorage.getItem("access_token")) {
-		logoutUser();
-	}
+    const response = await fetch(apiEndpoint, {
+        headers: {
+            "Content-Type": "application/octet-stream",
+            Authorization: "Bearer " + localStorage.getItem("access_token"),
+        },
+    });
 
-	const response = await fetch(apiEndpoint, {
-		headers: {
-			"Content-Type": "application/octet-stream",
-			Authorization: "Bearer " + localStorage.getItem("access_token"),
-		},
-	});
-	let encrypted = false;
-	if (file.encryption_status === "encrypted") {
-		encrypted = true;
-	}
-	dispatch(
-		setUploadStatusAction({
-			info: encrypted ? "Decrypting..." : "Downloading...",
-			uploading: true,
-			size: file.size,
-		})
-	);
-	const stream = new ReadableStream({
-		async pull(controller) {
-			if (!response.ok || !response.body) {
-				logoutUser();
-				const message = `An error has occured: ${response.status}`;
-				throw new Error(message);
-			}
-			const reader = response.body.getReader();
-			let isFirstChunk = true;
-			let aesKey: CryptoKey | undefined;
-			let iv,
-				accumulated = new Uint8Array();
-			let totalProcessed = 0; // Variable to track the total processed data
+    let encrypted = false;
+    if (file.encryption_status === "encrypted") {
+        encrypted = true;
+    }
 
-			const shouldContinue = true;
-			while (shouldContinue) {
-				const { done, value } = await reader.read();
-				if (done) break;
+    const stream = new ReadableStream({
+        async start(controller) {
+            if (!response.ok || !response.body) {
+                logoutUser();
+                const message = `An error has occured: ${response.status}`;
+                throw new Error(message);
+            }
+            const reader = response.body.getReader();
+            let isFirstChunk = true;
+            let aesKey: CryptoKey | undefined;
+            let iv,
+                accumulated = new Uint8Array();
+            let totalProcessed = 0; // Variable to track the total processed data
 
-				// Append new data to the accumulated buffer
-				const tempBuffer = new Uint8Array(
-					accumulated.length + value.length
-				);
+            const shouldContinue = true;
+            while (shouldContinue) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-				tempBuffer.set(accumulated);
-				tempBuffer.set(value, accumulated.length);
-				accumulated = tempBuffer;
+                // Append new data to the accumulated buffer
+                const tempBuffer = new Uint8Array(
+                    accumulated.length + value.length
+                );
 
-				// Process first chunk separately
-				if (isFirstChunk) {
-					if (accumulated.length >= 28) {
-						const salt = accumulated.slice(0, 16);
-						iv = accumulated.slice(16, 28);
-						if (encrypted) {
-							const keyInfo = await getAesKey(
-								file.cid_original_encrypted,
-								["decrypt"],
-								salt,
-								iv
-							);
-							aesKey = keyInfo.aesKey;
-						}
-						isFirstChunk = false;
-						accumulated = accumulated.slice(28);
-					}
-				}
+                tempBuffer.set(accumulated);
+                tempBuffer.set(value, accumulated.length);
+                accumulated = tempBuffer;
 
-				// Decrypt when we have enough data or it's the last chunk
-				while (accumulated.length >= CHUNK_SIZE) {
-					const chunk = accumulated.slice(0, CHUNK_SIZE);
-					accumulated = accumulated.slice(CHUNK_SIZE);
+                // Process first chunk separately
+                if (isFirstChunk) {
+                    if (accumulated.length >= 28) {
+                        const salt = accumulated.slice(0, 16);
+                        iv = accumulated.slice(16, 28);
+                        if (encrypted) {
+                            const keyInfo = await getAesKey(
+                                file.cid_original_encrypted,
+                                ["decrypt"],
+                                salt,
+                                iv
+                            );
+                            aesKey = keyInfo.aesKey;
+                        }
+                        isFirstChunk = false;
+                        accumulated = accumulated.slice(28);
+                    }
+                }
 
-					// Decrypt the chunk
-					if (encrypted) {
-						if (aesKey && iv) {
-							const decryptedChunk = await decryptContentUtil(
-								chunk,
-								aesKey,
-								iv
-							);
-							controller.enqueue(new Uint8Array(decryptedChunk));
-						}
-					} else {
-						controller.enqueue(chunk);
-					}
-					totalProcessed += CHUNK_SIZE; // Update total processed data
-				}
-				dispatch(
-					setUploadStatusAction({
-						read: totalProcessed,
-					})
-				);
-			}
+                // Decrypt when we have enough data or it's the last chunk
+                while (accumulated.length >= CHUNK_SIZE) {
+                    const chunk = accumulated.slice(0, CHUNK_SIZE);
+                    accumulated = accumulated.slice(CHUNK_SIZE);
 
-			// Enqueue any remaining data
-			if (accumulated.length > 0) {
-				if (encrypted) {
-					if (aesKey && iv) {
-						const decryptedChunk = await decryptContentUtil(
-							accumulated,
-							aesKey,
-							iv
-						);
-						controller.enqueue(new Uint8Array(decryptedChunk));
-					} else {
-						controller.enqueue(accumulated);
-					}
-				}
-			}
+                    // Decrypt the chunk
+                    if (encrypted) {
+                        if (aesKey && iv) {
+                            const decryptedChunk = await decryptContentUtil(
+                                chunk,
+                                aesKey,
+                                iv
+                            );
+                            controller.enqueue(new Uint8Array(decryptedChunk));
+                        }
+                    } else {
+                        controller.enqueue(chunk);
+                    }
+                    totalProcessed += CHUNK_SIZE; // Update total processed data
+                    dispatch(
+                        setUploadStatusAction({
+                            read: totalProcessed,
+                        })
+                    );
+                    createVideoChunk(controller, videoRef);
+                }
+            }
 
-			controller.close();
-		},
-	});
+            // Enqueue any remaining data
+            if (accumulated.length > 0) {
+                if (encrypted) {
+                    if (aesKey && iv) {
+                        const decryptedChunk = await decryptContentUtil(
+                            accumulated,
+                            aesKey,
+                            iv
+                        );
+                        controller.enqueue(new Uint8Array(decryptedChunk));
+                    } else {
+                        controller.enqueue(accumulated);
+                    }
+                }
+                dispatch(
+                    setUploadStatusAction({
+                        read: totalProcessed + accumulated.length,
+                    })
+                );
+                createVideoChunk(controller, videoRef);
+            }
 
-	// Create blob for download
-	const responseBlob = new Response(stream);
-	const blob = new Blob([await responseBlob.blob()], {
-		type: file.mime_type,
-	});
-	dispatch(
-		setUploadStatusAction({
-			info: "Finished downloading data",
-			uploading: false,
-		})
-	);
+            controller.close();
+        },
+    });
 
-	if (!blob) {
-		console.error("Error downloading file:", file);
-		return;
-	}
-	const url = window.URL.createObjectURL(blob);
+    const createVideoChunk = (controller: any, videoRef: React.MutableRefObject<HTMLVideoElement | undefined>) => {
+        const responseBlob = new Response(controller);
+        responseBlob.blob().then((blob) => {
+			console.log("actualizado blob");
+            const url = URL.createObjectURL(blob);
+			if (videoRef.current) videoRef.current.src = url;
+        });
+    };
 
-	let mediaItem: PreviewImage;
-	if (file.mime_type.startsWith("video/")) {
-		mediaItem = {
-			type: "video",
-			src: url,
-			alt: file.name,
-		};
-	} else if (
-		file.mime_type === "application/pdf" ||
-		file.mime_type === "text/plain"
-	) {
-		window.open(url, "_blank"); // PDF or TXT in a new tab
-		return;
-	} else {
-		mediaItem = {
-			src: url,
-			alt: file.name,
-		};
-	}
-
-	dispatch(setImageViewAction({ img: mediaItem, show: true }));
+    dispatch(
+        setUploadStatusAction({
+            info: "Finished downloading data",
+            uploading: false,
+        })
+    );
 };
+
 
 export const downloadSingleFile = async (
 	file: FileType,
@@ -314,11 +292,15 @@ export const downloadSingleFile = async (
 	dispatch: AppDispatch
 ) => {
 	try {
+		
+		const cancelTokenSource = axios.CancelToken.source();
+		dispatch(addCancelToken({[file.uid]: cancelTokenSource}));
 		// Check if the file is already in the cache
 		const blob = cache[file.uid];
 		if (!(blob instanceof Blob)) {
 			// If file not in cache, download it
 			const res = await Api.get(`/file/download/${file.uid}`, {
+				cancelToken: cancelTokenSource.token,
 				responseType: "blob",
 				onDownloadProgress: (progressEvent) =>
 					onDownloadProgress(progressEvent, file, dispatch),
@@ -407,11 +389,11 @@ export const downloadSingleFile = async (
 
 			// Update cache with the new file
 			dispatch(addCache({ [file.uid]: blob }));
-
+			
             return blob;
-        }else{
-			return blob
-		}
+        }
+		
+		return blob;
 	} catch (err: any) {
 		toast.error(err.message);
 	}

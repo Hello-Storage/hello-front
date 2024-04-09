@@ -99,7 +99,7 @@ const ContentFolderItem: React.FC<FolderItemProps> = ({ folder, view, actionsAll
 				}
 
 				if (selectedSharedFiles.getFolderTotalSize() > MULTIPART_THRESHOLD) {
-					// #TODO test this
+					// TODO test download folder multipart
                     downloadFolderMultipart(selectedShareFolder, dispatch, personalSignature);
 				}else{
 					folderDownload(personalSignature,selectedShareFolder,dispatch, logout, name, autoEncryptionEnabled, accountType, cache, folderAContent);
