@@ -21,11 +21,9 @@ export default function AppLayout() {
 
   const accountType = getAccountType();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {
     // connector: activeConnector, 
     isConnected } = useAccount();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { connect,
     connectors,
     //  error, isLoading, pendingConnector 
@@ -45,31 +43,8 @@ export default function AppLayout() {
 
     if (accountType === AccountType.Provider && !isConnected) {
       connectToMetaMask();
-    } /*else {
-      alert("no web3")
-      getPersonalSignature(name, autoEncryptionEnabled, accountType).then((personalSignature) => {
-        if (personalSignature) {
-          setPersonalSignature(personalSignature);
-        } else {
-          alert("no signature");
-        }
-      });
-    }*/
+    } 
   }, [connectors, isConnected, connect, name, autoEncryptionEnabled]);
-
-  /*
-  useEffect(() => {
-    if (isConnected) {
-      getPersonalSignature(name, autoEncryptionEnabled, accountType).then((personalSignature) => {
-        if (personalSignature) {
-          setPersonalSignature(personalSignature);
-        } else {
-          alert("no signature");
-        }
-      });
-    }
-  }, [isConnected, name, autoEncryptionEnabled]);
-*/
 
   const { theme } = useAppSelector((state) => state.user);
 
