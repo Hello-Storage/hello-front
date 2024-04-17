@@ -9,7 +9,6 @@ import { useAuth } from "hooks";
 import React, { useEffect, useState } from "react";
 import { useModal } from "components/Modal";
 import LogoHello from "assets/images/beta.png";
-import useTitle from "hooks/useTitle";
 
 import { HiMail } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
@@ -23,8 +22,9 @@ import { toast } from "react-toastify";
 import { getTheme } from "utils/user";
 import { Theme } from "state/user/reducer";
 
+import { Helmet } from 'react-helmet';
+
 export default function Login() {
-  useTitle("hello.app | Space");
   const { authenticated, loading, redirectUrl } = useAppSelector((state) => state.user);
 
   const { startOTP } = useAuth();
@@ -87,6 +87,11 @@ export default function Login() {
   }
 
   return (
+    <>
+    <Helmet>
+      <title>Login | hello.app</title>
+      <meta name="description" content="Create an account or login to hello.app" />
+    </Helmet>
     <div className={"flex flex-col justify-between min-h-screen p-8 md:h-screen" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-semibold font-[Outfit]">
@@ -204,5 +209,6 @@ export default function Login() {
         </div>
       </footer>
     </div >
+    </>
   );
 }

@@ -9,7 +9,7 @@
 
 		<!-- Page title -->
 		<title>
-			hello.app: Revolutionizing File Storage with Blockchain Technology
+			hello.app: hello.app | Decentralized
 		</title>
 
 		<!-- Meta tags for SEO -->
@@ -18,9 +18,10 @@
 			content="hello.app: Revolutionizing File Storage with Blockchain Technology"
 		/>
 		<meta name="author" content="hello.app" />
+		<meta name="robots" content="index, follow">
 		<meta
 			name="description"
-			content="Get 100GB for free storage. Discover how hello.app is transforming file storage with a decentralized web3 infrastructure and blockchain for secure, efficient, and accessible storage for everyone."
+			content="Get 100GB for free storage. Discover how hello.app is transforming file storage with a decentralized web3 infrastructure and blockchain."
 		/>
 		<meta
 			name="keywords"
@@ -31,19 +32,12 @@
 		<!-- Script to dynamically change the page title based on the route -->
 		<script>
 			(function () {
-				const path = window.location.pathname;
 				let title;
-
-				if (path.startsWith("/space")) {
+				if (window.location.pathname.startsWith("/space")) {
 					title = "hello.app | Space";
-				} else if (path.startsWith("/login")) {
-					title = "hello.app | Space";
-				} else if (path === "/") {
-					title = "hello.app | Decentralized";
 				} else {
 					title = "hello.app | Decentralized"; // default title for other routes
 				}
-
 				document.title = title;
 			})();
 		</script>
@@ -89,12 +83,97 @@
 	</head>
 
 	<body>
+		<style>
+			.seo-helper {
+				position: fixed;
+				transform: translateY(10000px);
+				-webkit-transform: translateY(10000px);
+				-moz-transform: translateY(10000px);
+				-ms-transform: translateY(10000px);
+				-o-transform: translateY(10000px);
+			}
+		</style>
+		<div class="seo-helper">
+			“hello.app” is a groundbreaking application that is revolutionizing
+			file storage. With a decentralized infrastructure based on
+			blockchain and Web3, hello.app offers 100 GB of free storage. This
+			platform ensures security, efficiency, and accessibility for
+			everyone. Moreover, it leverages IPFS (InterPlanetary File System)
+			and Filecoin to create a unique infrastructure that is not only
+			secure and efficient but also accessible to anyone with a
+			smartphone. So, if you’re seeking a reliable and cutting-edge
+			storage solution, hello.app is the answer. Join the decentralized
+			storage revolution! 🚀📁
+		</div>
 		<div id="root" class="h-screen"></div>
 		<!-- Privacy Policy Link -->
 		<footer aria-hidden="true">
 			<a href="/privacy-policy">Privacy Policy</a>
 		</footer>
 		<script type="module" src="/src/main.tsx"></script>
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "FAQPage",
+				"mainEntity": [
+					{
+						"@type": "Question",
+						"name": "What is Hello App?",
+						"acceptedAnswer": {
+							"@type": "Answer",
+							"text": "Hello App is a communication and collaboration platform designed to enhance productivity and interaction among teams."
+						}
+					},
+					{
+						"@type": "Question",
+						"name": "How can I register for Hello App?",
+						"acceptedAnswer": {
+							"@type": "Answer",
+							"text": "To register for Hello App, visit our website https://hello.app or https://hello.app/space/login"
+						}
+					},
+					{
+						"@type": "Question",
+						"name": "Is hello.app secure?",
+						"acceptedAnswer": {
+							"@type": "Answer",
+							"text": "Yes, hello.app is a secure (using IPFS and client side encryption) platform with 100GB of free storage."
+						}
+					}
+				]
+			}
+		</script>
+		<script type="application/ld+json">
+			{
+				"@context": "http://schema.org",
+				"@type": "WebSite",
+				"url": "https://hello.app",
+				"name": "hello.app",
+				"description": "Private cloud storage manager providing secure and efficient storage solutions.",
+				"termsOfService": "https://docs.hello.app/hello.app-terms-and-conditions",
+				"potentialAction": [
+					{
+						"@type": "EntryPoint",
+						"urlTemplate": "https://hello.app/space/login",
+						"actionPlatform": [
+							"http://schema.org/DesktopWebPlatform",
+							"http://schema.org/IOSPlatform",
+							"http://schema.org/AndroidPlatform"
+						]
+					},
+					{
+						"@type": "EntryPoint",
+						"urlTemplate": "https://hello.app/stats",
+						"actionPlatform": [
+							"http://schema.org/DesktopWebPlatform",
+							"http://schema.org/IOSPlatform",
+							"http://schema.org/AndroidPlatform"
+						]
+					}
+				]
+			}
+		</script>
+
 		<h2 style="position: fixed; top: -10; left: 0; z-index: 1000;">
 			<a href="/blog.html">hello.app</a>
 		</h2>
