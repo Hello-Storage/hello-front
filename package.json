@@ -2,6 +2,7 @@
   "name": "helloapp",
   "private": true,
   "version": "0.0.0",
+  "homepage": ".",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -35,6 +36,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-globe.gl": "^2.24.3",
+    "react-helmet": "^6.1.0",
     "react-hook-form": "^7.45.0",
     "react-icons": "^4.10.1",
     "react-lazy-load-image-component": "^1.6.0",
@@ -68,6 +70,7 @@
     "@storybook/testing-library": "0.0.14-next.2",
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
+    "@types/react-helmet": "^6.1.11",
     "@types/react-lazy-load-image-component": "^1.5.3",
     "@types/react-redux": "^7.1.25",
     "@types/react-toggle": "^4.0.3",

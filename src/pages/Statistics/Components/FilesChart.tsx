@@ -188,7 +188,6 @@ export default function FilesChart() {
     }
 
     useEffect(() => {
-        document.title = "Hello Storage | Stats";
         fetchData();
 
         // 15 seconds update interval

@@ -130,7 +130,6 @@
   border-radius: 21%;
   transform: perspective(5000px) rotateX(20deg) rotateY(-16deg) rotateZ(7deg) translateY(-10%) translateX(-10%) !important;
   transform-origin: center;
-  transition: transform 0.1s ease;
   -webkit-border-radius: 21%;
   -moz-border-radius: 21%;
   -ms-border-radius: 21%;
@@ -159,14 +158,4 @@
   .one-page-title {
     font-size: 3rem;
   }
-}
-
-.seo-helper{
-  transform: translateY(10000px);
-  -webkit-transform: translateY(10000px);
-  -moz-transform: translateY(10000px);
-  -ms-transform: translateY(10000px);
-  -o-transform: translateY(10000px);
-  max-height: 20px;
-  overflow: scroll;
 }
