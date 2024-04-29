@@ -24,7 +24,7 @@ const OnePage = () => {
 
   return (
     <div className="relative overflow-hidden h-screen text-gray-100 bg-slate-950">
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5"></div>
+      <div className="absolute h-screen inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5"></div>
       <canvas
         data-particle-animation
         data-particle-quantity="200"
@@ -36,7 +36,7 @@ const OnePage = () => {
           left: 0,
           width: "100vw",
           height: "100vh",
-          zIndex: 0,
+          zIndex: 0
         }}
       />
       <Navbar />

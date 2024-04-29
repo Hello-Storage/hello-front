@@ -10,7 +10,7 @@ export const Navbar = () => (
     className="p-8 relative z-10"
   >
     <div className="relative w-full flex justify-between items-start min-w-[350px]">
-      <h1 className="text-2xl font-semibold text-white flex items-center font-[outfit]">
+      <h1 className="text-2xl font-semibold text-white flex items-center font-[outfit]" title="hello app">
         {" "}
         hello.app
         <img

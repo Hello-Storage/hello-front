@@ -82,7 +82,6 @@ export const Hero = () => {
             upload anything you want
           </span>
         </h2>
-
       </div>
       <div
         ref={uploadRef}
@@ -110,6 +109,7 @@ export const Hero = () => {
           <span className="relative z-10 text-white">About</span>
           <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
         </a>
+
         {/* <a href="/space/login"
           title="Go to Login Page"
           className="relative px-12 py-3 bg-gradient-to-b from-violet-500 to-violet-800 hover:from-violet-600 hover:to-violet-900 rounded-xl cursor-pointer inline-block">
@@ -117,6 +117,7 @@ export const Hero = () => {
           <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
         </a> */}
         <a href="https://www.seedrs.com/hello-app/coming-soon"
+
           title="Read the Documentation"
           className="relative px-12 py-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-900 hover:from-violet-600 hover:to-violet-900 cursor-pointer inline-block">
           <span className="relative z-10 text-white">Join Our Crowfunding</span>

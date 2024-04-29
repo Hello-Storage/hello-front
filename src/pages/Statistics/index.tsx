@@ -11,7 +11,6 @@ import Hotspot_m from "assets/images/Outline/Hotspot_m.png";
 import axios from "axios";
 import UsersChart from "./Components/UsersChart";
 import { Link } from "react-router-dom";
-import useTitle from "hooks/useTitle";
 
 import { HiMail } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
@@ -21,13 +20,15 @@ import { BiLogoInstagramAlt } from "react-icons/bi";
 import { BsLinkedin } from "react-icons/bs";
 import LogoHello from "@images/beta.png";
 import { Spinner3 } from "components/Spinner";
+import { Helmet } from "react-helmet";
 
 type IconWithTooltipProps = {
   IconComponent: React.ComponentType; // Esto es para componentes sin props
   tooltipText: string;
 };
 
-function IconWithTooltip({ IconComponent, tooltipText }: IconWithTooltipProps) {
+function IconWithTooltip({ IconComponent, tooltipText }: Readonly<IconWithTooltipProps>) {
+  
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
@@ -66,7 +67,6 @@ export default function Statistics() {
   const [totalusers, settotalusers] = useState("");
   const [totalusedstorage, settotalusedstorage] = useState<number>(0);
 
-  useTitle("hello.app | Stats");
 
   const [loading, setLoading] = useState(true);
 
@@ -132,7 +132,6 @@ export default function Statistics() {
   };
 
   useEffect(() => {
-    document.title = "hello.app | Stats";
     fetchData();
 
     // 15 seconds update interval
@@ -146,6 +145,11 @@ export default function Statistics() {
   }
 
   return (
+    <>
+    <Helmet>
+      <title>hello.app | Stats</title>
+      <meta name="description" content="hello.app statistics in real time" />
+    </Helmet>
     <div className="text-black overflow-auto flex bg-white h-screen flex-col justify-between p-[32px]">
       <nav>
         <div className="flex items-center justify-between">
@@ -180,9 +184,9 @@ export default function Statistics() {
         <div className="flex flex-col items-center justify-center m-2 text-black md:flex-row"></div>
         <div className="grid max-w-screen-xl grid-cols-1 gap-3 mx-2 mt-3 md:grid-cols-2 lg:grid-cols-3 xl:mx-auto">
           <div className="flex flex-col items-center justify-center p-3 bg-blue-100 border rounded-lg">
-            <img src={UserPlus_m} />
+            <img src={UserPlus_m} alt="users" />
             <div className="flex items-center">
-              <label className="block mr-2">Total Users</label>
+              <p className="block mr-2">Total Users</p>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
                 tooltipText="Total number of users registered"
@@ -193,9 +197,9 @@ export default function Statistics() {
             </label>
           </div>
           <div className="flex flex-col items-center justify-center p-3 bg-blue-100 border rounded-lg">
-            <img src={Server_m} />
+            <img src={Server_m} alt="server" />
             <div className="flex items-center">
-              <label className="block mr-2">Total Used Storage</label>
+              <p className="block mr-2">Total Used Storage</p>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
                 tooltipText="Total data stored by all users"
@@ -207,9 +211,9 @@ export default function Statistics() {
           </div>
 
           <div className="flex flex-col items-center justify-center p-3 bg-blue-100 border rounded-lg">
-            <img src={FileUpload_m} />
+            <img src={FileUpload_m} alt="uploaded" />
             <div className="flex items-center">
-              <label className="block mr-2">Files Uploaded</label>
+              <p className="block mr-2">Files Uploaded</p>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
                 tooltipText="The total amount of files uploaded"
@@ -221,9 +225,9 @@ export default function Statistics() {
           </div>
 
           <div className="flex flex-col items-center justify-center p-3 bg-blue-100 border rounded-lg">
-            <img src={File_m} />
+            <img src={File_m} alt="average size" />
             <div className="flex items-center">
-              <label className="block mr-2">Average File Size</label>
+              <p className="block mr-2">Average File Size</p>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
                 tooltipText="Average file size"
@@ -235,9 +239,9 @@ export default function Statistics() {
           </div>
 
           <div className="flex flex-col items-center justify-center p-3 bg-blue-100 border rounded-lg">
-            <img src={Shield_m} />
+            <img src={Shield_m} alt="encrypted files" />
             <div className="flex items-center">
-              <label className="block mr-2">Encrypted Files </label>
+              <p className="block mr-2">Encrypted Files </p>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
                 tooltipText="Total amount of encrypted files "
@@ -249,25 +253,25 @@ export default function Statistics() {
           </div>
 
           <div className="flex flex-col items-center justify-center p-3 bg-blue-100 border rounded-lg">
-            <img src={Hotspot_m} />
+            <img src={Hotspot_m} alt="public files" />
             <div className="flex items-center">
-              <label className="block mr-2">Public Files</label>
+              <p className="block mr-2">Public Files</p>
               <IconWithTooltip
                 IconComponent={GrCircleInformation}
                 tooltipText="Total amount of public files"
               />
             </div>
-            <label className="block font-semibold text-black text-1x8">
+            <p className="block font-semibold text-black text-1x8">
               {publicfiles}
-            </label>
+            </p>
           </div>
         </div>
         <div className="grid items-center justify-center max-w-screen-xl grid-cols-1 mx-2 xl:mx-auto">
           <div className="flex flex-col items-center justify-center gap-3 p-3 mt-3 bg-blue-100 border rounded-lg">
             Total Users
-            <label className="block font-semibold text-black text-1x8">
+            <p className="block font-semibold text-black text-1x8">
               {totalusers}
-            </label>
+            </p>
             {<UsersChart />}
           </div>
         </div>
@@ -330,5 +334,6 @@ export default function Statistics() {
         </div>
       </footer>
     </div>
+    </>
   );
 }

@@ -1,0 +1,11 @@
+{
+    "build": {
+      "image": "node:21",
+      "command": "npm install && npm run build",
+      "publicDir": "dist",
+      "baseDir": "/",
+      "environment": {
+        
+      }
+    }
+   }

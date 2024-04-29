@@ -1,10 +1,37 @@
 import { Link } from "react-router-dom";
 import LogoHello from "@images/beta.png";
 import { SnapshotContainer } from "./components/SnapshotContainer";
+import { useEffect, useState } from "react";
+import { Api } from "api";
+
+type Snapshot = {
+  transaction_date: string;
+  transaction_id: string;
+  transaction_owner: string;
+  transaction_message: string;
+}
+
+const getData = async (setSnapshots: React.Dispatch<React.SetStateAction<[Snapshot] | undefined>>) => {
+
+  const res = await Api.get("https://api-staging.joinhello.app/api/arweave/snapshots")
+
+  console.log(res)
+  setSnapshots(res.data.AllTransactions)
+}
 
 export default function Snapshots() {
+
+  const [snapshots, setSnapshots] = useState<[Snapshot]>()
+
+  useEffect(() => {
+
+    getData(setSnapshots)
+  }, [])
+
+
+
   return (
-    <div className="custom-scrollbar max-h-screen  bg-[#05072b] flex items-center flex-col relative w-screen overflow-hidden">
+    <div className="custom-scrollbar h-screen  bg-[#05072b] flex items-center flex-col relative w-screen overflow-hidden">
       <p className="absolute top-0 right-2 bg-[#32334b] text-white p-2 rounded-lg m-2">
         Updated: 20/03/2024
       </p>
@@ -22,30 +49,15 @@ export default function Snapshots() {
       </h1>
       <div className="mx-5">
         <div className="flex items-center justify-center flex-col">
-          <SnapshotContainer
-            date="14:36-20/03/2024"
-            transaction_id="6vADecq8ezLU9KG7SooxVuAwBa_Hg9Av9FU9MGYXJto"
-            owner="F0_rfwl6LpM_4WnR5pZ2lKI1VXB7u_BctR-gG1VCRWI"
-            cid="bafybeicm4w4vstqisfm6y67sfuusemftosfhmf4kluzeczaweyynunxele"
-          />
-          <SnapshotContainer
-            date="14:36-20/03/2024"
-            transaction_id="6vADecq8ezLU9KG7SooxVuAwBa_Hg9Av9FU9MGYXJto"
-            owner="F0_rfwl6LpM_4WnR5pZ2lKI1VXB7u_BctR-gG1VCRWI"
-            cid="bafybeicm4w4vstqisfm6y67sfuusemftosfhmf4kluzeczaweyynunxele"
-          />
-          <SnapshotContainer
-            date="14:36-20/03/2024"
-            transaction_id="6vADecq8ezLU9KG7SooxVuAwBa_Hg9Av9FU9MGYXJto"
-            owner="F0_rfwl6LpM_4WnR5pZ2lKI1VXB7u_BctR-gG1VCRWI"
-            cid="bafybeicm4w4vstqisfm6y67sfuusemftosfhmf4kluzeczaweyynunxele"
-          />
-          <SnapshotContainer
-            date="14:36-20/03/2024"
-            transaction_id="6vADecq8ezLU9KG7SooxVuAwBa_Hg9Av9FU9MGYXJto"
-            owner="F0_rfwl6LpM_4WnR5pZ2lKI1VXB7u_BctR-gG1VCRWI"
-            cid="bafybeicm4w4vstqisfm6y67sfuusemftosfhmf4kluzeczaweyynunxele"
-          />
+          {snapshots?.map((snapshot) => {
+            return (
+              <SnapshotContainer
+                date={new Date(snapshot.transaction_date).toDateString()}
+                transaction_id={snapshot.transaction_id}
+                owner={snapshot.transaction_owner}
+                cid={snapshot.transaction_message} />
+            )
+          })}
         </div>
       </div>
     </div>

@@ -25,3 +25,7 @@ export const textFileExtensions: string[] = [
     "reg",
     "toml",
 ];
+
+export const otherExtensions: string[] = [
+    'pdf',
+]

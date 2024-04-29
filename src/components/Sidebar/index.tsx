@@ -91,7 +91,7 @@ type SidebarProps = {
   setSidebarOpen: (open: boolean) => void;
 };
 
-export default function Sidebar({ setSidebarOpen }: SidebarProps) {
+export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
   const {
     storageUsed,
     storageAvailable,
@@ -269,14 +269,14 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             <Toggle
               id="auto-signature"
               checked={
-                autoEncryptionEnabled || !(accountType === AccountType.Provider)
+                autoEncryptionEnabled || accountType !== AccountType.Provider
               }
               onChange={() =>
                 accountType === AccountType.Provider &&
                 dispatch(toggleAutoEncryption(!autoEncryptionEnabled))
               }
               disabled={
-                !(accountType === AccountType.Provider) || !encryptionEnabled
+                accountType !== AccountType.Provider || !encryptionEnabled
               }
               className={
                 autoEncryptionEnabled ? "automatic-on" : "automatic-off"
@@ -343,9 +343,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                   </label>
                 </div>
                 {!v.available && !v.img ? (
-                  <label className="px-2 text-sm bg-gray-200 rounded-full">
+                  <div className="px-2 text-sm bg-gray-200 rounded-full">
                     soon
-                  </label>
+                  </div>
                 ) : (
                   <span>{v.img}</span>
                 )}
@@ -382,9 +382,9 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
                   </label>
                 </div>
                 {!v.available && (
-                  <label className="px-2 text-sm bg-gray-200 rounded-full">
+                  <div className="px-2 text-sm bg-gray-200 rounded-full">
                     soon
-                  </label>
+                  </div>
                 )}
               </div>
             </NavLink>
@@ -412,7 +412,7 @@ export default function Sidebar({ setSidebarOpen }: SidebarProps) {
             }}
             className="text-orange-500 cursor-pointer hover:underline"
           >
-            {formatBytes(storageAvailable, 2, false)} / 95 GiB
+            {formatBytes(storageAvailable, 2, false)} / 100 GiB
           </a>
         </label>
         <div className="pb-1 mt-4">

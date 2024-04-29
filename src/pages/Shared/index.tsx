@@ -284,7 +284,7 @@ const Shared = () => {
 
 		const currentSharedFiles = paginate(sharedFiles.sharedByMe, filesSharedStartIndex, filesItemsCount)
 		const currentReceivedFiles = paginate(sharedFiles.sharedWithMe, filesReceivedStartIndex, filesItemsCount)
-		// TODO: decrypt files
+	
 		if (!currentSharedFiles || !currentReceivedFiles) {
 			toast.error("Failed to decrypt content");
 			fetchSharedContent(setLoading);

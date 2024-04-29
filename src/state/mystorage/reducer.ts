@@ -24,8 +24,11 @@ import {
   addCache,
   resetCache,
   removeSharedFileAction,
+  addCancelToken,
+  removeCancelToken,
 } from "./actions";
 import { File as FileType, Folder, RootResponse } from "api";
+import { CancelTokenSource } from "axios";
 
 interface MyStorageProps extends RootResponse {
   preview: PreviewImage | undefined;
@@ -38,7 +41,8 @@ interface MyStorageProps extends RootResponse {
   sharedFiles: { sharedWithMe: FileType[], sharedByMe: FileType[] };
   sharedFolders: { sharedWithMe: Folder[]; sharedByMe: Folder[] }
   refresh: boolean;
-  cache: { [key: string]: Blob }
+  cache: { [key: string]: Blob };
+  cancelSources: { [key: string]: CancelTokenSource };
 }
 
 const initialState: MyStorageProps = {
@@ -62,6 +66,7 @@ const initialState: MyStorageProps = {
   selectedSharedFiles: undefined,
   refresh: false,
   cache: {},
+  cancelSources: {},
 };
 
 
@@ -102,7 +107,7 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
     .addCase(setImageViewAction, (state, { payload }) => ({
       ...state,
       preview: payload.img,
-      showPreview: payload.show == undefined ? false : payload.show,
+      showPreview: payload.show ?? false,
     }))
     .addCase(removeFileAction, (state, { payload }) => ({
       ...state,
@@ -135,25 +140,25 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
     .addCase(updateDecryptedFilesAction, (state, { payload }) => {
       state.files = state.files.map(file => {
         const decryptedFile = payload.find(pf => pf.id === file.id);
-        return decryptedFile ? decryptedFile : file;
+        return decryptedFile || file;
       });
     })
     .addCase(updateDecryptedSharedFilesAction, (state, { payload }) => {
       state.sharedFiles = {
         sharedWithMe: state.sharedFiles.sharedWithMe.map(file => {
           const decryptedFile = payload.sharedWithMe.find(pf => pf.id === file.id);
-          return decryptedFile ? decryptedFile : file;
+          return decryptedFile || file;
         }),
         sharedByMe: state.sharedFiles.sharedByMe.map(file => {
           const decryptedFile = payload.sharedByMe.find(pf => pf.id === file.id);
-          return decryptedFile ? decryptedFile : file;
+          return decryptedFile || file;
         }),
       };
     })
     .addCase(updateDecryptedFoldersAction, (state, { payload }) => {
       state.folders = state.folders.map(folder => {
         const decryptedFolder = payload.find(pf => pf.id === folder.id);
-        return decryptedFolder ? decryptedFolder : folder;
+        return decryptedFolder || folder;
       });
     })
     .addCase(createFileAction, (state, { payload }) => ({
@@ -171,5 +176,20 @@ export default createReducer<MyStorageProps>(initialState, (builder) => {
     .addCase(setSelectedSharedFiles, (state, { payload }) => ({
       ...state,
       selectedSharedFiles: payload,
-    }));
+    }))
+    .addCase(addCancelToken, (state, { payload }) => ({
+      ...state,
+      cancelSources: {
+        ...state.cancelSources,
+        ...payload,
+      },
+    }))
+    .addCase(removeCancelToken, (state, { payload }) => {
+      const newCancelSources = { ...state.cancelSources };
+      delete newCancelSources[payload];
+      return {
+        ...state,
+        cancelSources: newCancelSources,
+      };
+    })
 });

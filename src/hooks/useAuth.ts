@@ -87,7 +87,7 @@ const useAuth = () => {
       const account = Web3.eth.accounts.create();
       const wallet_address = account.address;
       const private_key = account.privateKey;
-      await Api.post("/otp/start", { email, referrer_code, wallet_address, private_key });
+      await Api.post("/otp/start", {  email, referrer_code, wallet_address, private_key });
     } catch (error) {
       return false;
     }

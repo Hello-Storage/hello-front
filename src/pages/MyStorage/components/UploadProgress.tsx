@@ -12,7 +12,7 @@ export default function UploadProgress() {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <FaFile className="inline-block mr-2 text-gray-700" />
-              <label className="w-52 text-ellipsis whitespace-nowrap overflow-hidden text-gray-800">
+              <label className={`w-92 whitespace-nowrap overflow-hidden text-gray-800 ${info.length >= 32 && "text-ellipsis"}`}>
                 {info.length > 128 ? info.substring(0, 128) + "..." : info}
               </label>
             </div>

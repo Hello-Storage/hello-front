@@ -9,7 +9,6 @@ import { useAuth } from "hooks";
 import React, { useEffect, useState } from "react";
 import { useModal } from "components/Modal";
 import LogoHello from "assets/images/beta.png";
-import useTitle from "hooks/useTitle";
 
 import { HiMail } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
@@ -18,13 +17,14 @@ import { PiTiktokLogoFill } from "react-icons/pi";
 import { BiLogoInstagramAlt } from "react-icons/bi";
 import { BsLinkedin } from 'react-icons/bs';
 import { Api } from "api";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { getTheme } from "utils/user";
 import { Theme } from "state/user/reducer";
 
+import { Helmet } from 'react-helmet';
+
 export default function Login() {
-  useTitle("hello.app | Space");
   const { authenticated, loading, redirectUrl } = useAppSelector((state) => state.user);
 
   const { startOTP } = useAuth();
@@ -39,6 +39,7 @@ export default function Login() {
   const onSubmit = async (e: any) => {
     e.preventDefault();
 
+    toast.info("Sending OTP...");
     const result = await startOTP(email);
 
     if (result) onPresent();
@@ -52,7 +53,7 @@ export default function Login() {
       const res = await Api.get(`/file/share/published/name/${share_hash}`);
 
       let publishedFileName: any = {};
-      if ((res as AxiosResponse).status === 200) {
+      if (res.status === 200) {
         publishedFileName = res.data;
       }
 
@@ -63,7 +64,6 @@ export default function Login() {
         }
       }
 
-      console.log(publishedFileName);
       let newFilename = publishedFileName.name;
       if (publishedFileName.name === undefined || publishedFileName.name === "") {
         if (publishedFileName.file_share_state.public_file.name !== undefined && publishedFileName.file_share_state.public_file.name !== "") {
@@ -87,6 +87,11 @@ export default function Login() {
   }
 
   return (
+    <>
+    <Helmet>
+      <title>Login | hello.app</title>
+      <meta name="description" content="Create an account or login to hello.app" />
+    </Helmet>
     <div className={"flex flex-col justify-between min-h-screen p-8 md:h-screen" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-semibold font-[Outfit]">
@@ -192,7 +197,7 @@ export default function Login() {
             <a href="https://docs.hello.app/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
               More information here
             </a>
-            © 2024 hello.app
+            © {new Date().getFullYear()} hello.app
           </div>
         </div>
         <div className="mt-1 md:mt-1 flex flex-col text-right">
@@ -204,5 +209,6 @@ export default function Login() {
         </div>
       </footer>
     </div >
+    </>
   );
 }

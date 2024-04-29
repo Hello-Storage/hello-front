@@ -27,7 +27,6 @@ export default function ConnectWalletButton() {
         setLoading(false);
       }
     } catch (error) {
-      alert(error)
       console.log(error)
       loading && setLoading(false);
     }

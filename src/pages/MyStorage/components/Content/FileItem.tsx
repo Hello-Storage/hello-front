@@ -1,5 +1,5 @@
 import { Api } from "api";
-import { EncryptionStatus, File as FileType } from "api/types";
+import { File as FileType } from "api/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -18,10 +18,6 @@ import { useDropdown } from "hooks";
 import { useRef, useState, Fragment } from "react";
 import copy from "copy-to-clipboard";
 import { GoAlertFill } from "react-icons/go";
-import {
-	blobToArrayBuffer,
-	decryptFileBuffer,
-} from "utils/encryption/filesCipher";
 import { useAppDispatch, useAppSelector } from "state";
 import {
 	removeSharedFileAction,
@@ -32,11 +28,10 @@ import {
 	removeFileAction
 } from "state/mystorage/actions";
 import { truncate, formatDate } from "utils/format";
-import { AxiosProgressEvent } from "axios";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { Theme } from "state/user/reducer";
-import { downloadMultipart, triggerDownload, viewMultipart } from "utils/filesDownload";
-const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB or 10000 bytes
+import { downloadMultipart, downloadSingleFile, triggerDownload } from "utils/filesDownload";
+const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB
 
 dayjs.extend(relativeTime);
 
@@ -53,42 +48,23 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 	const [open, setOpen] = useState(false);
 	const fileExtension = getFileExtension(file.name)?.toLowerCase() || "";
 	useDropdown(ref, open, setOpen);
+	const { cache } = useAppSelector((state) => state.mystorage);
 
 	const onCopy = (event: React.MouseEvent) => {
 		if (event.shiftKey) return;
 		copy(`${file.cid}`);
-		toast.success("copied CID");
+		toast.success("Successfully copied content Identifier");
 	};
 
 	const viewRef = useRef(false);
-
-	const onDownloadProgress = (progressEvent: AxiosProgressEvent) => {
-		dispatch(
-			setUploadStatusAction({
-				info:
-					`${viewRef.current ? "Loading" : "Downloading"} ` +
-					file.name,
-				uploading: true,
-			})
-		);
-
-		dispatch(
-			setUploadStatusAction({
-				read: progressEvent.loaded,
-				size: file.size,
-			})
-		);
-	};
 
 	// Function to handle file download
 	const handleDownload = async () => {
 		viewRef.current = false
 		toast.info("Starting download for " + file.name + "...");
 		// Make a request to download the file with responseType 'blob'
-		if (file.size > MULTIPART_THRESHOLD) {
+		if (file.size >= MULTIPART_THRESHOLD) {
 			const blob = await downloadMultipart(file, dispatch)
-
-
 			dispatch(
 				setUploadStatusAction({
 					info: "Finished downloading data",
@@ -98,91 +74,42 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 			triggerDownload(blob, file.name);
 
 		} else {
-			Api.get(`/file/download/${file.uid}`, {
-				responseType: "blob",
-				onDownloadProgress: onDownloadProgress,
-			})
-				.then(async (res) => {
-					dispatch(
-						setUploadStatusAction({
-							info: "Finished downloading data",
-							uploading: false,
-						})
-					);
-					// Create a blob from the response data
-					let binaryData = res.data;
 
-					if (file.encryption_status === EncryptionStatus.Encrypted) {
-						const originalCid = file.cid_original_encrypted;
-						binaryData = await blobToArrayBuffer(binaryData).catch((error) => {
-							console.error("Error transforming blob to array buffer:", error);
-							toast.error("Error transforming blob to array buffer");
-						});
-						binaryData = await decryptFileBuffer(
-							binaryData,
-							originalCid,
-							(percentage) => {
-								dispatch(
-									setUploadStatusAction({
-										info: "Decrypting...",
-										read: percentage,
-										size: 100,
-										uploading: true,
-									})
-								);
-							}
-						).catch((err) => {
-							console.error("Error decrypting file buffer:", err);
-							toast.error("Error decrypting file buffer");
-						});
+			const blob = await downloadSingleFile(file, cache, dispatch);
 
-						dispatch(
-							setUploadStatusAction({
-								info: "Decryption done",
-								uploading: false,
-							})
-						);
-					}
-					const blob = new Blob([binaryData], { type: file.mime_type });
+			if (!blob) {
+				return
+			}
+			// Create a link element and set the blob as its href
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = file.name; // Set the file name
+			a.click(); // Trigger the download
+			toast.success("Download complete!");
 
-					// Create a link element and set the blob as its href
-					const url = window.URL.createObjectURL(blob);
-					const a = document.createElement("a");
-					a.href = url;
-					a.download = file.name; // Set the file name
-					a.click(); // Trigger the download
-					toast.success("Download complete!");
-
-					// Clean up
-					window.URL.revokeObjectURL(url);
-				})
-				.catch((err) => {
-					console.error("Error downloading file:", err);
-				});
+			// Clean up
+			window.URL.revokeObjectURL(url);
 		}
+
 	};
 
 	const handleView = () => {
 		viewRef.current = true;
+		toast.info("Loading " + file.name + "...");
+		dispatch(setFileViewAction({ file: undefined }));
+		dispatch(setImageViewAction({ show: false }));
 
-		if (file.size > MULTIPART_THRESHOLD) {
-			viewMultipart(file, dispatch)
-		} else {
-			toast.info("Loading " + file.name + "...");
-			dispatch(setFileViewAction({ file: undefined }));
-			dispatch(setImageViewAction({ show: false }));
-
-			dispatch(
-				setFileViewAction({
-					file: file,
-				})
-			);
-			dispatch(
-				setImageViewAction({
-					show: true,
-				})
-			);
-		}
+		dispatch(
+			setFileViewAction({
+				file: file,
+			})
+		);
+		dispatch(
+			setImageViewAction({
+				show: true,
+			})
+		);
 	};
 
 	const handleDelete = () => {
@@ -268,25 +195,27 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 						onClick={() => setOpen(!open)}
 					>
 						<HiDotsVertical />
-						<div className="relative " ref={ref}>
-							{open && (
-								<div
-									id="dropdown"
-									className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-36 "
-									style={{ bottom: "100%" }}
+						<div className="relative " ref={ref}>{open && (
+							<div
+								id="dropdown"
+								className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-36 "
+								style={{ bottom: "100%" }}
+							>
+								<ul className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
 								>
-									<ul className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
-									>
-										<li
-											className={"block px-4 py-2 "
+									<li className="block">
+										<button
+											className={"block px-4 py-2 w-full text-left "
 												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 											onClick={handleDownload}
 										>
 											<HiOutlineDownload className="inline-flex mr-3" />
 											Download
-										</li>
-										{(actionsAllowed) && (<>
-											<li
+										</button>
+									</li>
+									{(actionsAllowed) && (
+										<li className="block">
+											<button
 												onClick={() => {
 													dispatch(
 														setShowShareModal(true)
@@ -295,43 +224,46 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 														setSelectedShareFile(file)
 													);
 												}}
-												className={"block px-4 py-2 "
+												className={"block px-4 py-2 w-full text-left "
 													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 											>
 												<HiOutlineShare className="inline-flex mr-3" />
 												Share
-											</li>
-										</>)}
+											</button>
+										</li>
+									)}
 
-										{viewableExtensions.has(
-											fileExtension
-										) && (
-												<li
-													className={"block px-4 py-2 "
+									{viewableExtensions.has(
+										fileExtension
+									) && (
+											<li className="block">
+												<button
+													className={"block px-4 py-2 w-full text-left "
 														+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
 													onClick={() => handleView()}
 												>
 													<HiOutlineEye className="inline-flex mr-3" />
 													View
-												</li>
-											)}
-									</ul>
+												</button>
+											</li>
+										)}
+								</ul>
 
-									<div className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
-									>
-										{actionsAllowed && (<>
-											<p
-												className={"block px-4 py-3 "
-													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-												onClick={handleDelete}
-											>
-												<HiOutlineTrash className="inline-flex mr-3" />
-												Delete
-											</p>
-										</>)}
-									</div>
+								<div className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
+								>
+									{actionsAllowed && (
+										<button
+											className={"block px-4 py-3 w-full text-left "
+												+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+											onClick={handleDelete}
+										>
+											<HiOutlineTrash className="inline-flex mr-3" />
+											Delete
+										</button>
+									)}
 								</div>
-							)}
+							</div>
+						)}
 						</div>
 					</button>
 				</td>
@@ -340,7 +272,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 	else
 		return (
 			<div
-				onDoubleClick={handleView}
+				onDoubleClick={viewableExtensions.has(fileExtension) ? handleView : undefined}
 			>
 				<div>
 					<div className="flex flex-col items-center gap-3">
@@ -360,16 +292,16 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 						</div>
 					</div>
 				</div>
-				<div
+				<button
 					className="flex items-center gap-1 mt-4 text-xs text-center select-none justify-left hover:text-blue-500"
 					onClick={(e) => {
 						e.stopPropagation(); // Prevent triggering the parent's onClick
 						onCopy(e);
 					}}
 				>
-					<label>{formatUID(file.cid)}</label>
+					<label className="cursor-pointer">{formatUID(file.cid)}</label>
 					<HiDocumentDuplicate className="inline-block" />
-				</div>
+				</button>
 			</div>
 		);
 };
