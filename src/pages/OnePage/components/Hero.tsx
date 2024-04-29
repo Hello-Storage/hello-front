@@ -109,7 +109,15 @@ export const Hero = () => {
           <span className="relative z-10 text-white">About</span>
           <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
         </a>
-        <a href="https://www.linkedin.com/posts/alvaropintado_álvaro-pintado-ceo-de-helloapp-anuncia-activity-7179024480378175488-DD73?utm_source=share&utm_medium=member_android"
+
+        {/* <a href="/space/login"
+          title="Go to Login Page"
+          className="relative px-12 py-3 bg-gradient-to-b from-violet-500 to-violet-800 hover:from-violet-600 hover:to-violet-900 rounded-xl cursor-pointer inline-block">
+          <span className="relative z-10 text-white">Enter</span>
+          <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
+        </a> */}
+        <a href="https://www.seedrs.com/hello-app/coming-soon"
+
           title="Read the Documentation"
           className="relative px-12 py-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-900 hover:from-violet-600 hover:to-violet-900 cursor-pointer inline-block">
           <span className="relative z-10 text-white">Join Our Crowfunding</span>
