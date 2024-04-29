@@ -168,7 +168,7 @@ export default function Statistics() {
             </Link>
 
             <Link
-              to="https://www.linkedin.com/posts/alvaropintado_álvaro-pintado-ceo-de-helloapp-anuncia-activity-7179024480378175488-DD73?utm_source=share&utm_medium=member_android"
+              to="https://www.seedrs.com/hello-app/coming-soon"
               className="px-3 py-1 text-xs text-white bg-blue-500 rounded text-center"
             >
               Join Our Crowfunding

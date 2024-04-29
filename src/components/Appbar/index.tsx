@@ -118,7 +118,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
           </a>
 
           <a  className="hidden lg:block"
-          href="https://www.linkedin.com/posts/alvaropintado_álvaro-pintado-ceo-de-helloapp-anuncia-activity-7179024480378175488-DD73?utm_source=share&utm_medium=member_android" target="_blank">
+          href="https://www.seedrs.com/hello-app/coming-soon" target="_blank">
             <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
               + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>              
                 Join Our Crowfunding
