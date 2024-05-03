@@ -47,7 +47,7 @@ export default function Login() {
   const [redirectMessage, setRedirectMessage] = useState("");
 
   const getRedirectMessage = async (url: string | undefined) => {
-    if (url && url.includes("/shared/public")) {
+    if (url?.includes("/shared/public")) {
       const share_hash = url.split("/").pop(); // assuming the CID is always the last part of the URL
 
       const res = await Api.get(`/file/share/published/name/${share_hash}`);

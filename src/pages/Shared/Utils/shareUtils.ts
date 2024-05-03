@@ -15,9 +15,6 @@ export const shareFile = async (selectedFile: FileType | null, type: string, use
                 response = await publishFile(selectedFile, `/file/share/custom-type/` + type)
                 break;
             case "email":
-                if (!user) break 
-                response = await publishFile(selectedFile, `/file/share/${type}/` + user)
-                break;
             case "wallet":
                 if (!user) break 
                 response = await publishFile(selectedFile, `/file/share/${type}/` + user)
@@ -41,9 +38,6 @@ export const shareFolder = async (selectedFolder: FolderContentClass, type: stri
                 response = await publishFolder(selectedFolder, `/folder/share/` + type)
                 break;
             case "email":
-                if (!user) break 
-                response = await publishFolder(selectedFolder, `/folder/share/${type}/` + user)
-                break;
             case "wallet":
                 if (!user) break 
                 response = await publishFolder(selectedFolder, `/folder/share/${type}/` + user)

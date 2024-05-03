@@ -172,7 +172,7 @@ const Shared = () => {
 			filesSharedWithMe
 				? filesSharedWithMe.slice()
 				: [],
-			personalSignatureRef.current || "",
+			personalSignatureRef.current ?? "",
 			name,
 			autoEncryptionEnabled,
 			accountType,
@@ -182,7 +182,7 @@ const Shared = () => {
 
 		const decryptedFilesSharedByMe = await handleEncryptedFiles(
 			filesSharedByMe ? filesSharedByMe.slice() : [],
-			personalSignatureRef.current || "",
+			personalSignatureRef.current ?? "",
 			name,
 			autoEncryptionEnabled,
 			accountType,
@@ -297,7 +297,7 @@ const Shared = () => {
 		const decryptedFilesSharedWithMe = await handleEncryptedFiles(
 			currentReceivedFiles
 			,
-			personalSignatureRef.current || "",
+			personalSignatureRef.current ?? "",
 			name,
 			autoEncryptionEnabled,
 			accountType,
@@ -307,7 +307,7 @@ const Shared = () => {
 
 		const decryptedFilesSharedByMe = await handleEncryptedFiles(
 			currentSharedFiles,
-			personalSignatureRef.current || "",
+			personalSignatureRef.current ?? "",
 			name,
 			autoEncryptionEnabled,
 			accountType,

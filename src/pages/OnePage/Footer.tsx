@@ -72,7 +72,7 @@ export const Footer = () => (
     <div className="flex flex-col items-start">
       <a
         title="Privacy Policy"
-        href="/privacy-policy"
+        href="https://hello.app/privacy-policy"
         target="_blank"
         rel="noopener noreferrer"
         style={{ fontSize: "15px" }}

@@ -17,6 +17,7 @@ import { formatName } from "utils";
 import { getTheme } from "utils/user";
 import { useModal } from "components/Modal";
 import { Support } from "./components/Support";
+import { Link } from "react-router-dom";
 
 interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -118,7 +119,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
           </a>
 
           <a  className="hidden lg:block"
-          href="https://www.seedrs.com/hello-app/coming-soon" target="_blank">
+          href="https://www.seedrs.com/hello-app" target="_blank">
             <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
               + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>              
                 Join Our Crowfunding
@@ -152,42 +153,43 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               >
                 <ul>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className={"block px-4 py-2 pointer-events-none text-gray-500 "
                         + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     >
                       <HiOutlineUser className="inline-flex mr-3" />
                       Profile
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a href="#" className={"block px-4 py-2 "
+                    <Link
+                      to="#" className={"block px-4 py-2 "
                       + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     >
                       <HiOutlineChartSquareBar className="inline-flex mr-3" />
                       Dashboard
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className={"block px-4 py-2 pointer-events-none text-gray-500 "
                         + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     >
                       <HiOutlineCalculator className="inline-flex mr-3" />
                       Settings
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="/space/referrals"
+                    <Link
+                      to="/space/referrals"
                       className={"block px-4 py-2 "
                         + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     >
                       <HiUsers className="inline-flex mr-3" />
                       Referrals
-                    </a>
+                    </Link>
                   </li>
                 </ul>
                 <div>

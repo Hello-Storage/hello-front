@@ -404,8 +404,8 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
         <label className={"text-xs text-neutral-800" + (theme === Theme.DARK ? " dark-theme4" : "")}>
           {formatPercent(storageUsed, storageAvailable)} /{" "}
           {formatBytes(storageAvailable)}  -&nbsp;
-          <a
-            href="/space/referrals"
+          <Link
+            to="/space/referrals"
             onClick={(e) => {
               e.preventDefault();
               navigate("/space/referrals");
@@ -413,7 +413,7 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
             className="text-orange-500 cursor-pointer hover:underline"
           >
             {formatBytes(storageAvailable, 2, false)} / 100 GiB
-          </a>
+          </Link>
         </label>
         <div className="pb-1 mt-4">
           <button

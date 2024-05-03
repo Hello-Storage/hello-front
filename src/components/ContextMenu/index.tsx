@@ -8,7 +8,7 @@ import {
 interface ContextMenuProps {
   targetId: string;
 }
-export default function ContextMenu({ targetId }: ContextMenuProps) {
+export default function ContextMenu({ targetId }: Readonly<ContextMenuProps>) {
   const [contextData, setContextData] = useState({
     visible: false,
     posX: 0,
@@ -19,7 +19,7 @@ export default function ContextMenu({ targetId }: ContextMenuProps) {
   useEffect(() => {
     const contextMenuEventHandler = (event: any) => {
       const targetElement = document.getElementById(targetId);
-      if (targetElement && targetElement.contains(event.target)) {
+      if (targetElement?.contains(event.target)) {
         event.preventDefault();
 
         setContextData({
@@ -80,10 +80,10 @@ export default function ContextMenu({ targetId }: ContextMenuProps) {
       }}
     >
       <div className="py-2">
-        <a className="block cursor-pointer px-4 py-2 hover:bg-gray-100 ">
+        <button className="block cursor-pointer px-4 py-2 hover:bg-gray-100 ">
           <HiFolderAdd className="inline-flex mr-3" />
           New Folder
-        </a>
+        </button>
       </div>
       <ul className="py-2">
         <li>

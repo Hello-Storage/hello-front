@@ -1,6 +1,7 @@
 import { useAppSelector } from 'state';
 import notFoundImg from '../../assets/images/NotFound.svg';
 import { Theme } from 'state/user/reducer';
+import { Link } from 'react-router-dom';
 
 export default function NotFound() {
     const { theme } = useAppSelector((state) => state.user);
@@ -23,9 +24,9 @@ export default function NotFound() {
                     className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm text-center"
                         + (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
                 >
-                    <a className=" flex flex-row  items-center justify-center px-5 py-2.5" href="/" target="_blank" >
+                    <Link className=" flex flex-row  items-center justify-center px-5 py-2.5" to="/" target="_blank" >
                         HOME
-                    </a>
+                    </Link>
                 </button>
             </div>
         </section>

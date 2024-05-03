@@ -1,6 +1,7 @@
 
 import { motion } from "framer-motion";
 import { navVariants } from "../../utils/one-page/motion";
+import { Link } from "react-router-dom";
 
 export const Navbar = () => (
   <motion.nav
@@ -21,7 +22,7 @@ export const Navbar = () => (
           className="ml-3"
         />
       </h1>
-      <a href="/space/login"
+      <Link to="/space/login"
         title="Go to Login Page">
         <button
           type="button"
@@ -29,7 +30,7 @@ export const Navbar = () => (
         >
           Launch app
         </button>
-      </a>
+      </Link>
     </div>
   </motion.nav>
 );

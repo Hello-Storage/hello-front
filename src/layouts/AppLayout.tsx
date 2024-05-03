@@ -22,11 +22,9 @@ export default function AppLayout() {
   const accountType = getAccountType();
 
   const {
-    // connector: activeConnector, 
     isConnected } = useAccount();
   const { connect,
     connectors,
-    //  error, isLoading, pendingConnector 
   } =
     useConnect();
 
@@ -35,7 +33,7 @@ export default function AppLayout() {
     // You might want to check if it's the desired connector before connecting.
     const connectToMetaMask = async () => {
       const metaMaskConnector = connectors[0];
-      if (metaMaskConnector && metaMaskConnector.ready) {
+      if (metaMaskConnector) {
         connect({ connector: metaMaskConnector });
       }
     };
