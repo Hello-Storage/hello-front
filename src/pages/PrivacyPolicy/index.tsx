@@ -1,12 +1,17 @@
 import { Link } from "react-router-dom";
 import LogoHello from "@images/beta.png";
+import { Helmet } from "react-helmet";
 
 export default function PrivacyPolicy() {
   return (
-    <div>
+    <>
+      <Helmet>
+        <title>Privacy Policy | hello.app</title>
+        <meta name="description" content="Privacy Policy for hello.app" />
+      </Helmet>
       <div className="overflow-auto custom-scrollbar max-h-screen  bg-[#05072b] flex items-center flex-col relative w-screen">
         <p className="absolute top-0 right-2 bg-[#32334b] text-white p-2 rounded-lg m-2">
-           Updated: 04/02/2024
+          Updated: 04/02/2024
         </p>
         <div className="flex items-center gap-3 absolute top-0 left-2  text-white p-2 m-2">
           <Link
@@ -258,7 +263,7 @@ export default function PrivacyPolicy() {
               </p>
               <p className="mb-3">
                 More specifically, we may need to process your data or share
-                your personal information in the following situations: 
+                your personal information in the following situations:
               </p>
 
               <p>
@@ -505,6 +510,6 @@ export default function PrivacyPolicy() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
