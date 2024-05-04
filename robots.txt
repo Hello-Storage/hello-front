@@ -1,2 +1,3 @@
 User-agent: *
 Disallow: /404
+Sitemap: https://hello.app/sitemap.xml

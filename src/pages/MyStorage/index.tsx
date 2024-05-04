@@ -356,6 +356,7 @@ export default function Home() {
     <>
       <Helmet>
         <title>Space | hello.app</title>
+        <link rel="canonical" href="https://hello.app" />
       </Helmet>
       <div className="flex flex-col overflow-hidden table-main " id="content">
         {showShareModal && <>
