@@ -36,6 +36,7 @@ export default function Snapshots() {
       <Helmet>
         <title>Snapshots | hello.app</title>
         <meta name="description" content="hello.app Snapshots" />
+        <link rel="canonical" href="https://hello.app/snapshots" />
       </Helmet>
       <div className="custom-scrollbar h-screen  bg-[#05072b] flex items-center flex-col relative w-screen overflow-hidden">
         <p className="absolute top-0 right-2 bg-[#32334b] text-white p-2 rounded-lg m-2">

@@ -1,11 +1,10 @@
 import { FaCopy, FaKey } from "react-icons/fa";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import useApikey from "./hooks/useApikey";
-import { Api as axios } from "api";
+import { Api as axios, File as FileType} from "api";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Content from "pages/MyStorage/components/Content";
-import { File as FileType } from "api";
 import { useAppDispatch, useAppSelector } from "state";
 import { refreshAction } from "state/mystorage/actions";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
@@ -33,7 +32,6 @@ export default function Api() {
         window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 10 : 15
     );
     const [startIndex, setStartIndex] = useState(0);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [endIndex, setEndIndex] = useState(itemsPerPage - 1);
 
     useEffect(() => {

@@ -8,6 +8,7 @@ export default function PrivacyPolicy() {
       <Helmet>
         <title>Privacy Policy | hello.app</title>
         <meta name="description" content="Privacy Policy for hello.app" />
+        <link rel="canonical" href="https://hello.app/privacy-policy" />
       </Helmet>
       <div className="overflow-auto custom-scrollbar max-h-screen  bg-[#05072b] flex items-center flex-col relative w-screen">
         <p className="absolute top-0 right-2 bg-[#32334b] text-white p-2 rounded-lg m-2">
