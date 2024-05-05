@@ -59,6 +59,7 @@ export default function Snapshots() {
             {snapshots?.map((snapshot) => {
               return (
                 <SnapshotContainer
+                  key={snapshot.transaction_id}
                   date={new Date(snapshot.transaction_date).toDateString()}
                   transaction_id={snapshot.transaction_id}
                   owner={snapshot.transaction_owner}
