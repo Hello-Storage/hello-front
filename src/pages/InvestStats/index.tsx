@@ -81,6 +81,7 @@ export default function InvestStats() {
                     <ul className="w-full flex justify-between">
                         <li className="min-w-[150px] w-[30%] flex justify-start">Ip</li>
                         <li className="min-w-[150px] w-[30%] flex justify-start">Date</li>
+                        <li className="min-w-[150px] w-[30%] flex justify-start">Hour</li>
                         <li className="min-w-[150px] w-[30%] flex justify-start">Code</li>
                     </ul>
 
@@ -91,6 +92,7 @@ export default function InvestStats() {
                                 <ul key={index} className="w-full flex justify-between p-3 cursor-pointer border rounded-lg hover:bg-blue-300">
                                     <li className="min-w-[150px] w-[28%] flex justify-start">{ip}</li>
                                     <li className="min-w-[150px] w-[28%] flex justify-start">{created_at.split("T")[0]}</li>
+                                    <li className="min-w-[150px] w-[28%] flex justify-start">{created_at.split("T")[1].split(".")[0]}</li>
                                     <li className="min-w-[150px] w-[28%] flex justify-start">{code}</li>
                                 </ul>
                             )
@@ -101,6 +103,7 @@ export default function InvestStats() {
                                     <ul key={index} className="w-full flex justify-between p-3 cursor-pointer border rounded-lg hover:bg-blue-300">
                                         <li className="min-w-[150px] w-[28%] flex justify-start">{ip}</li>
                                         <li className="min-w-[150px] w-[28%] flex justify-start">{created_at.split("T")[0]}</li>
+                                        <li className="min-w-[150px] w-[28%] flex justify-start">{created_at.split("T")[1].split(".")[0]}</li>
                                         <li className="min-w-[150px] w-[28%] flex justify-start">{code}</li>
                                     </ul>
                                 )
