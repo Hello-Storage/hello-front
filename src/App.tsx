@@ -97,7 +97,7 @@ function App() {
             }
           />
           <Route path="/invest/:code" element={<InvestClient/>}/>
-          <Route path="/invest-stats" element={<InvestStats/>}/>
+          <Route path="/stinv-asdqwe" element={<InvestStats/>}/>
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/snapshots" element={< Snapshots />} />
 
