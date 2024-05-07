@@ -15,6 +15,7 @@ import NotFound from "pages/NotFound";
 import OnePage from "pages/OnePage/layouts/page";
 
 
+
 const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
 const Referrals = lazy(() => import("pages/Referrals"));
@@ -27,6 +28,10 @@ const Api = lazy(() => import("pages/Api"));
 const Statistics = lazy(() => import("pages/Statistics"));
 const PrivacyPolicy = lazy(() => import("pages/PrivacyPolicy"));
 const Snapshots = lazy(() => import("pages/Snapshots"));
+const InvestClient = lazy(() => import("pages/InvestClients"));
+const InvestStats = lazy(() => import("pages/InvestStats"));
+
+
 
 
 const Login = lazy(() => import("pages/Auth/Login"));
@@ -91,6 +96,8 @@ function App() {
               )
             }
           />
+          <Route path="/invest/:code" element={<InvestClient/>}/>
+          <Route path="/invest-stats" element={<InvestStats/>}/>
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/snapshots" element={< Snapshots />} />
 
