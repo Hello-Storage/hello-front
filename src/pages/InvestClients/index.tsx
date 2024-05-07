@@ -6,8 +6,6 @@ import { useParams } from "react-router-dom"
 
 interface ClientData {
     ip: string;
-    email: string;
-    social_network: string;
   }
 
 export default function InvestClient(){
@@ -17,9 +15,9 @@ export default function InvestClient(){
     const [dataComplete, setData] = React.useState(false)
     const [clientData, setClientData] = React.useState<ClientData>({
         ip: '',
-        email: '',
-        social_network: '',
     })
+
+    const [wrongUrl, setWrongUrl] = React.useState(false)
 
 
     React.useEffect(() => {
@@ -27,10 +25,6 @@ export default function InvestClient(){
           try {
             const response = await axios.get('https://api.ipify.org?format=json');
             setClientData((prevData) => ({...prevData, ip: response.data.ip }));
-
-            if(code?.includes("yt")){
-            setClientData((prevData) => ({...prevData, social_network: "Youtube" }));
-            }
 
             setData(true)
 
@@ -44,13 +38,36 @@ export default function InvestClient(){
       }, []);
 
       React.useEffect(() => {
-        if(dataComplete){
-            console.log("Data actualizada:", clientData);
-            axios.post(`${apiUrl}/invest?code=${code}`, clientData);
 
-            window.location.href = 'https://www.seedrs.com/hello-app'
+        async function postData(){
+          if(dataComplete){
+
+            const {data} = await axios.post(`${apiUrl}/invest?code=${code}`, clientData);
+
+            if(data.isSuccess){
+              window.location.href = 'https://www.seedrs.com/hello-app'
+            }else{
+              setWrongUrl(true)
+            }
+
         }
+        }
+
+        postData()
+        
     }, [clientData]);
+
+    if(wrongUrl){
+      return(
+        <div className="h-screen flex items-center justify-center flex-col">
+            <div className="absolute top-5 left-5 flex items-center">
+                <h1 className="text-2xl font-semibold text-black flex items-center font-[outfit]" title="hello app"> {"hello.app"} </h1>
+                <img src="https://hello.app/assets/beta-e8ce8431.png" alt="hello beta" className="h-[22px] w-auto ml-3"/>
+            </div>
+            <h1>The URL is not correct</h1>
+        </div>
+      )
+    }
 
 
 
