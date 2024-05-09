@@ -16,7 +16,6 @@ import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
 import { useDropdown } from "hooks";
 import { useRef, useState, Fragment } from "react";
-import copy from "copy-to-clipboard";
 import { GoAlertFill } from "react-icons/go";
 import { useAppDispatch, useAppSelector } from "state";
 import {
@@ -52,7 +51,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 
 	const onCopy = (event: React.MouseEvent) => {
 		if (event.shiftKey) return;
-		copy(`${file.cid}`);
+		navigator.clipboard.writeText(`${file.cid}`)
 		toast.success("Successfully copied content Identifier");
 	};
 
