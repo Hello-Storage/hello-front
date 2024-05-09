@@ -15,7 +15,7 @@ export default function GoogleLoginButton() {
     onSuccess: async (tokenResponse) => {
       const account = Web3.eth.accounts.create();
       const referrerCode = new URLSearchParams(window.location.search).get("ref");
-      const referrerParams = referrerCode ? referrerCode : {};
+      const referrerParams = referrerCode ?? {};
 
       const Params = {
         code: tokenResponse.access_token,
@@ -23,8 +23,6 @@ export default function GoogleLoginButton() {
         "private_key": account.privateKey,
         "referrer_code": referrerParams,
       };
-
-      console.log(Params);
 
       const oauthResp = await Api.get("/oauth/google", {
         params: Params,
@@ -51,7 +49,7 @@ export default function GoogleLoginButton() {
         }, 500);
         setLoading(true);
       }}
-      disabled={loading ? true : false}
+      disabled={loading}
     >
       <GoogleIcon />
       <p>

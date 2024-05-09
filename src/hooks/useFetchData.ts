@@ -39,13 +39,13 @@ const useFetchData = () => {
             dispatch(fetchContentAction(res.data));
             return;
           }
-          const sortedFiles = res.data.files.sort(
+          const sortedFiles = res.data.files.toSorted(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
 
-          const sortedFolders = res.data.folders.sort(
+          const sortedFolders = res.data.folders.toSorted(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
@@ -82,25 +82,25 @@ const useFetchData = () => {
           const FsharedByMe = res.data.SharedByMe.Files ? res.data.SharedByMe.Files : [];
           const FoldersharedWithMe = res.data.SharedWithMe.Folders ? res.data.SharedWithMe.Folders : [];
           const FoldersharedByMe = res.data.SharedByMe.Folders ? res.data.SharedByMe.Folders : [];
-          const sortedFileSharedW = FsharedWithMe.sort(
+          const sortedFileSharedW = FsharedWithMe.toSorted(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
 
-          const sortedFilesSharedB = FsharedByMe.sort(
+          const sortedFilesSharedB = FsharedByMe.toSorted(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
 
-          const sortedFolderSharedW = FoldersharedWithMe.sort(
+          const sortedFolderSharedW = FoldersharedWithMe.toSorted(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
           );
 
-          const sortedFolderSharedB = FoldersharedByMe.sort(
+          const sortedFolderSharedB = FoldersharedByMe.toSorted(
             (a, b) =>
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()

@@ -37,6 +37,7 @@ export interface File extends Base, UnencryptedBase {
   data?: string;
   file_share_state?: ShareState;
   isOwner?: boolean;
+  ipfs_hash?: string;
 }
 
 export interface Folder extends Base {
