@@ -64,7 +64,7 @@ export const ShowOnIpfsModal: React.FC<Props> = ({ file }) => {
                             className={"text-blue-700 border border-gray-300 bg-transparent focus:outline-none rounded-full text-sm text-center"
                                 + (theme === Theme.DARK ? " dark-theme3" : " hover:bg-gray-200")}
                         >
-                            <a className=" flex flex-row  items-center justify-center px-5 py-2.5" href={helloGateway + hash} target="_blank" >
+                            <a className=" flex flex-row  items-center justify-center px-5 py-2.5" href={helloGateway + "/" + hash} target="_blank" >
                                 <SiIpfs className="mr-3"></SiIpfs>View File
                             </a>
                         </button>
