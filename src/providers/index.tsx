@@ -9,19 +9,26 @@ import EthProvider from "./EthProvider";
 import GoogleOAuth from "./GoogleOAuthProvider";
 import SWRProvider from "./SWRProvider";
 import { PersistGate } from "redux-persist/integration/react";
+import { HeliaProvider } from "./HeliaProvider";
 
 const Providers: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <>
       <Provider store={state}>
         <PersistGate loading={null} persistor={persistor}>
+
           <GoogleOAuth>
             <EthProvider>
               <SWRProvider>
-                <ModalProvider>{children}</ModalProvider>
+                <ModalProvider>
+                  <HeliaProvider>
+                    {children}
+                  </HeliaProvider>
+                </ModalProvider>
               </SWRProvider>
             </EthProvider>
           </GoogleOAuth>
+
         </PersistGate>
       </Provider>
 

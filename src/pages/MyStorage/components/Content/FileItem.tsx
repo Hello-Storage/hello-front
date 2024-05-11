@@ -16,7 +16,6 @@ import { formatBytes, formatUID } from "utils";
 import { toast } from "react-toastify";
 import { useDropdown } from "hooks";
 import { useRef, useState, Fragment } from "react";
-import copy from "copy-to-clipboard";
 import { GoAlertFill } from "react-icons/go";
 import { useAppDispatch, useAppSelector } from "state";
 import {
@@ -31,6 +30,9 @@ import { truncate, formatDate } from "utils/format";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { Theme } from "state/user/reducer";
 import { downloadMultipart, downloadSingleFile, triggerDownload } from "utils/filesDownload";
+import { SiIpfs } from "react-icons/si";
+import { useModal } from "components/Modal";
+import { ShowOnIpfsModal } from "components/Modals/ipfsGateway/ShowOnIpfsModal";
 const MULTIPART_THRESHOLD = import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB
 
 dayjs.extend(relativeTime);
@@ -52,7 +54,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 
 	const onCopy = (event: React.MouseEvent) => {
 		if (event.shiftKey) return;
-		copy(`${file.cid}`);
+		navigator.clipboard.writeText(`${file.cid}`)
 		toast.success("Successfully copied content Identifier");
 	};
 
@@ -133,7 +135,13 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 
 	const { theme } = useAppSelector((state) => state.user);
 
+	const [OnPresentIPFSGateway] = useModal(
+		<ShowOnIpfsModal file={file} />
+	)
+
+
 	if (view === "list")
+
 		return (
 			<>
 				<td
@@ -198,7 +206,7 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 						<div className="relative " ref={ref}>{open && (
 							<div
 								id="dropdown"
-								className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-36 "
+								className="absolute top-0 z-50 mt-2 text-left border divide-y shadow-lg right-6 w-44 "
 								style={{ bottom: "100%" }}
 							>
 								<ul className={(theme === Theme.DARK ? " bg-[#0f103d]" : " bg-white")}
@@ -214,23 +222,35 @@ const FileItem: React.FC<FileItemProps> = ({ contentIsShared = false, file, view
 										</button>
 									</li>
 									{(actionsAllowed) && (
-										<li className="block">
-											<button
-												onClick={() => {
-													dispatch(
-														setShowShareModal(true)
-													);
-													dispatch(
-														setSelectedShareFile(file)
-													);
-												}}
-												className={"block px-4 py-2 w-full text-left "
-													+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-											>
-												<HiOutlineShare className="inline-flex mr-3" />
-												Share
-											</button>
-										</li>
+										<>
+											<li className="block">
+												<button
+													onClick={() => {
+														dispatch(
+															setShowShareModal(true)
+														);
+														dispatch(
+															setSelectedShareFile(file)
+														);
+													}}
+													className={"block px-4 py-2 w-full text-left "
+														+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+												>
+													<HiOutlineShare className="inline-flex mr-3" />
+													Share
+												</button>
+											</li>
+											<li className="block">
+												<button
+													onClick={OnPresentIPFSGateway}
+													className={"block px-4 py-2 w-full text-left "
+														+ (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+												>
+													<SiIpfs className="inline-flex mr-3" />
+													View on IPFS
+												</button>
+											</li>
+										</>
 									)}
 
 									{viewableExtensions.has(
