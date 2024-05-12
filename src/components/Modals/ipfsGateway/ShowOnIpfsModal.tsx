@@ -51,7 +51,7 @@ export const ShowOnIpfsModal: React.FC<Props> = ({ file }) => {
         <Modal className={"p-5 rounded-lg lg:ml-[288px]" + (theme === Theme.DARK ? " dark-theme4" : " bg-white")}>
             <div className={"rounded-lg relative modal-center " + (theme === Theme.DARK ? " dark-theme4" : " bg-white")}>
                 <p>
-                    {!hash ? "Waiting for everything to be ready. Please be patient." : "We are now ready to view your file on IPFS."}
+                    {!hash ? "Connecting client to IPFS. Please be patient." : "Your file is ready to be fetched on IPFS."}
                 </p>
                 {!hash ?
                     <>

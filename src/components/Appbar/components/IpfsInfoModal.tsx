@@ -12,10 +12,10 @@ export const IpfsInfoModal = () => {
         <Modal className={"p-5 rounded-lg lg:ml-[288px]" + (theme === Theme.DARK ? " dark-theme4" : " bg-white")}>
             <div className={"rounded-lg relative modal-center " + (theme === Theme.DARK ? " dark-theme4" : " bg-white")}>
                 <p>
-                    When you enter the Hello app, you will be able to view and interact with your content on IPFS.
+                    When you enter <b>hello.app</b>, you automatically connect as an IPFS node on your browser.
                     <br />
                     <span className="text-orange-700">
-                    For now, we only recommend having public files on IPFS (Encrypted files will remain encrypted). Find more information about it below.
+                    For now, file pinning is available only for <i>public</i> files (encrypted files are only decryptable through hello.app platform yet still on IPFS). Find more information about it below:
                     </span>
                 </p>
                 <div className="w-full flex items-center justify-center p-2 my-2">
