@@ -26,6 +26,7 @@
     "framer-motion": "^11.0.3",
     "hash-wasm": "^4.11.0",
     "helia": "^4.2.1",
+    "highcharts": "^11.4.1",
     "highcharts-react-official": "^3.2.1",
     "jszip": "^3.10.1",
     "libp2p": "^1.5.1",
