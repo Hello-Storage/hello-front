@@ -10,6 +10,7 @@ import {
   HiOutlineCalculator,
   HiUsers,
 } from "react-icons/hi";
+import { SiIpfs } from "react-icons/si";
 import { useAppDispatch, useAppSelector } from "state";
 import { setTheme } from "state/user/actions";
 import { Theme } from "state/user/reducer";
@@ -18,6 +19,8 @@ import { getTheme } from "utils/user";
 import { useModal } from "components/Modal";
 import { Support } from "./components/Support";
 import { Link } from "react-router-dom";
+import { useHelia } from "hooks/useHelia";
+import { IpfsInfoModal } from "./components/IpfsInfoModal";
 
 interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -31,8 +34,15 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const dispatch = useAppDispatch();
 
   const [onPresent] = useModal(
-		<Support />
-	);
+    <Support />
+  );
+
+  
+  const [oonPresentSupport] = useModal(
+    <IpfsInfoModal />
+  );
+
+  const { error, starting } = useHelia()
 
   useDropdown(ref, open, setOpen);
 
@@ -99,17 +109,17 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               onChange={onSearchChange}
             />
           </div>
-          
+
         </form>
 
         <div className="flex items-center md:gap-4 w-full justify-between md:w-fit gap-1">
-    <button
-        onClick={onPresent}
-        className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
-        (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
-    >
-      Support 
-    </button>
+          <button
+            onClick={onPresent}
+            className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+              (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
+          >
+            Support
+          </button>
 
           <a href="https://linktr.ee/joinhelloapp" target="_blank">
             <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
@@ -118,11 +128,11 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             </button>
           </a>
 
-          <a  className="hidden lg:block"
-          href="https://www.seedrs.com/hello-app" target="_blank">
+          <a className="hidden lg:block"
+            href="https://www.seedrs.com/hello-app" target="_blank">
             <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
-              + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>              
-                Join Our Crowfunding
+              + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>
+              Join Our Crowfunding
             </button>
           </a>
 
@@ -148,10 +158,23 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
               <div
                 id="dropdown"
                 aria-label="dropdown-list"
-                className={"absolute mt-1 z-10 w-[150px] shadow divide-y border text-sm"
+                className={"absolute mt-1 z-10 w-[200px] shadow divide-y border text-sm"
                   + (theme === Theme.DARK ? " dark-theme4" : " bg-white text-gray-700")}
               >
                 <ul>
+                  <li>
+                    <button
+                      className={"px-4 py-2 cursor-pointer flex items-center w-full "
+                        + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                      onClick={oonPresentSupport}
+                    >
+                      <SiIpfs className="inline-flex mr-3" />
+                      IPFS Status &nbsp;
+                      <span className={"w-[15px] h-[15px] rounded-full inline-flex " + (error ? "bg-red-300" : (starting ? "bg-yellow-300" : "bg-green-300"))}
+                        title={error ? "Error" : (starting ? "Starting" : "Online")}
+                      ></span>
+                    </button>
+                  </li>
                   <li>
                     <Link
                       to="#"
@@ -164,8 +187,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                   </li>
                   <li>
                     <Link
-                      to="#" className={"block px-4 py-2 "
-                      + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                      to="#" className={"block px-4 pointer-events-none py-2 text-gray-500 "
+                        + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     >
                       <HiOutlineChartSquareBar className="inline-flex mr-3" />
                       Dashboard
@@ -193,25 +216,27 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                   </li>
                 </ul>
                 <div>
-                  <span
-                    className={"block cursor-pointer px-4 py-3 "
-                      + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-100")}
+                  <button
+                    className={"block cursor-pointer px-4 py-3 w-full text-left "
+                      + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     onClick={logout}
                   >
                     <HiOutlineLogout className="inline-flex mr-3" />
                     Sign out
-                  </span>
+                  </button>
                 </div>
               </div>
             )}
           </div>
 
-          <label className={"theme-switch p-2 border border-gray-200 rounded-xl hover:bg-gray-200" + (theme === Theme.DARK ? " dark-theme3" : "")}
+          <button className={"theme-switch p-2 border border-gray-200 rounded-xl hover:bg-gray-200" + (theme === Theme.DARK ? " dark-theme3" : "")}
             onClick={handleChangeTheme}
           >
-            <input type="checkbox" ref={themeCheckbox} />
-            <span className="theme-slider"></span>
-          </label>
+            <label>
+              <input type="checkbox" ref={themeCheckbox} />
+              <span className="theme-slider"></span>
+            </label>
+          </button>
         </div>
       </div>
 
