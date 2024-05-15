@@ -1,3 +1,5 @@
+import language from "languages/es.json"
+import { useLanguage } from "languages/LanguageProvider";
 import { EthIcon } from "components";
 import { useAuth } from "hooks";
 import useDropdown from "hooks/useDropdown";
@@ -27,6 +29,7 @@ interface AppbarProps {
 }
 
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
+  const {lang} = useLanguage()
   const { name, walletAddress } = useAppSelector((state) => state.user);
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
@@ -118,7 +121,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
               (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
           >
-            Support
+            {/* Support */}
+            {language[lang]["113"]}
           </button>
 
           <a href="https://linktr.ee/joinhelloapp" target="_blank">
@@ -132,7 +136,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             href="https://www.seedrs.com/hello-app" target="_blank">
             <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
               + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>
-              Join Our Crowfunding
+                {/* Join Our Crowfunding */}
+              {language[lang]["03"]}
             </button>
           </a>
 
@@ -169,7 +174,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                       onClick={oonPresentSupport}
                     >
                       <SiIpfs className="inline-flex mr-3" />
-                      IPFS Status &nbsp;
+                      {/* IPFS Status */}
+                      {language[lang]["115"]} &nbsp;
                       <span className={"w-[15px] h-[15px] rounded-full inline-flex " + (error ? "bg-red-300" : (starting ? "bg-yellow-300" : "bg-green-300"))}
                         title={error ? "Error" : (starting ? "Starting" : "Online")}
                       ></span>
@@ -182,7 +188,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                         + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     >
                       <HiOutlineUser className="inline-flex mr-3" />
-                      Profile
+                      {/* Profile */}
+                      {language[lang]["116"]}
                     </Link>
                   </li>
                   <li>
@@ -191,17 +198,19 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                         + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     >
                       <HiOutlineChartSquareBar className="inline-flex mr-3" />
-                      Dashboard
+                      {/* Dashboard */}
+                      {language[lang]["14"]}
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="#"
-                      className={"block px-4 py-2 pointer-events-none text-gray-500 "
+                      to="/space/settings"
+                      className={"block px-4 py-2"
                         + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     >
                       <HiOutlineCalculator className="inline-flex mr-3" />
-                      Settings
+                      {/* Settings */}
+                      {language[lang]["117"]}
                     </Link>
                   </li>
                   <li>
@@ -211,7 +220,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                         + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                     >
                       <HiUsers className="inline-flex mr-3" />
-                      Referrals
+                      {/* Referrals */}
+                      {language[lang]["16"]}
                     </Link>
                   </li>
                 </ul>
@@ -222,7 +232,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                     onClick={logout}
                   >
                     <HiOutlineLogout className="inline-flex mr-3" />
-                    Sign out
+                    {/* Sign out */}
+                    {language[lang]["118"]}
                   </button>
                 </div>
               </div>

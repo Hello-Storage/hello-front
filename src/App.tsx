@@ -13,6 +13,7 @@ import ShareSharedWithMeGroupdWithMe from "pages/Shared/SharedWithMeGroup";
 import { FolderShared } from "pages/Shared/FolderShared";
 import NotFound from "pages/NotFound";
 import OnePage from "pages/OnePage/layouts/page";
+import { LanguageProvider } from "languages/LanguageProvider";
 
 
 
@@ -30,6 +31,8 @@ const PrivacyPolicy = lazy(() => import("pages/PrivacyPolicy"));
 const Snapshots = lazy(() => import("pages/Snapshots"));
 const InvestClient = lazy(() => import("pages/InvestClients"));
 const InvestStats = lazy(() => import("pages/InvestStats"));
+const Settings = lazy(() => import("pages/Settings"));
+
 
 
 
@@ -83,45 +86,48 @@ function App() {
     <RouterMethod>
       <TrackPageViews />
       <Suspense fallback={<Spinner3 />}>
-        <Routes>
-          <Route path="*" element={<Navigate to="/404" replace />} />
-          <Route path="/404" element={<NotFound />} />
-          <Route
-            path="/"
-            element={
-              localStorage.getItem("access_token") ? (
-                <Navigate to="/space/my-storage" replace />
-              ) : (
-                <OnePage />
-              )
-            }
-          />
-          <Route path="/invest/:code" element={<InvestClient/>}/>
-          <Route path="/stinv-asdqwe" element={<InvestStats/>}/>
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/snapshots" element={< Snapshots />} />
+        <LanguageProvider>
+          <Routes>
+            <Route path="*" element={<Navigate to="/404" replace />} />
+            <Route path="/404" element={<NotFound />} />
+            <Route
+              path="/"
+              element={
+                localStorage.getItem("access_token") ? (
+                  <Navigate to="/space/my-storage" replace />
+                ) : (
+                  <OnePage />
+                )
+              }
+            />
+            <Route path="/invest/:code" element={<InvestClient />} />
+            <Route path="/stinv-asdqwe" element={<InvestStats />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/snapshots" element={< Snapshots />} />
 
-          <Route path="/stats" element={
-            <Statistics />
-          } />
-          <Route path="/ns" element={<Navigate to="/space/login?ref=ns" replace />} />
-          <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
-            <Route index element={<Api />} />
-            <Route path="/space/shared/public/:hash" element={<SharedWithMe shareType="public" />} />
-            <Route path="/space/shared/folder/:folderuid" element={<FolderShared />} />
-            <Route path="/space/shared/group/:group_id" element={<ShareSharedWithMeGroupdWithMe />} />
-            <Route path="/space/dashboard" element={<Dashboard />} />
-            <Route path="/space/my-storage" element={<MyStorage />} />
-            <Route path="/space/folder/*" element={<MyStorage />} />
-            <Route path="/space/shared" element={<Shared />} />
-            <Route path="/space/recent" element={<Recent />} />
-            <Route path="/space/referrals" element={<Referrals />} />
-            <Route path="/space/deleted" element={<Deleted />} />
-            <Route path="/space/migration" element={<Migration />} />
-            <Route path="/space/api" element={<Api />} />
-          </Route>
-          <Route path="/space/login" element={<Login />} />
-        </Routes>
+            <Route path="/stats" element={
+              <Statistics />
+            } />
+            <Route path="/ns" element={<Navigate to="/space/login?ref=ns" replace />} />
+            <Route path="/space" element={<PrivateRoute component={AppLayout} />}>
+              <Route index element={<Api />} />
+              <Route path="/space/shared/public/:hash" element={<SharedWithMe shareType="public" />} />
+              <Route path="/space/shared/folder/:folderuid" element={<FolderShared />} />
+              <Route path="/space/shared/group/:group_id" element={<ShareSharedWithMeGroupdWithMe />} />
+              <Route path="/space/settings" element={<Settings />} />
+              <Route path="/space/dashboard" element={<Dashboard />} />
+              <Route path="/space/my-storage" element={<MyStorage />} />
+              <Route path="/space/folder/*" element={<MyStorage />} />
+              <Route path="/space/shared" element={<Shared />} />
+              <Route path="/space/recent" element={<Recent />} />
+              <Route path="/space/referrals" element={<Referrals />} />
+              <Route path="/space/deleted" element={<Deleted />} />
+              <Route path="/space/migration" element={<Migration />} />
+              <Route path="/space/api" element={<Api />} />
+            </Route>
+            <Route path="/space/login" element={<Login />} />
+          </Routes>
+        </LanguageProvider>
       </Suspense>
     </RouterMethod>
   );

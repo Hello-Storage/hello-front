@@ -14,6 +14,9 @@ import { toast } from "react-toastify";
 import { Theme } from "state/user/reducer";
 import ContentFolderItem from "./ContentFolderItem";
 import { getRoot } from "utils/upload/filesUpload";
+import language from "languages/es.json"
+import { useLanguage } from "languages/LanguageProvider";
+
 
 interface ContentProps {
   contentIsShared?: boolean;
@@ -30,6 +33,8 @@ interface ContentProps {
 }
 
 const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedContent, loading, view, folders, files, showFolders, filesTitle, identifier, showHorizontalFolders, actionsAllowed }) => {
+  const {lang} = useLanguage()
+
   type itemInfo = {
     type: string;
     id: string;
@@ -63,8 +68,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       setSelectedItems([]);
     }
   };
-
-  const buttonText = seleccionMultipleActivada ? "CANCEL" : "SELECT";
+  //CANCEL // SELECT
+  const buttonText = seleccionMultipleActivada ? language[lang]["1521"] : language[lang]["154"];
 
   // Event for select item
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
@@ -434,7 +439,10 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       {showHorizontalFolders ?
         <>
           <div className="position-sticky-left">
-            <h4 className="mb-[15px]">Folders</h4>
+            <h4 className="mb-[15px]">
+              {/* Folders */}
+            {language[lang]["145"]}
+            </h4>
           </div>
           <div className="folders-div">
             {actionsAllowed && (
@@ -528,7 +536,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                       scope="col"
                       className="p-2.5 rounded-tl-lg rounded-bl-lg"
                     >
-                      Name
+                      {/* Name */}
+                      {language[lang]["155"]}
                     </th>
                     <th
                       scope="col"
@@ -542,21 +551,24 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                       className="p-1"
                       id="column-size"
                     >
-                      Size
+                      {/* Size */}
+                      {language[lang]["156"]}
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-1"
                       id="column-type"
                     >
-                      Type
+                      {/* Type */}
+                      {language[lang]["157"]}
                     </th>
                     <th
                       scope="col"
                       className="p-1 whitespace-nowrap"
                       id="column-lm"
                     >
-                      Last Modified
+                      {/* Last Modified */}
+                      {language[lang]["158"]}
                     </th>
                     <th
                       id="column-option"
@@ -670,7 +682,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                               + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
                             <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
                               <div className="mt-4 mb-4">
-                                No files found
+                                {/* No files found */}
+                                {language[lang]["159"]}
                               </div>
                             </div>
                           </td>
@@ -748,7 +761,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                     + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
                   <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
                     <div className="mt-4 mb-4">
-                      No files found
+                      {/* No files found */}
+                      {language[lang]["159"]}
                     </div>
                   </div>
                 </span>
