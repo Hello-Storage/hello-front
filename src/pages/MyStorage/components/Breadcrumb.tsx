@@ -1,4 +1,4 @@
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 import { Api } from "api";
 import { HiChevronRight } from "react-icons/hi";

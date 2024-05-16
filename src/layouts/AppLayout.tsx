@@ -1,6 +1,5 @@
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
-
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import Sidebar from "components/Sidebar";

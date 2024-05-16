@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { useFetchData, useAuth } from "hooks";
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 
 

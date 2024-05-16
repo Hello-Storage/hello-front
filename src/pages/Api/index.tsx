@@ -12,7 +12,7 @@ import ShareModal from "pages/Shared/Components/ShareModal";
 import { Theme } from "state/user/reducer";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 
 export default function Api() {

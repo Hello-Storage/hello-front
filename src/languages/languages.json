@@ -13,7 +13,7 @@
         "026": "Enviar un enlace mágico",
         "027": "Más información aquí",
 
-    "03": "Únete a nuestro Crowfunding",
+    "03": "Hello Crowfunding",
     "04": "Política de Privacidad",
     "05": "Iniciar aplicación",
     "06": "Ingresa tu email",
@@ -31,7 +31,7 @@
         "145": "Carpetas",
         "146": "Distribución del almacenamiento",
         "147": "Almacenamiento utilizado por",
-        "148": "Hola, nodos de datos de red en todo el mundo",
+        "148": "Hola, nodos de datos en todo el mundo",
         "149": "Seleccionar período de tiempo",
         "1410": "Día",
         "1411": "Semana",
@@ -92,6 +92,10 @@
         "1111": "gratis",
     "112": "Busca tu espacio",
     "113": "Soporte",
+        "1131": "Si tienes algún tipo de problema o quieres hacer una pregunta, abre un ticket en nuestro discord",
+        "1132": "Únete a Discord",
+        "1133": "Aprende sobre Tickets",
+        "1134": "Cerrar",
     "114": "Árbol de enlaces",
     "115": "Estado IPFS",
     "116": "Perfil",
@@ -195,6 +199,11 @@
             
         "112": "Search your space",
         "113": "Support",
+            "1131":"If you have any type of problem or want to ask a question, open a ticket in our discord.",
+            "1132": "Join to Discord",
+            "1133": "Learn about Tickets",
+            "1134": "Close",
+            
         "114": "Linktree",
         "115": "IPFS Status",
         "116": "Profile",
@@ -217,7 +226,7 @@
             "026": "Invia un collegamento magico",
             "027": "Maggiori informazioni qui",
 
-        "03": "Unisciti al nostro crowdfunding",
+        "03": "Hello Crowfunding",
         "04": "Informativa sulla privacy",
         
         "05": "Avvia l'app",
@@ -242,7 +251,7 @@
             "1411": "Settimana",
             "1412": "Mese",
 
-        "15": "Il mio spazio di archiviazione",
+        "15": "il mio deposito",
             "151": "Trascina e rilascia per caricare, o clicca qui",
             "152": "Filtro",
             "153": "File",
@@ -299,6 +308,10 @@
         
         "112": "Cerca nel tuo spazio",
         "113": "Supporto",
+            "1131": "Se hai qualsiasi tipo di problema o vuoi fare una domanda, apri un ticket nel nostro discord",
+            "1132": "Iscriviti a Discord",
+            "1133": "Scopri i Tickets",
+            "1134": "Chiudere",
         "114": "Albero dei collegamenti",
         "115": "Stato IPFS",
         "116": "Profilo",
@@ -320,7 +333,7 @@
             "026":"Senden Sie einen magischen Link",
             "027":"Weitere Informationen hier",
 
-        "03":"Nehmen Sie an unserem Crowfunding teil",
+        "03":"Hello Crowfunding",
         "04":"Datenschutzerklärung",
             
         "05":"App starten",
@@ -402,6 +415,11 @@
             
         "112":"Den Bereich durchsuchen",
         "113":"Unterstützung",
+            "1131": "Wenn Sie irgendein Problem haben oder eine Frage stellen wollen, öffnen Sie ein Ticket in unserem Discord.",
+            "1132": "Dem Discord beitreten",
+            "1133": "Erfahren Sie mehr über Tickets",
+            "1134": "Schließen",
+
         "114":"Linktree",
         "115":"IPFS-Status",
         "116":"Profil",
@@ -423,7 +441,7 @@
              "026": "Enviar um link mágico",
              "027": "Mais informações aqui",
 
-         "03": "Junte-se ao nosso financiamento coletivo",
+         "03": "Hello Crowfunding",
          "04": "Política de Privacidade",
             
          "05": "Iniciar aplicativo",
@@ -505,6 +523,11 @@
             
          "112": "Pesquise seu espaço",
          "113": "Suporte",
+            "1131": "Se tiveres algum tipo de problema ou quiseres fazer uma pergunta, abre um bilhete na nossa discórdia",
+            "1132": "Aderir ao Discord",
+            "1133": "Saiba mais sobre os bilhetes",
+            "1134": "Fechar",
+
          "114": "Linktree",
          "115": "Status IPFS",
          "116": "Perfil",
@@ -526,7 +549,7 @@
              "026": "发送魔法链接",
              "027": "更多信息请点击这里",
 
-         "03": "加入我们的众筹",
+         "03": "Hello Crowfunding",
          "04":"隐私政策",
             
          "05": "启动应用程序",
@@ -608,6 +631,11 @@
             
          "112": "搜索你的空间",
          "113": "支持",
+            "1131": "如果您有任何问题或想要提问，请在我们的 Discord 上开票。",
+            "1132": "加入 Discord",
+            "1133": "了解票务",
+            "1134": "关闭",
+
          "114": "链接树",
          "115": "IPFS 状态",
          "116": "个人资料",
@@ -629,7 +657,7 @@
              "026": "Отправить волшебную ссылку",
              "027": "Более подробная информация здесь",
 
-         "03": "Присоединяйтесь к нашему крауфандингу",
+         "03": "Hello Crowfunding",
          "04": "Политика конфиденциальности",
             
          "05": "Запустить приложение",
@@ -711,6 +739,11 @@
             
          "112": "Обыщите свое пространство",
          "113": "Поддержка",
+            "1131": "Если у вас возникли какие-либо проблемы или вы хотите задать вопрос, откройте тикет в нашем Discord. ",
+            "1132": "Присоединиться к Discord",
+            "1133": "Узнать о тикетах",
+            "1134": "Закрыть",
+
          "114": "Линктри",
          "115": "Состояние IPFS",
          "116": "Профиль",
@@ -732,7 +765,7 @@
              "026": "أرسل رابطًا سحريًا",
              "027": "مزيد من المعلومات هنا",
 
-         "03": "انضم إلى التمويل الجماعي لدينا",
+         "03": "Hello Crowfunding",
          "04": "سياسة الخصوصية",
             
          "05": "إطلاق التطبيق",
@@ -814,6 +847,11 @@
             
          "112": "ابحث في مساحتك الخاصة",
          "113": "الدعم",
+            "1131": " إذا كان لديك أي نوع من المشاكل أو ترغب في طرح سؤال، افتح تذكرة في خلافنا. ",
+            "1132": "الانضمام إلى ديسكورد",
+            "1133": "تعرف على التذاكر",
+            "1134": "إغلاق",
+
          "114": "لينكتري",
          "115": "حالة IPFS",
          "116": "الملف الشخصي",

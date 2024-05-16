@@ -20,7 +20,7 @@ import {
   toggleAutoEncryption,
 } from "state/userdetail/actions";
 
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 
 import LogoHello from "@images/beta.png";

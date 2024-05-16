@@ -1,7 +1,7 @@
 import { OTPModal } from "components";
 
 
-import language from "../../languages/es.json"
+import language from "../../languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 
 

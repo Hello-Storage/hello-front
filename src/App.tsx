@@ -13,7 +13,7 @@ import ShareSharedWithMeGroupdWithMe from "pages/Shared/SharedWithMeGroup";
 import { FolderShared } from "pages/Shared/FolderShared";
 import NotFound from "pages/NotFound";
 import OnePage from "pages/OnePage/layouts/page";
-import { LanguageProvider } from "languages/LanguageProvider";
+
 
 
 
@@ -83,10 +83,10 @@ function App() {
   }, [load, logout]);
 
   return (
+
     <RouterMethod>
       <TrackPageViews />
       <Suspense fallback={<Spinner3 />}>
-        <LanguageProvider>
           <Routes>
             <Route path="*" element={<Navigate to="/404" replace />} />
             <Route path="/404" element={<NotFound />} />
@@ -127,7 +127,6 @@ function App() {
             </Route>
             <Route path="/space/login" element={<Login />} />
           </Routes>
-        </LanguageProvider>
       </Suspense>
     </RouterMethod>
   );

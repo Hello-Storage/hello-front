@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { Api } from "api";
 import { Link } from "react-router-dom";
 import { Theme } from "state/user/reducer";
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 
 

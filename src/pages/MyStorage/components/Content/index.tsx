@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { Theme } from "state/user/reducer";
 import ContentFolderItem from "./ContentFolderItem";
 import { getRoot } from "utils/upload/filesUpload";
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 
 

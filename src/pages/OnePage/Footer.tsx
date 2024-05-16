@@ -4,7 +4,7 @@ import { FaGithubSquare } from "react-icons/fa";
 import { HiMail } from "react-icons/hi";
 import { PiTiktokLogoFill } from "react-icons/pi";
 import { TbBrandTwitterFilled } from "react-icons/tb";
-import language from "../../languages/es.json"
+import language from "../../languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 
 

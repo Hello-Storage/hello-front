@@ -23,7 +23,7 @@ import UploadShareModal from "./Components/UploadShareModal";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 import Pagination from "components/Pagination";
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 
 

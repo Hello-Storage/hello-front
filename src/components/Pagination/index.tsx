@@ -1,6 +1,6 @@
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import { useAppSelector } from "state";
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 import { Theme } from "state/user/reducer";
 

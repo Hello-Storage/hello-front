@@ -1,5 +1,5 @@
 import { Theme } from "state/user/reducer";
-import language from "languages/es.json"
+import language from "languages/languages.json"
 import { useAppSelector } from "state";
 import { useLanguage } from "languages/LanguageProvider";
 import { Link } from "react-router-dom";

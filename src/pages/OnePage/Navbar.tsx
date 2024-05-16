@@ -1,4 +1,4 @@
-import language from "../../languages/es.json"
+import language from "../../languages/languages.json"
 import { motion } from "framer-motion";
 import { navVariants } from "../../utils/one-page/motion";
 import { Link } from "react-router-dom";

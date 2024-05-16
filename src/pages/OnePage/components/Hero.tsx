@@ -1,4 +1,4 @@
-import language from "../../../languages/es.json"
+import language from "../../../languages/languages.json"
 import { useLanguage } from "languages/LanguageProvider";
 import { useEffect, useRef, useState } from "react";
 import Button3D from "../../../assets/one-page/Button3D.svg"
