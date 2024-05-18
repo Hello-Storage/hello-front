@@ -10,32 +10,40 @@ import GoogleOAuth from "./GoogleOAuthProvider";
 import SWRProvider from "./SWRProvider";
 import { PersistGate } from "redux-persist/integration/react";
 import { HeliaProvider } from "./HeliaProvider";
+import { isSafari } from "utils/user";
 
 const Providers: FC<{ children: ReactNode }> = ({ children }) => {
-  return (
-    <>
-      <Provider store={state}>
-        <PersistGate loading={null} persistor={persistor}>
+	return (
+		<>
+			<Provider store={state}>
+				<PersistGate loading={null} persistor={persistor}>
+					<GoogleOAuth>
+						<EthProvider>
+							<SWRProvider>
+								<ModalProvider>
+									{!isSafari() ? (
+										<HeliaProvider>
+											{children}
+										</HeliaProvider>
+									) : (
+										<>{children}</>
+									)}
+								</ModalProvider>
+							</SWRProvider>
+						</EthProvider>
+					</GoogleOAuth>
+				</PersistGate>
+			</Provider>
 
-          <GoogleOAuth>
-            <EthProvider>
-              <SWRProvider>
-                <ModalProvider>
-                  <HeliaProvider>
-                    {children}
-                  </HeliaProvider>
-                </ModalProvider>
-              </SWRProvider>
-            </EthProvider>
-          </GoogleOAuth>
-
-        </PersistGate>
-      </Provider>
-
-      {/* toast */}
-      <ToastContainer style={{ marginTop: "10px" }} position="top-right" theme="colored" closeOnClick />
-    </>
-  );
+			{/* toast */}
+			<ToastContainer
+				style={{ marginTop: "10px" }}
+				position="top-right"
+				theme="colored"
+				closeOnClick
+			/>
+		</>
+	);
 };
 
 export default Providers;
