@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
 import {
   HiChevronLeft,
   HiChevronRight,
@@ -41,6 +43,7 @@ import { Helmet } from "react-helmet";
 
 
 export default function Home() {
+  const {lang} = useLanguage()
   const dispatch = useAppDispatch();
   const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { name } = useAppSelector((state) => state.user);
@@ -182,7 +185,7 @@ export default function Home() {
     setCurrentFolders(decryptedFolders ?? []);
 
     if (!currentFiles || !currentFolders) {
-      toast.error("Failed to decrypt content");
+      toast.error(language[lang]["1516"]);
       fetchRootContent(setLoading);
     }
     setLoading(false);
@@ -261,7 +264,7 @@ export default function Home() {
 
 
     if (!currentFiles || !currentFolders) {
-      toast.error("Failed to decrypt content");
+      toast.error(language[lang]["1516"]);
       fetchRootContent(setLoading);
     }
 
@@ -371,7 +374,8 @@ export default function Home() {
                 className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" + (theme === Theme.DARK ? " text-white hover:bg-[#32334b]" : " bg-white text-gray-900 hover:bg-gray-100")}
                 onClick={() => setOpen(!open)}
               >
-                Filter
+                {/* Filter */}
+                {language[lang]["152"]}
               </button>
 
               {open && (
@@ -383,7 +387,9 @@ export default function Home() {
                           htmlFor="all"
                           className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
                         >
-                          All
+                          {/* All */}
+                          {language[lang]["1518"]}
+                          
                         </label>
                         <input
                           type="radio"
@@ -402,7 +408,10 @@ export default function Home() {
                           htmlFor="public"
                           className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
                         >
-                          Public
+                          {/* Public */}
+                          {language[lang]["1519"]}
+
+
                         </label>
                         <input
                           type="radio"
@@ -421,7 +430,9 @@ export default function Home() {
                           htmlFor="encrypted"
                           className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
                         >
-                          Encrypted
+                          {/* Encrypted */}
+                          {language[lang]["1520"]}
+
                         </label>
                         <input
                           type="radio"
@@ -475,7 +486,7 @@ export default function Home() {
             folders={filteredFolders}
             view={view}
             showFolders={true}
-            filesTitle="Files"
+            filesTitle={language[lang]["153"]} //Files
             identifier={1}
           />
         </section>
@@ -483,8 +494,9 @@ export default function Home() {
           <div className={"flex items-center justify-between mt-3 border-gray-200 text-sm border-t "
             + (theme === Theme.DARK ? " dark-theme" : " bg-white ")}>
             <div className="text-xs">
-              Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
-              {Math.min(endIndex, totalItems)} of {totalItems} results
+              {/* Showing // to // of // results */}
+              {language[lang]["1510"]} {totalItems === 0 ? startIndex : startIndex + 1} {language[lang]["1511"]}{" "}
+              {Math.min(endIndex, totalItems)} {language[lang]["1512"]} {totalItems} {language[lang]["1513"]}
             </div>
             <div className="flex items-center space-x-2">
               <button
@@ -498,7 +510,10 @@ export default function Home() {
                 disabled={currentPage === 1}
               >
                 <HiChevronLeft className="w-5 h-5" />
-                <span className="hidden md:inline">Prev</span>
+                <span className="hidden md:inline">
+                  {/* Prev */}
+                  {language[lang]["1514"]}
+                </span>
               </button>
               <button
                 className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
@@ -510,7 +525,10 @@ export default function Home() {
                 }
                 disabled={totalPages === 0 || currentPage === totalPages}
               >
-                <span className="hidden md:inline">Next</span>{" "}
+                <span className="hidden md:inline">
+                  {/* Next */}
+                  {language[lang]["1515"]}
+                  </span>{" "}
                 <HiChevronRight className="w-5 h-5" />
               </button>
             </div>

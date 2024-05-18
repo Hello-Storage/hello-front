@@ -1,10 +1,12 @@
-
+import language from "../../../languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
 import { useEffect, useRef, useState } from "react";
 import Button3D from "../../../assets/one-page/Button3D.svg"
 import { Link } from "react-router-dom";
 
 
 export const Hero = () => {
+  const {lang} = useLanguage()
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState("");
   const uploadRef = useRef<HTMLButtonElement>(null);
@@ -78,9 +80,11 @@ export const Hero = () => {
     <section className="relative flex flex-col justify-center h-screen items-center mx-8 top-[-154px] md:top-[-104px]">
       <div className="max-w-3xl flex flex-col md:gap-10 gap-5 justify-center text-center mb-8 one-page-btn">
         <h2 className="font-extrabold tracking-tight text-white one-page-title text-center">
-          Dream with us{" "}
+        {/* Dream with us */}
+        {`${language[lang]["01"]} `}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500/80 to-sky-500/80">
-            upload anything you want
+          {/* upload anything you want */}
+          {language[lang]["001"]}
           </span>
         </h2>
       </div>
@@ -107,14 +111,16 @@ export const Hero = () => {
         <a href="https://docs.hello.app/"
           title="Read the Documentation"
           className="relative px-12 py-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-900 hover:from-violet-600 hover:to-violet-900 cursor-pointer inline-block">
-          <span className="relative z-10 text-white">About</span>
+            {/* About */}
+          <span className="relative z-10 text-white">{language[lang]["02"]}</span>
           <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
         </a>
         <a href="https://www.seedrs.com/hello-app"
 
           title="Read the Documentation"
           className="relative px-12 py-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-900 hover:from-violet-600 hover:to-violet-900 cursor-pointer inline-block">
-          <span className="relative z-10 text-white">Join Our Crowfunding</span>
+            {/* Join Our Crowfunding */}
+          <span className="relative z-10 text-white">{language[lang]["03"]}</span>
           <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
         </a>
       </div>
@@ -136,7 +142,8 @@ export const Hero = () => {
             <div className="inline-block align-bottom bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-black-700 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <h3 className="text-lg leading-6 font-medium text-gray-300">
-                  Enter your email
+                {/* Enter your email */}
+                {language[lang]["06"]}
                 </h3>
                 <form
                   onSubmit={handleSubmit}
@@ -156,7 +163,8 @@ export const Hero = () => {
                     className="pointer-events-auto relative overflow-hidden rounded-lg bg-black px-24 py-6 ring-red-500/50 ring-offset-black will-change-transform focus:outline-none focus:ring-1 focus:ring-offset-2"
                   >
                     <span className="absolute inset-px z-10 grid place-items-center rounded-lg bg-black bg-gradient-to-t from-neutral-800 text-white-400">
-                      Submit
+                    {/* Submit */}
+                    {language[lang]["061"]}
                     </span>
                     <span
                       aria-hidden
@@ -171,7 +179,8 @@ export const Hero = () => {
                   onClick={() => setShowModal(false)}
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-800 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
                 >
-                  Close
+                  {/* Close */}
+                  {language[lang]["062"]}
                 </button>
               </div>
             </div>

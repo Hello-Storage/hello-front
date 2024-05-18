@@ -1,5 +1,8 @@
 /** @format */
 
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
+
 import { useResizeDetector } from "react-resize-detector";
 import World from "./components/World";
 import Chart from "./components/Chart";
@@ -11,8 +14,9 @@ import { Theme } from "state/user/reducer";
 import { SpinnerMini } from "components/Spinner";
 
 export default function Dashboard() {
+	const {lang} = useLanguage()
 	const { fetchUserDetail } = useFetchData();
-	const [selectedRange, setselectedRange] = useState("Day")
+	const [selectedRange, setselectedRange] = useState(language[lang]["1410"])
 
 	const { width, ref } = useResizeDetector();
 	const { uid } = useAppSelector((state) => state.user);
@@ -86,10 +90,14 @@ export default function Dashboard() {
 
 	return (
 		<div className={"dashboard-container" + (theme === Theme.DARK ? " dark-theme" : "")}>
-			<h1 className="text-xl font-medium">Dashboard</h1>
+			<h1 className="text-xl font-medium">
+				{/* Dashboard */}
+				{language[lang]["14"]}
+			</h1>
 			<div className="grid grid-cols-1 gap-5 mt-4 md:grid-cols-2 lg:grid-cols-5 md:gap-10">
-				<div className="p-3 border rounded-md">
-					<label>Used Storage</label>
+				<div className="p-3 overflow-hidden border rounded-md">
+					{/* Used Storage */}
+					<label>{language[lang]["141"]}</label>
 					<div className="">
 						{loading ? <SpinnerMini /> :
 							<>
@@ -103,8 +111,9 @@ export default function Dashboard() {
 					</div>
 				</div>
 
-				<div className="p-3 border rounded-md">
-					<label>Total files</label>
+				<div className="p-3 overflow-hidden border rounded-md">
+				{/* Total files */}
+					<label>{language[lang]["142"]}</label>
 					<div className="">
 						{loading ? <SpinnerMini /> :
 							<>
@@ -116,8 +125,9 @@ export default function Dashboard() {
 					</div>
 				</div>
 
-				<div className="p-3 border rounded-md">
-					<label>Public files</label>
+				<div className="p-3 overflow-hidden border rounded-md">
+					{/* Public files */}
+					<label>{language[lang]["143"]}</label>
 					<div className="">
 						{loading ? <SpinnerMini /> :
 							<>
@@ -132,8 +142,9 @@ export default function Dashboard() {
 					</div>
 				</div>
 
-				<div className="p-3 border rounded-md">
-					<label>Encrypted files</label>
+				<div className="p-3 overflow-hidden border rounded-md">
+					{/* Encrypted files */}
+					<label>{language[lang]["144"]}</label>
 					<div className="">
 						{loading ? <SpinnerMini /> :
 							<>
@@ -148,8 +159,9 @@ export default function Dashboard() {
 					</div>
 				</div>
 
-				<div className="p-3 border rounded-md b-classname">
-					<label>Folders</label>
+				<div className="p-3 overflow-hidden border rounded-md b-classname">
+					{/* Folders */}
+					<label>{language[lang]["145"]}</label>
 					<div className="">
 						<label className="text-sm text-gray-500">
 							{loading ? <SpinnerMini /> :
@@ -170,7 +182,8 @@ export default function Dashboard() {
 					className="flex flex-col items-start h-full overflow-hidden"
 					ref={ref}>
 					<h3 className="text-xl font-medium">
-						Storage distribution
+						{/* Storage distribution */}
+						{language[lang]["146"]}
 					</h3>
 					<World
 						size={
@@ -183,14 +196,16 @@ export default function Dashboard() {
 					/>
 
 					<h5 className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-center lg:mt-[-25px] md::mt-[-10px] z-50 w-full ">
-						Hello Network data nodes across the globe
+						{/* Hello Network data nodes across the globe */}
+						{language[lang]["148"]}
 					</h5>
 				</div>
 
 				<div className="flex-1 mb-[90px] ">
 					<div className="flex flex-row items-center justify-center">
 						<h5 className="mr-2 text-xl font-medium">
-							Storage used by{" " + selectedRange}
+							{/* Storage used by */}
+							{language[lang]["147"]}{" " + selectedRange}
 						</h5>
 					</div>
 
@@ -199,7 +214,8 @@ export default function Dashboard() {
 					</div>
 					<div className="flex items-center justify-center w-full mt-4 ">
 						<p className="mr-2">
-							Select Time Period
+							{/* Select Time Period */}
+							{language[lang]["149"]}
 						</p>
 						<select
 							id="timePeriod"
@@ -211,9 +227,12 @@ export default function Dashboard() {
 								setselectedRange(selected + "");
 							}}
 						>
-							<option value="day">Day</option>
-							<option value="week">Week</option>
-							<option value="month">Month</option>
+							{/* Day */}
+							<option value={language[lang]["1410"]}>{language[lang]["1410"]}</option>
+							{/* Week */}
+							<option value={language[lang]["1411"]}>{language[lang]["1411"]}</option>
+							{/* Month */}
+							<option value={language[lang]["1412"]}>{language[lang]["1412"]}</option>
 						</select>
 					</div>
 				</div>

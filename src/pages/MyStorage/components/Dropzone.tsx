@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { useFetchData, useAuth } from "hooks";
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
+
 
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 
@@ -29,6 +32,8 @@ const getColor = (
 
 
 const Dropzone = () => {
+
+  const {lang} = useLanguage()
 
   const { encryptionEnabled, autoEncryptionEnabled } = useAppSelector(
     (state) => state.userdetail
@@ -113,9 +118,9 @@ const Dropzone = () => {
     >
       <input {...getInputProps()} />
       {isDragActive ? (
-        <p className="text-center">Drop the files here ...</p>
+        <p className="text-center">{language[lang]["1522"]}</p>
       ) : (
-        <p className="text-center">Drag'n drop to upload, or click here</p>
+        <p className="text-center">{language[lang]["151"]}</p>
       )}
     </div>
   );

@@ -23,8 +23,12 @@ import UploadShareModal from "./Components/UploadShareModal";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 import Pagination from "components/Pagination";
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
+
 
 const Shared = () => {
+	const {lang} = useLanguage()
 	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
 	const dispatch = useDispatch();
 	
@@ -371,7 +375,10 @@ const Shared = () => {
 			)}
 			{showShareModal && <ShareModal />}
 
-			<h3 className="my-2 text-xl">Shared files</h3>
+			<h3 className="my-2 text-xl">
+				{/* Shared files */}
+				{language[lang]["171"]}
+				</h3>
 			<button
 				className="animated-bg-btn w-[230px] mb-2 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
 				onClick={() => {
@@ -382,11 +389,14 @@ const Shared = () => {
 			>
 				<span className="btn-transition"></span>
 				<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
-					<FaSquareShareNodes className="animated-btn-icon" /> Share Files
+					<FaSquareShareNodes className="animated-btn-icon" /> 
+					{/* Share Files */}
+					{language[lang]["173"]}
 				</label>
 			</button>
 			<div className="hidden w-full lg:flex">
 				<div className="w-[99%] share-content">
+					{/* Shared  */}
 					<Content
 						contentIsShared={true}
 						actionsAllowed={true}
@@ -397,7 +407,7 @@ const Shared = () => {
 						folders={thisSharedFolders.sharedByMe}
 						view="list"
 						showFolders={true}
-						filesTitle="Shared"
+						filesTitle={language[lang]["17"]}
 						identifier={1}
 					/>
 					<Pagination
@@ -413,6 +423,7 @@ const Shared = () => {
 
 				<span className="w-[2%]"></span>
 				<div className="w-[99%] share-content">
+				{/* Received */}
 					<Content
 						contentIsShared={true}
 						actionsAllowed={true}
@@ -423,7 +434,7 @@ const Shared = () => {
 						folders={thisSharedFolders.sharedWithMe}
 						view="list"
 						showFolders={true}
-						filesTitle="Received"
+						filesTitle={language[lang]["172"]}
 						identifier={2}
 					/>
 					<Pagination
@@ -440,6 +451,7 @@ const Shared = () => {
 			</div>
 			<div className="lg:hidden w-[99%] flex-col justify-evenly items-center mb-[50px] ">
 				<div>
+					{/* Shared */}
 					<Content
 						contentIsShared={true}
 						actionsAllowed={true}
@@ -450,7 +462,7 @@ const Shared = () => {
 						folders={thisSharedFolders.sharedByMe}
 						view="list"
 						showFolders={true}
-						filesTitle="Shared"
+						filesTitle={language[lang]["17"]}
 						identifier={3}
 					/>
 					<Pagination
@@ -466,6 +478,7 @@ const Shared = () => {
 				</div>
 
 				<div>
+					{/* Received */}
 					<Content
 						contentIsShared={true}
 						actionsAllowed={true}
@@ -476,7 +489,7 @@ const Shared = () => {
 						folders={thisSharedFolders.sharedWithMe}
 						view="list"
 						showFolders={true}
-						filesTitle="Received"
+						filesTitle={language[lang]["172"]}
 						identifier={4}
 					/>
 					<Pagination

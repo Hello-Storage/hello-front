@@ -1,5 +1,10 @@
 import { OTPModal } from "components";
 
+
+import language from "../../languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
+
+
 import ConnectWalletButton from "./components/ConnectWalletButton";
 import { useAppSelector } from "state";
 import { Navigate } from "react-router-dom";
@@ -25,6 +30,8 @@ import { Theme } from "state/user/reducer";
 import { Helmet } from 'react-helmet';
 
 export default function Login() {
+  const {lang} = useLanguage()
+
   const { authenticated, loading, redirectUrl } = useAppSelector((state) => state.user);
 
   const { startOTP } = useAuth();
@@ -106,13 +113,16 @@ export default function Login() {
           <div className="flex items-center justify-center flex-1">
             <div className="md:min-w-[400px] md:mt-0">
               <h2 className="text-4xl font-semibold tracking-tighter text-center">
-                Welcome 👋
+              {/* Welcome */}
+              {language[lang]["021"]} 👋
               </h2>
               <h3 className="block mt-4 text-lg tracking-tighter text-center">
-                Select your favorite login option
+              {/* Select your favorite login option */}
+              {language[lang]["022"]}
               </h3>
               <h3 className="hidden mt-4 text-lg tracking-tighter text-center md:block">
-                Get your <b>100GB</b> free storage now!
+                {/* Get your /// 100gb /// free storage now! */}
+              {language[lang]["023"]} <b>{language[lang]["0232"]}</b> {language[lang]["0231"]}
               </h3>
 
               <div className="mt-[20px] flex-login-btns gap-[15px] justify-around">
@@ -123,7 +133,8 @@ export default function Login() {
               <div className="relative inline-flex items-center justify-center w-full">
                 <hr className="w-full h-px my-8 bg-gray-200 border-0" />
                 <span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 rounded-xl">
-                  Or
+                {/* Or */}
+                {language[lang]["024"]}
                 </span>
               </div>
 
@@ -134,7 +145,8 @@ export default function Login() {
                     htmlFor="email"
                     className={"block mb-2 text-sm font-medium " + (getTheme() === Theme.DARK ? " dark-theme" : "text-gray-600")}
                   >
-                    Email address
+                    {/* Email address */}
+                    {language[lang]["025"]}
                   </label>
                   <input
                     id="email"
@@ -152,7 +164,8 @@ export default function Login() {
                       className="inline-flex items-center justify-center w-full px-3 py-4 text-white rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
                       type="submit"
                     >
-                      Send a magic link ✨
+                      {/* Send a magic link */}
+                      {language[lang]["026"]} ✨
                     </button>
                   </div>
                 </div>
@@ -196,7 +209,8 @@ export default function Login() {
             </div>
             <div className="flex flex-col mt-1 md:mt-1">
               <a href="https://docs.hello.app/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
-                More information here
+              {/* More information here */}
+              {language[lang]["027"]}
               </a>
               © {new Date().getFullYear()} hello.app
             </div>
@@ -205,7 +219,8 @@ export default function Login() {
             <a href="https://hello.app/privacy-policy"
               title="Privacy Policy"
               target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px' }}>
-              Privacy Policy
+                {/* Privacy Policy */}
+              {language[lang]["04"]}
             </a>
           </div>
         </footer>

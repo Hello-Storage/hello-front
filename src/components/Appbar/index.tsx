@@ -1,3 +1,5 @@
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
 import { EthIcon } from "components";
 import { useAuth } from "hooks";
 import useDropdown from "hooks/useDropdown";
@@ -27,6 +29,7 @@ interface AppbarProps {
 }
 
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
+  const { lang } = useLanguage()
   const { name, walletAddress } = useAppSelector((state) => state.user);
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
@@ -37,7 +40,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
     <Support />
   );
 
-  
+
   const [oonPresentSupport] = useModal(
     <IpfsInfoModal />
   );
@@ -72,9 +75,9 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
 
   return (
     <>
-      <div className={"flex flex-col items-start md:flex-row md:items-center md:gap-8"
+      <div className={"flex flex-wrap flex-col items-start md:flex-row md:items-center md:gap-8"
         + (theme === Theme.DARK ? " dark-theme" : "")}>
-        <form className="flex-1 order-last w-full mt-4 md:mt-0 md:order-first">
+        <form className="flex-1 min-w-min order-last w-full mt-4 md:mt-0 md:order-first">
           <label
             htmlFor="default-search"
             className="mb-2 text-sm font-medium text-gray-900 sr-only"
@@ -102,9 +105,9 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             <input
               type="search"
               id="default-search"
-              className={"block w-full py-2.5 pl-10 pr-4 text-sm rounded-2xl text-gray-900 border focus:border-gray-400 focus:outline-none "
+              className={"block w-full min-w-[100px] py-2.5 pl-10 pr-4 text-sm rounded-2xl text-gray-900 border focus:border-gray-400 focus:outline-none "
                 + (theme === Theme.DARK ? " dark-theme3" : " border-gray-200 bg-white")}
-              placeholder="Search your space"
+              placeholder={language[lang]["112"]}
               required
               onChange={onSearchChange}
             />
@@ -112,17 +115,18 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
 
         </form>
 
-        <div className="flex items-center md:gap-4 w-full justify-between md:w-fit gap-1">
+        <div className="flex flex-wrap items-center md:gap-4 w-full justify-between md:w-fit gap-1">
           <button
             onClick={onPresent}
-            className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+            className={"flex flex-1 min-w-min  whitespace-nowrap items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
               (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
           >
-            Support
+            {/* Support */}
+            {language[lang]["113"]}
           </button>
 
           <a href="https://linktr.ee/joinhelloapp" target="_blank">
-            <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
+            <button className={"flex flex-1 min-w-min  items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
               + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>
               Linktree
             </button>
@@ -130,113 +134,121 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
 
           <a className="hidden lg:block"
             href="https://www.seedrs.com/hello-app" target="_blank">
-            <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
+            <button className={"flex flex-1 min-w-full items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
               + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>
-              Join Our Crowfunding
+              {/* Join Our Crowfunding */}
+              {language[lang]["03"]}
             </button>
           </a>
-
-          <div className="relative" ref={ref}>
-            <button
-              className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg"
-                + (theme === Theme.DARK ? " dark-theme3" : " bg-gray-100 hover:bg-gray-200")}
-              type="button"
-              onClick={() => setOpen(!open)}
-            >
-              <EthIcon />
-              <span className="md:hidden txt-sm">
-                |{" "}
-                {name !== "" ? formatName(name, 6) : formatName(walletAddress)}
-              </span>
-              <span className="hidden md:inline txt-sm">
-                |{" "}
-                {name !== "" ? formatName(name, 12) : formatName(walletAddress)}
-              </span>
-              <HiChevronDown />
-            </button>
-            {open && (
-              <div
-                id="dropdown"
-                aria-label="dropdown-list"
-                className={"absolute mt-1 z-10 w-[200px] shadow divide-y border text-sm"
-                  + (theme === Theme.DARK ? " dark-theme4" : " bg-white text-gray-700")}
+          <div className="flex flex-1 min-w-min gap-2">
+            <div className="flex flex-1 min-w-min relative" ref={ref}>
+              <button
+                className={"flex flex-1 min-w-min whitespace-nowrap items-center gap-1 py-2 md:px-4 px-2 rounded-lg"
+                  + (theme === Theme.DARK ? " dark-theme3" : " bg-gray-100 hover:bg-gray-200")}
+                type="button"
+                onClick={() => setOpen(!open)}
               >
-                <ul>
-                  <li>
+                <EthIcon />
+                <span className="md:hidden txt-sm">
+                  |{" "}
+                  {name !== "" ? formatName(name, 6) : formatName(walletAddress)}
+                </span>
+                <span className="hidden md:inline txt-sm">
+                  |{" "}
+                  {name !== "" ? formatName(name, 12) : formatName(walletAddress)}
+                </span>
+                <HiChevronDown />
+              </button>
+              {open && (
+                <div
+                  id="dropdown"
+                  aria-label="dropdown-list"
+                  className={"absolute mt-1 z-10 w-[200px] shadow divide-y border text-sm"
+                    + (theme === Theme.DARK ? " dark-theme4" : " bg-white text-gray-700")}
+                >
+                  <ul>
+                    <li>
+                      <button
+                        className={"px-4 py-2 cursor-pointer flex items-center w-full "
+                          + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                        onClick={oonPresentSupport}
+                      >
+                        <SiIpfs className="inline-flex mr-3" />
+                        {/* IPFS Status */}
+                        {language[lang]["115"]} &nbsp;
+                        <span className={"w-[15px] h-[15px] rounded-full inline-flex " + (error ? "bg-red-300" : (starting ? "bg-yellow-300" : "bg-green-300"))}
+                          title={error ? "Error" : (starting ? "Starting" : "Online")}
+                        ></span>
+                      </button>
+                    </li>
+                    <li>
+                      <Link
+                        to="#"
+                        className={"block px-4 py-2 pointer-events-none text-gray-500 "
+                          + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                      >
+                        <HiOutlineUser className="inline-flex mr-3" />
+                        {/* Profile */}
+                        {language[lang]["116"]}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="#" className={"block px-4 pointer-events-none py-2 text-gray-500 "
+                          + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                      >
+                        <HiOutlineChartSquareBar className="inline-flex mr-3" />
+                        {/* Dashboard */}
+                        {language[lang]["14"]}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/space/settings"
+                        className={"block px-4 py-2"
+                          + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                      >
+                        <HiOutlineCalculator className="inline-flex mr-3" />
+                        {/* Settings */}
+                        {language[lang]["117"]}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/space/referrals"
+                        className={"block px-4 py-2 "
+                          + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
+                      >
+                        <HiUsers className="inline-flex mr-3" />
+                        {/* Referrals */}
+                        {language[lang]["16"]}
+                      </Link>
+                    </li>
+                  </ul>
+                  <div>
                     <button
-                      className={"px-4 py-2 cursor-pointer flex items-center w-full "
+                      className={"block cursor-pointer px-4 py-3 w-full text-left "
                         + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                      onClick={oonPresentSupport}
+                      onClick={logout}
                     >
-                      <SiIpfs className="inline-flex mr-3" />
-                      IPFS Status &nbsp;
-                      <span className={"w-[15px] h-[15px] rounded-full inline-flex " + (error ? "bg-red-300" : (starting ? "bg-yellow-300" : "bg-green-300"))}
-                        title={error ? "Error" : (starting ? "Starting" : "Online")}
-                      ></span>
+                      <HiOutlineLogout className="inline-flex mr-3" />
+                      {/* Sign out */}
+                      {language[lang]["118"]}
                     </button>
-                  </li>
-                  <li>
-                    <Link
-                      to="#"
-                      className={"block px-4 py-2 pointer-events-none text-gray-500 "
-                        + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                    >
-                      <HiOutlineUser className="inline-flex mr-3" />
-                      Profile
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="#" className={"block px-4 pointer-events-none py-2 text-gray-500 "
-                        + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                    >
-                      <HiOutlineChartSquareBar className="inline-flex mr-3" />
-                      Dashboard
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="#"
-                      className={"block px-4 py-2 pointer-events-none text-gray-500 "
-                        + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                    >
-                      <HiOutlineCalculator className="inline-flex mr-3" />
-                      Settings
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/space/referrals"
-                      className={"block px-4 py-2 "
-                        + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                    >
-                      <HiUsers className="inline-flex mr-3" />
-                      Referrals
-                    </Link>
-                  </li>
-                </ul>
-                <div>
-                  <button
-                    className={"block cursor-pointer px-4 py-3 w-full text-left "
-                      + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
-                    onClick={logout}
-                  >
-                    <HiOutlineLogout className="inline-flex mr-3" />
-                    Sign out
-                  </button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <button className={"theme-switch p-2 border border-gray-200 rounded-xl hover:bg-gray-200" + (theme === Theme.DARK ? " dark-theme3" : "")}
-            onClick={handleChangeTheme}
-          >
-            <label>
-              <input type="checkbox" ref={themeCheckbox} />
-              <span className="theme-slider"></span>
-            </label>
-          </button>
+            <button className={"theme-switch p-2 border border-gray-200 rounded-xl hover:bg-gray-200" + (theme === Theme.DARK ? " dark-theme3" : "")}
+              onClick={handleChangeTheme}
+            >
+              <label>
+                <input type="checkbox" ref={themeCheckbox} />
+                <span className="theme-slider"></span>
+              </label>
+            </button>
+          </div>
         </div>
       </div>
 

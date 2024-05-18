@@ -1,3 +1,5 @@
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import Sidebar from "components/Sidebar";
@@ -12,6 +14,8 @@ import { AccountType } from "api";
 import { Theme } from "state/user/reducer";
 
 export default function AppLayout() {
+
+  const {lang} = useLanguage()
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -62,8 +66,9 @@ export default function AppLayout() {
             
           <a href="https://www.seedrs.com/hello-app/coming-soon" target="_blank">
             <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
-              + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>              
-                Join Our Crowfunding
+              + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>  
+                {/* Join Our Crowfunding */}
+                {language[lang]["03"]}
             </button>
           </a>
             <button onClick={() => setSidebarOpen(true)}>
