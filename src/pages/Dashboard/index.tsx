@@ -95,7 +95,7 @@ export default function Dashboard() {
 				{language[lang]["14"]}
 			</h1>
 			<div className="grid grid-cols-1 gap-5 mt-4 md:grid-cols-2 lg:grid-cols-5 md:gap-10">
-				<div className="p-3 border rounded-md">
+				<div className="p-3 overflow-hidden border rounded-md">
 					{/* Used Storage */}
 					<label>{language[lang]["141"]}</label>
 					<div className="">
@@ -111,7 +111,7 @@ export default function Dashboard() {
 					</div>
 				</div>
 
-				<div className="p-3 border rounded-md">
+				<div className="p-3 overflow-hidden border rounded-md">
 				{/* Total files */}
 					<label>{language[lang]["142"]}</label>
 					<div className="">
@@ -125,7 +125,7 @@ export default function Dashboard() {
 					</div>
 				</div>
 
-				<div className="p-3 border rounded-md">
+				<div className="p-3 overflow-hidden border rounded-md">
 					{/* Public files */}
 					<label>{language[lang]["143"]}</label>
 					<div className="">
@@ -142,7 +142,7 @@ export default function Dashboard() {
 					</div>
 				</div>
 
-				<div className="p-3 border rounded-md">
+				<div className="p-3 overflow-hidden border rounded-md">
 					{/* Encrypted files */}
 					<label>{language[lang]["144"]}</label>
 					<div className="">
@@ -159,7 +159,7 @@ export default function Dashboard() {
 					</div>
 				</div>
 
-				<div className="p-3 border rounded-md b-classname">
+				<div className="p-3 overflow-hidden border rounded-md b-classname">
 					{/* Folders */}
 					<label>{language[lang]["145"]}</label>
 					<div className="">
