@@ -307,7 +307,8 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
             <HiPlus /> {language[lang]["13"]}
           </button>
           <div className="flex items-center gap-4 mt-4">
-            <Tippy content="Create Folder">
+            {/* Create folder */}
+            <Tippy content={language[lang]["131"]}>
               <button
                 className={"flex border border-gray-200 items-center justify-center w-full p-2 text-xs rounded-xl " + (theme === Theme.DARK ? " bg-[#4b4d70] text-white hover:bg-[#40425f]" : "bg-gray-200 text-gray-800 hover:bg-gray-300")}
                 onClick={onPresent}
@@ -317,7 +318,8 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
                 </div>
               </button>
             </Tippy>
-            <Tippy content="Upload Folder">
+            {/* Upload files */}
+            <Tippy content={language[lang]["13"]}>
               <button
                 className={"flex border border-gray-200 items-center justify-center w-full p-2 text-xs rounded-xl " + (theme === Theme.DARK ? " bg-[#4b4d70] text-white hover:bg-[#40425f]" : "bg-gray-200 text-gray-800 hover:bg-gray-300")}
                 onClick={handleFolderUpload}
