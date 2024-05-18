@@ -35,11 +35,11 @@ export default function Settings() {
                         {/* Choose your language */}
                         {language[lang]["1171"]}
                     </h1>
-                    <div className="flex gap-3 w-full flex-wrap">
+                    <div className="flex gap-3 w-full justify-center flex-wrap">
                         <button
                         onClick={onClickHandler}
                         value="en"
-                            className={"flex flex-1 h-min min-w-min max-w-min items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+                            className={"flex flex-1 h-min justify-center min-w-[100px] max-w-[100px]  items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
                                 (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
                         >
                             
@@ -48,7 +48,7 @@ export default function Settings() {
                         <button
                         onClick={onClickHandler}
                         value="es"
-                            className={"flex flex-1 h-min min-w-min max-w-min items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+                            className={"flex flex-1 h-min justify-center min-w-[100px] max-w-[100px] w-[100px]  items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
                                 (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
                         >
                             
@@ -57,7 +57,7 @@ export default function Settings() {
                         <button
                         onClick={onClickHandler}
                         value="it"
-                            className={"flex flex-1 h-min min-w-min max-w-min items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+                            className={"flex flex-1 h-min justify-center min-w-[100px] max-w-[100px] w-[100px]  items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
                                 (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
                         >
                             
@@ -66,7 +66,7 @@ export default function Settings() {
                         <button
                         onClick={onClickHandler}
                         value="de"
-                            className={"flex flex-1 h-min min-w-min max-w-min items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+                            className={"flex flex-1 h-min justify-center min-w-[100px] max-w-[100px] w-[100px]  items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
                                 (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
                         >
                             
@@ -75,7 +75,7 @@ export default function Settings() {
                         <button
                         onClick={onClickHandler}
                         value="pt"
-                            className={"flex flex-1 h-min min-w-min max-w-min items-center w-min gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+                            className={"flex flex-1 h-min justify-center min-w-[100px] max-w-[100px] w-[100px]  items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
                                 (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
                         >
                             
@@ -84,7 +84,7 @@ export default function Settings() {
                         <button
                         onClick={onClickHandler}
                         value="cn"
-                            className={"flex flex-1 h-min min-w-min max-w-min whitespace-nowrap items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+                            className={"flex flex-1 h-min justify-center min-w-[100px] max-w-[100px] w-[100px]  whitespace-nowrap items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
                                 (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
                         >
                             
@@ -93,7 +93,7 @@ export default function Settings() {
                         <button
                         onClick={onClickHandler}
                         value="ru"
-                            className={"flex flex-1 h-min min-w-min max-w-min items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+                            className={"flex flex-1 h-min justify-center min-w-[100px] max-w-[100px] w-[100px]  items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
                                 (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
                         >
                             
@@ -102,7 +102,7 @@ export default function Settings() {
                         <button
                         onClick={onClickHandler}
                         value="sa"
-                            className={"flex flex-1 h-min min-w-min max-w-min items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
+                            className={"flex flex-1 h-min justify-center min-w-[100px] max-w-[100px] w-[100px]  items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
                                 (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}
                         >
                             

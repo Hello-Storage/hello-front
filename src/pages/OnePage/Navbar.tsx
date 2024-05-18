@@ -1,9 +1,9 @@
-import language from "../../languages/languages.json"
 import { motion } from "framer-motion";
 import { navVariants } from "../../utils/one-page/motion";
 import { Link } from "react-router-dom";
-import LanguageChange from "./Language";
+import language from "../../languages/languages.json"
 import { useLanguage } from "../../languages/LanguageProvider";
+// import LanguageChange from "./Language";
  
 
 
@@ -33,7 +33,7 @@ export const Navbar = () => {
         />
       </h1>
       <div className="flex gap-5 items-center">
-        <LanguageChange/>
+        {/* <LanguageChange/> */}
         <Link to="/space/login"
           title="Go to Login Page">
           <button

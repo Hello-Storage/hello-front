@@ -21,6 +21,7 @@ export const IpfsInfoModal = () => {
                     {language[lang]["1151"]} <b>hello.app</b>, {language[lang]["1152"]}
                     <br />
                     <span className="text-orange-700">
+                    {/* For now, file pinning is available only for public files (encrypted files are only decryptable through hello.app platform yet still on IPFS). Find more information about it below: */}
                     {language[lang]["1153"]} <i> {language[lang]["1154"]}</i> {language[lang]["1155"]}
                     </span>
                 </p>
