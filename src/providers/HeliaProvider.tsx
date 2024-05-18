@@ -11,6 +11,7 @@ import {
   FC,
   ReactNode
 } from 'react'
+import { isSafari } from 'utils/user';
 
 type HeliaContextTypes = {
   helia: HeliaLibp2p<any> | null
@@ -39,26 +40,32 @@ export const HeliaProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [error, setError] = useState<boolean>(false)
 
   const startHelia = useCallback(async () => {
-    if (helia) {
-      console.info('helia already started')
-    } else if (window.helia) {
-      console.info('found a windowed instance of helia, populating ...')
-      setHelia(window.helia)
-      setStarting(false)
-    } else {
-      try {
-        console.info('Starting Helia')
-        const libp2p = await createLibp2p({
-          transports: [webSockets()],
-        });
-        const helia = await createHelia({ libp2p })
-        setHelia(helia)
+    if (!isSafari()) { // only start if not in safari
+      if (helia) {
+        console.info('helia already started')
+      } else if (window.helia) {
+        console.info('found a windowed instance of helia, populating ...')
+        setHelia(window.helia)
         setStarting(false)
-      } catch (e) {
-        console.error(e)
-        setError(true)
+      } else {
+        try {
+          console.info('Starting Helia')
+          const libp2p = await createLibp2p({
+            transports: [webSockets()],
+          });
+          const helia = await createHelia({ libp2p })
+          setHelia(helia)
+          setStarting(false)
+        } catch (e) {
+          console.error(e)
+          setError(true)
+        }
       }
+    } else {
+      setStarting(false)
+      setError(true)
     }
+
   }, [])
 
   useEffect(() => {
