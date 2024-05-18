@@ -15,3 +15,7 @@ export function isSafari() {
     const isOpera = /OPR/.test(userAgent);
     return isSafari && !isChrome && !isEdge && !isFirefox && !isOpera;
 }
+
+export function thereIsWebtrasnsport() {
+    return typeof WebTransport !== 'undefined'
+}

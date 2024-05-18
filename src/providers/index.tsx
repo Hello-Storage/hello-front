@@ -10,7 +10,6 @@ import GoogleOAuth from "./GoogleOAuthProvider";
 import SWRProvider from "./SWRProvider";
 import { PersistGate } from "redux-persist/integration/react";
 import { HeliaProvider } from "./HeliaProvider";
-import { isSafari } from "utils/user";
 
 const Providers: FC<{ children: ReactNode }> = ({ children }) => {
 	return (
@@ -21,13 +20,7 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
 						<EthProvider>
 							<SWRProvider>
 								<ModalProvider>
-									{!isSafari() ? (
-										<HeliaProvider>
-											{children}
-										</HeliaProvider>
-									) : (
-										<>{children}</>
-									)}
+									<HeliaProvider>{children}</HeliaProvider>
 								</ModalProvider>
 							</SWRProvider>
 						</EthProvider>
