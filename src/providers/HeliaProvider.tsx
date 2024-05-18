@@ -1,5 +1,5 @@
 import { unixfs } from '@helia/unixfs'
-import { HeliaLibp2p, createHelia } from 'helia'
+import { createHelia } from 'helia'
 import { createLibp2p } from "libp2p";
 import { webSockets } from "@libp2p/websockets";
 import {
@@ -13,7 +13,7 @@ import {
 } from 'react'
 
 type HeliaContextTypes = {
-  helia: HeliaLibp2p<any> | null
+  helia: any | null
   fs: any
   error: boolean
   starting: boolean
@@ -33,7 +33,7 @@ declare global {
 }
 
 export const HeliaProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [helia, setHelia] = useState<HeliaLibp2p<any> | null>(null)
+  const [helia, setHelia] = useState<any | null>(null)
   const [fs, setFs] = useState<any>(null)
   const [starting, setStarting] = useState(true)
   const [error, setError] = useState<boolean>(false)
