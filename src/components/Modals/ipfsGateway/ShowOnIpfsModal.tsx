@@ -17,7 +17,7 @@ type Props = {
 export const ShowOnIpfsModal: React.FC<Props> = ({ file }) => {
     const [, onDismiss] = useModal(<></>);
     const dispatch = useAppDispatch();
-    const { helia } = useHelia()
+    const { helia, error } = useHelia()
     const [hash, setHash] = useState("")
     const helloGateway = import.meta.env.VITE_IPFS_GATEWAY
 
@@ -35,7 +35,7 @@ export const ShowOnIpfsModal: React.FC<Props> = ({ file }) => {
     }, [])
 
     useEffect(() => {
-        if (hash) {
+        if (hash && !error) {
             PinFile(hash, helia)
         }
     }, [hash])
