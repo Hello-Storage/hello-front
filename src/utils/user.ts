@@ -6,12 +6,12 @@ export function getTheme() {
 }
 
 export function isSafari() {
-    const userAgent = navigator.userAgent;
-    const vendor = navigator.vendor;
-    const isSafari = /Safari/.test(userAgent) && /Apple Computer/.test(vendor);
-    const isChrome = /Chrome/.test(userAgent);
-    const isEdge = /Edg/.test(userAgent);
-    const isFirefox = /Firefox/.test(userAgent);
-    const isOpera = /OPR/.test(userAgent);
+    const userAgent = navigator.userAgent.toLowerCase();
+    const vendor = navigator.vendor.toLowerCase();
+    const isSafari = userAgent.includes("safari") && vendor.includes("apple computer");
+    const isChrome = userAgent.includes("chrome");
+    const isEdge = userAgent.includes("edg");
+    const isFirefox = userAgent.includes("firefox");
+    const isOpera = userAgent.includes("opr");
     return isSafari && !isChrome && !isEdge && !isFirefox && !isOpera;
 }
