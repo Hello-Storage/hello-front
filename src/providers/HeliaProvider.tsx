@@ -1,5 +1,7 @@
 import { unixfs } from "@helia/unixfs";
-import { HeliaLibp2p, createHelia } from "helia";
+import { HeliaLibp2p } from "helia";
+import { webSockets } from "@libp2p/websockets";
+
 import {
 	useEffect,
 	useState,
@@ -10,6 +12,7 @@ import {
 	ReactNode,
 } from "react";
 import { isSafari } from "utils/user";
+import { createLibp2p } from "libp2p";
 
 type HeliaContextTypes = {
 	helia: HeliaLibp2p<any> | null;
@@ -28,12 +31,13 @@ export const HeliaContext = createContext<HeliaContextTypes>({
 declare global {
 	interface Window {
 		helia: any;
+		WebTransport: any;
 	}
 }
 
 export const HeliaProvider: FC<{ children: ReactNode }> = ({ children }) => {
 	const [helia, setHelia] = useState<HeliaLibp2p<any> | null>(null);
-	const [fs, setFs] = useState<any>(null);
+	const [fs, setFs] = useState<any | null>(null);
 	const [starting, setStarting] = useState(true);
 	const [error, setError] = useState<boolean>(false);
 
@@ -47,18 +51,16 @@ export const HeliaProvider: FC<{ children: ReactNode }> = ({ children }) => {
 		} else {
 			try {
 				console.info("Starting Helia");
-				if (!isSafari() ) {
-					import("libp2p").then(async ({ createLibp2p }) => {
-						import("@libp2p/websockets").then(
-							async ({ webSockets }) => {
-								const libp2p = await createLibp2p({
-									transports: [webSockets()],
-								});
-								const helia = await createHelia({ libp2p });
-								setHelia(helia);
-								setStarting(false);
-							}
-						);
+				if (!isSafari()) {
+					import("helia").then(async ({ createHelia }) => {
+						const libp2p = await createLibp2p({
+							transports: [webSockets()],
+						});
+						const helia = await createHelia({
+							libp2p,
+						});
+						setHelia(helia);
+						setStarting(false);
 					});
 				} else {
 					setStarting(false);
