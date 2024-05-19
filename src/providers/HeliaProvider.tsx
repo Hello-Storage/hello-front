@@ -9,7 +9,7 @@ import {
 	FC,
 	ReactNode,
 } from "react";
-import { thereIsWebtrasnsport } from "utils/user";
+import { isSafari } from "utils/user";
 
 type HeliaContextTypes = {
 	helia: HeliaLibp2p<any> | null;
@@ -47,7 +47,7 @@ export const HeliaProvider: FC<{ children: ReactNode }> = ({ children }) => {
 		} else {
 			try {
 				console.info("Starting Helia");
-				if (!thereIsWebtrasnsport() ) {
+				if (!isSafari() ) {
 					import("libp2p").then(async ({ createLibp2p }) => {
 						import("@libp2p/websockets").then(
 							async ({ webSockets }) => {
