@@ -132,14 +132,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             </button>
           </a>
 
-          <a className="hidden lg:block"
-            href="https://www.seedrs.com/hello-app" target="_blank">
-            <button className={"flex flex-1 min-w-full items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
-              + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>
-              {/* Join Our Crowfunding */}
-              {language[lang]["03"]}
-            </button>
-          </a>
+        
           <div className="flex flex-1 min-w-min gap-2">
             <div className="flex flex-1 min-w-min relative" ref={ref}>
               <button
