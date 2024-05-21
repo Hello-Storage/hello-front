@@ -172,12 +172,7 @@ export default function Statistics() {
                 Go to hello.app
               </Link>
 
-              <Link
-                to="https://www.seedrs.com/hello-app/coming-soon"
-                className="px-3 py-1 text-xs text-white bg-blue-500 rounded text-center"
-              >
-                Join Our Crowfunding
-              </Link>
+            
             </div>
           </div>
         </nav>
