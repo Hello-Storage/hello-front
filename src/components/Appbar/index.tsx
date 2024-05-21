@@ -117,13 +117,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             </button>
           </a>
 
-          <a  className="hidden lg:block"
-          href="https://www.seedrs.com/hello-app/coming-soon" target="_blank">
-            <button className={"flex items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm "
-              + (theme === Theme.DARK ? " dark-theme3" : "bg-gray-100 hover:bg-gray-200")}>              
-                Join Our Crowfunding
-            </button>
-          </a>
+         
 
           <div className="relative" ref={ref}>
             <button
