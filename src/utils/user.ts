@@ -5,9 +5,6 @@ export function getTheme() {
     return theme ?? Theme.LIGHT
 }
 
-export function isSafari() {
-    const userAgent = navigator.userAgent.toLowerCase();
-    const vendor = navigator.vendor.toLowerCase();
-    const isSafari = (userAgent.includes("safari") || userAgent.includes("applewebkit")) && vendor.includes("apple computer");
-    return isSafari;
+export function isWebTransportSupported(): boolean {
+    return typeof (window as any).WebTransport !== 'undefined';
 }

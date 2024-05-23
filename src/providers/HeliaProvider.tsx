@@ -11,7 +11,7 @@ import {
 	FC,
 	ReactNode,
 } from "react";
-import { isSafari } from "utils/user";
+import { isWebTransportSupported } from "utils/user";
 import { createLibp2p } from "libp2p";
 
 type HeliaContextTypes = {
@@ -51,7 +51,7 @@ export const HeliaProvider: FC<{ children: ReactNode }> = ({ children }) => {
 		} else {
 			try {
 				console.info("Starting Helia");
-				if (!isSafari()) {
+				if (isWebTransportSupported()) {
 					import("helia").then(async ({ createHelia }) => {
 						const libp2p = await createLibp2p({
 							transports: [webSockets()],
