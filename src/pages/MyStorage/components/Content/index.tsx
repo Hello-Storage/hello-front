@@ -444,7 +444,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
             {language[lang]["145"]}
             </h4>
           </div>
-          <div className="folders-div">
+          <div className="folders-div invisible-scrollbar mb-5 ">
             {actionsAllowed && (
               <button
                 className={"cursor-pointer px-5 py-3 border border-gray-200 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
@@ -484,18 +484,13 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
             ))}
           </div>
 
-          <section
-            className="custom-scrollbar position-sticky-left mb-[15px]"
-            id="scroll-visible-section"
-          >
-            <div id="width-section-helper"></div>
-          </section>
+          
         </>
         :
         <></>
       }
 
-      <section className="custom-scrollbar position-sticky-left">
+      <section className={`custom-scrollbar position-sticky-left`}>
         <div className="sticky left-0 flex flex-row items-center justify-between mb-[15px]">
           <h4 className="pt-1 pb-3">{filesTitle}</h4>
           <div className="flex flex-row items-center justify-between">
@@ -527,7 +522,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
         {view === "list" ? (
           <>
             <div id={"header-scroll-inv_" + identifier}>
-              <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
+              <table id={"files-headers_" + identifier} className="max-h-full w-full text-sm text-left text-gray-500 table-with-lines">
                 <thead className={"text-xs "
                   + (theme === Theme.DARK ? " text-white bg-[#32334b]" : " text-gray-700 bg-gray-100")}>
                   <tr>

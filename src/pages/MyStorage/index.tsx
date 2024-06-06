@@ -43,7 +43,7 @@ import { Helmet } from "react-helmet";
 
 
 export default function Home() {
-  const {lang} = useLanguage()
+  const { lang } = useLanguage()
   const dispatch = useAppDispatch();
   const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { name } = useAppSelector((state) => state.user);
@@ -361,14 +361,17 @@ export default function Home() {
         <title>Space | hello.app</title>
         <link rel="canonical" href="https://hello.app" />
       </Helmet>
-      <div className="flex flex-col overflow-hidden table-main " id="content">
+      <div className="flex flex-col max-h-full overflow-clip table-main max-w-full" id="content">
+     
         {showShareModal && <>
           <ShareModal />
           <ShareFolderModal />
         </>}
-        <div className="flex justify-between items-center mb-[15px]">
-          <Breadcrumb />
-          <div className="flex flex-row items-center justify-evenly min-w-fit">
+        <div className="flex flex-wrap gap-3 justify-between items-center mb-[15px]">
+          
+            <Breadcrumb />
+          
+          <div className="flex flex-1 flex-row items-center justify-evenly min-w-full md:min-w-fit ">
             <div ref={ref}>
               <button
                 className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" + (theme === Theme.DARK ? " text-white hover:bg-[#32334b]" : " bg-white text-gray-900 hover:bg-gray-100")}
@@ -389,7 +392,7 @@ export default function Home() {
                         >
                           {/* All */}
                           {language[lang]["1518"]}
-                          
+
                         </label>
                         <input
                           type="radio"
@@ -476,8 +479,8 @@ export default function Home() {
         <div className="position-sticky-left">
           <Dropzone />
         </div>
-
-        <section className="invisible-scrollbar " id="scroll-invisible-section">
+              
+        <section className="flex-grow max-h-full max-w-full pb-12" id="">
           <Content
             loading={loading}
             actionsAllowed={true}
@@ -488,9 +491,9 @@ export default function Home() {
             showFolders={true}
             filesTitle={language[lang]["153"]} //Files
             identifier={1}
-          />
+          />   
         </section>
-        <div className="flex-shrink-0 mb-0">
+        <div className="flex-shrink-0 absolute bottom-4 h-10 pr-8 w-full">
           <div className={"flex items-center justify-between mt-3 border-gray-200 text-sm border-t "
             + (theme === Theme.DARK ? " dark-theme" : " bg-white ")}>
             <div className="text-xs">
@@ -528,7 +531,7 @@ export default function Home() {
                 <span className="hidden md:inline">
                   {/* Next */}
                   {language[lang]["1515"]}
-                  </span>{" "}
+                </span>{" "}
                 <HiChevronRight className="w-5 h-5" />
               </button>
             </div>
