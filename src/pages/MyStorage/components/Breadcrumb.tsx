@@ -109,15 +109,17 @@ export default function Breadcrumb() {
   const { theme } = useAppSelector((state) => state.user);
 
   return (
-    <nav className="flex flex-row items-center mr-2" aria-label="Breadcrumb">
-      <ol className="flex flex-row items-center overflow-auto text-lg font-medium custom-scrollbar">
+    <nav className="flex flex-1 sm:min-w-full overflow-auto whitespace-nowrap flex-row items-center mr-2" aria-label="Breadcrumb">
+      <ol className="flex flex-row items-center text-lg font-medium whitespace-nowrap invisible-scrollbar ">
         <li onDrop={handleDrop}
          aria-label={"/"}
+         className="min-w-[125px]"
         >
           <button
             onClick={() => onClick("/space/my-storage")}
             className={"inline hover:text-blue-600 cursor-pointer text-xl min-w-[125px]" + (theme === Theme.DARK ? " text-white" : " text-gray-700")}
           >
+                                                {/* My Storage */}
             <strong className="whitespace-nowrap">{language[lang]["15"]}</strong>
           </button>
         </li>
