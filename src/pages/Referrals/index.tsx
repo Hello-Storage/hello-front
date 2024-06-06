@@ -85,7 +85,7 @@ const Referrals = () => {
 	const {theme} = useAppSelector((state) => state.user);
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col h-full max-h-full  relative">
       <Link
         to="/space/referrals"
         className={"p-2 text-xl inline-flex items-center hover:text-blue-600 cursor-pointer"
@@ -96,7 +96,7 @@ const Referrals = () => {
 
       </Link>
       <hr className="mt-5 mb-3" />
-      <div className="h-full p-8 flex flex-col items-center border rounded-xl">
+      <div className="h-min min-h-min md:h-full p-8  flex flex-col items-center border rounded-xl">
         <div className="mb-4 flex items-center justify-center text-center w-full space-x-2">
           <GoPeople className="text-blue-600 w-7 h-7" />
           <h1 className={"md:text-2xl text-lg select-none tracking-tighter text-center "
