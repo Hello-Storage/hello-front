@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { BrowserRouter, HashRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AppLayout } from "layouts";
 
@@ -13,6 +13,7 @@ import ShareSharedWithMeGroupdWithMe from "pages/Shared/SharedWithMeGroup";
 import { FolderShared } from "pages/Shared/FolderShared";
 import NotFound from "pages/NotFound";
 import OnePage from "pages/OnePage/layouts/page";
+
 
 
 
@@ -42,9 +43,12 @@ const Login = lazy(() => import("pages/Auth/Login"));
 const TrackPageViews = () => {
   const location = useLocation();
 
+
   useEffect(() => {
     // Check if the `dataLayer` object exists (it should be injected by the Google Tag Manager script)
+
     if ((window as any).dataLayer) {
+
       // Push a pageview event to the dataLayer
       (window as any).dataLayer.push({
         event: "page_view",
@@ -56,7 +60,25 @@ const TrackPageViews = () => {
   return null; // This component does not render anything
 };
 
+
 function App() {
+
+  const [innerHeight, setInnerHeight] = useState(window.innerHeight)
+
+  useEffect(()=>{
+    const handleResize = () => {
+      setInnerHeight(window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+
+  },[])
+
+
   const { load, logout } = useAuth();
 
   const RouterMethod = import.meta.env.VITE_ROUTER === 'browser-router' ? BrowserRouter : HashRouter
@@ -67,6 +89,7 @@ function App() {
       setAuthToken(token);
     }
     load();
+
 
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "access_token" && !localStorage.getItem("access_token")) {
@@ -82,11 +105,12 @@ function App() {
     };
   }, [load, logout]);
 
-  return (
 
+  return (
     <RouterMethod>
-      <TrackPageViews />
-      <Suspense fallback={<Spinner3 />}>
+      <div style={{height: `${innerHeight}px`, minHeight:'min-content' }} className="min-h-min flex flex-col justify-between overflow-hidden">
+        <TrackPageViews />
+        <Suspense fallback={<Spinner3 />}>
           <Routes>
             <Route path="*" element={<Navigate to="/404" replace />} />
             <Route path="/404" element={<NotFound />} />
@@ -127,7 +151,8 @@ function App() {
             </Route>
             <Route path="/space/login" element={<Login />} />
           </Routes>
-      </Suspense>
+        </Suspense>
+      </div>
     </RouterMethod>
   );
 }

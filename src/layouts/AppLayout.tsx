@@ -1,5 +1,5 @@
-import language from "languages/languages.json"
-import { useLanguage } from "languages/LanguageProvider";
+// import language from "languages/languages.json"
+// import { useLanguage } from "languages/LanguageProvider";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import Sidebar from "components/Sidebar";
@@ -15,7 +15,7 @@ import { Theme } from "state/user/reducer";
 
 export default function AppLayout() {
 
-  const {lang} = useLanguage()
+  // const {lang} = useLanguage()
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,7 +54,7 @@ export default function AppLayout() {
 
   return (
     <SearchContext.Provider value={searchTermMemo}>
-      <div style={{ fontFamily: "SF Mono", height: "100%" }} className="flex flex-col justify-between">
+      <div style={{ fontFamily: "SF Mono"}} className="h-full flex flex-col justify-between">
         {!sidebarOpen && (
           <div className={"sticky flex items-center justify-between w-full px-5 py-2 lg:hidden" + (theme === Theme.DARK ? " dark-theme4" : " bg-gray-100")}>
             <div className="flex items-center gap-3">

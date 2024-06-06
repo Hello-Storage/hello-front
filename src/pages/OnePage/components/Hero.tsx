@@ -77,7 +77,7 @@ export const Hero = () => {
 
 
   return (
-    <section className="relative flex flex-col justify-center h-screen items-center mx-8 top-[-154px] md:top-[-104px]">
+    <section className="relative flex flex-col justify-center h-full items-center mx-8 top-[-100px] md:top-[-104px]">
       <div className="max-w-3xl flex flex-col md:gap-10 gap-5 justify-center text-center mb-8 one-page-btn">
         <h2 className="font-extrabold tracking-tight text-white one-page-title text-center">
         {/* Dream with us */}
@@ -113,6 +113,7 @@ export const Hero = () => {
           className="relative px-12 py-3 rounded-xl bg-gradient-to-b from-violet-500 to-violet-900 hover:from-violet-600 hover:to-violet-900 cursor-pointer inline-block">
             {/* About */}
           <span className="relative z-10 text-white">{language[lang]["02"]}</span>
+          <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
           <div className="absolute inset-0 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25"></div>
         </a>
         <a href="https://hello.app/stats"
