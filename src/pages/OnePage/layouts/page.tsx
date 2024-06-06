@@ -27,8 +27,8 @@ const OnePage = () => {
       <Helmet>
         <link rel="canonical" href="https://hello.app" />
       </Helmet>
-      <div className="relative overflow-hidden h-screen text-gray-100 bg-slate-950">
-        <div className="absolute h-screen inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5"></div>
+      <div className="relative overflow-hidden h-full text-gray-100 bg-slate-950">
+        <div  className="absolute h-full inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5"></div>
         <canvas
           data-particle-animation
           data-particle-quantity="200"
