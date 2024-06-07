@@ -64,7 +64,7 @@ const TrackPageViews = () => {
 function App() {
 
   const [innerHeight, setInnerHeight] = useState(window.innerHeight)
-  const [innerWidth, setInnerWidth] = useState(window.innerHeight)
+  const [innerWidth, setInnerWidth] = useState(window.innerWidth)
 
   useEffect(()=>{
     const handleResize = () => {
@@ -110,7 +110,7 @@ function App() {
 
   return (
     <RouterMethod>
-      <div style={{maxHeight: `${innerHeight}px`, height: `${innerHeight}px`, minHeight:'min-content', maxWidth: `${innerWidth}px` }} className="min-h-min flex flex-col justify-between overflow-hidden">
+      <div style={{maxHeight: `${innerHeight}px`, height: `${innerHeight}px`, minHeight:'min-content', maxWidth: `${innerWidth}px`}} className="min-h-min flex flex-col justify-between overflow-hidden">
         <TrackPageViews />
         <Suspense fallback={<Spinner3 />}>
           <Routes>
