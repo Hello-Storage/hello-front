@@ -123,12 +123,18 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
             />
           </div>
         </form>
-        {window.innerWidth < 500?<button onClick={handleToogleMenu} className="w-[80px] border rounded-xl h-full flex justify-center items-center">
+        {/* {window.innerWidth < 500?<button onClick={handleToogleMenu} className="w-[80px] border rounded-xl h-full flex justify-center items-center">
           {menuDrop?<HiChevronDoubleUp />:<HiChevronDoubleDown />}
-        </button>:null}
+        </button>:null} */}
+        <button onClick={handleToogleMenu} className="sm:hidden w-[80px] border  rounded-xl h-full flex justify-center items-center">
+          {menuDrop?<HiChevronDoubleUp />:<HiChevronDoubleDown />}
+        </button>
+
+
         </div>
 
-        <div className={`flex flex-wrap items-center md:gap-4 w-full justify-between md:w-fit gap-1 my-4 ${window.innerWidth < 500?menuDrop?null:"hidden":null}`}>
+        {/* <div className={`flex flex-wrap items-center md:gap-4 w-full justify-between md:w-fit gap-1 my-4 ${window.innerWidth < 640?menuDrop?"flex":"hidden":"flex"}`}> */}
+        <div className={`flex flex-wrap items-center md:gap-4 w-full justify-between md:w-fit gap-1 my-4 ${menuDrop?null:"hidden"} sm:flex`}>
           <button
             onClick={onPresent}
             className={"flex flex-1 min-w-min  whitespace-nowrap items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +

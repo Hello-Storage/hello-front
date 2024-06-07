@@ -109,7 +109,7 @@ export default function Breadcrumb() {
   const { theme } = useAppSelector((state) => state.user);
 
   return (
-    <nav className="flex flex-1 sm:min-w-full overflow-auto whitespace-nowrap flex-row items-center mr-2" aria-label="Breadcrumb">
+    <nav className="flex flex-auto max-w-fit overflow-auto whitespace-nowrap flex-row items-center mr-2" aria-label="Breadcrumb">
       <ol className="flex flex-row items-center text-lg font-medium whitespace-nowrap invisible-scrollbar ">
         <li onDrop={handleDrop}
          aria-label={"/"}
