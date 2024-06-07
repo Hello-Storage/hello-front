@@ -371,7 +371,7 @@ export default function Home() {
           
             <Breadcrumb />
           
-          <div className="flex flex-1 flex-row items-center justify-center sm:justify-end gap-5 min-w-full md:min-w-fit ">
+          <div className="flex flex-1 flex-row items-center justify-center sm:justify-end gap-5 min-w-full sm:min-w-fit ">
             <div ref={ref}>
               <button
                 className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" + (theme === Theme.DARK ? " text-white hover:bg-[#32334b]" : " bg-white text-gray-900 hover:bg-gray-100")}
