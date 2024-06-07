@@ -100,7 +100,7 @@ export default function Login() {
         <meta name="description" content="Create an account or login to hello.app" />
         <link rel="canonical" href="https://hello.app/space/login" />
       </Helmet>
-      <div className={"flex flex-col justify-between min-h-screen p-8 md:h-screen" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
+      <div className={"flex flex-col justify-between  min-h-full p-8 md:h-full" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold font-[Outfit]">
             hello.app
@@ -173,7 +173,8 @@ export default function Login() {
             </div>
           </div>
         </div>
-        <footer className={"p-0 min-w-[350px] text-sm flex justify-between flex-row items-center text-black md:mx-12 md:p-2 mb-[100px] md:mb-0" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
+
+        <footer className={"p-0 min-w-[350px] text-sm flex justify-between flex-row items-center text-black md:mx-12 md:p-2  md:mb-0" + (getTheme() === Theme.DARK ? " dark-theme" : "")}>
           <div className="flex flex-col items-start">
             <div className="flex p-0 space-x-4 md:p-0">
               <a href="mailto:team@hello.app"

@@ -13,7 +13,7 @@ export const Footer = () => {
   const {lang} = useLanguage()
 
   return(
-  <footer className="flex flex-row justify-between md:p-2 z-0 text-sm text-white md:mb-0 mt-8 absolute inset-x-0 bottom-[132px] md:bottom-[32px] left-8 right-8 md:left-20 md:right-8 min-w-[350px]">
+  <footer className="flex flex-row justify-between md:p-2 z-0 text-sm text-white md:mb-0 mt-8 absolute bottom-2 md:bottom-2 left-8 right-8 md:left-20 md:right-8 min-w-[350px]">
     <div className="flex flex-col items-start">
       <div className="flex p-0 space-x-4 md:p-0">
         <a

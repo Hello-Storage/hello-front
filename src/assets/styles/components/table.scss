@@ -31,8 +31,10 @@
 
 @media only screen and (max-width: 640px) {
 	.table-div {
-		min-height: calc(100vh - 535px);
-		max-height: calc(100vh - 535px);
+
+		min-height: calc(100vh - 480px);
+		max-height: calc(100vh - 480px);
+		
 	}
 }
 
