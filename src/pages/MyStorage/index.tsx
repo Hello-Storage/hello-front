@@ -480,7 +480,7 @@ export default function Home() {
           <Dropzone />
         </div>
               
-        <section className="flex-grow max-h-full max-w-full pb-12" id="">
+        <section className="flex-grow max-h-full max-w-full" id="">
           <Content
             loading={loading}
             actionsAllowed={true}
@@ -493,7 +493,7 @@ export default function Home() {
             identifier={1}
           />   
         </section>
-        <div className="flex-shrink-0 absolute bottom-4 h-10 pr-8 w-full">
+        <div className="flex-shrink-0 bottom-4 h-10 w-full">
           <div className={"flex items-center justify-between mt-3 border-gray-200 text-sm border-t "
             + (theme === Theme.DARK ? " dark-theme" : " bg-white ")}>
             <div className="text-xs">
