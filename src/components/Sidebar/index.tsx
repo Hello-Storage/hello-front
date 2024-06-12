@@ -239,7 +239,7 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
   const { theme } = useAppSelector((state) => state.user);
 
   return (
-    <div className={"flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full" + (theme === Theme.DARK ? " dark-theme4" : "")}>
+    <div className={"flex flex-col py-6 overflow-auto h-full bg-[#F3F4F6] px-8 md:px-6 w-full" + (theme === Theme.DARK ? " dark-theme4" : "")}>
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]"
