@@ -361,7 +361,7 @@ export default function Home() {
         <title>Space | hello.app</title>
         <link rel="canonical" href="https://hello.app" />
       </Helmet>
-      <div className="flex flex-col max-h-full overflow-clip table-main max-w-full" id="content">
+      <div className="flex flex-col flex-grow max-h-full overflow-clip table-main max-w-full" id="content">
      
         {showShareModal && <>
           <ShareModal />
@@ -480,7 +480,7 @@ export default function Home() {
           <Dropzone />
         </div>
               
-        <section className="flex-grow max-h-full max-w-full" id="">
+        <section className="flex flex-col flex-grow max-w-full" id="">
           <Content
             loading={loading}
             actionsAllowed={true}
@@ -493,7 +493,7 @@ export default function Home() {
             identifier={1}
           />   
         </section>
-        <div className="flex-shrink-0 bottom-4 h-10 w-full">
+        <div className="flex-shrink-0 z-10 bottom-4 h-10 w-full">
           <div className={"flex items-center justify-between mt-3 border-gray-200 text-sm border-t "
             + (theme === Theme.DARK ? " dark-theme" : " bg-white ")}>
             <div className="text-xs">
