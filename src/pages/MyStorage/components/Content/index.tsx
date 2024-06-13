@@ -490,7 +490,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
         <></>
       }
 
-      <section className={`custom-scrollbar position-sticky-left`}>
+      <section className={`flex-grow custom-scrollbar position-sticky-left`}>
         <div className="sticky left-0 flex flex-row items-center justify-between mb-[15px]">
           <h4 className="pt-1 pb-3">{filesTitle}</h4>
           <div className="flex flex-row items-center justify-between">
@@ -574,7 +574,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                 </thead>
               </table>
             </div>
-            <div id={"table-row-div_" + identifier} className="h-full min-w-full table-div custom-scrollbar scrollbar-color">
+            <div id={"table-row-div_" + identifier} className="table-div custom-scrollbar scrollbar-color">
               <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
                 + (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
                 <tbody>
