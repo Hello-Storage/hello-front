@@ -110,7 +110,7 @@ function App() {
 
   return (
     <RouterMethod>
-     <div style={{height: `${innerHeight}px`, minHeight:'min-content' }} className="min-h-min flex flex-col justify-between overflow-hidden">
+     <div style={{height: `${innerHeight}px`, maxHeight:`${innerHeight}px` }} className="flex flex-col justify-between overflow-hidden">
         <TrackPageViews />
         <Suspense fallback={<Spinner3 />}>
           <Routes>
