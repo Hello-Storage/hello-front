@@ -154,7 +154,6 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
     const thElement = event.currentTarget.firstElementChild;
 
     if (!thElement) {
-      console.log("thElement is null");
       return;
     }
 
@@ -394,19 +393,17 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
     if (rowsScroll && headerScroll && content) {
       const contentSize = content.getBoundingClientRect().width
       if (contentSize > 850) {
-        rowsScroll.style.width = content.getBoundingClientRect().width + "px";
-        headerScroll.style.width = content.getBoundingClientRect().width + "px";
+        headerScroll.style.width = contentSize + "px";
       }
+      rowsScroll.style.width = contentSize + "px";
     }
   }
 
   useEffect(() => {
     handleFocusResize()
-
   }, [windowWidth])
-
   useEffect(() => {
-    const invScroll = document.getElementById("scroll-invisible-section");
+    const invScroll = document.getElementById("invisible-scrollbar");
     const visScroll = document.getElementById("scroll-visible-section");
     const widthHelper = document.getElementById("width-section-helper");
     const size = folders.length * 240 + 240 + "px";
@@ -432,7 +429,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
 
   }, []);
 
-  const { theme } = useAppSelector((state) => state.user);
+  const { theme, isOpenMenu } = useAppSelector((state) => state.user);
 
   return (
     <>
@@ -444,7 +441,9 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
             {language[lang]["145"]}
             </h4>
           </div>
-          <div className="folders-div invisible-scrollbar mb-5 ">
+            
+          <div className="folders-div mb-5"
+          >
             {actionsAllowed && (
               <button
                 className={"cursor-pointer px-5 py-3 border border-gray-200 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
@@ -484,7 +483,13 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
             ))}
           </div>
 
-          
+          <section
+            className="custom-scrollbar position-sticky-left mb-[15px]"
+            id="scroll-visible-section"
+          >
+            <div id="width-section-helper"></div>
+          </section>
+
         </>
         :
         <></>
@@ -574,7 +579,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                 </thead>
               </table>
             </div>
-            <div id={"table-row-div_" + identifier} className="table-div custom-scrollbar scrollbar-color">
+            <div id={"table-row-div_" + identifier} className={"table-div custom-scrollbar scrollbar-color"+ (isOpenMenu?" open-menu":"")}>
+
               <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
                 + (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
                 <tbody>

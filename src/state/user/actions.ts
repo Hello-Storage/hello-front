@@ -8,3 +8,4 @@ export const loadUserFail = createAction("user/load-fail");
 export const logoutUser = createAction<string | undefined>("user/logout");
 export const setRedirectUrl = createAction<string | undefined>("user/setRedirectUrl");
 export const setTheme = createAction<Theme>("user/setTheme");
+export const setIsOpenMenu = createAction<boolean>("user/setIsOpenMenu");

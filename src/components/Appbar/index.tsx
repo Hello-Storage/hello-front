@@ -16,7 +16,7 @@ import {
 } from "react-icons/hi";
 import { SiIpfs } from "react-icons/si";
 import { useAppDispatch, useAppSelector } from "state";
-import { setTheme } from "state/user/actions";
+import { setIsOpenMenu, setTheme } from "state/user/actions";
 import { Theme } from "state/user/reducer";
 import { formatName } from "utils";
 import { getTheme } from "utils/user";
@@ -25,6 +25,7 @@ import { Support } from "./components/Support";
 import { Link } from "react-router-dom";
 import { useHelia } from "hooks/useHelia";
 import { IpfsInfoModal } from "./components/IpfsInfoModal";
+import { IoSearchOutline } from "react-icons/io5";
 
 interface AppbarProps {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -32,11 +33,10 @@ interface AppbarProps {
 
 const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   const { lang } = useLanguage()
-  const { name, walletAddress } = useAppSelector((state) => state.user);
+  const { name, walletAddress, isOpenMenu } = useAppSelector((state) => state.user);
   const { logout } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [menuDrop, setMenuDrop] = useState(false)
   const dispatch = useAppDispatch();
 
   const [onPresent] = useModal(
@@ -71,7 +71,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   }
 
   function handleToogleMenu(){
-    setMenuDrop(!menuDrop)
+    dispatch(setIsOpenMenu(!isOpenMenu))
   }
 
   useEffect(() => {
@@ -81,7 +81,6 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
   }, [theme])
 
   return (
-    <>
       <div className={`flex flex-wrap flex-col mb-4 items-start md:flex-row md:items-center md:gap-8 transition-all sm:mt-0 `  
         + (theme === Theme.DARK ? " dark-theme" : "")}>
         <div className="flex flex-1 gap-3 items-center min-w-min order-last w-full md:mt-0 md:order-first sm:order-last sm:mt-0">
@@ -96,21 +95,7 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-              <svg
-                className="w-4 h-4 text-gray-500"
-                aria-hidden="true"  
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                />
-              </svg>
+            <IoSearchOutline />
             </div>
             <input
               type="search"
@@ -126,15 +111,15 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
         {/* {window.innerWidth < 500?<button onClick={handleToogleMenu} className="w-[80px] border rounded-xl h-full flex justify-center items-center">
           {menuDrop?<HiChevronDoubleUp />:<HiChevronDoubleDown />}
         </button>:null} */}
-        <button onClick={handleToogleMenu} className="sm:hidden w-[80px] border  rounded-xl h-full flex justify-center items-center">
-          {menuDrop?<HiChevronDoubleUp />:<HiChevronDoubleDown />}
+        <button onClick={handleToogleMenu} title="Click to open menu" className="sm:hidden w-[80px] border  rounded-xl h-full flex justify-center items-center">
+          {isOpenMenu?<HiChevronDoubleUp />:<HiChevronDoubleDown />}
         </button>
 
 
         </div>
 
         {/* <div className={`flex flex-wrap items-center md:gap-4 w-full justify-between md:w-fit gap-1 my-4 ${window.innerWidth < 640?menuDrop?"flex":"hidden":"flex"}`}> */}
-        <div className={`flex flex-wrap items-center md:gap-4 w-full justify-between md:w-fit gap-1 my-4 ${menuDrop?null:"hidden"} sm:flex`}>
+        <div className={`flex flex-wrap items-center md:gap-4 w-full justify-between md:w-fit gap-1 my-4 ${isOpenMenu?null:"hidden"} sm:flex`}>
           <button
             onClick={onPresent}
             className={"flex flex-1 min-w-min  whitespace-nowrap items-center gap-1 py-2 md:px-4 px-2 rounded-lg text-sm " +
@@ -265,11 +250,6 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
           </div>
         </div>
       </div>
-
-        
-      
-      
-    </>
   );
 };
 

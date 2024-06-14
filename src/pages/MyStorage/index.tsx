@@ -480,7 +480,7 @@ export default function Home() {
           <Dropzone />
         </div>
               
-        <section className="flex flex-col flex-grow max-w-full" id="">
+        <section className="flex flex-col flex-grow" id="invisible-scrollbar">
           <Content
             loading={loading}
             actionsAllowed={true}
