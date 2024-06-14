@@ -580,6 +580,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
               </table>
             </div>
             <div id={"table-row-div_" + identifier} className={"table-div custom-scrollbar scrollbar-color"+ (isOpenMenu?" open-menu":"")}>
+
               <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
                 + (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
                 <tbody>
