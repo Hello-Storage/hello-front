@@ -10,7 +10,7 @@ import Shield_m from "assets/images/Outline/Shield_m.png";
 import Hotspot_m from "assets/images/Outline/Hotspot_m.png";
 import axios from "axios";
 import UsersChart from "./Components/UsersChart";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { HiMail } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
@@ -27,8 +27,10 @@ type IconWithTooltipProps = {
   tooltipText: string;
 };
 
-function IconWithTooltip({ IconComponent, tooltipText }: Readonly<IconWithTooltipProps>) {
-
+function IconWithTooltip({
+  IconComponent,
+  tooltipText,
+}: Readonly<IconWithTooltipProps>) {
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
@@ -66,7 +68,9 @@ export default function Statistics() {
   const [publicfiles, setpublicfiles] = useState("");
   const [totalusers, settotalusers] = useState("");
   const [totalusedstorage, settotalusedstorage] = useState<number>(0);
+  const [autorized, setAutorized] = useState(false);
 
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
 
@@ -132,12 +136,28 @@ export default function Statistics() {
   };
 
   useEffect(() => {
-    fetchData();
+    if (autorized) {
+      fetchData();
 
-    // 15 seconds update interval
-    const intervalId = setInterval(fetchData, 30000);
+      // 15 seconds update interval
+      const intervalId = setInterval(fetchData, 30000);
 
-    return () => clearInterval(intervalId);
+      return () => clearInterval(intervalId);
+    }
+  }, [autorized]);
+
+  useEffect(() => {
+    if (!autorized) {
+      const password = prompt(
+        "Please enter the password to access this page",
+        ""
+      );
+      if (password === import.meta.env.VITE_STATISTICS_PASSWORD) {
+        setAutorized(true);
+      } else {
+        navigate("/");
+      }
+    }
   }, []);
 
   if (loading) {
@@ -171,8 +191,6 @@ export default function Statistics() {
               >
                 Go to hello.app
               </Link>
-
-            
             </div>
           </div>
         </nav>
