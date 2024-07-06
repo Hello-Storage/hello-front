@@ -16,13 +16,17 @@
 @import "./components/snapshots.scss";
 
 
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+
 
 body {
   overflow: hidden;
 }
 
 * {
-  font-family: "SF Mono";
+  //font-family: "SF Mono";
+  font-family: "Montserrat", sans-serif;
   letter-spacing: -0.3px;
   box-sizing: border-box;
   min-width: 0;
