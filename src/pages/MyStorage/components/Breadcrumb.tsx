@@ -1,3 +1,5 @@
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
 import { Api } from "api";
 import { HiChevronRight } from "react-icons/hi";
 import { FaFolder } from "react-icons/fa";
@@ -9,6 +11,7 @@ import { getRoot } from "utils/upload/filesUpload";
 import { toast } from "react-toastify";
 
 export default function Breadcrumb() {
+  const {lang} = useLanguage()
   const mystorage = useAppSelector((state) => state.mystorage);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -106,16 +109,18 @@ export default function Breadcrumb() {
   const { theme } = useAppSelector((state) => state.user);
 
   return (
-    <nav className="flex flex-row items-center mr-2" aria-label="Breadcrumb">
-      <ol className="flex flex-row items-center overflow-auto text-lg font-medium custom-scrollbar">
+    <nav className="flex flex-auto max-w-fit overflow-auto whitespace-nowrap flex-row items-center mr-2" aria-label="Breadcrumb">
+      <ol className="flex flex-row items-center text-lg font-medium whitespace-nowrap invisible-scrollbar ">
         <li onDrop={handleDrop}
          aria-label={"/"}
+         className="min-w-[125px]"
         >
           <button
             onClick={() => onClick("/space/my-storage")}
             className={"inline hover:text-blue-600 cursor-pointer text-xl min-w-[125px]" + (theme === Theme.DARK ? " text-white" : " text-gray-700")}
           >
-            <strong className="whitespace-nowrap">My Storage</strong>
+                                                {/* My Storage */}
+            <strong className="whitespace-nowrap">{language[lang]["15"]}</strong>
           </button>
         </li>
         {mystorage.path.map((v, i, array) => (

@@ -45,6 +45,10 @@ export default defineConfig({
           to: 'dist/sitemap.xml'
         },
         {
+          from: '176a83f2d025494581edba19ccdf4c5d.txt', 
+          to: 'dist/176a83f2d025494581edba19ccdf4c5d.txt'
+        },
+        {
           from: 'robots.txt', 
           to: 'dist/robots.txt' 
         }

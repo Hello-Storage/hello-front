@@ -20,6 +20,9 @@ import {
   toggleAutoEncryption,
 } from "state/userdetail/actions";
 
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
+
 import LogoHello from "@images/beta.png";
 import HotReferral from "@images/hotreferral.png";
 import "react-toggle/style.css";
@@ -35,63 +38,68 @@ import { Theme } from "state/user/reducer";
 import { FilesUpload } from "api/types/upload";
 import { filesUpload } from "utils/upload/filesUpload";
 
-const links1 = [
-  {
-    to: "/space/dashboard",
-    icon: <img src={Layout} alt="custom icon" className="w-6 h-6" />,
-    content: "Dashboard",
-    available: true,
-  },
-  {
-    to: "/space/my-storage",
-    icon: <img src={FolderLock} alt="custom icon" className="w-6 h-6" />,
-    content: "My storage",
-    available: true,
-  },
-  {
-    to: "/space/referrals",
-    icon: <GoPeople className="w-6 h-5" />,
-    content: "Referrals",
-    available: true,
-    img: <img src={HotReferral} alt="beta" className="w-12 h-5" />,
-  },
-];
 
-const links2 = [
-  {
-    to: "/space/shared",
-    icon: <img src={Send} alt="custom icon" className="w-6 h-6" />,
-    content: "Shared",
-    available: true,
-  },
-  {
-    to: "/space/api",
-    outRef: false,
-    icon: <img src={Key} alt="custom icon" className="w-6 h-6" />,
-    content: "Api key",
-    available: true,
-  },
-  {
-    to: "/migration",
-    outRef: false,
-    icon: <img src={Cloud} alt="custom icon" className="w-6 h-6" />,
-    content: "Migration",
-    available: false,
-  },
-  {
-    to: "https://hello-decentralized.gitbook.io/hello-documentation/",
-    outRef: true,
-    icon: <img src={Book} alt="custom icon" className="w-6 h-6" />,
-    content: "Documentation",
-    available: true,
-  },
-];
 
 type SidebarProps = {
   setSidebarOpen: (open: boolean) => void;
 };
 
 export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
+  
+  const {lang} = useLanguage()
+
+  const links1 = [
+    {
+      to: "/space/dashboard",
+      icon: <img src={Layout} alt="custom icon" className="w-6 h-6" />,
+      content: language[lang]["14"],
+      available: true,
+    },
+    {
+      to: "/space/my-storage",
+      icon: <img src={FolderLock} alt="custom icon" className="w-6 h-6" />,
+      content: language[lang]["15"],
+      available: true,
+    },
+    {
+      to: "/space/referrals",
+      icon: <GoPeople className="w-6 h-5" />,
+      content: language[lang]["16"],
+      available: true,
+      img: <img src={HotReferral} alt="beta" className="w-12 h-5" />,
+    },
+  ];
+  
+  const links2 = [
+    {
+      to: "/space/shared",
+      icon: <img src={Send} alt="custom icon" className="w-6 h-6" />,
+      content: language[lang]["17"],
+      available: true,
+    },
+    {
+      to: "/space/api",
+      outRef: false,
+      icon: <img src={Key} alt="custom icon" className="w-6 h-6" />,
+      content: "Api key",
+      available: true,
+    },
+    {
+      to: "/migration",
+      outRef: false,
+      icon: <img src={Cloud} alt="custom icon" className="w-6 h-6" />,
+      content: language[lang]["19"],
+      available: false,
+    },
+    {
+      to: "https://hello-decentralized.gitbook.io/hello-documentation/",
+      outRef: true,
+      icon: <img src={Book} alt="custom icon" className="w-6 h-6" />,
+      content: language[lang]["110"],
+      available: true,
+    },
+  ];
+
   const {
     storageUsed,
     storageAvailable,
@@ -231,7 +239,7 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
   const { theme } = useAppSelector((state) => state.user);
 
   return (
-    <div className={"flex flex-col py-6 h-full bg-[#F3F4F6] px-8 md:px-6 w-full" + (theme === Theme.DARK ? " dark-theme4" : "")}>
+    <div className={"flex flex-col py-6 overflow-auto h-full bg-[#F3F4F6] px-8 md:px-6 w-full" + (theme === Theme.DARK ? " dark-theme4" : "")}>
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <Link to="/space/my-storage" className="text-2xl font-semibold font-[Outfit]"
@@ -243,7 +251,8 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
 
         <div className="flex items-center justify-between mt-4">
           <label className="text-sm">
-            Encryption {encryptionEnabled ? "ON" : "OFF"}
+            {/* Encryption */}
+          {language[lang]["11"]} {encryptionEnabled ? "ON" : "OFF"}
           </label>
           <div className="flex items-center align-middle">
             <Toggle
@@ -263,7 +272,8 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
               : "text-gray-400"
               }`}
           >
-            Automatic
+            {/* Automatic */}
+            {language[lang]["12"]}
           </label>
           <div className="flex items-center align-middle">
             <Toggle
@@ -293,10 +303,12 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
             className="flex items-center justify-center w-full gap-2 p-3 mt-3 text-sm text-white rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
             onClick={handleFileUpload}
           >
-            <HiPlus /> Upload files
+            {/* Upload Files */}
+            <HiPlus /> {language[lang]["13"]}
           </button>
           <div className="flex items-center gap-4 mt-4">
-            <Tippy content="Create Folder">
+            {/* Create folder */}
+            <Tippy content={language[lang]["131"]}>
               <button
                 className={"flex border border-gray-200 items-center justify-center w-full p-2 text-xs rounded-xl " + (theme === Theme.DARK ? " bg-[#4b4d70] text-white hover:bg-[#40425f]" : "bg-gray-200 text-gray-800 hover:bg-gray-300")}
                 onClick={onPresent}
@@ -306,7 +318,8 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
                 </div>
               </button>
             </Tippy>
-            <Tippy content="Upload Folder">
+            {/* Upload files */}
+            <Tippy content={language[lang]["13"]}>
               <button
                 className={"flex border border-gray-200 items-center justify-center w-full p-2 text-xs rounded-xl " + (theme === Theme.DARK ? " bg-[#4b4d70] text-white hover:bg-[#40425f]" : "bg-gray-200 text-gray-800 hover:bg-gray-300")}
                 onClick={handleFolderUpload}
@@ -404,8 +417,8 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
         <label className={"text-xs text-neutral-800" + (theme === Theme.DARK ? " dark-theme4" : "")}>
           {formatPercent(storageUsed, storageAvailable)} /{" "}
           {formatBytes(storageAvailable)}  -&nbsp;
-          <a
-            href="/space/referrals"
+          <Link
+            to="/space/referrals"
             onClick={(e) => {
               e.preventDefault();
               navigate("/space/referrals");
@@ -413,7 +426,7 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
             className="text-orange-500 cursor-pointer hover:underline"
           >
             {formatBytes(storageAvailable, 2, false)} / 100 GiB
-          </a>
+          </Link>
         </label>
         <div className="pb-1 mt-4">
           <button
@@ -421,7 +434,8 @@ export default function Sidebar({ setSidebarOpen }: Readonly<SidebarProps>) {
             onClick={() => navigate("/space/referrals")}
             disabled={storageAvailable >= Math.pow(1024, 3) * 100}
           >
-            Get {formatBytes(100 * Math.pow(1024, 3) - storageAvailable)} Free
+            {/* Get /// Free */}
+            {language[lang]["111"]} {formatBytes(100 * Math.pow(1024, 3) - storageAvailable)} {language[lang]["1111"]}
             ✨
           </button>
         </div>

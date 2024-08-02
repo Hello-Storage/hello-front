@@ -14,6 +14,9 @@ import { toast } from "react-toastify";
 import { Theme } from "state/user/reducer";
 import ContentFolderItem from "./ContentFolderItem";
 import { getRoot } from "utils/upload/filesUpload";
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
+
 
 interface ContentProps {
   contentIsShared?: boolean;
@@ -30,6 +33,8 @@ interface ContentProps {
 }
 
 const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedContent, loading, view, folders, files, showFolders, filesTitle, identifier, showHorizontalFolders, actionsAllowed }) => {
+  const {lang} = useLanguage()
+
   type itemInfo = {
     type: string;
     id: string;
@@ -63,8 +68,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
       setSelectedItems([]);
     }
   };
-
-  const buttonText = seleccionMultipleActivada ? "CANCEL" : "SELECT";
+  //CANCEL // SELECT
+  const buttonText = seleccionMultipleActivada ? language[lang]["1521"] : language[lang]["154"];
 
   // Event for select item
   const handleOnClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
@@ -149,7 +154,6 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
     const thElement = event.currentTarget.firstElementChild;
 
     if (!thElement) {
-      console.log("thElement is null");
       return;
     }
 
@@ -389,19 +393,17 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
     if (rowsScroll && headerScroll && content) {
       const contentSize = content.getBoundingClientRect().width
       if (contentSize > 850) {
-        rowsScroll.style.width = content.getBoundingClientRect().width + "px";
-        headerScroll.style.width = content.getBoundingClientRect().width + "px";
+        headerScroll.style.width = contentSize + "px";
       }
+      rowsScroll.style.width = contentSize + "px";
     }
   }
 
   useEffect(() => {
     handleFocusResize()
-
   }, [windowWidth])
-
   useEffect(() => {
-    const invScroll = document.getElementById("scroll-invisible-section");
+    const invScroll = document.getElementById("invisible-scrollbar");
     const visScroll = document.getElementById("scroll-visible-section");
     const widthHelper = document.getElementById("width-section-helper");
     const size = folders.length * 240 + 240 + "px";
@@ -427,16 +429,21 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
 
   }, []);
 
-  const { theme } = useAppSelector((state) => state.user);
+  const { theme, isOpenMenu } = useAppSelector((state) => state.user);
 
   return (
     <>
       {showHorizontalFolders ?
         <>
           <div className="position-sticky-left">
-            <h4 className="mb-[15px]">Folders</h4>
+            <h4 className="mb-[15px]">
+              {/* Folders */}
+            {language[lang]["145"]}
+            </h4>
           </div>
-          <div className="folders-div">
+            
+          <div className="folders-div mb-5"
+          >
             {actionsAllowed && (
               <button
                 className={"cursor-pointer px-5 py-3 border border-gray-200 min-w-[220px] rounded-lg relative overflow-visible flex items-center justify-center mr-5"
@@ -482,12 +489,13 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
           >
             <div id="width-section-helper"></div>
           </section>
+
         </>
         :
         <></>
       }
 
-      <section className="custom-scrollbar position-sticky-left">
+      <section className={`flex-grow custom-scrollbar position-sticky-left`}>
         <div className="sticky left-0 flex flex-row items-center justify-between mb-[15px]">
           <h4 className="pt-1 pb-3">{filesTitle}</h4>
           <div className="flex flex-row items-center justify-between">
@@ -519,7 +527,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
         {view === "list" ? (
           <>
             <div id={"header-scroll-inv_" + identifier}>
-              <table id={"files-headers_" + identifier} className="w-full text-sm text-left text-gray-500 table-with-lines">
+              <table id={"files-headers_" + identifier} className="max-h-full w-full text-sm text-left text-gray-500 table-with-lines">
                 <thead className={"text-xs "
                   + (theme === Theme.DARK ? " text-white bg-[#32334b]" : " text-gray-700 bg-gray-100")}>
                   <tr>
@@ -528,7 +536,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                       scope="col"
                       className="p-2.5 rounded-tl-lg rounded-bl-lg"
                     >
-                      Name
+                      {/* Name */}
+                      {language[lang]["155"]}
                     </th>
                     <th
                       scope="col"
@@ -542,21 +551,24 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                       className="p-1"
                       id="column-size"
                     >
-                      Size
+                      {/* Size */}
+                      {language[lang]["156"]}
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-1"
                       id="column-type"
                     >
-                      Type
+                      {/* Type */}
+                      {language[lang]["157"]}
                     </th>
                     <th
                       scope="col"
                       className="p-1 whitespace-nowrap"
                       id="column-lm"
                     >
-                      Last Modified
+                      {/* Last Modified */}
+                      {language[lang]["158"]}
                     </th>
                     <th
                       id="column-option"
@@ -567,7 +579,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                 </thead>
               </table>
             </div>
-            <div id={"table-row-div_" + identifier} className="h-full min-w-full table-div custom-scrollbar scrollbar-color">
+            <div id={"table-row-div_" + identifier} className={"table-div custom-scrollbar scrollbar-color"+ (isOpenMenu?" open-menu":"")}>
+
               <table id={"files-rows_" + identifier} className={"w-full text-sm text-left table-with-lines"
                 + (theme === Theme.DARK ? " text-white" : " text-gray-500")}>
                 <tbody>
@@ -670,7 +683,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                               + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
                             <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
                               <div className="mt-4 mb-4">
-                                No files found
+                                {/* No files found */}
+                                {language[lang]["159"]}
                               </div>
                             </div>
                           </td>
@@ -748,7 +762,8 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
                     + (theme === Theme.DARK ? " text-white " : " text-gray-900")}>
                   <div className="flex flex-col items-start justify-center w-full h-full text-center lg:items-center">
                     <div className="mt-4 mb-4">
-                      No files found
+                      {/* No files found */}
+                      {language[lang]["159"]}
                     </div>
                   </div>
                 </span>

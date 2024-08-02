@@ -17,7 +17,6 @@ import Png from "assets/images/Outline/picture_m.png";
 import Txt from "assets/images/Outline/document_m.png";
 import Pdf from "assets/images/Outline/invoice_m.png";
 import SharedFiles from "assets/images/Outline/shared-box_m.png";
-import useTitle from "hooks/useTitle";
 import { Link } from "react-router-dom";
 
 type IconWithTooltipProps = {
@@ -29,7 +28,6 @@ const IconWithTooltip = ({
     IconComponent,
     tooltipText,
 }: IconWithTooltipProps) => {
-    useTitle("hello.app | Stats");
     const [showTooltip, setShowTooltip] = useState(false);
 
     return (
@@ -61,9 +59,6 @@ const IconWithTooltip = ({
 };
 
 const Statistics = () => {
-
-
-    useTitle("hello.app | Stats");
 
     const [upfile, setupfile] = useState("");
     const [msize, setmsize] = useState(0);
@@ -180,7 +175,7 @@ const Statistics = () => {
                 <div className="border bg-blue-100 rounded-lg p-2.5 flex flex-col items-center justify-center">
                     <img alt="servericon" src={ServerM} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Total Used Storage</label>
+                        <p className="block mr-2">Total Used Storage</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="Total data size stored by all users"
@@ -194,7 +189,7 @@ const Statistics = () => {
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="fileuploadicon" src={FileUploadM} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2 text-black">Files Uploaded</label>
+                        <p className="block mr-2 text-black">Files Uploaded</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="The total amount of files uploaded"
@@ -208,7 +203,7 @@ const Statistics = () => {
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="userplusicon" src={UserPlusM} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Total Users</label>
+                        <p className="block mr-2">Total Users</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="The number of wallet addresses registered"
@@ -222,7 +217,7 @@ const Statistics = () => {
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="filem" src={FileM} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Average File Size</label>
+                        <p className="block mr-2">Average File Size</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="The average size of all the files"
@@ -236,7 +231,7 @@ const Statistics = () => {
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="shield" src={ShieldM} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Encrypted Files </label>
+                        <p className="block mr-2">Encrypted Files </p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="Total client-side encrypted files"
@@ -250,7 +245,7 @@ const Statistics = () => {
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="hotspot" src={HotspotM} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Public Files</label>
+                        <p className="block mr-2">Public Files</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="Total amount of public files"
@@ -263,7 +258,7 @@ const Statistics = () => {
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="folder" src={PublicFolder} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Public Folders</label>
+                        <p className="block mr-2">Public Folders</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="Total number of public folders"
@@ -277,44 +272,44 @@ const Statistics = () => {
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="shared" src={SharedFiles} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Shared Files</label>
+                        <p className="block mr-2">Shared Files</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="Total number of shared files"
                         />
                     </div>
-                    <label className="text-1x8 font-semibold text-black block">-</label>
+                    <p className="text-1x8 font-semibold text-black block">-</p>
                 </div>
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="pdf" src={Pdf} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Public PDF's</label>
+                        <p className="block mr-2">Public PDF's</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="Total number of public pdf's files"
                         />
                     </div>
-                    <label className="text-1x8 font-semibold text-black block">
+                    <p className="text-1x8 font-semibold text-black block">
                         {pdffiles}
-                    </label>
+                    </p>
                 </div>
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="jpg" src={Jpg} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Public JPG's</label>
+                        <p className="block mr-2">Public JPG's</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="Total number of public jpg's photos"
                         />
                     </div>
-                    <label className="text-1x8 font-semibold text-black block">
+                    <p className="text-1x8 font-semibold text-black block">
                         {jpgfiles}
-                    </label>
+                    </p>
                 </div>
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="png" src={Png} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Public PNG's</label>
+                        <p className="block mr-2">Public PNG's</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="Total number of public png's photos"
@@ -328,15 +323,15 @@ const Statistics = () => {
                 <div className="border bg-blue-100 rounded-lg p-3 flex flex-col items-center justify-center">
                     <img alt="txt" src={Txt} className="mb-2" />
                     <div className="flex items-center mb-2">
-                        <label className="block mr-2">Public TXT's</label>
+                        <p className="block mr-2">Public TXT's</p>
                         <IconWithTooltip
                             IconComponent={GrCircleInformation}
                             tooltipText="Total number of public txt's files"
                         />
                     </div>
-                    <label className="text-1x8 font-semibold text-black block">
+                    <p className="text-1x8 font-semibold text-black block">
                         {textfiles}
-                    </label>
+                    </p>
                 </div>
             </div>
 

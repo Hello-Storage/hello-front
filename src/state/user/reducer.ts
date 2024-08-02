@@ -1,6 +1,6 @@
 import { createReducer } from "@reduxjs/toolkit";
 
-import { loadUser, loadingUser, loadUserFail, logoutUser, setRedirectUrl, setTheme } from "./actions";
+import { loadUser, loadingUser, loadUserFail, logoutUser, setRedirectUrl, setTheme, setIsOpenMenu } from "./actions";
 
 export enum Theme {
   DARK = 'dark',
@@ -17,6 +17,7 @@ interface User {
   loading: boolean;
   redirectUrl?: string;
   message?: string;
+  isOpenMenu: boolean
 }
 
 const initialState: User = {
@@ -28,7 +29,8 @@ const initialState: User = {
   loading: true,
   redirectUrl: undefined,
   message: undefined,
-  theme: Theme.LIGHT
+  theme: Theme.LIGHT,
+  isOpenMenu: false
 };
 
 export default createReducer<User>(initialState, (builder) => {
@@ -65,5 +67,10 @@ export default createReducer<User>(initialState, (builder) => {
         ...state,
         theme: payload,
       }
-    });
+    }).addCase(setIsOpenMenu, (state, { payload } ) => {
+      return {
+        ...state,
+        isOpenMenu: !!payload,
+      }
+    })
 });

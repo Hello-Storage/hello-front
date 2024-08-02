@@ -8,6 +8,9 @@ import { useEffect, useState } from "react";
 import { Api } from "api";
 import { Link } from "react-router-dom";
 import { Theme } from "state/user/reducer";
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
+
 
 const copyToClipboard = (str: string) => {
   navigator.clipboard.writeText(str);
@@ -15,6 +18,8 @@ const copyToClipboard = (str: string) => {
 };
 
 const Referrals = () => {
+  const {lang} = useLanguage()
+
   const baseUrl = window.location.origin;
 
   const { walletAddress } = useAppSelector((state) => state.user);
@@ -80,28 +85,32 @@ const Referrals = () => {
 	const {theme} = useAppSelector((state) => state.user);
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col h-full max-h-full  relative">
       <Link
         to="/space/referrals"
         className={"p-2 text-xl inline-flex items-center hover:text-blue-600 cursor-pointer"
         +(theme===Theme.DARK? " text-white " : " text-gray-700")}
       >
-        Referrals
+        {/* Referrals */}
+        {language[lang]["16"]}
+
       </Link>
       <hr className="mt-5 mb-3" />
-      <div className="h-full p-8 flex flex-col items-center border rounded-xl">
+      <div className="h-min min-h-min md:h-full p-8  flex flex-col items-center border rounded-xl">
         <div className="mb-4 flex items-center justify-center text-center w-full space-x-2">
           <GoPeople className="text-blue-600 w-7 h-7" />
           <h1 className={"md:text-2xl text-lg select-none tracking-tighter text-center "
             +(theme===Theme.DARK? " text-white " : " text-gray-700")}>
-            Get +5GB free for each referred user!
+            {/* Get +5GB free for each referred user! */}
+            {language[lang]["161"]}
           </h1>
         </div>
         <div className="flex-grow flex flex-col md:mt-20 mt-12 items-center max-w-xl">
           <div className="flex flex-col justify-start">
             <span className={"mb-2 text-sm"
               +(theme===Theme.DARK? " text-white " : " text-gray-700")}>
-              Invite your friends
+              {/* Invite your friends */}
+              {language[lang]["162"]}
             </span>
             <div className="flex md:flex-row flex-col items-center gap-4">
               <div className="relative rounded-lg w-full md:w-3/4 max-w-md">
@@ -149,7 +158,10 @@ const Referrals = () => {
                           disabled={isSubmitting}
                           className="absolute inset-y-0 right-0 px-3 gap-2 flex items-center cursor-pointer bg-gradient-to-b from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-white rounded-lg"
                         >
-                          <p>Send</p>
+                          <p>
+                            {/* Send */}
+                            {language[lang]["163"]}
+                          </p>
                           <HiOutlinePaperAirplane className="h-4 w-4" />
                         </button>
                       </div>
@@ -164,19 +176,24 @@ const Referrals = () => {
           +(theme===Theme.DARK? " text-white" : " text-gray-800")}>
             <div>
               <p className="px-4 text-lg font-medium">
-                {totalUsers}/{maxUsers} referred users.
+                {totalUsers}/{maxUsers} 
+                {/* referred users. */}
+                
+                {` ${language[lang]["164"]}`}
               </p>
             </div>
             <div>
               <p className="px-4 text-lg font-medium">
-              {formatBytes(storageAvailable, 2, false)} / {maxUsers * 5}GB storage gained.
+              {/* GB storage gained. */}
+              {formatBytes(storageAvailable, 2, false)} / {maxUsers * 5}{language[lang]["165"]}
               </p>
             </div>
           </div>
           <div className="w-full">
             <p className="pt-10 pb-4 w-full text-left">
-              You got {totalUsers * 5}GB/{maxUsers * 5}GB from {totalUsers}{" "}
-              invited users
+              {/* You got // from // invited users */}
+              {language[lang]["166"]} {totalUsers * 5}GB/{maxUsers * 5}GB {language[lang]["167"]} {totalUsers}{" "}
+              {language[lang]["168"]}
             </p>
             <div className="grid grid-cols-10 gap-2">
               {Array.from({ length: maxUsers }).map((_, index) => (
@@ -204,7 +221,10 @@ const Referrals = () => {
         {referredBy !== "" && (
           <div className="mb-4 flex flex-col  items-center">
             <div className="mb-4 flex flex-row items-center space-x-2">
-              <p>You were referred by:</p>
+              <p>
+                {/* You were referred by: */}
+                {language[lang]["169"]}
+              </p>
             </div>
             <div className="mb-4 flex flex-row items-center space-x-2">
               <p>{referredBy}</p>

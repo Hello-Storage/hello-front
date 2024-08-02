@@ -1,8 +1,19 @@
-
 import { motion } from "framer-motion";
 import { navVariants } from "../../utils/one-page/motion";
+import { Link } from "react-router-dom";
+import language from "../../languages/languages.json"
+import { useLanguage } from "../../languages/LanguageProvider";
+// import LanguageChange from "./Language";
+ 
 
-export const Navbar = () => (
+
+
+
+export const Navbar = () => {
+ 
+  const {lang} = useLanguage()
+  
+  return(
   <motion.nav
     variants={navVariants}
     initial="hidden"
@@ -21,15 +32,21 @@ export const Navbar = () => (
           className="ml-3"
         />
       </h1>
-      <a href="/space/login"
-        title="Go to Login Page">
-        <button
-          type="button"
-          className="md:px-10 md:py-3 py-2 px-6 bg-gradient-to-b from-violet-500 to-violet-800 hover:cursor-pointer rounded-xl hover:from-violet-600 hover:to-violet-900"
-        >
-          Launch app
-        </button>
-      </a>
+      <div className="flex gap-5 items-center">
+        {/* <LanguageChange/> */}
+        <Link to="/space/login"
+          title="Go to Login Page">
+          <button
+            type="button"
+            className="md:px-10 md:py-3 py-2 px-6 bg-gradient-to-b from-violet-500 to-violet-800 hover:cursor-pointer rounded-xl hover:from-violet-600 hover:to-violet-900"
+          >
+            {/* Launch app */}
+            {language[lang]["05"]}
+          </button>
+        </Link>
+      </div>
+
     </div>
   </motion.nav>
-);
+  )
+}

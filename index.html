@@ -5,11 +5,11 @@
 		<meta charset="UTF-8" />
 
 		<!-- Viewport meta tag for responsive design -->
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"  />
 
 		<!-- Page title -->
 		<title>
-			hello.app: Revolutionizing File Storage with Blockchain Technology
+			hello.app: hello.app | Decentralized
 		</title>
 
 		<!-- Meta tags for SEO -->
@@ -18,9 +18,10 @@
 			content="hello.app: Revolutionizing File Storage with Blockchain Technology"
 		/>
 		<meta name="author" content="hello.app" />
+		<meta name="robots" content="index, follow" />
 		<meta
 			name="description"
-			content="Get 100GB for free storage. Discover how hello.app is transforming file storage with a decentralized web3 infrastructure and blockchain for secure, efficient, and accessible storage for everyone."
+			content="Get 100GB of free storage. Discover how hello.app is transforming file storage with a decentralized web3 infrastructure and blockchain."
 		/>
 		<meta
 			name="keywords"
@@ -31,19 +32,12 @@
 		<!-- Script to dynamically change the page title based on the route -->
 		<script>
 			(function () {
-				const path = window.location.pathname;
 				let title;
-
-				if (path.startsWith("/space")) {
+				if (window.location.pathname.startsWith("/space")) {
 					title = "hello.app | Space";
-				} else if (path.startsWith("/login")) {
-					title = "hello.app | Space";
-				} else if (path === "/") {
-					title = "hello.app | Decentralized";
 				} else {
 					title = "hello.app | Decentralized"; // default title for other routes
 				}
-
 				document.title = title;
 			})();
 		</script>
@@ -83,20 +77,66 @@
 		/>
 
 		<!-- Other related links -->
-		<link rel="canonical" href="https://hello.app" />
-		<link rel="manifest" href="/site.webmanifest" />
+		<link rel="manifest" href="https://hello.app/site.webmanifest" />
 		<link rel="preconnect" href="https://stijndv.com" />
 	</head>
 
 	<body>
-		<div id="root" class="h-screen"></div>
+		<style>
+			.seo-helper {
+				position: fixed;
+				transform: translateY(10000px);
+				-webkit-transform: translateY(10000px);
+				-moz-transform: translateY(10000px);
+				-ms-transform: translateY(10000px);
+				-o-transform: translateY(10000px);
+			}
+		</style>
+		<h1 class="seo-helper">Discover how hello.app is transforming file storage with a decentralized web3 infrastructure and blockchain.</h1>
+		<div class="seo-helper">
+			Get 100GB of free storage. Discover how hello.app is transforming file storage with a decentralized web3 infrastructure and blockchain.
+		</div>
+		<div id="root" class="h-full"></div>
 		<!-- Privacy Policy Link -->
 		<footer aria-hidden="true">
-			<a href="/privacy-policy">Privacy Policy</a>
+			<a style="display: none; resize:none;" href="https://hello.app/privacy-policy">Privacy Policy</a>
 		</footer>
 		<script type="module" src="/src/main.tsx"></script>
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "FAQPage",
+				"mainEntity": [
+					{
+						"@type": "Question",
+						"name": "What is Hello App?",
+						"acceptedAnswer": {
+							"@type": "Answer",
+							"text": "Hello App is a communication and collaboration platform designed to enhance productivity and interaction among teams."
+						}
+					},
+					{
+						"@type": "Question",
+						"name": "How can I register for Hello App?",
+						"acceptedAnswer": {
+							"@type": "Answer",
+							"text": "To register for Hello App, visit our website https://hello.app or https://hello.app/space/login"
+						}
+					},
+					{
+						"@type": "Question",
+						"name": "Is hello.app secure?",
+						"acceptedAnswer": {
+							"@type": "Answer",
+							"text": "Yes, hello.app is a secure (using IPFS and client side encryption) platform with 100GB of free storage."
+						}
+					}
+				]
+			}
+		</script>
+
 		<h2 style="position: fixed; top: -10; left: 0; z-index: 1000;">
-			<a href="/blog.html">hello.app</a>
+			<a style="display: none;" href="https://hello.app/blog.html">hello.app</a>
 		</h2>
 	</body>
 </html>

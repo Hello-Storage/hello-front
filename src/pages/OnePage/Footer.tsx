@@ -4,9 +4,16 @@ import { FaGithubSquare } from "react-icons/fa";
 import { HiMail } from "react-icons/hi";
 import { PiTiktokLogoFill } from "react-icons/pi";
 import { TbBrandTwitterFilled } from "react-icons/tb";
+import language from "../../languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
 
-export const Footer = () => (
-  <footer className="flex flex-row justify-between md:p-2 z-0 text-sm text-white md:mb-0 mt-8 absolute inset-x-0 bottom-[132px] md:bottom-[32px] left-8 right-8 md:left-20 md:right-8 min-w-[350px]">
+
+export const Footer = () => {
+
+  const {lang} = useLanguage()
+
+  return(
+  <footer className="flex flex-row justify-between md:p-2 z-0 text-sm text-white md:mb-0 mt-8 absolute bottom-2 md:bottom-2 left-8 right-8 md:left-20 md:right-8 min-w-[350px]">
     <div className="flex flex-col items-start">
       <div className="flex p-0 space-x-4 md:p-0">
         <a
@@ -72,17 +79,18 @@ export const Footer = () => (
     <div className="flex flex-col items-start">
       <a
         title="Privacy Policy"
-        href="/privacy-policy"
+        href="https://hello.app/privacy-policy"
         target="_blank"
         rel="noopener noreferrer"
         style={{ fontSize: "15px" }}
       >
         <div className="flex flex-col mt-1 md:mt-1 mr-4">
-          Privacy Policy
+        {/* Privacy Policy */}
+          {language[lang]["04"]}
         </div>
       </a>
     </div>
   </footer>
-);
+)}
 
 export default Footer;

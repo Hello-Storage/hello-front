@@ -48,12 +48,11 @@ const useAuth = () => {
   const login = useCallback(async (wallet_address: string) => {
     const referral = new URLSearchParams(window.location.search).get("ref");
     localStorage.removeItem("access_token");
-    setAuthToken(undefined);
+    setAuthToken();
     localStorage.removeItem("account_type")
-    setAccountType(undefined);
+    setAccountType();
     sessionStorage.removeItem("personal_signature");
-    console.log("removed a")
-    setPersonalSignature(undefined);
+    setPersonalSignature();
 
     const nonceResp = await Api.post<string>("/nonce", {
       wallet_address,
@@ -87,7 +86,7 @@ const useAuth = () => {
       const account = Web3.eth.accounts.create();
       const wallet_address = account.address;
       const private_key = account.privateKey;
-      await Api.post("/otp/start", {  email, referrer_code, wallet_address, private_key });
+      await Api.post("/otp/start", { email, referrer_code, wallet_address, private_key });
     } catch (error) {
       return false;
     }
@@ -112,15 +111,11 @@ const useAuth = () => {
 
   const logout = useCallback(() => {
     if (localStorage.getItem("access_token")) {
-      setAuthToken(undefined);
-    } else {
+      setAuthToken();
       state.dispatch(logoutUser());
-
-      setPersonalSignature(undefined);
-      setAccountType(undefined);
+      setPersonalSignature();
+      setAccountType();
       state.dispatch(removeContent());
-
-      // disconnect when you sign with wallet
       disconnect();
     }
   }, []);

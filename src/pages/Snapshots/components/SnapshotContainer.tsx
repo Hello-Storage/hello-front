@@ -27,8 +27,8 @@ export const SnapshotContainer: React.FC<SnapshotContainerProps> = ({
       <table>
         <tbody>
           <tr>
-            <td className="p-2">transaction_id</td>
-            <td className="flex flex-row m-2 p-2 cursor-pointer" onClick={() => { copyToClipboard(transaction_id) }}>{transaction_id}<HiClipboardCopy className="ml-2 w-50 h-50" /></td>
+            <th className="p-2">transaction_id</th>
+            <th className="flex flex-row m-2 p-2 cursor-pointer" onClick={() => { copyToClipboard(transaction_id) }}>{transaction_id}<HiClipboardCopy className="ml-2 w-50 h-50" /></th>
           </tr>
           <tr>
             <td className="p-2">owner</td>

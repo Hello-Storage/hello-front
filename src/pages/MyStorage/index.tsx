@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import language from "languages/languages.json"
+import { useLanguage } from "languages/LanguageProvider";
 import {
   HiChevronLeft,
   HiChevronRight,
@@ -37,9 +39,11 @@ import { Theme } from "state/user/reducer";
 import ShareFolderModal from "pages/Shared/Components/ShareFolderModal";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
+import { Helmet } from "react-helmet";
 
 
 export default function Home() {
+  const { lang } = useLanguage()
   const dispatch = useAppDispatch();
   const { uploading } = useAppSelector((state) => state.uploadstatus);
   const { name } = useAppSelector((state) => state.user);
@@ -181,7 +185,7 @@ export default function Home() {
     setCurrentFolders(decryptedFolders ?? []);
 
     if (!currentFiles || !currentFolders) {
-      toast.error("Failed to decrypt content");
+      toast.error(language[lang]["1516"]);
       fetchRootContent(setLoading);
     }
     setLoading(false);
@@ -260,7 +264,7 @@ export default function Home() {
 
 
     if (!currentFiles || !currentFolders) {
-      toast.error("Failed to decrypt content");
+      toast.error(language[lang]["1516"]);
       fetchRootContent(setLoading);
     }
 
@@ -352,167 +356,190 @@ export default function Home() {
   const { theme } = useAppSelector((state) => state.user);
 
   return (
-    <div className="flex flex-col overflow-hidden table-main " id="content">
-      {showShareModal && <>
-        <ShareModal />
-        <ShareFolderModal />
-      </>}
-      <div className="flex justify-between items-center mb-[15px]">
-        <Breadcrumb />
-        <div className="flex flex-row items-center justify-evenly min-w-fit">
-          <div ref={ref}>
-            <button
-              className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" + (theme === Theme.DARK ? " text-white hover:bg-[#32334b]" : " bg-white text-gray-900 hover:bg-gray-100")}
-              onClick={() => setOpen(!open)}
-            >
-              Filter
-            </button>
+    <>
+      <Helmet>
+        <title>Space | hello.app</title>
+        <link rel="canonical" href="https://hello.app" />
+      </Helmet>
+      <div className="flex flex-col flex-grow max-h-full overflow-clip table-main max-w-full" id="content">
+     
+        {showShareModal && <>
+          <ShareModal />
+          <ShareFolderModal />
+        </>}
+        <div className="flex min-w-full flex-wrap gap-3 justify-between items-center mb-[15px]">
+          
+            <Breadcrumb />
+          
+          <div className="flex flex-1 flex-row items-center justify-center sm:justify-end gap-5 min-w-full sm:min-w-fit ">
+            <div ref={ref}>
+              <button
+                className={"px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:text-blue-700 focus:z-10 focus:ring-1 focus:ring-gray-300 focus:text-blue-700" + (theme === Theme.DARK ? " text-white hover:bg-[#32334b]" : " bg-white text-gray-900 hover:bg-gray-100")}
+                onClick={() => setOpen(!open)}
+              >
+                {/* Filter */}
+                {language[lang]["152"]}
+              </button>
 
-            {open && (
-              <div className={"absolute mt-1 z-10 w-[150px] shadow divide-y border text-sm " + (theme === Theme.DARK ? " text-white bg-[#32334b]" : " bg-white text-gray-700")}>
-                <ul className="p-2">
-                  <li>
-                    <div className="flex items-center justify-between p-2">
-                      <label
-                        htmlFor="all"
-                        className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
-                      >
-                        All
-                      </label>
-                      <input
-                        type="radio"
-                        id="all"
-                        name="filter-radio"
-                        value="all"
-                        checked={filter === "all"}
-                        onChange={onRadioChange}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                      />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center justify-between p-2">
-                      <label
-                        htmlFor="public"
-                        className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
-                      >
-                        Public
-                      </label>
-                      <input
-                        type="radio"
-                        id="public"
-                        name="filter-radio"
-                        value="public"
-                        checked={filter === "public"}
-                        onChange={onRadioChange}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                      />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center justify-between p-2">
-                      <label
-                        htmlFor="encrypted"
-                        className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
-                      >
-                        Encrypted
-                      </label>
-                      <input
-                        type="radio"
-                        id="encrypted"
-                        name="filter-radio"
-                        value="encrypted"
-                        checked={filter === "encrypted"}
-                        onChange={onRadioChange}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                      />
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
+              {open && (
+                <div className={"absolute mt-1 z-10 w-[150px] shadow divide-y border text-sm " + (theme === Theme.DARK ? " text-white bg-[#32334b]" : " bg-white text-gray-700")}>
+                  <ul className="p-2">
+                    <li>
+                      <div className="flex items-center justify-between p-2">
+                        <label
+                          htmlFor="all"
+                          className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
+                        >
+                          {/* All */}
+                          {language[lang]["1518"]}
 
-          <div className="inline-flex rounded-md shadow-sm" role="group">
-            <button
-              type="button"
-              onClick={() => setView("list")}
-              className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg`
-                + (theme === Theme.DARK ? " text-white bg-[#030522] hover:bg-[#32334b]" + (view === "list" ? " !bg-[#32334b]" : "") :
-                  " bg-white text-gray-900 hover:bg-gray-100" + (view === "list" ? " !bg-gray-100" : ""))}
-            >
-              <HiOutlineViewList size={20} />
-            </button>
+                        </label>
+                        <input
+                          type="radio"
+                          id="all"
+                          name="filter-radio"
+                          value="all"
+                          checked={filter === "all"}
+                          onChange={onRadioChange}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                        />
+                      </div>
+                    </li>
+                    <li>
+                      <div className="flex items-center justify-between p-2">
+                        <label
+                          htmlFor="public"
+                          className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
+                        >
+                          {/* Public */}
+                          {language[lang]["1519"]}
 
-            <button
-              type="button"
-              onClick={() => setView("grid")}
-              className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg`
-                + (theme === Theme.DARK ? " text-white bg-[#030522] hover:bg-[#32334b]" + (view === "grid" ? " !bg-[#32334b]" : "") :
-                  " bg-white text-gray-900 hover:bg-gray-100" + (view === "grid" ? " !bg-gray-100" : ""))}
-            >
-              <HiOutlineViewGrid size={20} />
-            </button>
-          </div>
-        </div>
-      </div>
-      <div className="position-sticky-left">
-        <Dropzone />
-      </div>
 
-      <section className="invisible-scrollbar " id="scroll-invisible-section">
-        <Content
-          loading={loading}
-          actionsAllowed={true}
-          showHorizontalFolders={true}
-          files={filteredFiles}
-          folders={filteredFolders}
-          view={view}
-          showFolders={true}
-          filesTitle="Files"
-          identifier={1}
-        />
-      </section>
-      <div className="flex-shrink-0 mb-0">
-        <div className={"flex items-center justify-between mt-3 border-gray-200 text-sm border-t "
-          + (theme === Theme.DARK ? " dark-theme" : " bg-white ")}>
-          <div className="text-xs">
-            Showing {totalItems === 0 ? startIndex : startIndex + 1} to{" "}
-            {Math.min(endIndex, totalItems)} of {totalItems} results
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-                }`}
-              onClick={() =>
-                setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
-              }
-              disabled={currentPage === 1}
-            >
-              <HiChevronLeft className="w-5 h-5" />
-              <span className="hidden md:inline">Prev</span>
-            </button>
-            <button
-              className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-gray-200"
-                }`}
-              onClick={() =>
-                setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
-              }
-              disabled={totalPages === 0 || currentPage === totalPages}
-            >
-              <span className="hidden md:inline">Next</span>{" "}
-              <HiChevronRight className="w-5 h-5" />
-            </button>
+                        </label>
+                        <input
+                          type="radio"
+                          id="public"
+                          name="filter-radio"
+                          value="public"
+                          checked={filter === "public"}
+                          onChange={onRadioChange}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                        />
+                      </div>
+                    </li>
+                    <li>
+                      <div className="flex items-center justify-between p-2">
+                        <label
+                          htmlFor="encrypted"
+                          className="text-sm font-medium text-gray-900 cursor-pointer dark:text-gray-300"
+                        >
+                          {/* Encrypted */}
+                          {language[lang]["1520"]}
+
+                        </label>
+                        <input
+                          type="radio"
+                          id="encrypted"
+                          name="filter-radio"
+                          value="encrypted"
+                          checked={filter === "encrypted"}
+                          onChange={onRadioChange}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+                        />
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="inline-flex rounded-md shadow-sm" role="group">
+              <button
+                type="button"
+                onClick={() => setView("list")}
+                className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg`
+                  + (theme === Theme.DARK ? " text-white bg-[#030522] hover:bg-[#32334b]" + (view === "list" ? " !bg-[#32334b]" : "") :
+                    " bg-white text-gray-900 hover:bg-gray-100" + (view === "list" ? " !bg-gray-100" : ""))}
+              >
+                <HiOutlineViewList size={20} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setView("grid")}
+                className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg`
+                  + (theme === Theme.DARK ? " text-white bg-[#030522] hover:bg-[#32334b]" + (view === "grid" ? " !bg-[#32334b]" : "") :
+                    " bg-white text-gray-900 hover:bg-gray-100" + (view === "grid" ? " !bg-gray-100" : ""))}
+              >
+                <HiOutlineViewGrid size={20} />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+        <div className="position-sticky-left">
+          <Dropzone />
+        </div>
+              
+        <section className="flex flex-col flex-grow" id="invisible-scrollbar">
+          <Content
+            loading={loading}
+            actionsAllowed={true}
+            showHorizontalFolders={true}
+            files={filteredFiles}
+            folders={filteredFolders}
+            view={view}
+            showFolders={true}
+            filesTitle={language[lang]["153"]} //Files
+            identifier={1}
+          />   
+        </section>
+        <div className="flex-shrink-0 z-10 bottom-4 h-10 w-full">
+          <div className={"flex items-center justify-between mt-3 border-gray-200 text-sm border-t "
+            + (theme === Theme.DARK ? " dark-theme" : " bg-white ")}>
+            <div className="text-xs">
+              {/* Showing // to // of // results */}
+              {language[lang]["1510"]} {totalItems === 0 ? startIndex : startIndex + 1} {language[lang]["1511"]}{" "}
+              {Math.min(endIndex, totalItems)} {language[lang]["1512"]} {totalItems} {language[lang]["1513"]}
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                className={`p-2 rounded flex items-center gap-2 ${currentPage === 1
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+                  }`}
+                onClick={() =>
+                  setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+                }
+                disabled={currentPage === 1}
+              >
+                <HiChevronLeft className="w-5 h-5" />
+                <span className="hidden md:inline">
+                  {/* Prev */}
+                  {language[lang]["1514"]}
+                </span>
+              </button>
+              <button
+                className={`p-2 rounded flex items-center gap-2 ${totalPages === 0 || currentPage === totalPages
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-gray-200"
+                  }`}
+                onClick={() =>
+                  setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+                }
+                disabled={totalPages === 0 || currentPage === totalPages}
+              >
+                <span className="hidden md:inline">
+                  {/* Next */}
+                  {language[lang]["1515"]}
+                </span>{" "}
+                <HiChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
 
-      {/* Upload Info */}
-      {uploading && <UploadProgress />}
-    </div>
+        {/* Upload Info */}
+        {uploading && <UploadProgress />}
+      </div></>
   );
 }
