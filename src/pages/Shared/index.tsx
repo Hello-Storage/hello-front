@@ -28,10 +28,10 @@ import { useLanguage } from "languages/LanguageProvider";
 
 
 const Shared = () => {
-	const {lang} = useLanguage()
+	const { lang } = useLanguage()
 	const [isOpenShareUpload, setisOpenShareUpload] = useState(false);
 	const dispatch = useDispatch();
-	
+
 	useEffect(() => {
 		dispatch(setImageViewAction({ show: false }));
 		dispatch(resetCache())
@@ -274,7 +274,7 @@ const Shared = () => {
 		const filesItemsCount = itemsPerPage;
 		const filesReceivedStartIndex = Math.max(0, tempReceivedStartIndex);
 
-		
+
 		const currentSharedFolders: { sharedByMe: Folder[], sharedWithMe: Folder[] } = {
 			sharedByMe: sharedFolders.sharedByMe.slice(
 				sharedByMeStartIndex,
@@ -288,7 +288,7 @@ const Shared = () => {
 
 		const currentSharedFiles = paginate(sharedFiles.sharedByMe, filesSharedStartIndex, filesItemsCount)
 		const currentReceivedFiles = paginate(sharedFiles.sharedWithMe, filesReceivedStartIndex, filesItemsCount)
-	
+
 		if (!currentSharedFiles || !currentReceivedFiles) {
 			toast.error("Failed to decrypt content");
 			fetchSharedContent(setLoading);
@@ -368,17 +368,19 @@ const Shared = () => {
 	return (
 		<section>
 			{isOpenShareUpload && (
-				<UploadShareModal
-					isOpen={isOpenShareUpload}
-					setIsopen={setisOpenShareUpload}
-				></UploadShareModal>
+				<>
+					<UploadShareModal
+						isOpen={isOpenShareUpload}
+						setIsopen={setisOpenShareUpload}
+					></UploadShareModal>
+				</>
 			)}
 			{showShareModal && <ShareModal />}
 
 			<h3 className="my-2 text-xl">
 				{/* Shared files */}
 				{language[lang]["171"]}
-				</h3>
+			</h3>
 			<button
 				className="animated-bg-btn w-[230px] mb-2 p-3 rounded-xl bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
 				onClick={() => {
@@ -389,7 +391,7 @@ const Shared = () => {
 			>
 				<span className="btn-transition"></span>
 				<label className="flex items-center justify-center w-full gap-2 text-sm text-white">
-					<FaSquareShareNodes className="animated-btn-icon" /> 
+					<FaSquareShareNodes className="animated-btn-icon" />
 					{/* Share Files */}
 					{language[lang]["173"]}
 				</label>
@@ -423,7 +425,7 @@ const Shared = () => {
 
 				<span className="w-[2%]"></span>
 				<div className="w-[99%] share-content">
-				{/* Received */}
+					{/* Received */}
 					<Content
 						contentIsShared={true}
 						actionsAllowed={true}

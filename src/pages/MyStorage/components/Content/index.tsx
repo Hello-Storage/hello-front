@@ -483,12 +483,7 @@ const Content: React.FC<ContentProps> = ({ contentIsShared = false, focusedConte
             ))}
           </div>
 
-          <section
-            className="custom-scrollbar position-sticky-left mb-[15px]"
-            id="scroll-visible-section"
-          >
-            <div id="width-section-helper"></div>
-          </section>
+
 
         </>
         :

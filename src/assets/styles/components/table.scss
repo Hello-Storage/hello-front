@@ -10,22 +10,22 @@
 
 @media only screen and (min-width: 1024px) {
 	.table-div {
-		min-height: calc(100vh - 280px);
+		min-height: calc(100vh - 580px);
 		max-height: calc(100vh - 580px);
 	}
 }
 
 @media only screen and (min-width: 768px) and (max-width: 1024px) {
 	.table-div {
-		min-height: calc(100vh - 400px);
+		min-height: calc(100vh - 620px);
 		max-height: calc(100vh - 620px);
 	}
 }
 
 @media only screen and (min-width: 640px) and (max-width: 768px) {
 	.table-div {
-		min-height: calc(100vh - 400px);
-		max-height: calc(100vh - 950px);
+		min-height: calc(100vh - 650px);
+		max-height: calc(100vh - 650px);
 	}
 }
 
