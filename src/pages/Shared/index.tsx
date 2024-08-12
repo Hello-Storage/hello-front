@@ -41,11 +41,14 @@ const Shared = () => {
 	const [sharedByMe, setSharedByMe] = useState<FileType[]>([]);
 	const [sharedWithMe, setSharedWithMe] = useState<FileType[]>([]);
 
+
+
 	const {
 		sharedFiles,
 		sharedFolders,
 		refresh,
 		showShareModal,
+		selectedShareFile,
 		showPreview,
 	} = useAppSelector((state) => state.mystorage);
 

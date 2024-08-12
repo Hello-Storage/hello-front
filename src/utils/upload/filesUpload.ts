@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { Api, EncryptionStatus, File as FileType } from "api";
 import { setUploadStatusAction } from "state/uploadstatus/actions";
 import { getAesKey, getCipherBytes, getResultBytes } from "utils/encryption/filesCipher";
-import { createFileAction, createFolderAction, setSelectedSharedFiles } from "state/mystorage/actions";
+import { createFileAction, createFolderAction, setSelectedSharedFiles, updateDecryptedSharedFilesAction } from "state/mystorage/actions";
 import { AxiosProgressEvent } from "axios";
 import { AppDispatch } from "state";
 import { FileMap, MultipartFile } from "api/types/files";
@@ -19,7 +19,7 @@ export const uploadFileMultipart = async (file: File, dispatch: AppDispatch, enc
     const AES_GCM_TAG_LENGTH = 16;
     const { aesKey, salt, iv } = await getAesKey(cidOriginal, ['encrypt']);
 
-    const totalTheoricalChunks=Math.ceil(file.size /( 5 * 1024 * 1024)) + 5;
+    const totalTheoricalChunks = Math.ceil(file.size / (5 * 1024 * 1024)) + 5;
     const chunkSize = file.size / totalTheoricalChunks; // always a perfect divisor for the file size so the chunks are always the same size (even the last one)
     let offset = 0;
     dispatch(setUploadStatusAction({ uploading: true, size: file.size, read: 0 }));
@@ -450,7 +450,12 @@ export const postData = async (
                     fileMap.customFile.mime_type = fileMap.customFile.mime_type_unencrypted ?? "";
 
 
-                    if (!isFolder && shareModal) filesUploaded.push(fileMap.customFile);
+                    if (!isFolder && shareModal) {
+                        filesUploaded.push(fileMap.customFile);
+                        //dispatch sharedfiles and append to existing sharedByMe and sharedWithMe filesUploaded (sharedByMe in this case)
+                        
+                        dispatch(updateDecryptedSharedFilesAction({ sharedWithMe: [], sharedByMe: [...filesUploaded] }));
+                    }
                     if (!isFolder) dispatch(createFileAction(fileMap.customFile));
                 }
             })
@@ -493,7 +498,11 @@ export const postData = async (
                         updated_at: fileRes.updated_at,
                         deleted_at: fileRes.deleted_at,
                     }
-                    if (!isFolder && shareModal) filesUploaded.push(fileObject);
+                    if (!isFolder && shareModal) {
+                        filesUploaded.push(fileObject);
+                        //dispatch sharedfiles and append to existing sharedByMe and sharedWithMe filesUploaded (sharedByMe in this case)
+                        dispatch(updateDecryptedSharedFilesAction({ sharedWithMe: [], sharedByMe: [...filesUploaded] }));
+                    }
                     if (!isFolder) dispatch(createFileAction(fileObject));
                     toast.success("Upload succeeded!");
                     dispatch(
@@ -512,6 +521,10 @@ export const postData = async (
             .finally(() => dispatch(setUploadStatusAction({ uploading: false })))
     } else {
         toast.success("Upload succeeded!");
+        if (!isFolder && shareModal) {
+            //dispatch sharedfiles and append to existing sharedByMe and sharedWithMe filesUploaded (sharedByMe in this case)
+            dispatch(updateDecryptedSharedFilesAction({ sharedWithMe: [], sharedByMe: [...filesUploaded] }));
+        }
         dispatch(
             setUploadStatusAction({
                 info: "Finished uploading data",

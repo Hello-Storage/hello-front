@@ -18,6 +18,7 @@ import { Theme } from "state/user/reducer";
 import { ListUserElement } from "./UserListElement";
 import { filesUpload } from "utils/upload/filesUpload";
 import { FilesUpload } from "api/types/upload";
+import { setSelectedShareFile, setShowShareModal } from "state/mystorage/actions";
 
 interface UploadShareModalProps {
 	isOpen: boolean;
@@ -159,6 +160,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 			dispatch,
 			onUploadProgress,
 			fetchUserDetail,
+			shareModal: true,
 		}
 
 		filesUpload(encapsulatedFile).then(() => {
@@ -348,7 +350,7 @@ const UploadShareModal: React.FC<UploadShareModalProps> = ({
 
 					<section
 						ref={modalRef}
-						className={"lg:ml-[20%] p-5 flex flex-col justify-center align-center align-bottom top-5 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg "
+						className={"p-5 flex flex-col justify-center align-center align-bottom top-5 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg "
 							+ (theme === Theme.DARK ? " dark-theme4" : " bg-white")}
 					>
 						<div className="flex flex-col items-center justify-center w-full h-full min-w-[300px]">
