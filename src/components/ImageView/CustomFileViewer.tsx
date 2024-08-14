@@ -240,7 +240,7 @@ export const CustomFileViewer: React.FC<CustomFileViewerProps> = ({ files }) => 
                 cancelSources[selectedShowFile.uid].cancel();
             } catch (error) {
                 //the previous download was not cancelled (likely because it was already cancelled)
-                console.log(":) Don't worry, she will come back (or not, but there's more womans in the world than stars in the sky)");
+                console.log(":) Don't worry, she will come back (or not, but there's more women in the world than stars in the sky)");
             }
             dispatch(
                 setUploadStatusAction({
