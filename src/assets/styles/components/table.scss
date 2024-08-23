@@ -11,21 +11,21 @@
 @media only screen and (min-width: 1024px) {
 	.table-div {
 		min-height: calc(100vh - 580px);
-		//max-height: calc(100vh - 580px);
+		max-height: calc(100vh - 580px);
 	}
 }
 
 @media only screen and (min-width: 768px) and (max-width: 1024px) {
 	.table-div {
 		min-height: calc(100vh - 620px);
-		//max-height: calc(100vh - 620px);
+		max-height: calc(100vh - 620px);
 	}
 }
 
 @media only screen and (min-width: 640px) and (max-width: 768px) {
 	.table-div {
 		min-height: calc(100vh - 650px);
-		//max-height: calc(100vh - 650px);
+		max-height: calc(100vh - 650px);
 	}
 }
 
@@ -33,7 +33,7 @@
 	.table-div {
 
 		min-height: calc(100vh - 535px);
-		//max-height: calc(100vh - 535px);
+		max-height: calc(100vh - 535px);
 		&.open-menu{
 			min-height: calc(100vh - 585px) !important;
 			max-height: calc(100vh - 585px) !important;
@@ -45,7 +45,7 @@
 	.table-div {
 
 		min-height: calc(100vh - 535px);
-		//max-height: calc(100vh - 535px);
+		max-height: calc(100vh - 535px);
 		&.open-menu{
 			min-height: calc(100vh - 630px) !important;
 			max-height: calc(100vh - 630px) !important;
