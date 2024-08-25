@@ -180,8 +180,8 @@ const Appbar: FunctionComponent<AppbarProps> = ({ onSearchChange }) => {
                     </li>
                     <li>
                       <Link
-                        to="#"
-                        className={"block px-4 py-2 pointer-events-none text-gray-500 "
+                        to="/space/profile"
+                        className={"block px-4 py-2"
                           + (theme === Theme.DARK ? " hover:bg-[#32334b]" : " hover:bg-gray-200")}
                       >
                         <HiOutlineUser className="inline-flex mr-3" />

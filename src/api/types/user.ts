@@ -17,6 +17,7 @@ export interface LoadUserResponse {
 export interface UserDetailResponse {
   storage_used: number;
   referral_storage: number;
+  UserID: string;
 }
 
 export enum AccountType {

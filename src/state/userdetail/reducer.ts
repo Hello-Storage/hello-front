@@ -10,6 +10,7 @@ interface UserDetail {
   storageAvailable: number;
   encryptionEnabled?: boolean;
   autoEncryptionEnabled: boolean;
+  userID?: string;
 }
 
 const getLocalStorageOrDefault = (key: string, defaultValue: boolean): boolean => {
@@ -33,6 +34,7 @@ export default createReducer<UserDetail>(initialState, (builder) => {
       ...state,
       storageUsed: payload.storage_used,
       storageAvailable: 5 * 1024 * 1024 * 1024 + payload.referral_storage,
+      userID: payload.UserID,
     }))
     .addCase(toggleEncryption, (state, { payload }) => {
       // If encryption is disabled, don't enable autoEncryption

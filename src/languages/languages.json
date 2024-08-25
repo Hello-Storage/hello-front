@@ -109,7 +109,8 @@
 		"117": "Configuración",
 		"1171": "Elige tu idioma",
 		"118": "Cerrar sesión",
-		"1157": "No se pudo crear un nodo IPFS, probablemente estas usando Safari, este navegador es incompatible con la integración de Hello IPFS."
+		"1157": "No se pudo crear un nodo IPFS, probablemente estas usando Safari, este navegador es incompatible con la integración de Hello IPFS.",
+		"1158":"La información a continuación te ayudará si necesitas soporte. Proporciona información sobre tu cuenta, navegador web y más."
 	},
 	"en": {
 		"01": "Dream with us ",
@@ -224,7 +225,8 @@
 		"117": "Settings",
 		"1171": "Choose your language",
 		"118": "Sign out",
-		"1157": "Could not create an IPFS node, you are probably using Safari, this browser is incompatible with Hello IPFS integration."
+		"1157": "Could not create an IPFS node, you are probably using Safari, this browser is incompatible with Hello IPFS integration.",
+		"1158":"The information below will help you if you need support. It provides information about your account, web browser, and more."
 	},
 	"it": {
 		"01": "Sogna con noi",
@@ -337,7 +339,8 @@
 		"117": "Impostazioni",
 		"1171": "Scegli la tua lingua",
 		"118": "Esci",
-		"1157": "Impossibile creare un nodo IPFS, probabilmente stai usando Safari, questo browser non è supportato da l'integrazione di Hello IPFS."
+		"1157": "Impossibile creare un nodo IPFS, probabilmente stai usando Safari, questo browser non è supportato da l'integrazione di Hello IPFS.",
+		"1158":"Le informazioni seguenti ti aiuteranno se hai bisogno di supporto. Fornisce informazioni sul tuo account, browser web e altro ancora."
 	},
 	"de": {
 		"01": "Träume mit uns",
@@ -452,7 +455,8 @@
 		"117": "Einstellungen",
 		"1171": "Wählen Sie Ihre Sprache",
 		"118": "Abmelden",
-		"1157": "Es konnte kein IPFS-Knoten erstellt werden. Sie verwenden wahrscheinlich Safari. Dieser Browser ist nicht mit der Hello IPFS-Integration kompatibel."
+		"1157": "Es konnte kein IPFS-Knoten erstellt werden. Sie verwenden wahrscheinlich Safari. Dieser Browser ist nicht mit der Hello IPFS-Integration kompatibel.",
+		"1158":"Die folgenden Informationen helfen Ihnen, wenn Sie Unterstützung benötigen. Sie enthalten Informationen zu Ihrem Konto, Webbrowser und mehr."
 	},
 	"pt": {
 		"01": "Sonhe conosco",
@@ -566,7 +570,8 @@
 		"117": "Configurações",
 		"1171": "Escolha seu idioma",
 		"118": "Sair",
-		"1157": "Não foi possível criar um nó IPFS, você está usando Safari, este navegador é incompatível com a integração Hello IPFS."
+		"1157": "Não foi possível criar um nó IPFS, você está usando Safari, este navegador é incompatível com a integração Hello IPFS.",
+		"1158":"As informações abaixo ajudarão se precisar de suporte. Fornece informações sobre sua conta, navegador da web e muito mais."
 	},
 	"cn": {
 		"01": "和我们一起梦想",
@@ -680,7 +685,8 @@
 		"117": "设置",
 		"1171": "选择您的语言",
 		"118": "退出",
-        "1157": "无法创建 IPFS 节点，您正在使用 Safari，此浏览器不支持 Hello IPFS 集成。"
+        "1157": "无法创建 IPFS 节点，您正在使用 Safari，此浏览器不支持 Hello IPFS 集成。",
+		"1158":"以下信息将帮助您解决问题。它提供有关您的帐户、Web 浏览器等的信息。"
 	},
 	"ru": {
 		"01": "Мечтай с нами",
@@ -794,7 +800,8 @@
 		"117": "Настройки",
 		"1171": "Выберите язык",
 		"118": "Выйти",
-        "1157":"Не удалось создать ноду IPFS, вы используете Safari, этот браузер не поддерживает интеграцию Hello IPFS."
+        "1157":"Не удалось создать ноду IPFS, вы используете Safari, этот браузер не поддерживает интеграцию Hello IPFS.",
+		"1158":"Следующая информация поможет вам, если вам нужна поддержка. Он содержит информацию о вашей учетной записи, веб-браузере и многом другом."
 	},
 	"sa": {
 		"01": "احلم معنا",
@@ -908,6 +915,7 @@
 		"117": "الإعدادات",
 		"1171": "اختر لغتك",
 		"118": "تسجيل الخروج",
-        "1157":"تعذر إنشاء عقدة IPFS، فمن المحتمل أنك تستخدم Safari، وهذا المتصفح غير متوافق مع تكامل Hello IPFS."
+        "1157":"تعذر إنشاء عقدة IPFS، فمن المحتمل أنك تستخدم Safari، وهذا المتصفح غير متوافق مع تكامل Hello IPFS.",
+		"1158":"المعلومات التالية ستساعدك إذا كنت بحاجة إلى دعم. توفر معلومات حول حسابك ومتصفح الويب الخاص بك وأكثر من ذلك."
 	}
 }

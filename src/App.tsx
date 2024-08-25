@@ -15,9 +15,7 @@ import NotFound from "pages/NotFound";
 import OnePage from "pages/OnePage/layouts/page";
 
 
-
-
-
+const Profile = lazy(() => import("pages/Profile"));
 const Dashboard = lazy(() => import("pages/Dashboard"));
 const MyStorage = lazy(() => import("pages/MyStorage"));
 const Referrals = lazy(() => import("pages/Referrals"));
@@ -141,6 +139,7 @@ function App() {
               <Route path="/space/shared/folder/:folderuid" element={<FolderShared />} />
               <Route path="/space/shared/group/:group_id" element={<ShareSharedWithMeGroupdWithMe />} />
               <Route path="/space/settings" element={<Settings />} />
+              <Route path="/space/profile" element={<Profile />} />
               <Route path="/space/dashboard" element={<Dashboard />} />
               <Route path="/space/my-storage" element={<MyStorage />} />
               <Route path="/space/folder/*" element={<MyStorage />} />
