@@ -1,4 +1,3 @@
-
 .card-terminal-container {
     padding: 4px;
     overflow: hidden;
@@ -6,9 +5,12 @@
     border-radius: 12px;
     background-color: #d9d9d92f;
     backdrop-filter: blur(8px);
-    min-width: 344px;
-  }
-  .wrap-terminal-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.wrap-terminal-container {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -17,15 +19,19 @@
     border: 0.5px solid #525252;
     border-radius: 8px;
     overflow: hidden;
-  }
-  .terminal {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.terminal {
     display: flex;
     flex-direction: column;
-  
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-      "Liberation Mono", "Courier New", monospace;
-  }
-  .head {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+.head {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -35,107 +41,56 @@
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     background-color: #202425;
-  }
-  .title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 2.5rem;
-    user-select: none;
-    font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #8e8e8e;
-  }
-  .title > svg {
-    height: 18px;
-    width: 18px;
-    margin-top: 2px;
-    color: #006adc;
-  }
-  .copy_toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.25rem;
-    border: 0.65px solid #c1c2c5;
-    margin-left: auto;
-    border-radius: 6px;
-    background-color: #202425;
-    color: #8e8e8e;
-    cursor: pointer;
-  }
-  .copy_toggle > svg {
-    width: 20px;
-    height: 20px;
-  }
-  .copy_toggle:active > svg > path,
-  .copy_toggle:focus-within > svg > path {
-    animation: clipboard-check 500ms linear forwards;
-  }
-  .body {
+    width: 100%; 
+}
+
+.body {
     display: flex;
     flex-direction: column;
     position: relative;
     border-bottom-right-radius: 8px;
     border-bottom-left-radius: 8px;
-    overflow-x: auto;
+    overflow-x: auto; 
+    overflow-y: auto; 
     padding: 1rem;
     line-height: 19px;
     color: white;
     background-color: black;
-    white-space: nowrap;
-    max-width: 60vw;
-    scrollbar-color: #202425 transparent ;
-  }
-  .pre {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    text-wrap: nowrap;
     white-space: pre;
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+.pre {
+    display: block; 
+    white-space: pre; 
     background-color: transparent;
-    overflow: hidden;
+    overflow: visible; 
     box-sizing: border-box;
     font-size: 16px;
-  }
-  .pre code:nth-child(1) {
+    width: 100%; 
+    padding: 0;
+    margin: 0; 
+}
+
+.pre code {
     color: #fff;
-  }
-  .pre code:nth-child(2) {
-    color: #fff;
+    white-space: pre; 
+}
+
+
+@media (max-width: 768px) {
+  .card-terminal-container {
+      padding: 2px;
+      width: 100%;
+      max-width: 100%;
   }
 
-  .pre code:last-child {
-    margin-bottom: 20px;
+  .body {
+      padding: 0.5rem;
+      font-size: 14px;
   }
-  .cmd {
-    height: 19px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-  }
-  .cmd::before {
-    content: attr(data-cmd);
-    position: relative;
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    background-color: transparent;
-    animation: inputs 8s steps(22) infinite;
-  }
-  .cmd::after {
-    content: "";
-    position: relative;
-    display: block;
-    height: 100%;
-    overflow: hidden;
-    background-color: transparent;
-    border-right: 0.15em solid #e34ba9;
-    animation: cursor 0.5s step-end infinite alternate, blinking 0.5s infinite;
-  }
+}
   
   @keyframes blinking {
     20%,
@@ -174,4 +129,6 @@
       );
     }
   }
-  
+
+
+ 
