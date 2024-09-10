@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getPublishedFile } from "./Utils/shareUtils";
+import { getPublishedFile } from "./utils/shareUtils";
 import { AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -8,7 +8,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { File } from "api";
 
 import { useAppSelector } from "state";
-import useFetchGroupHashes from "./Utils/useGetHashesFromGroup";
+import useFetchGroupHashes from "./utils/useGetHashesFromGroup";
 import Content from "pages/MyStorage/components/Content";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";

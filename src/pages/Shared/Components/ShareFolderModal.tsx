@@ -10,12 +10,12 @@ import {
 } from "state/mystorage/actions";
 import { AxiosError, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
-import { shareFolder } from "../Utils/shareUtils";
+import { shareFolder } from "../utils/shareUtils";
 import { FaPlusCircle } from "react-icons/fa";
 import { isValidEmail } from "utils/validations";
 import { Theme } from "state/user/reducer";
-import useGetFolderFiles from "../Utils/useGetFolderFiles";
-import { FolderContentClass } from "../Utils/types";
+import useGetFolderFiles from "../utils/useGetFolderFiles";
+import { FolderContentClass } from "../utils/types";
 import { shareDetails } from "./shareDetails";
 import { ListUserElement } from "./UserListElement";
 import { User } from "api";

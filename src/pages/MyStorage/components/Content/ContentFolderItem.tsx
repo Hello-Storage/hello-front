@@ -27,8 +27,8 @@ import getPersonalSignature from "api/getPersonalSignature";
 import { FaFolder } from "react-icons/fa";
 import { GoAlertFill } from "react-icons/go";
 import { downloadFolderMultipart, folderDownload } from "utils/foldersDownload";
-import { FolderContentClass } from "pages/Shared/Utils/types";
-import useGetFolderFiles from "pages/Shared/Utils/useGetFolderFiles";
+import { FolderContentClass } from "pages/Shared/utils/types";
+import useGetFolderFiles from "pages/Shared/utils/useGetFolderFiles";
 const MULTIPART_THRESHOLD =
 	import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB
 

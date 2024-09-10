@@ -2,7 +2,7 @@ import { Api } from "api"
 import { useEffect, useState } from "react"
 import { MdFolderShared } from "react-icons/md";
 import { useParams } from "react-router-dom"
-import { ShareFolderResponse } from "./Utils/types"
+import { ShareFolderResponse } from "./utils/types"
 import Content from "pages/MyStorage/components/Content"
 import { useAppSelector } from "state"
 import { useModal } from "components/Modal";

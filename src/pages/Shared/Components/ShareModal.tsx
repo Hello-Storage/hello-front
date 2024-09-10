@@ -9,7 +9,7 @@ import {
 } from "state/mystorage/actions";
 import { useAppSelector } from "state";
 import { toast } from "react-toastify";
-import { shareFile, unshareFile } from "../Utils/shareUtils";
+import { shareFile, unshareFile } from "../utils/shareUtils";
 import { useNavigate } from "react-router-dom";
 import { isValidEmail } from "utils/validations";
 import { FaPlusCircle } from "react-icons/fa";

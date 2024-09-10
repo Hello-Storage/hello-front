@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import Sidebar from "components/Sidebar";
-import Appbar from "components/Appbar";
+import Appbar from "components/AppBar";
 import { SearchContext } from "../contexts/SearchContext";
 import { FiMenu } from "react-icons/fi";
 import LogoHello from "@images/beta.png";

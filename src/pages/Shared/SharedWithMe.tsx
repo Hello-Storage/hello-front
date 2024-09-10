@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getPublishedFile } from "./Utils/shareUtils";
+import { getPublishedFile } from "./utils/shareUtils";
 import { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";

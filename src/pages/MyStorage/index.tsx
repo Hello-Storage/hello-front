@@ -34,9 +34,9 @@ import {
 } from "utils/encryption/filesCipher";
 import { toast } from "react-toastify";
 import getPersonalSignature from "api/getPersonalSignature";
-import ShareModal from "pages/Shared/Components/ShareModal";
+import ShareModal from "pages/Shared/components/ShareModal";
 import { Theme } from "state/user/reducer";
-import ShareFolderModal from "pages/Shared/Components/ShareFolderModal";
+import ShareFolderModal from "pages/Shared/components/ShareFolderModal";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
 import { Helmet } from "react-helmet";

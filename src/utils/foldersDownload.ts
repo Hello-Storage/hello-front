@@ -9,7 +9,7 @@ import { Api, File as FileType, Folder } from "api";
 import { toast } from "react-toastify";
 import JSZip from "jszip";
 import { downloadMultipart, downloadSingleFile } from "./filesDownload";
-import { FolderContentClass } from "pages/Shared/Utils/types";
+import { FolderContentClass } from "pages/Shared/utils/types";
 
 const MULTIPART_THRESHOLD =
 	import.meta.env.VITE_MULTIPART_THRESHOLD || 1073741824; // 1GiB

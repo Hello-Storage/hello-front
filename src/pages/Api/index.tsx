@@ -8,7 +8,7 @@ import Content from "pages/MyStorage/components/Content";
 import { useAppDispatch, useAppSelector } from "state";
 import { refreshAction } from "state/mystorage/actions";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
-import ShareModal from "pages/Shared/Components/ShareModal";
+import ShareModal from "pages/Shared/components/ShareModal";
 import { Theme } from "state/user/reducer";
 import { useModal } from "components/Modal";
 import { CustomFileViewer } from "components/ImageView/CustomFileViewer";
