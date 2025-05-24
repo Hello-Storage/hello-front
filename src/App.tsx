@@ -27,7 +27,7 @@ const Migration = lazy(() => import("pages/Migration"));
 const Api = lazy(() => import("pages/Api"));
 const Statistics = lazy(() => import("pages/Statistics"));
 const PrivacyPolicy = lazy(() => import("pages/PrivacyPolicy"));
-const Snapshots = lazy(() => import("pages/Snapshots"));
+const Snapshots = lazy(() => import("pages/snapshots"));
 const InvestClient = lazy(() => import("pages/InvestClients"));
 const InvestStats = lazy(() => import("pages/InvestStats"));
 const Settings = lazy(() => import("pages/Settings"));
@@ -78,10 +78,9 @@ function App() {
 
   },[])
 
+  const RouterMethod = import.meta.env.VITE_ROUTER === 'browser-router' ? BrowserRouter : HashRouter
 
   const { load, logout } = useAuth();
-
-  const RouterMethod = import.meta.env.VITE_ROUTER === 'browser-router' ? BrowserRouter : HashRouter
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");

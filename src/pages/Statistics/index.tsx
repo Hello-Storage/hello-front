@@ -9,7 +9,7 @@ import File_m from "assets/images/Outline/File_m.png";
 import Shield_m from "assets/images/Outline/Shield_m.png";
 import Hotspot_m from "assets/images/Outline/Hotspot_m.png";
 import axios from "axios";
-import UsersChart from "./Components/UsersChart";
+import UsersChart from "./components/UsersChart";
 import { Link, useNavigate } from "react-router-dom";
 
 import { HiMail } from "react-icons/hi";
